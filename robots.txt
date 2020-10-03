@@ -1,0 +1,3 @@
+User-agent: *
+
+Sitemap: https://mcbal.github.io/sitemap.xml
