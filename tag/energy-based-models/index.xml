@@ -5,7 +5,7 @@
     <link>https://mcbal.github.io/tag/energy-based-models/</link>
       <atom:link href="https://mcbal.github.io/tag/energy-based-models/index.xml" rel="self" type="application/rss+xml" />
     <description>Energy-Based Models</description>
-    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-gb</language><copyright>Matthias Bal © 2020</copyright><lastBuildDate>Sat, 14 Nov 2020 17:19:21 +0100</lastBuildDate>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-gb</language><copyright>Matthias Bal © 2020</copyright><lastBuildDate>Fri, 27 Nov 2020 20:05:21 +0100</lastBuildDate>
     <image>
       <url>https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png</url>
       <title>Energy-Based Models</title>
@@ -15,7 +15,7 @@
     <item>
       <title>An Energy-Based Perspective on Attention Mechanisms in Transformers</title>
       <link>https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/</link>
-      <pubDate>Sat, 14 Nov 2020 17:19:21 +0100</pubDate>
+      <pubDate>Fri, 27 Nov 2020 20:05:21 +0100</pubDate>
       <guid>https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
   &lt;a href=&#34;https://xkcd.com/793/&#34;&gt;XKCD 793: A physicist encountering machine learning for the first time&lt;/a&gt;

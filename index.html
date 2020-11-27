@@ -250,45 +250,15 @@
 
 
 
-
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-H9Y98B2S2P"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-
-  function gtag() {
-      dataLayer.push(arguments);
-  }
-
-  function trackOutboundLink(url, target) {
-    gtag('event', 'click', {
-         'event_category': 'outbound',
-         'event_label': url,
-         'transport_type': 'beacon',
-         'event_callback': function () {
-           if (target !== '_blank') {
-             document.location = url;
-           }
-         }
-    });
-    console.debug("Outbound link clicked: " + url);
-  }
-
-  function onClickCallback(event) {
-    if ((event.target.tagName !== 'A') || (event.target.host === window.location.host)) {
-      return;
-    }
-    trackOutboundLink(event.target, event.target.getAttribute('target'));  
-  }
-
-  gtag('js', new Date());
-  gtag('config', 'G-H9Y98B2S2P', { 'anonymize_ip': true });
-
   
-  document.addEventListener('click', onClickCallback, false);
+<script>
+  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','G-H9Y98B2S2P');
 </script>
 
-
-  
 
 
   
@@ -325,7 +295,7 @@
   <meta property="og:description" content=""><meta property="og:image" content="https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png">
   <meta property="twitter:image" content="https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png"><meta property="og:locale" content="en-gb">
   
-    <meta property="og:updated_time" content="2020-11-14T18:42:02&#43;01:00">
+    <meta property="og:updated_time" content="2020-11-27T20:05:21&#43;01:00">
   
 
   
@@ -1037,10 +1007,8 @@
     
     
       
-          Last updated on
-      
     
-    Nov 25, 2020
+    Nov 27, 2020
   </span>
   
 
