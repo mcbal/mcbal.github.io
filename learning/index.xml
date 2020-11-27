@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Machine Learning | mcbal</title>
+    <link>https://mcbal.github.io/learning/</link>
+      <atom:link href="https://mcbal.github.io/learning/index.xml" rel="self" type="application/rss+xml" />
+    <description>Machine Learning</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-gb</language><copyright>Matthias Bal © 2020</copyright><lastBuildDate>Fri, 13 Nov 2020 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png</url>
+      <title>Machine Learning</title>
+      <link>https://mcbal.github.io/learning/</link>
+    </image>
+    
+    <item>
+      <title>Capita Selecta</title>
+      <link>https://mcbal.github.io/learning/capita/</link>
+      <pubDate>Fri, 13 Nov 2020 00:00:00 +0000</pubDate>
+      <guid>https://mcbal.github.io/learning/capita/</guid>
+      <description>&lt;p&gt;Content&amp;hellip;
+So you want to learn something new? Good.&lt;/p&gt;
+&lt;p&gt;The eventual goal of the courses listed below is for them to become centralized repositories with scattered pointers to the &lt;em&gt;good stuff&lt;/em&gt;: useful blogposts, nuanced reviews, elegant papers, elucidating visualizations, comprehensive books, and intuitive explanations. The kind of stuff you&amp;rsquo;re often only able to appreciate after getting acquainted with a subject first but still wished you&amp;rsquo;d found out about earlier. Feel free to reach out if you have any more recommendations.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Foundations</title>
+      <link>https://mcbal.github.io/learning/foundations/</link>
+      <pubDate>Fri, 13 Nov 2020 00:00:00 +0000</pubDate>
+      <guid>https://mcbal.github.io/learning/foundations/</guid>
+      <description>&lt;p&gt;A good understanding of probability theory, information theory, statistics, linear algebra, and calculus is useful to appreciate the possibilities and limitations of machine learning algorithms. Knowledge of programming, numerical optimization, data structures, and numerical algorithms is required to turn ideas into efficient implementations. Most of the resources listed below provide a mix of all of the above topics, to varying degrees of rigour.&lt;/p&gt;
+&lt;h2 id=&#34;probability-theory&#34;&gt;Probability Theory&lt;/h2&gt;
+&lt;p&gt;After going through &lt;a href=&#34;https://en.wikipedia.org/wiki/Probability_theory&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Wikipedia&lt;/a&gt;, consider reading:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://cs229.stanford.edu/summer2019/cs229-prob.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Review of Probability Theory&lt;/a&gt; by Arian Maleki and Tom Do&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://colah.github.io/posts/2015-09-Visual-Information/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Visual Information Theory&lt;/a&gt; by Christopher Olah contains beautifully intuitive explanations of the basics of information theory (probability distributions, entropy, cross-entropy, KL divergence, and mutual information)&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.amazon.com/Probability-Theory-Science-T-Jaynes/dp/0521592712&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Probability Theory: The Logic of Science&lt;/a&gt; by E. T. Jaynes if you woke up feeling particularly Bayesian today and want to punch a frequentist in the face&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;machine-learning&#34;&gt;Machine Learning&lt;/h2&gt;
+&lt;p&gt;The following textbooks are more or less considered classic references in the fields of pattern recognition, statistical learning, statistical inference, and probabilistic machine learning. If you are intimidated by the length of some of these books (I have definitely not read all of them yet), just start with the introductory chapters and then do a random walk through the book. If anything, these books should teach you that there you do not need deep learning to do clever stuff and that most of the latest trends are built on top of very solid foundations that predate deep learning.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.inference.org.uk/mackay/itila/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Information Theory, Inference, and Learning Algorithms&lt;/a&gt; by David J. C. MacKay&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.microsoft.com/en-us/research/people/cmbishop/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Pattern Recognition and Machine Learning&lt;/a&gt; by Christopher M. Bishop&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://web.stanford.edu/~hastie/ElemStatLearn/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;The Elements of Statistical Learning: Data Mining, Inference, and Prediction&lt;/a&gt; by Trevor Hastie, Robert Tibshirani, Jerome Friedman&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.stat.cmu.edu/~larry/all-of-statistics/index.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;All of Statistics: A Concise Course in Statistical Inference&lt;/a&gt; by Larry Wasserman&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.cs.ubc.ca/~murphyk/MLbook/index.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Machine Learning: A Probabilistic Perspective&lt;/a&gt; by Kevin P. Murphy + &lt;a href=&#34;https://github.com/ks838/Murphy-Machine-Learning-A-Probabilistic-Perspective-Errata-and-Notes-4th-printing&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;errata and notes&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;According to its author, &lt;em&gt;Machine Learning: a Probabilistic Perspective&lt;/em&gt;  is more Bayesian than the Hastie or Wasserman books but more frequentist than Bishop. If you care deeply about these kinds of things: choose wisely.&lt;/p&gt;
+&lt;h3 id=&#34;deep-learning&#34;&gt;Deep Learning&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.deeplearningbook.org/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Learning&lt;/a&gt; by Ian Goodfellow, Yoshua Bengio, Aaron Courville is an overview of the field in 2016, split in three parts which gradually increase in difficulty: &lt;em&gt;Applied Math and Machine Learning Basics&lt;/em&gt;, &lt;em&gt;Modern Practical Deep Networks&lt;/em&gt;, and &lt;em&gt;Deep Learning Research&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;online-courses&#34;&gt;Online Courses&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://neuralnetworksanddeeplearning.com/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Neural Networks and Deep Learning&lt;/a&gt; by Michael Nielsen&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://cs229.stanford.edu/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;CS229 Stanford course on machine learning and statistical pattern recognition&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://machine-learning-for-physicists.org/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Machine Learning for Physicists: Neural Networks and their Applications&lt;/a&gt; by Florian Marquardt is a nice introduction for physicists who cannot help but always want to understand everything in terms of their own biased framework&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Generative Modelling</title>
+      <link>https://mcbal.github.io/learning/generative/</link>
+      <pubDate>Fri, 13 Nov 2020 00:00:00 +0000</pubDate>
+      <guid>https://mcbal.github.io/learning/generative/</guid>
+      <description>&lt;p&gt;Content&amp;hellip;
+So you want to learn something new? Good.&lt;/p&gt;
+&lt;p&gt;The eventual goal of the courses listed below is for them to become centralized repositories with scattered pointers to the &lt;em&gt;good stuff&lt;/em&gt;: useful blogposts, nuanced reviews, elegant papers, elucidating visualizations, comprehensive books, and intuitive explanations. The kind of stuff you&amp;rsquo;re often only able to appreciate after getting acquainted with a subject first but still wished you&amp;rsquo;d found out about earlier. Feel free to reach out if you have any more recommendations.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Keeping up-to-date</title>
+      <link>https://mcbal.github.io/learning/uptodate/</link>
+      <pubDate>Fri, 13 Nov 2020 00:00:00 +0000</pubDate>
+      <guid>https://mcbal.github.io/learning/uptodate/</guid>
+      <description>&lt;h3 id=&#34;twitter&#34;&gt;Twitter&lt;/h3&gt;
+&lt;p&gt;A lot of machine researchers and engineers are on Twitter. If you properly curate who you are following, your Twitter feed can become a great overview of all the latest hype.&lt;/p&gt;
+&lt;h3 id=&#34;dd&#34;&gt;dd&lt;/h3&gt;
+&lt;h3 id=&#34;personal-blogs&#34;&gt;Personal Blogs&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://distill.pub/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Distill&lt;/a&gt; by Google Brain, OpenAI, MIT CSAIL and others&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.inference.vc/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;inFERENCe&lt;/a&gt; by Ferenc Huszár&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://dfdazac.github.io/writing/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Daniel Daza&amp;rsquo;s blog&lt;/a&gt; by Daniel Daza&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://erikbern.com/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Erik Bernhardsson&amp;rsquo;s blog&lt;/a&gt; by Erik Bernhardsson&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://shapeofdata.wordpress.com/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;The Shape of Data&lt;/a&gt; by Jesse Johnson&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://fastml.com/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;FastML&lt;/a&gt; by Zygmunt Zając&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://colah.github.io/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Colah&amp;rsquo;s blog&lt;/a&gt; by Christopher Olah&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;On probabilistic programming, deep generative modeling, and Bayesian deep learning:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://dustintran.com/blog/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Dustin Tran&amp;rsquo;s blog&lt;/a&gt; by Dustin Tran&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://dustintran.com/blog/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;While My MCMC Gently Samples&lt;/a&gt; by Thomas Wiecki&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://dustintran.com/blog/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Eigenfoo&lt;/a&gt; by George Ho&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
