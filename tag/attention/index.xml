@@ -5,12 +5,52 @@
     <link>https://mcbal.github.io/tag/attention/</link>
       <atom:link href="https://mcbal.github.io/tag/attention/index.xml" rel="self" type="application/rss+xml" />
     <description>Attention</description>
-    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-gb</language><copyright>Matthias Bal © 2020</copyright><lastBuildDate>Sat, 28 Nov 2020 10:54:21 +0100</lastBuildDate>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-gb</language><copyright>Matthias Bal © 2020</copyright><lastBuildDate>Sun, 29 Nov 2020 11:18:17 +0100</lastBuildDate>
     <image>
       <url>https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png</url>
       <title>Attention</title>
       <link>https://mcbal.github.io/tag/attention/</link>
     </image>
+    
+    <item>
+      <title>Beyond Transformer Attention</title>
+      <link>https://mcbal.github.io/post/beyond-transformer-attention/</link>
+      <pubDate>Sun, 29 Nov 2020 11:18:17 +0100</pubDate>
+      <guid>https://mcbal.github.io/post/beyond-transformer-attention/</guid>
+      <description>&lt;h1 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h1&gt;
+&lt;h1 id=&#34;2-a-first-example&#34;&gt;2. A first example&lt;/h1&gt;
+&lt;p&gt;Energy function of modern continuous Hopfield networks:&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+E(\boldsymbol{\xi}; \boldsymbol{X}) = \frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right),
+\label{eq:energyfunc}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;Partition function:&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+Z = \int \mathrm{d} \boldsymbol{\xi} \ \mathrm{e}^{-E(\boldsymbol{\xi})} = \int \mathrm{d} \boldsymbol{\xi} \ \mathrm{e}^{-\frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi}} \left( \sum_{i=1}^{N} \mathrm{e}^{ \boldsymbol{x}^{T}_{i} \cdot \boldsymbol{\xi} } \right)
+\label{eq:zforcontinuoushopfield}
+\end{equation}&lt;/p&gt;
+&lt;h2 id=&#34;add-stored-pattern-interactions&#34;&gt;Add stored pattern interactions&lt;/h2&gt;
+&lt;h3 id=&#34;test&#34;&gt;Test&lt;/h3&gt;
+&lt;p&gt;\begin{equation}
+E(\boldsymbol{\xi}; \boldsymbol{X}) = \frac{1}{2} \boldsymbol{X}^T \boldsymbol{X} + \frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right),
+\end{equation}&lt;/p&gt;
+&lt;p&gt;Partition function:&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+Z = \int \mathrm{d} \boldsymbol{\xi} \ \mathrm{e}^{-E(\boldsymbol{\xi})} = \int \mathrm{d} \boldsymbol{\xi} \ \mathrm{e}^{-\frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi}} \left( \sum_{i=1}^{N} \mathrm{e}^{ \boldsymbol{x}^{T}_{i} \cdot \boldsymbol{\xi} } \right)
+\end{equation}&lt;/p&gt;
+&lt;h2 id=&#34;add-state-pattern-interactions&#34;&gt;Add state pattern interactions&lt;/h2&gt;
+&lt;h2 id=&#34;add-stored-and-state-pattern-interactions&#34;&gt;Add stored and state pattern interactions&lt;/h2&gt;
+&lt;h1 id=&#34;alternatives-to-dot-product-attention&#34;&gt;Alternatives to dot-product attention&lt;/h1&gt;
+&lt;h1 id=&#34;experiments&#34;&gt;Experiments&lt;/h1&gt;
+&lt;p&gt;In this section, &amp;hellip;&lt;/p&gt;
+&lt;p&gt;Unfortunately, I have no access to GPUs (not even a single one). I would be intestered to know if my toy experiments scale to more data and compute holds.&lt;/p&gt;
+&lt;h2 id=&#34;pytorch-implementation&#34;&gt;PyTorch implementation&lt;/h2&gt;
+&lt;p&gt;See GitHub repository.&lt;/p&gt;
+&lt;h2 id=&#34;toy-experiment-1-test&#34;&gt;Toy experiment #1: Test&lt;/h2&gt;
+&lt;h1 id=&#34;conclusion&#34;&gt;Conclusion&lt;/h1&gt;
+&lt;p&gt;In the next post, I will apply some of the attention mechanisms developed here to a simple agent whose sensory connection to the world is restricted to a webcam and a microphone.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>An Energy-Based Perspective on Attention Mechanisms in Transformers</title>
@@ -118,10 +158,10 @@ E = - \frac{1}{2} \boldsymbol{\xi}^{T} \boldsymbol{W} \boldsymbol{\xi} + \boldsy
 &lt;p&gt;Physicists immediately recognize the energy function \eqref{eq:ising} as an incarnation of the &lt;a href=&#34;https://en.wikipedia.org/wiki/Ising_model#Application_to_neuroscience&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Ising model&lt;/a&gt;. Spin degree of freedoms $\xi_{i}$ are grouped into patterns $\boldsymbol{\xi}$ that are equivalent to &lt;em&gt;spin configurations&lt;/em&gt; of $d$ spins. The weight matrix is a sum of stored-pattern spin configurations, serving as attractors for the state-pattern spin configuration. The couplings $w_{ij}$ can be regarded a sum of samples of an underlying pattern data distribution. They are not restricted to (nearest-)neighbors and their values are neither uniform like in exactly solvable models nor totally random like in spin glass models.&lt;/p&gt;
 &lt;!-- After identifying relevant degrees of freedom, physicists combine appropriate conceptual structures with arguments based on locality, symmetry, and physical and mathematical intuition to write down a model description, usually after a lot of hard work and trial-and-error.--&gt;
 &lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;Neural networks and spin glasses&lt;/strong&gt;: There is some literature on connections between &lt;a href=&#34;https://en.wikipedia.org/wiki/Spin_glass&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;spin glasses&lt;/a&gt; and &lt;a href=&#34;https://en.wikipedia.org/wiki/Neural_network&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;neural networks&lt;/a&gt;. Spin glasses are phases of matter describing disordered magnetic systems exhibiting both &lt;a href=&#34;https://en.wikipedia.org/wiki/Order_and_disorder#Quenched_disorder&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;quenched disorder&lt;/a&gt; and frustratation. Spin glasses were a major inspiration for Hopfield networks, as beautifully explained by the condensed matter physicist &lt;a href=&#34;https://en.wikipedia.org/wiki/Philip_W._Anderson&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Philip W. Anderson&lt;/a&gt; in a &lt;a href=&#34;https://en.wikipedia.org/wiki/Spin_glass#cite_note-10&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;column series for Physics Today&lt;/a&gt; (1988-1990). However, I could not find any recent papers that point to a productive research direction beyond qualitative statements like &amp;ldquo;here&amp;rsquo;s two hard problems where symmetry and order will not help you solve them&amp;rdquo;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Neural networks and spin glasses&lt;/strong&gt;: There is some literature on connections between &lt;a href=&#34;https://en.wikipedia.org/wiki/Spin_glass&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;spin glasses&lt;/a&gt; and &lt;a href=&#34;https://en.wikipedia.org/wiki/Neural_network&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;neural networks&lt;/a&gt;. Spin glasses are phases of matter describing disordered magnetic systems exhibiting both &lt;a href=&#34;https://en.wikipedia.org/wiki/Order_and_disorder#Quenched_disorder&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;quenched disorder&lt;/a&gt; and frustratation. Spin glasses were a major inspiration for Hopfield networks, as beautifully explained by the condensed matter physicist &lt;a href=&#34;https://en.wikipedia.org/wiki/Philip_W._Anderson&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Philip W. Anderson&lt;/a&gt; in a &lt;a href=&#34;https://en.wikipedia.org/wiki/Spin_glass#cite_note-10&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;column series for Physics Today&lt;/a&gt; (1988-1990). However, apart from &lt;a href=&#34;https://arxiv.org/abs/1910.01592&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Efficient training of energy-based models via spin-glass control&lt;/a&gt; &lt;sup id=&#34;fnref:8&#34;&gt;&lt;a href=&#34;#fn:8&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;8&lt;/a&gt;&lt;/sup&gt;, I could not find any recent papers that point to a productive research direction beyond qualitative statements like &amp;ldquo;here&amp;rsquo;s two hard problems where symmetry and order will not help you solve them&amp;rdquo;.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h2 id=&#34;modern-discrete-hopfield-networks&#34;&gt;Modern discrete Hopfield networks&lt;/h2&gt;
-&lt;p&gt;Modern discrete Hopfield networks (or &lt;em&gt;dense&lt;/em&gt; associative memories) introduced the following family of energy functions to improve pattern storage capacity and pattern separation capabilities &lt;sup id=&#34;fnref:8&#34;&gt;&lt;a href=&#34;#fn:8&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;8&lt;/a&gt;&lt;/sup&gt; &lt;sup id=&#34;fnref:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;p&gt;Modern discrete Hopfield networks (or &lt;em&gt;dense&lt;/em&gt; associative memories) introduced the following family of energy functions to improve pattern storage capacity and pattern separation capabilities &lt;sup id=&#34;fnref:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt; &lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 E = - \sum_{i=1}^{N} F \left( \boldsymbol{x}_{i}^{T} \cdot \boldsymbol{\xi} \right)
 \end{equation}&lt;/p&gt;
@@ -131,9 +171,9 @@ we can generalize the energy to&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 E = - \sum_{i=1}^{N} \exp \left( \boldsymbol{x}_{i}^{T} \cdot \boldsymbol{\xi} \right)
 \end{equation}&lt;/p&gt;
-&lt;p&gt;with storage capacity $C \cong 2^{d/2}$. The corresponding update rules for modern discrete Hopfield networks can be shown to converge quickly with high probability&lt;sup id=&#34;fnref:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;with storage capacity $C \cong 2^{d/2}$. The corresponding update rules for modern discrete Hopfield networks can be shown to converge quickly with high probability&lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
 &lt;h2 id=&#34;modern-continuous-hopfield-networks&#34;&gt;Modern continuous Hopfield networks&lt;/h2&gt;
-&lt;p&gt;Most machine learning applications are tailored to work with continuous embeddings (vector representations) rather than discrete patterns. Is there a way to generalize modern Hopfield networks to continuous data? Recently, &lt;a href=&#34;https://arxiv.org/abs/2008.02217&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield Networks is All You Need&lt;/a&gt; proposed the following energy function to deal with continuous $d$-dimensional patterns&lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;:&lt;/p&gt;
+&lt;p&gt;Most machine learning applications are tailored to work with continuous embeddings (vector representations) rather than discrete patterns. Is there a way to generalize modern Hopfield networks to continuous data? Recently, &lt;a href=&#34;https://arxiv.org/abs/2008.02217&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield Networks is All You Need&lt;/a&gt; proposed the following energy function to deal with continuous $d$-dimensional patterns&lt;sup id=&#34;fnref:11&#34;&gt;&lt;a href=&#34;#fn:11&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;11&lt;/a&gt;&lt;/sup&gt;:&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 E(\boldsymbol{\xi}; \boldsymbol{X}) = \frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right),
 \label{eq:energyfunc}
@@ -168,7 +208,7 @@ while for matrix arguments (like a batch of vectors), the $\mathrm{sumexp}$ is u
 \end{align}&lt;/p&gt;
 &lt;p&gt;The updated vector is a linear combination of all stored patterns, weighted by an attention matrix quantifying the overlap with the input pattern.&lt;/p&gt;
 &lt;h2 id=&#34;modern-continuous-hopfield-networks-as-energy-based-models&#34;&gt;Modern continuous Hopfield Networks as energy-based models&lt;/h2&gt;
-&lt;p&gt;Let&amp;rsquo;s now try to connect the system defined by the energy function \eqref{eq:energyfunc} to the statistical mechanics framework of energy-based models&lt;sup id=&#34;fnref:11&#34;&gt;&lt;a href=&#34;#fn:11&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;11&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s now try to connect the system defined by the energy function \eqref{eq:energyfunc} to the statistical mechanics framework of energy-based models&lt;sup id=&#34;fnref:12&#34;&gt;&lt;a href=&#34;#fn:12&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;12&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
 &lt;h3 id=&#34;energy-based-models-a-gentle-introduction&#34;&gt;Energy-based models: a gentle introduction&lt;/h3&gt;
 &lt;p&gt;Energy-based models learn a parametrized energy function $E_{\theta}$ which maps data points $\boldsymbol{x}$ to real, scalar energy values $E_{\theta}(\boldsymbol{x})$. The data distribution is modeled by the &lt;a href=&#34;https://en.wikipedia.org/wiki/Boltzmann_distribution&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Boltzmann distribution&lt;/a&gt;,
 \begin{equation}
@@ -185,7 +225,7 @@ where $Z(\theta) = \int \mathrm{d} \boldsymbol{x} \ \mathrm{e}^{-E(\boldsymbol{x
 &lt;p&gt;\begin{equation}
 -\log p_{\theta} (\boldsymbol{x}) = E_{\theta} (\boldsymbol{x}) + \log Z (\theta).
 \end{equation}&lt;/p&gt;
-&lt;p&gt;This is a hard optimization problem because calculating $\log Z (\theta)$ is hard for the vast majority of high-dimensional data distributions we care about. In practice, people resort to approximations like contrastive divergence to push the energy down on &amp;ldquo;positive examples&amp;rdquo; drawn from the data distribution while pushing up on &amp;ldquo;negative examples&amp;rdquo; obtained from sampling the model distribution. Even though sampling from \eqref{eq:boltzmann} can be done with methods like Markov Chain Monte Carlo, it is computationally expensive to do so, especially as part of an inner-loop optimization step&lt;sup id=&#34;fnref:12&#34;&gt;&lt;a href=&#34;#fn:12&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;12&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;This is a hard optimization problem because calculating $\log Z (\theta)$ is hard for the vast majority of high-dimensional data distributions we care about. In practice, people resort to approximations like contrastive divergence to push the energy down on &amp;ldquo;positive examples&amp;rdquo; drawn from the data distribution while pushing up on &amp;ldquo;negative examples&amp;rdquo; obtained from sampling the model distribution. Even though sampling from \eqref{eq:boltzmann} can be done with methods like Markov Chain Monte Carlo, it is computationally expensive to do so, especially as part of an inner-loop optimization step&lt;sup id=&#34;fnref:13&#34;&gt;&lt;a href=&#34;#fn:13&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;13&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
 &lt;h3 id=&#34;exactly-optimizing-modern-continuous-hopfield-networks&#34;&gt;Exactly optimizing modern continuous Hopfield networks&lt;/h3&gt;
 &lt;p&gt;So what about the system defined by the energy function \eqref{eq:energyfunc}? Let&amp;rsquo;s consider the stored patterns $\mathbf{X} \in \mathbb{R}^{d \times N}$ as the model parameters we want to optimise. The task for the model is then to try to memorise incoming state patterns $\boldsymbol{\xi} \in \mathbb{R}^{d}$ drawn from some data distribution $p_{\mathrm{data}}$ by deciding what kind of patterns to store. The partition function looks like&lt;/p&gt;
 &lt;p&gt;\begin{equation}
@@ -230,7 +270,7 @@ so that
 In practice, the number of state patterns $S$ is often taken to be equal to the number of stored patterns $N$.&lt;/li&gt;
 &lt;li&gt;We want to map stored patterns $\mathbf{X}$ and state patterns $\boldsymbol{\Xi}$ respectively to &lt;em&gt;keys&lt;/em&gt; $\mathbf{K} \in \mathbb{R}^{N \times d}$ and &lt;em&gt;queries&lt;/em&gt; $\mathbf{Q} \in \mathbb{R}^{S \times d}$ in a common feature space using linear transformations $\mathbf{W_{K}}$ and $\mathbf{W_{Q}}$.&lt;/li&gt;
 &lt;li&gt;We want introduce another linear transformation $\mathbf{W_{V}}$ on stored patterns to transform them into &lt;em&gt;values&lt;/em&gt; $\mathbf{V} \in \mathbb{R}^{N \times d}$ appropriate for the keys&#39; content.&lt;/li&gt;
-&lt;li&gt;We want to modify the learning dynamics by decreasing the inverse temperature to $\beta = 1 / \sqrt{d}$, effectively making the $\mathrm{softmax}$ softer by increasing the temperature of the system&lt;sup id=&#34;fnref:13&#34;&gt;&lt;a href=&#34;#fn:13&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;13&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
+&lt;li&gt;We want to modify the learning dynamics by decreasing the inverse temperature to $\beta = 1 / \sqrt{d}$, effectively making the $\mathrm{softmax}$ softer by increasing the temperature of the system&lt;sup id=&#34;fnref:14&#34;&gt;&lt;a href=&#34;#fn:14&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;14&lt;/a&gt;&lt;/sup&gt;. Physically, this might correspond to warming up the system just enough to get out of the spin-glass phase while not introducing too much thermal noise&lt;sup id=&#34;fnref:8&#34;&gt;&lt;a href=&#34;#fn:8&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;8&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;The result is the update rule we stated without explanation in &lt;a href=&#34;#2-a-growing-zoo-of-transformers&#34;&gt;Section 2&lt;/a&gt;:
 \begin{equation}
@@ -263,7 +303,7 @@ Checking whether this transformed energy function still leads to a tractable Gau
 &lt;h2 id=&#34;pretraining-loss-functions&#34;&gt;Pretraining loss functions&lt;/h2&gt;
 &lt;p&gt;The goal of pretraining loss functions is to induce &lt;em&gt;useful&lt;/em&gt; data-dependent pattern storage and retrieval behavior. Pretraining strategies for Transformer-based language models rely on loss functions derived from auxiliary tasks to learn statistical patterns in natural language. Starting from almost identical model architectures, autoregressive models like GPT-3 leverage all their parameters to predict the next token in a sequence given previous tokens while autoencoding models like BERT try to reconstruct corrupted tokens. In both cases, the loss function is a cross-entropy loss involving predictions in the space of the model&amp;rsquo;s token vocabulary.&lt;/p&gt;
 &lt;h2 id=&#34;stepping-through-the-transformer-implicit-energy-minimization&#34;&gt;Stepping through the Transformer: implicit energy minimization&lt;/h2&gt;
-&lt;p&gt;Although no energy function is &lt;em&gt;explicitly&lt;/em&gt; optimized during training&lt;sup id=&#34;fnref:14&#34;&gt;&lt;a href=&#34;#fn:14&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;14&lt;/a&gt;&lt;/sup&gt;, let&amp;rsquo;s see how far we can push hand-wavy energy-based arguments by stepping through the forward and backward pass of a Transformer model. We have learned that the attention update \eqref{eq:transformerattnupdate} in every Transformer layer is actually a hidden gradient step. This trivial insight leads to a trio of trivial observations.&lt;/p&gt;
+&lt;p&gt;Although no energy function is &lt;em&gt;explicitly&lt;/em&gt; optimized during training&lt;sup id=&#34;fnref:15&#34;&gt;&lt;a href=&#34;#fn:15&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;15&lt;/a&gt;&lt;/sup&gt;, let&amp;rsquo;s see how far we can push hand-wavy energy-based arguments by stepping through the forward and backward pass of a Transformer model. We have learned that the attention update \eqref{eq:transformerattnupdate} in every Transformer layer is actually a hidden gradient step. This trivial insight leads to a trio of trivial observations.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Trivial Observation #1:&lt;/strong&gt; &lt;em&gt;During training, the update step \eqref{eq:transformerattnupdate} of the attention mechanism in a Transformer layer acts as an inner-loop optimization step, minimizing an implicit energy function determined by the queries, keys, and values constructed from the output of the previous layer.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Trivial Observation #2:&lt;/strong&gt; &lt;em&gt;During the forward pass of a deep Transformer model, a nested hierarchy of energy functions is minimized.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Trivial Observation #3:&lt;/strong&gt; &lt;em&gt;During the backward pass of a deep Transformer model, the parameters of its attention modules get updated such that the inner-loop optimization steps conspire to pattern match queries to keys in such a way that the sequentially-updated final latent representations are useful for improving the loss.&lt;/em&gt;&lt;/p&gt;
@@ -307,25 +347,28 @@ Checking whether this transformed energy function still leads to a tractable Gau
 &lt;p&gt;&lt;em&gt;John Hopfield, &lt;a href=&#34;https://www.pnas.org/content/pnas/79/8/2554.full.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Neural Networks and Physical Systems with Emergent Collective Computational Abilities&lt;/a&gt; (1982)&lt;/em&gt; &lt;a href=&#34;#fnref:7&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:8&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/1606.01164&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Dense Associative Memory for Pattern Recognition&lt;/a&gt; (2016)&lt;/em&gt; &lt;a href=&#34;#fnref:8&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Alejandro Pozas-Kerstjens, Gorka Muñoz-Gil, Miguel Ángel García-March, Antonio Acín, Maciej Lewenstein, Przemysław R. Grzybowski, &lt;a href=&#34;https://arxiv.org/abs/1910.01592&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Efficient training of energy-based models via spin-glass control&lt;/a&gt; (2019)&lt;/em&gt; &lt;a href=&#34;#fnref:8&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:9&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Mete Demircigil, Judith Heusel, Matthias Löwe, Sven Upgang, and Franck Vermet, &lt;a href=&#34;https://arxiv.org/abs/1702.01929&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;On a Model of Associative Memory with Huge Storage Capacity&lt;/a&gt; (2017)&lt;/em&gt; &lt;a href=&#34;#fnref:9&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/1606.01164&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Dense Associative Memory for Pattern Recognition&lt;/a&gt; (2016)&lt;/em&gt; &lt;a href=&#34;#fnref:9&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:10&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;A physicist might consider these continuous patterns spin configurations of the degrees of freedom in a vector spin model where the internal dimension $D \sim 10^2-10^4$ is much bigger than familiar small-$D$ cases like the &lt;a href=&#34;https://en.wikipedia.org/wiki/Classical_XY_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;XY model&lt;/a&gt; or the &lt;a href=&#34;https://en.wikipedia.org/wiki/Classical_Heisenberg_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Heisenberg model&lt;/a&gt; but much smaller than infinity. &lt;a href=&#34;#fnref:10&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Mete Demircigil, Judith Heusel, Matthias Löwe, Sven Upgang, and Franck Vermet, &lt;a href=&#34;https://arxiv.org/abs/1702.01929&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;On a Model of Associative Memory with Huge Storage Capacity&lt;/a&gt; (2017)&lt;/em&gt; &lt;a href=&#34;#fnref:10&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:11&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Yann LeCun, Sumit Chopra, Raia Hadsell, Marc&amp;rsquo;Aurelio Ranzato, and Fu Jie Huang, &lt;a href=&#34;http://yann.lecun.com/exdb/publis/pdf/lecun-06.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A Tutorial on Energy-Based Learning&lt;/a&gt; (2006)&lt;/em&gt; &lt;a href=&#34;#fnref:11&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;A physicist might consider these continuous patterns spin configurations of the degrees of freedom in a vector spin model where the internal dimension $D \sim 10^2-10^4$ is much bigger than familiar small-$D$ cases like the &lt;a href=&#34;https://en.wikipedia.org/wiki/Classical_XY_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;XY model&lt;/a&gt; or the &lt;a href=&#34;https://en.wikipedia.org/wiki/Classical_Heisenberg_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Heisenberg model&lt;/a&gt; but much smaller than infinity. &lt;a href=&#34;#fnref:11&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:12&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;The generator in a Generative Adverserial Network (GAN) setup can be considered a clever way to generate negative samples for the implicit energy function optimization taking place in the discriminator. &lt;a href=&#34;#fnref:12&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Yann LeCun, Sumit Chopra, Raia Hadsell, Marc&amp;rsquo;Aurelio Ranzato, and Fu Jie Huang, &lt;a href=&#34;http://yann.lecun.com/exdb/publis/pdf/lecun-06.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A Tutorial on Energy-Based Learning&lt;/a&gt; (2006)&lt;/em&gt; &lt;a href=&#34;#fnref:12&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:13&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;As we have seen in &lt;a href=&#34;#2-a-growing-zoo-of-transformers&#34;&gt;Section 2&lt;/a&gt;, the naive interpretation of $\beta$ as &lt;em&gt;the&lt;/em&gt; effective inverse temperature is tenuous in practice given the influence of the surrounding layer normalisation modules. &lt;a href=&#34;#fnref:13&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;The generator in a Generative Adverserial Network (GAN) setup can be considered a clever way to generate negative samples for the implicit energy function optimization taking place in the discriminator. &lt;a href=&#34;#fnref:13&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:14&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;The implicitly defined energy functions in Tranformer layers are not optimized directly because they arguably do not provide a meaningful training signal on their own. Verifying whether this is true or not could make for an interesting experiment. &lt;a href=&#34;#fnref:14&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;As we have seen in &lt;a href=&#34;#2-a-growing-zoo-of-transformers&#34;&gt;Section 2&lt;/a&gt;, the naive interpretation of $\beta$ as &lt;em&gt;the&lt;/em&gt; effective inverse temperature is tenuous in practice given the influence of the surrounding layer normalisation modules. &lt;a href=&#34;#fnref:14&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:15&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;The implicitly defined energy functions in Tranformer layers are not optimized directly because they arguably do not provide a meaningful training signal on their own. Verifying whether this is true or not could make for an interesting experiment. &lt;a href=&#34;#fnref:15&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;
