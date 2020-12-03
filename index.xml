@@ -5,52 +5,12 @@
     <link>https://mcbal.github.io/</link>
       <atom:link href="https://mcbal.github.io/index.xml" rel="self" type="application/rss+xml" />
     <description>mcbal</description>
-    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-gb</language><copyright>Matthias Bal © 2020</copyright><lastBuildDate>Sun, 29 Nov 2020 11:18:17 +0100</lastBuildDate>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-gb</language><copyright>Matthias Bal © 2020</copyright><lastBuildDate>Sat, 28 Nov 2020 10:54:21 +0100</lastBuildDate>
     <image>
       <url>https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png</url>
       <title>mcbal</title>
       <link>https://mcbal.github.io/</link>
     </image>
-    
-    <item>
-      <title>Beyond Transformer Attention</title>
-      <link>https://mcbal.github.io/post/beyond-transformer-attention/</link>
-      <pubDate>Sun, 29 Nov 2020 11:18:17 +0100</pubDate>
-      <guid>https://mcbal.github.io/post/beyond-transformer-attention/</guid>
-      <description>&lt;h1 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h1&gt;
-&lt;h1 id=&#34;2-a-first-example&#34;&gt;2. A first example&lt;/h1&gt;
-&lt;p&gt;Energy function of modern continuous Hopfield networks:&lt;/p&gt;
-&lt;p&gt;\begin{equation}
-E(\boldsymbol{\xi}; \boldsymbol{X}) = \frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right),
-\label{eq:energyfunc}
-\end{equation}&lt;/p&gt;
-&lt;p&gt;Partition function:&lt;/p&gt;
-&lt;p&gt;\begin{equation}
-Z = \int \mathrm{d} \boldsymbol{\xi} \ \mathrm{e}^{-E(\boldsymbol{\xi})} = \int \mathrm{d} \boldsymbol{\xi} \ \mathrm{e}^{-\frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi}} \left( \sum_{i=1}^{N} \mathrm{e}^{ \boldsymbol{x}^{T}_{i} \cdot \boldsymbol{\xi} } \right)
-\label{eq:zforcontinuoushopfield}
-\end{equation}&lt;/p&gt;
-&lt;h2 id=&#34;add-stored-pattern-interactions&#34;&gt;Add stored pattern interactions&lt;/h2&gt;
-&lt;h3 id=&#34;test&#34;&gt;Test&lt;/h3&gt;
-&lt;p&gt;\begin{equation}
-E(\boldsymbol{\xi}; \boldsymbol{X}) = \frac{1}{2} \boldsymbol{X}^T \boldsymbol{X} + \frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right),
-\end{equation}&lt;/p&gt;
-&lt;p&gt;Partition function:&lt;/p&gt;
-&lt;p&gt;\begin{equation}
-Z = \int \mathrm{d} \boldsymbol{\xi} \ \mathrm{e}^{-E(\boldsymbol{\xi})} = \int \mathrm{d} \boldsymbol{\xi} \ \mathrm{e}^{-\frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi}} \left( \sum_{i=1}^{N} \mathrm{e}^{ \boldsymbol{x}^{T}_{i} \cdot \boldsymbol{\xi} } \right)
-\end{equation}&lt;/p&gt;
-&lt;h2 id=&#34;add-state-pattern-interactions&#34;&gt;Add state pattern interactions&lt;/h2&gt;
-&lt;h2 id=&#34;add-stored-and-state-pattern-interactions&#34;&gt;Add stored and state pattern interactions&lt;/h2&gt;
-&lt;h1 id=&#34;alternatives-to-dot-product-attention&#34;&gt;Alternatives to dot-product attention&lt;/h1&gt;
-&lt;h1 id=&#34;experiments&#34;&gt;Experiments&lt;/h1&gt;
-&lt;p&gt;In this section, &amp;hellip;&lt;/p&gt;
-&lt;p&gt;Unfortunately, I have no access to GPUs (not even a single one). I would be intestered to know if my toy experiments scale to more data and compute holds.&lt;/p&gt;
-&lt;h2 id=&#34;pytorch-implementation&#34;&gt;PyTorch implementation&lt;/h2&gt;
-&lt;p&gt;See GitHub repository.&lt;/p&gt;
-&lt;h2 id=&#34;toy-experiment-1-test&#34;&gt;Toy experiment #1: Test&lt;/h2&gt;
-&lt;h1 id=&#34;conclusion&#34;&gt;Conclusion&lt;/h1&gt;
-&lt;p&gt;In the next post, I will apply some of the attention mechanisms developed here to a simple agent whose sensory connection to the world is restricted to a webcam and a microphone.&lt;/p&gt;
-</description>
-    </item>
     
     <item>
       <title>An Energy-Based Perspective on Attention Mechanisms in Transformers</title>

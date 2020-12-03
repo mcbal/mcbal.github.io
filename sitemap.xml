@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/</loc>
+    <lastmod>2020-12-03T12:30:21+01:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://mcbal.github.io/tag/artificial-intelligence/</loc>
     <lastmod>2020-12-03T12:30:21+01:00</lastmod>
   </url>
@@ -15,11 +20,6 @@
   <url>
     <loc>https://mcbal.github.io/tag/attention/</loc>
     <lastmod>2020-12-03T12:30:21+01:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://mcbal.github.io/post/beyond-transformer-attention/</loc>
-    <lastmod>2020-11-29T11:18:17+01:00</lastmod>
   </url>
   
   <url>
@@ -59,11 +59,6 @@
   
   <url>
     <loc>https://mcbal.github.io/tag/transformers/</loc>
-    <lastmod>2020-12-03T12:30:21+01:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/</loc>
     <lastmod>2020-12-03T12:30:21+01:00</lastmod>
   </url>
   
