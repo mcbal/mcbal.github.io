@@ -686,7 +686,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    24 min read
+    25 min read
   </span>
   
 
@@ -880,7 +880,7 @@ while for matrix arguments (like a batch of vectors), the $\mathrm{sumexp}$ is u
 \end{align}</p>
 <p>The updated vector is a linear combination of all stored patterns, weighted by an attention matrix quantifying the overlap with the input pattern.</p>
 <h2 id="modern-continuous-hopfield-networks-as-energy-based-models">Modern continuous Hopfield Networks as energy-based models</h2>
-<p>Let&rsquo;s now try to connect the system defined by the energy function \eqref{eq:energyfunc} to the statistical mechanics framework of energy-based models<sup id="fnref:12"><a href="#fn:12" class="footnote-ref" role="doc-noteref">12</a></sup>.</p>
+<p>Let&rsquo;s now try to connect the system defined by the energy function \eqref{eq:energyfunc} to the statistical mechanics framework of energy-based models <sup id="fnref:12"><a href="#fn:12" class="footnote-ref" role="doc-noteref">12</a></sup> <sup id="fnref:13"><a href="#fn:13" class="footnote-ref" role="doc-noteref">13</a></sup>.</p>
 <h3 id="energy-based-models-a-gentle-introduction">Energy-based models: a gentle introduction</h3>
 <p>Energy-based models learn a parametrized energy function $E_{\theta}$ which maps data points $\boldsymbol{x}$ to real, scalar energy values $E_{\theta}(\boldsymbol{x})$. The data distribution is modeled by the <a href="https://en.wikipedia.org/wiki/Boltzmann_distribution" target="_blank" rel="noopener">Boltzmann distribution</a>,
 \begin{equation}
@@ -897,7 +897,7 @@ where $Z(\theta) = \int \mathrm{d} \boldsymbol{x} \ \mathrm{e}^{-E(\boldsymbol{x
 <p>\begin{equation}
 -\log p_{\theta} (\boldsymbol{x}) = E_{\theta} (\boldsymbol{x}) + \log Z (\theta).
 \end{equation}</p>
-<p>This is a hard optimization problem because calculating $\log Z (\theta)$ is hard for the vast majority of high-dimensional data distributions we care about. In practice, people resort to approximations like contrastive divergence to push the energy down on &ldquo;positive examples&rdquo; drawn from the data distribution while pushing up on &ldquo;negative examples&rdquo; obtained from sampling the model distribution. Even though sampling from \eqref{eq:boltzmann} can be done with methods like Markov Chain Monte Carlo, it is computationally expensive to do so, especially as part of an inner-loop optimization step<sup id="fnref:13"><a href="#fn:13" class="footnote-ref" role="doc-noteref">13</a></sup>.</p>
+<p>This is a hard optimization problem because calculating $\log Z (\theta)$ is hard for the vast majority of high-dimensional data distributions we care about. In practice, people resort to approximations like contrastive divergence to push the energy down on &ldquo;positive examples&rdquo; drawn from the data distribution while pushing up on &ldquo;negative examples&rdquo; obtained from sampling the model distribution. Even though sampling from \eqref{eq:boltzmann} can be done with methods like Markov Chain Monte Carlo, it is computationally expensive to do so, especially as part of an inner-loop optimization step<sup id="fnref:14"><a href="#fn:14" class="footnote-ref" role="doc-noteref">14</a></sup>.</p>
 <h3 id="exactly-optimizing-modern-continuous-hopfield-networks">Exactly optimizing modern continuous Hopfield networks</h3>
 <p>So what about the system defined by the energy function \eqref{eq:energyfunc}? Let&rsquo;s consider the stored patterns $\mathbf{X} \in \mathbb{R}^{d \times N}$ as the model parameters we want to optimise. The task for the model is then to try to memorise incoming state patterns $\boldsymbol{\xi} \in \mathbb{R}^{d}$ drawn from some data distribution $p_{\mathrm{data}}$ by deciding what kind of patterns to store. The partition function looks like</p>
 <p>\begin{equation}
@@ -942,7 +942,7 @@ so that
 In practice, the number of state patterns $S$ is often taken to be equal to the number of stored patterns $N$.</li>
 <li>We want to map stored patterns $\mathbf{X}$ and state patterns $\boldsymbol{\Xi}$ respectively to <em>keys</em> $\mathbf{K} \in \mathbb{R}^{N \times d}$ and <em>queries</em> $\mathbf{Q} \in \mathbb{R}^{S \times d}$ in a common feature space using linear transformations $\mathbf{W_{K}}$ and $\mathbf{W_{Q}}$.</li>
 <li>We want introduce another linear transformation $\mathbf{W_{V}}$ on stored patterns to transform them into <em>values</em> $\mathbf{V} \in \mathbb{R}^{N \times d}$ appropriate for the keys' content.</li>
-<li>We want to modify the learning dynamics by decreasing the inverse temperature to $\beta = 1 / \sqrt{d}$, effectively making the $\mathrm{softmax}$ softer by increasing the temperature of the system<sup id="fnref:14"><a href="#fn:14" class="footnote-ref" role="doc-noteref">14</a></sup>. Physically, this might correspond to warming up the system just enough to get out of the spin-glass phase while not introducing too much thermal noise<sup id="fnref:8"><a href="#fn:8" class="footnote-ref" role="doc-noteref">8</a></sup>.</li>
+<li>We want to modify the learning dynamics by decreasing the inverse temperature to $\beta = 1 / \sqrt{d}$, effectively making the $\mathrm{softmax}$ softer by increasing the temperature of the system<sup id="fnref:15"><a href="#fn:15" class="footnote-ref" role="doc-noteref">15</a></sup>. Physically, this might correspond to warming up the system just enough to get out of the spin-glass phase while not introducing too much thermal noise<sup id="fnref:8"><a href="#fn:8" class="footnote-ref" role="doc-noteref">8</a></sup>.</li>
 </ul>
 <p>The result is the update rule we stated without explanation in <a href="#2-a-growing-zoo-of-transformers">Section 2</a>:
 \begin{equation}
@@ -975,7 +975,7 @@ Checking whether this transformed energy function still leads to a tractable Gau
 <h2 id="pretraining-loss-functions">Pretraining loss functions</h2>
 <p>The goal of pretraining loss functions is to induce <em>useful</em> data-dependent pattern storage and retrieval behavior. Pretraining strategies for Transformer-based language models rely on loss functions derived from auxiliary tasks to learn statistical patterns in natural language. Starting from almost identical model architectures, autoregressive models like GPT-3 leverage all their parameters to predict the next token in a sequence given previous tokens while autoencoding models like BERT try to reconstruct corrupted tokens. In both cases, the loss function is a cross-entropy loss involving predictions in the space of the model&rsquo;s token vocabulary.</p>
 <h2 id="stepping-through-the-transformer-implicit-energy-minimization">Stepping through the Transformer: implicit energy minimization</h2>
-<p>Although no energy function is <em>explicitly</em> optimized during training<sup id="fnref:15"><a href="#fn:15" class="footnote-ref" role="doc-noteref">15</a></sup>, let&rsquo;s see how far we can push hand-wavy energy-based arguments by stepping through the forward and backward pass of a Transformer model. We have learned that the attention update \eqref{eq:transformerattnupdate} in every Transformer layer is actually a hidden gradient step. This trivial insight leads to a trio of trivial observations.</p>
+<p>Although no energy function is <em>explicitly</em> optimized during training<sup id="fnref:16"><a href="#fn:16" class="footnote-ref" role="doc-noteref">16</a></sup>, let&rsquo;s see how far we can push hand-wavy energy-based arguments by stepping through the forward and backward pass of a Transformer model. We have learned that the attention update \eqref{eq:transformerattnupdate} in every Transformer layer is actually a hidden gradient step. This trivial insight leads to a trio of trivial observations.</p>
 <p><strong>Trivial Observation #1:</strong> <em>During training, the update step \eqref{eq:transformerattnupdate} of the attention mechanism in a Transformer layer acts as an inner-loop optimization step, minimizing an implicit energy function determined by the queries, keys, and values constructed from the output of the previous layer.</em></p>
 <p><strong>Trivial Observation #2:</strong> <em>During the forward pass of a deep Transformer model, a nested hierarchy of energy functions is minimized.</em></p>
 <p><strong>Trivial Observation #3:</strong> <em>During the backward pass of a deep Transformer model, the parameters of its attention modules get updated such that the inner-loop optimization steps conspire to pattern match queries to keys in such a way that the sequentially-updated final latent representations are useful for improving the loss.</em></p>
@@ -1031,16 +1031,19 @@ Checking whether this transformed energy function still leads to a tractable Gau
 <p>A physicist might consider these continuous patterns spin configurations of the degrees of freedom in a vector spin model where the internal dimension $D \sim 10^2-10^4$ is much bigger than familiar small-$D$ cases like the <a href="https://en.wikipedia.org/wiki/Classical_XY_model" target="_blank" rel="noopener">XY model</a> or the <a href="https://en.wikipedia.org/wiki/Classical_Heisenberg_model" target="_blank" rel="noopener">Heisenberg model</a> but much smaller than infinity. <a href="#fnref:11" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:12" role="doc-endnote">
-<p><em>Yann LeCun, Sumit Chopra, Raia Hadsell, Marc&rsquo;Aurelio Ranzato, and Fu Jie Huang, <a href="http://yann.lecun.com/exdb/publis/pdf/lecun-06.pdf" target="_blank" rel="noopener">A Tutorial on Energy-Based Learning</a> (2006)</em> <a href="#fnref:12" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Yann LeCun, Sumit Chopra, Raia Hadsell, Marc&rsquo;Aurelio Ranzato, and Fu Jie Huang, <a href="http://yann.lecun.com/exdb/publis/pdf/lecun-06.pdf" target="_blank" rel="noopener">A Tutorial on Energy-Based Learning</a> (2006)</em> and <em>Yann LeCun and Alfredo Canziani, <a href="https://atcold.github.io/pytorch-Deep-Learning/en/week07/07-1/" target="_blank" rel="noopener">Deep Learning DS-GA 1008 course</a> (2020)</em> <a href="#fnref:12" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:13" role="doc-endnote">
-<p>The generator in a Generative Adverserial Network (GAN) setup can be considered a clever way to generate negative samples for the implicit energy function optimization taking place in the discriminator. <a href="#fnref:13" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Pankaj Mehta, Marin Bukov, Ching-Hao Wang, Alexandre G.R. Day, Clint Richardson, Charles K. Fisher, and David J. Schwab, <a href="https://arxiv.org/abs/1803.08823" target="_blank" rel="noopener">A high-bias, low-variance introduction to Machine Learning for physicists</a> (2019)</em> <a href="#fnref:13" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:14" role="doc-endnote">
-<p>As we have seen in <a href="#2-a-growing-zoo-of-transformers">Section 2</a>, the naive interpretation of $\beta$ as <em>the</em> effective inverse temperature is tenuous in practice given the influence of the surrounding layer normalisation modules. <a href="#fnref:14" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>The generator in a Generative Adverserial Network (GAN) setup can be considered a clever way to generate negative samples for the implicit energy function optimization taking place in the discriminator. <a href="#fnref:14" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:15" role="doc-endnote">
-<p>The implicitly defined energy functions in Tranformer layers are not optimized directly because they arguably do not provide a meaningful training signal on their own. Verifying whether this is true or not could make for an interesting experiment. <a href="#fnref:15" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>As we have seen in <a href="#2-a-growing-zoo-of-transformers">Section 2</a>, the naive interpretation of $\beta$ as <em>the</em> effective inverse temperature is tenuous in practice given the influence of the surrounding layer normalisation modules. <a href="#fnref:15" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:16" role="doc-endnote">
+<p>The implicitly defined energy functions in Tranformer layers are not optimized directly because they arguably do not provide a meaningful training signal on their own. Verifying whether this is true or not could make for an interesting experiment. <a href="#fnref:16" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>
