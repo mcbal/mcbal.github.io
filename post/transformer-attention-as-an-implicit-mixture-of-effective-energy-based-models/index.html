@@ -1,0 +1,1402 @@
+<!DOCTYPE html><html lang="en-gb" >
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  
+  
+  <meta name="generator" content="Wowchemy 4.8.0 for Hugo">
+  
+
+  
+
+  
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Matthias Bal">
+
+  
+  
+  
+    
+  
+  <meta name="description" content="Where does the energy function behind Transformers&#39; attention mechanism come from?">
+
+  
+  <link rel="alternate" hreflang="en-gb" href="https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/">
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+
+  
+  
+  
+  <meta name="theme-color" content="#2962ff">
+  
+
+  
+  
+  
+  <script src="/js/mathjax-config.js"></script>
+  
+
+  
+  
+  
+  
+    
+    
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.9.0/css/academicons.min.css" integrity="sha512-W4yqoT1+8NLkinBLBZko+dFB2ZbHsYLDdr50VElllRcNt2Q4/GSs6u71UHKxB7S6JEMCp5Ve4xjh3eGQl/HRvg==" crossorigin="anonymous">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha256-FMvZuGapsJLjouA6k7Eo2lusoAX9i0ShlWFG6qt7SLc=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/github.min.css" crossorigin="anonymous" title="hl-light">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
+        
+      
+    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" integrity="sha512-1xoFisiGdy9nvho8EgXuXvnpR5GAMSjFwp40gSRE3NwdUdIMIKuPa7bqoUhLD0O/5tPNhteAsE5XyyMi5reQVA==" crossorigin="anonymous">
+    
+
+    
+
+    
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.2.2/lazysizes.min.js" integrity="sha512-TmDwFLhg3UA4ZG0Eb4MIyT1O1Mb+Oww5kFG0uHqXsdbyZz9DcvYQhKpGgNkamAI6h2lGGZq2X8ftOJvF/XjTUg==" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" integrity="" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+
+  
+
+  
+  
+  
+    
+      
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Serif:ital,wght@0,300;0,400;1,300;1,400%7CIBM+Plex+Sans:ital,wght@0,300;0,400;0,700;1,400%7CFira+Code&display=swap">
+    
+  
+
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/wowchemy.css">
+
+  
+
+
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-H9Y98B2S2P"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag() {
+      dataLayer.push(arguments);
+  }
+
+  function trackOutboundLink(url, target) {
+    gtag('event', 'click', {
+         'event_category': 'outbound',
+         'event_label': url,
+         'transport_type': 'beacon',
+         'event_callback': function () {
+           if (target !== '_blank') {
+             document.location = url;
+           }
+         }
+    });
+    console.debug("Outbound link clicked: " + url);
+  }
+
+  function onClickCallback(event) {
+    if ((event.target.tagName !== 'A') || (event.target.host === window.location.host)) {
+      return;
+    }
+    trackOutboundLink(event.target, event.target.getAttribute('target'));  
+  }
+
+  gtag('js', new Date());
+  gtag('config', 'G-H9Y98B2S2P', { 'anonymize_ip': true });
+
+  
+  document.addEventListener('click', onClickCallback, false);
+</script>
+
+
+  
+
+
+  
+  
+
+  
+
+  <link rel="manifest" href="/index.webmanifest">
+  <link rel="icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_32x32_fill_lanczos_center_2.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png">
+
+  <link rel="canonical" href="https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/">
+
+  
+  
+  
+  
+  
+  
+  
+    
+  
+  
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="og:site_name" content="mcbal">
+  <meta property="og:url" content="https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/">
+  <meta property="og:title" content="Transformer Attention as an Implicit Mixture of Effective Energy-Based Models | mcbal">
+  <meta property="og:description" content="Where does the energy function behind Transformers&#39; attention mechanism come from?"><meta property="og:image" content="https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/featured.png">
+  <meta property="twitter:image" content="https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/featured.png"><meta property="og:locale" content="en-gb">
+  
+    
+      <meta property="article:published_time" content="2020-12-22T10:03:17&#43;01:00">
+    
+    <meta property="article:modified_time" content="2020-12-24T17:52:17&#43;01:00">
+  
+
+  
+
+
+    
+
+
+
+
+
+
+  
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/"
+  },
+  "headline": "Transformer Attention as an Implicit Mixture of Effective Energy-Based Models",
+  
+  "image": [
+    "https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/featured.png"
+  ],
+  
+  "datePublished": "2020-12-22T10:03:17+01:00",
+  "dateModified": "2020-12-24T17:52:17+01:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Matthias Bal"
+  },
+  
+  "publisher": {
+    "@type": "Organization",
+    "name": "mcbal",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png"
+    }
+  },
+  "description": "Where does the energy function behind Transformers' attention mechanism come from?"
+}
+</script>
+
+  
+
+  
+
+
+  
+  
+  
+  
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.1/cookieconsent.min.js" integrity="sha256-5VhCqFam2Cn+yjw61zbBNrbHVJ6SRydPeKopYlngbiQ=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.1/cookieconsent.min.css" integrity="sha256-zQ0LblD/Af8vOppw18+2anxsuaz3pWYyVWi+bTvTH8Q=" crossorigin="anonymous">
+  
+  <script>
+  window.addEventListener("load", function(){
+    window.cookieconsent.initialise({
+      "palette": {
+        "popup": {
+          "background": "#2962ff",
+          "text": "rgb(255, 255, 255)"
+        },
+        "button": {
+          "background": "rgb(255, 255, 255)",
+          "text": "#2962ff"
+        }
+      },
+      "theme": "classic",
+      "content": {
+        "message": "This website uses cookies to ensure you get the best experience on our website.",
+        "dismiss": "Got it!",
+        "link": "Learn more",
+        "href": "https://www.cookiesandyou.com"
+      }
+    })});
+  </script>
+
+
+
+  
+
+
+
+
+
+  <title>Transformer Attention as an Implicit Mixture of Effective Energy-Based Models | mcbal</title>
+
+</head>
+
+
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" class=" ">
+
+  
+  
+  
+    <script>window.wcDarkLightEnabled = true;</script>
+  
+  
+    <script>const isSiteThemeDark = false;</script>
+  
+  
+  <script src="/js/load-theme.js"></script>
+
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search" class="form-control">
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id="navbar-main">
+  <div class="container">
+
+    
+    <div class="d-none d-lg-inline-flex">
+      <a class="navbar-brand" href="/">mcbal</a>
+    </div>
+    
+
+    
+    <button type="button" class="navbar-toggler" data-toggle="collapse"
+            data-target="#navbar-content" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+    <span><i class="fas fa-bars"></i></span>
+    </button>
+    
+
+    
+    <div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none">
+      <a class="navbar-brand" href="/">mcbal</a>
+    </div>
+    
+
+    
+    
+    <div class="navbar-collapse main-menu-item collapse justify-content-start" id="navbar-content">
+
+      
+      <ul class="navbar-nav d-md-inline-flex">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#about"><span>About me</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#posts"><span>Blog</span></a>
+        </li>
+
+        
+        
+
+      
+
+        
+      </ul>
+    </div>
+
+    <ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+      
+      
+      <li class="nav-item">
+        <a class="nav-link js-search" href="#" aria-label="Search"><i class="fas fa-search" aria-hidden="true"></i></a>
+      </li>
+      
+
+      
+      
+      <li class="nav-item dropdown theme-dropdown">
+        <a href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true">
+          <i class="fas fa-moon" aria-hidden="true"></i>
+        </a>
+        <div class="dropdown-menu">
+          <a href="#" class="dropdown-item js-set-theme-light">
+            <span>Light</span>
+          </a>
+          <a href="#" class="dropdown-item js-set-theme-dark">
+            <span>Dark</span>
+          </a>
+          <a href="#" class="dropdown-item js-set-theme-auto">
+            <span>Automatic</span>
+          </a>
+        </div>
+      </li>
+      
+
+      
+
+    </ul>
+
+  </div>
+</nav>
+
+
+
+  <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+
+<div class="article-container pt-3">
+  <h1>Transformer Attention as an Implicit Mixture of Effective Energy-Based Models</h1>
+
+  
+
+  
+
+
+<div class="article-metadata">
+
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+          Last updated on
+      
+    
+    Dec 24, 2020
+  </span>
+  
+
+  
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    14 min read
+  </span>
+  
+
+  
+  
+  
+
+  
+  
+
+</div>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+<div class="article-header article-container featured-image-wrapper mt-4 mb-4" style="max-width: 720px; max-height: 281px;">
+  <div style="position: relative">
+    <img src="/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/featured_huaaa168beff6fd5d8ef27ef7289e1c122_209662_720x0_resize_lanczos_2.png" alt="" class="featured-image">
+    
+  </div>
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      <hr>
+<ol>
+<li><a href="#1-introduction">Introduction</a></li>
+<li><a href="#2-attention-from-effective-energy-based-models">Attention from effective energy-based models</a>
+<ol>
+<li><a href="#restricted-boltzmann-machines">Restricted Boltzmann Machines</a></li>
+<li><a href="#integrating-out-hidden-units">Integrating out hidden units</a></li>
+<li><a href="#effective-energies-and-correlations">Effective energies and correlations</a></li>
+<li><a href="#modern-hopfield-networks-as-mixtures-of-effective-rbms">Modern Hopfield networks as mixtures of effective RBMs</a></li>
+</ol>
+</li>
+<li><a href="#3-attention-as-implicit-energy-minimization">Attention as implicit energy minimization</a>
+<ol>
+<li><a href="#bending-the-explicit-architecture">Bending the explicit architecture</a></li>
+<li><a href="#from-explicit-architectures-to-implicit-energy-minimization">From explicit architectures to implicit energy minimization</a></li>
+<li><a href="#deep-implicit-layers-for-attention-dynamics">Deep implicit layers for attention dynamics</a></li>
+</ol>
+</li>
+<li><a href="#4-conclusion">Conclusion</a></li>
+<li><a href="#references--footnotes">References &amp; footnotes</a></li>
+</ol>
+<hr>
+<!-- In this post, I will try to partly address the concerns of the following critic:
+
+> _In your [previous post](https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/), you introduced the energy function of modern Hopfield networks without explanation. Where does it come from? What's up with the logarithm? Is there actually any other interpretation then it being reverse-engineered from the Transformers' attention step? Is this all a desperate attempt to make Hopfield networks cool again? Also, I cannot see the value of looking at attention from an energy-based perspective if it doesn't help me achieve SOTA. Weak reject._ -->
+<h1 id="1-introduction">1. Introduction</h1>
+<p>In a <a href="https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/" target="_blank" rel="noopener">previous post</a>, I provided an overview of attention in Transformer models and summarized its connections to modern Hopfield networks. We saw that the energy-based model
+\begin{equation}
+E(\boldsymbol{\Xi}; \boldsymbol{X}) = \frac{1}{2} \boldsymbol{\Xi}^T \boldsymbol{\Xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\Xi} \right).
+\label{eq:mhnenergy}
+\end{equation}
+enables fast pattern storage and retrieval through its simple and robust dynamics, leading to rapid convergence
+\begin{align}
+\boldsymbol{\Xi}_{n+1}  = \boldsymbol{X} \ \mathrm{softmax} \left( \boldsymbol{X}^T \boldsymbol{\Xi}_{n}\right)
+\label{eq:mhnupdate}
+\end{align}
+of input queries $\boldsymbol{\Xi}_{n}$ to updated queries $\boldsymbol{\Xi}_{n+1}$ lying in the convex hull of stored patterns $\boldsymbol{X}$. I also argued by means of handwaving that optimizing a Transformer looks like meta-learning from the point of view of its attention modules, sculpting energy landscapes to accommodate statistical patterns found in data.</p>
+<p>The main goal of this post is to build on these insights and highlight how an energy-based perspective can be a useful, complementary approach towards improving attention-based neural network modules. Parallel to scaling compute and making (self-)attention more efficient, it might be worthwhile to try to scale learning itself by experimenting with radically different attention mechanisms. To this end, we will revisit ancient ideas at the boundary of statistical physics and machine learning and show how vanilla attention looks like a mixture of simple energy-based models. We will then try to argue how thinking in terms of implicit energy minimization instead of explicit attention modules suggests opportunities to put <a href="https://implicit-layers-tutorial.org/" target="_blank" rel="noopener">Deep Implicit Layers</a> to work.</p>
+<h1 id="2-attention-from-effective-energy-based-models">2. Attention from effective energy-based models</h1>
+<p>In this section, we will introduce Restricted Boltzmann Machines as a particular class of energy-based models and explain how their capacity for effective correlations makes them attractive for (generative) modeling. After identifying classical discrete Hopfield networks and modern discrete Hopfield networks, we will show a naive way to fit modern continuous Hopfield networks into this framework. Throughout this section, we will rely heavily on the wonderful review <a href="https://arxiv.org/abs/1803.08823" target="_blank" rel="noopener">A high-bias, low-variance introduction to Machine Learning for physicists</a> by <a href="https://arxiv.org/abs/1803.08823" target="_blank" rel="noopener">Mehda et al.</a><sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>.</p>
+<h2 id="restricted-boltzmann-machines">Restricted Boltzmann Machines</h2>
+<p>A <a href="https://en.wikipedia.org/wiki/Restricted_Boltzmann_machine" target="_blank" rel="noopener">Restricted Boltzmann Machines</a> (RBM) is an <a href="https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/#energy-based-models-a-gentle-introduction" target="_blank" rel="noopener">energy-based model</a> with a bipartite structure imposed on visible and hidden degrees of freedom: visible and hidden degrees of freedom interact with each other but do not interact among themselves.</p>
+<p>\begin{equation}
+E \left( \boldsymbol{v}, \boldsymbol{h} \right) = - \sum_{i} a_{i} (v_{i}) - \sum_{\mu} b_{\mu} (h_{\mu}) - \sum_{i \mu} W_{i \mu} v_{i} h_{\mu}
+\end{equation}</p>
+<p>where the matrix $W_{i \mu}$ encodes the coupling between hidden and visible units and where $a_{i} (\cdot)$ and $b_{\mu} (\cdot)$ are functions that can be chosen at will. Popular options are:</p>
+<p>\begin{align}
+a_{i} (\cdot) =
+\begin{cases}
+a_{i} v_{i} &amp; \text{if $v_{i} \in {0,1}$ is binary (Bernouilli)}\\<br>
+\frac{v_{i}^2}{2\sigma_{i}^{2}} &amp; \text{if $v_{i} \in \mathbb{R}$ is continuous (Gaussian)}\<br>
+\end{cases} <br>
+\end{align}</p>
+<p>and similar for $b_{\mu} (\cdot)$.</p>
+<p><a href="https://arxiv.org/abs/1803.08823" target="_blank" rel="noopener"><img src="rbm.png" alt="alt text" title="Structure of a Restricted Boltzmann Machine"></a></p>
+<p>As we will see in the next sections, the bipartite structure of RBMs enables pairwise and higher-order correlations to emerge between visible units after integrating out hidden units. Additionally, the conditional independence of visible and hidden units enables tractable training methods like (block) Gibbs sampling and contrastive divergence<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>. We will not consider explicitly training RBMs in this post but will instead reflect on the idea of implicitly training these models, which is what seems to be happening inside Transformers.</p>
+<h2 id="integrating-out-hidden-units">Integrating out hidden units</h2>
+<p>Introducing hidden or latent variables in generative models is a powerful technique to encode interactions between visible units. Complex correlations between visible units can be captured at the cost of introducing new degrees of freedom and letting them interact with visible units. Since this trick often relies on exploiting <a href="https://en.wikipedia.org/wiki/Common_integrals_in_quantum_field_theory" target="_blank" rel="noopener">Gaussian integral identities</a> and physicists like their Gaussians, it shows up in several places across physics, e.g. in the <a href="https://en.wikipedia.org/wiki/Hubbard%E2%80%93Stratonovich_transformation" target="_blank" rel="noopener">Hubbard-Stratonovich transformation</a>.</p>
+<blockquote>
+<p><strong>Renormalization group</strong>: Rather than trying to fix the interactions in the &ldquo;microscopic theory&rdquo; like is done in the generative modeling scenario above, physicists are more familiar with the reverse procedure of deducing what effective theory emerges at large scales from a given microscopic theory. Indeed, integrating out degrees of freedom in physical theories can lead to complex, effective interactions between remaining degrees of freedom. This insight crystallized in the development of <a href="https://en.wikipedia.org/wiki/Renormalization_group" target="_blank" rel="noopener">renormalization group</a> theory in the early 1970s. By focusing on theories defined at different length scales, <a href="https://en.wikipedia.org/wiki/Kenneth_G._Wilson" target="_blank" rel="noopener">Kenneth G. Wilson</a> and his contemporaries introduced and unified the notions of flows, fixed points, and universilty in theory space to understand the behavior of physical systems under a change of scale.</p>
+</blockquote>
+<h2 id="effective-energies-and-correlations">Effective energies and correlations</h2>
+<p>Let us now consider what kind of correlations between visible degrees of freedom are supported by RBMs. The distribution of the visible degrees of freedom can be obtained by marginalizing over the hidden degrees of freedom:</p>
+<p>\begin{equation}
+p \left( \boldsymbol{v} \right) = \int \mathrm{d} \boldsymbol{h} \  p \left( \boldsymbol{v}, \boldsymbol{h} \right) = \int \mathrm{d} \boldsymbol{h} \  \frac{\mathrm{e}^{- E \left( \boldsymbol{v}, \boldsymbol{h} \right)}}{Z}
+\end{equation}</p>
+<p>We try to find an expression for the marginalized energy $E (\boldsymbol{v})$ by defining</p>
+<p>\begin{equation}
+p \left( \boldsymbol{v} \right) = \frac{\mathrm{e}^{- E (\boldsymbol{v})}}{Z}
+\end{equation}</p>
+<p>so that we can identify</p>
+<p>\begin{align}
+E \left( \boldsymbol{v} \right) &amp;= - \mathrm{log} \int \mathrm{d} \boldsymbol{h} \  \mathrm{e}^{- E \left( \boldsymbol{v}, \boldsymbol{h} \right)} \\<br>
+&amp;= - \sum_{i} a_{i} (v_{i}) - \sum_{\mu} \log \int \mathrm{d} h_{\mu}\ \mathrm{e}^{b_{\mu}(h_{\mu}) + \sum_{i} W_{i\mu} v_{i} h_{\mu}} \label{eq:effvisenergy}
+\end{align}</p>
+<p>Following <a href="https://arxiv.org/abs/1803.08823" target="_blank" rel="noopener">Mehda et al.</a>, we can try to better understand the correlations in $p(\boldsymbol{v})$ by introducing the (prior) distribution</p>
+<p>\begin{equation}
+q_{\mu} \left( h_{\mu} \right) = \frac{\mathrm{e}^{b_{\mu} (h_{\mu})}}{Z}
+\end{equation}</p>
+<p>for the hidden units $h_{\mu}$, ignoring the interactions between $\boldsymbol{v}$ and $\boldsymbol{h}$. Additionally, we can introduce the hidden unit&rsquo;s distribution&rsquo;s <a href="https://en.wikipedia.org/wiki/Cumulant" target="_blank" rel="noopener">cumulant generating function</a></p>
+<p>\begin{align}
+K_{\mu} (t) &amp;= \mathrm{log}\ \mathbb{E} \left[ \mathrm{e}^{t h_{\mu}} \right] \\<br>
+&amp;= \mathrm{log} \int \mathrm{d} h_{\mu} \  q_{\mu} \left( h_{\mu} \right) \mathrm{e}^{t h_{\mu}}\\<br>
+&amp;= \sum_{n=1}^{\infty} \kappa_{\mu}^{(n)} \frac{t^{n}}{n!},
+\end{align}</p>
+<p>which is defined such that the $n^{\mathrm{th}}$ cumulant $\kappa_{\mu}^{(n)}$ of $q_{\mu} \left( h_{\mu} \right)$ can be obtained by taking derivatives $\kappa_{\mu}^{(n)} = \partial_{t}^{n} K_{\mu} \rvert_{t=0}$.</p>
+<p>Looking back at the effective energy function \eqref{eq:effvisenergy} for the visible units, we find that the effective energy looks like</p>
+<p>\begin{align}
+E \left( \boldsymbol{v} \right) &amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{\mu} K_{\mu} \left( \sum_{i} W_{i\mu} v_{i} \right) \\<br>
+&amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{\mu} \sum_{n=1}^{\infty} \kappa_{\mu}^{(n)} \frac{\left( \sum_{i} W_{i\mu} v_{i} \right)^{n}}{n!} \\<br>
+&amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{i} \left( \sum_{\mu} \kappa_{\mu}^{(1)} W_{i\mu} \right) v_{i} \\<br>
+&amp;\ \ \ \ \ - \frac{1}{2} \sum_{ij} \left( \sum_{\mu} \kappa_{\mu}^{(2)} W_{i\mu} W_{j\mu} \right) v_{i} v_{j} + \ldots \label{eq:effectivenergy}
+\end{align}</p>
+<p>We see that the auxiliary, hidden degrees of freedom induce effective pairwise and higher-order correlations among visible degrees of freedom. Each hidden unit $h_{\mu}$ can encode interactions of arbitrarily high order, with the $n$-th order cumulants of $q_{\mu} \left( h_{\mu} \right)$ weighting the $n$-th order interactions. By combining many hidden units and/or stacking layers, we can in principle encode complex interactions at all orders and learn them from data.</p>
+<p>Let us now recover some known models by picking a suitable prior distribution for the hidden units:</p>
+<ul>
+<li>
+<p><strong>Classical discrete Hopfield networks</strong>: Consider a Bernouilli distribution for the visible units and a standard Gaussian distribution for the hidden units. For a standard Gaussian, the mean $\kappa_{\mu}^{(1)} = 0$, the variance $\kappa_{\mu}^{(2)} = 1$, and $\kappa_{\mu}^{(n)} = 0$, $\forall n\geq 3$, leading to the quadratic energy function of Hopfield networks:
+\begin{align}
+E \left( \boldsymbol{v} \right) = - \sum_{i} a_{i} v_{i} - \frac{1}{2} \sum_{ij} \left( \sum_{\mu} W_{i\mu} W_{j\mu} \right) v_{i} v_{j}
+\end{align}</p>
+</li>
+<li>
+<p><strong>Modern discrete Hopfield networks</strong>: Consider a Bernouilli distribution for the visible units. Since it can be shown that the normal distribution is the only distribution whose cumulant generating function is a polynomial, i.e. the only distribution having a finite number of non-zero cumulants<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>, it looks like we cannot model a finite amount of polynomial interactions in this framework. But we can model an exponential interaction by considering a Poisson distribution $\mathrm{Pois}(\lambda)$ with rate $\lambda=1$ for the hidden units, whose cumulants are all equal to the rate, i.e. $\kappa_{\mu}^{(n)} = 1$, $\forall n\geq 1$. Up to a constant, we then obtain an exponential interaction
+\begin{align}
+E \left( \boldsymbol{v} \right) = - \sum_{i} a_{i} v_{i} - \sum_{\mu} \exp \left( \sum_{i} W_{i\mu} v_{i} \right)
+\end{align}</p>
+</li>
+</ul>
+<p>Other kinds of effective interactions can be obtained by substituting the cumulants of your favorite probability distribution. The <a href="https://en.wikipedia.org/wiki/Bernoulli_distribution#Higher_moments_and_cumulants" target="_blank" rel="noopener">cumulants of hidden Bernouilli units</a> induce interactions of all orders. Considering exponential or Laplacian distributions where $\kappa^{(n)} \sim (n-1)!$ seems to lead to funky logarithmic interactions.</p>
+<h2 id="modern-hopfield-networks-as-mixtures-of-effective-rbms">Modern Hopfield networks as mixtures of effective RBMs</h2>
+<p>Let us now return to the energy function of modern Hopfield networks for a single query $\boldsymbol{\xi} \in \mathbb{R}^{d}$ and $N$ stored patterns encoded by $\boldsymbol{X} \in \mathbb{R}^{d \times N}$,
+\begin{equation}
+E(\boldsymbol{\xi}; \boldsymbol{X}) = \frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right),
+\end{equation}
+which we can transform into the RBM notation of the previous section by changing the names of variables and transposing the stored pattern matrix,
+\begin{equation}
+E(\boldsymbol{v}; W) = \frac{1}{2} \sum_{i} v_{i}^{2} -\log \left( \sum_{\mu} \exp \left( \sum_{i} W_{\mu i} v_{i} \right) \right).
+\end{equation}</p>
+<p>Let&rsquo;s imagine this energy to be an effective energy $E(\boldsymbol{v})$ for the visible units with probability distribution
+\begin{equation}
+p(\boldsymbol{v}) = \frac{\mathrm{e}^{-E(\boldsymbol{v})}}{Z} = \frac{1}{Z} \sum_{\mu} \mathrm{e}^{-\frac{1}{2} \sum_{i} v_{i}^{2} + \sum_{i} W_{\mu i} v_{i}},
+\end{equation}
+where the partition function $Z$ follows from doing a <a href="https://en.wikipedia.org/wiki/Gaussian_integral#n-dimensional_with_linear_term" target="_blank" rel="noopener">Gaussian integral</a>
+\begin{equation}
+Z = (2\pi)^{n/2} \sum_{\mu} Z_{\mu} = (2\pi)^{n/2} \sum_{\mu} \mathrm{e}^{\frac{1}{2} \sum_{i} W_{\mu i} W_{i\mu}}
+\end{equation}</p>
+<p>We can now identify the probability distribution $p(\boldsymbol{v})$ with a mixture of effective energy-based models
+\begin{equation}
+p(\boldsymbol{v}) = \sum_{\mu} w_{\mu} \frac{\mathrm{e}^{-\frac{1}{2} \sum_{i} v_{i}^{2} + \sum_{i} \mathbf{W}_{\mu i} v_{i}}}{Z_{\mu}} = \sum_{\mu} w_{\mu} \frac{ \mathrm{e}^{ -E_{\mu}(\boldsymbol{v}) }}{Z_{\mu}}
+\end{equation}
+where $w_{\mu} = Z_{\mu} / Z$ so that $\sum_{\mu} w_{\mu} = 1$. During training, the model can control prior weights $w_{\mu}$ by adjusting relative norms of patterns. If the difference in norms between the stored patterns is not too wild, one might expect $w_{\mu} \approx 1/d$.</p>
+<blockquote>
+<p>We are aware that this identification might be tremendously trivial when considering prior work on <a href="https://papers.nips.cc/paper/2008/hash/e820a45f1dfc7b95282d10b6087e11c0-Abstract.html" target="_blank" rel="noopener">Implicit Mixtures of Restricted Boltzmann Machines</a> or, more generally, mixture models in the context of <a href="https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm" target="_blank" rel="noopener">expectation-minimization optimization</a>.</p>
+</blockquote>
+<p>Let&rsquo;s finish the story by looking at a single model in the mixture. Each effective energy function $E_{\mu}(\boldsymbol{v})$ is derived from a joint energy function with just a single hidden unit,</p>
+<p>\begin{equation}
+E_{\mu} \left( \boldsymbol{v}, h_{\mu} \right) = - \sum_{i} a_{i} (v_{i}) - b_{\mu} (h_{\mu}) - \sum_{i} W_{i \mu} v_{i} h_{\mu}
+\end{equation}</p>
+<p>Looking back at \eqref{eq:effectivenergy}, we see that we can recover $E_{\mu}(\boldsymbol{v})$ by picking a hidden prior distribution that is a constant random variable so that $\kappa_{\mu}^{(1)}=1$ is the only non-zero cumulant. This frozen property of hidden units seems to agree with the fast dynamics of memory neurons in the dynamical systems model proposed in <a href="https://arxiv.org/abs/2008.06996" target="_blank" rel="noopener">Krotov and Hopfield (2020)</a><sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>.</p>
+<p>In conclusion, the energy-based model underlying vanilla Transformer attention is not terribly exciting.</p>
+<h1 id="3-attention-as-implicit-energy-minimization">3. Attention as implicit energy minimization</h1>
+<p>Let&rsquo;s finish this post with some comments on how one could leverage the idea of implicit energy minimization to develop novel attention mechanisms.</p>
+<h2 id="bending-the-explicit-architecture">Bending the explicit architecture</h2>
+<p>A lot of work on post-vanilla Transformer architectures tries to improve <code>softmax</code>-attention by making it more efficient through approximations and/or modifications at the level of the architecture. Kernel-based approaches like <a href="https://arxiv.org/abs/2009.14794" target="_blank" rel="noopener">Rethinking Attention with Performers</a> have shown not only that <code>softmax</code> attention can be efficiently approximated by a generalized attention mechanism but also that generalized <code>ReLU</code>-based attention performed better in practice. Papers like <a href="https://arxiv.org/abs/2005.09561" target="_blank" rel="noopener">Normalized Attention Without Probability Cage</a> show how we can replace the <code>softmax</code> non-linearity in \eqref{eq:mhnupdate} with pure normalization and still end up with a competitive algorithm, noting that the updated query being restricted to lie in the convex hull of the stored patterns is a bias we might want to question.</p>
+<p>Does an energy-based perspective help to understand these developments? From the above examples, it seems like at least a part of current research on attention is trying to break away from the confines of existing, explicit attention architectures but doesn&rsquo;t quite know how to do so in a principled way.</p>
+<h2 id="from-explicit-architectures-to-implicit-energy-minimization">From explicit architectures to implicit energy minimization</h2>
+<p>We have seen in this post that the energy function behind the <code>softmax</code> attention mechanism can be understood as a mixture of simple energy-based models. But what can we actually do with this information? Especially since we know from language modeling experiments that &ldquo;just scaling&rdquo; these simple models to billions of parameters enables them to store enough patterns to be useful. Despite huge progress, there however remain important challenges in terms of efficiency and generalizability.</p>
+<p>Considering slightly less trivial energy-based models might address both. By adding interactions in such a way that, for example, in a language model, input sequences containing the word <code>terrifying</code> can pay attention to concepts and experiences induced by <code>terrifying</code> that do not appear in the input sequence. By having attention modules return a <em>collective response</em> rather than the sum of decoupled entities.</p>
+<p>To some extent, the additional linear transformations on the input patterns in the query-key-value formulation of Transformer self-attention already try to address this:
+\begin{equation}
+\mathrm{Attention}\left( \mathbf{Q}, \mathbf{K}, \mathbf{V} \right) = \mathrm{softmax} \left( \frac{\mathbf{Q} \mathbf{K}^T}{\sqrt{d}} \right) \mathbf{V}
+\label{eq:vanilla-attention}
+\end{equation}
+These linear transformations slightly generalize the &ldquo;naked&rdquo; explicit gradient step of \eqref{eq:mhnupdate} and can in principle learn to cluster and direct patterns to neighborhoods in the energy landscape. But why stop there?</p>
+<h2 id="deep-implicit-layers-for-attention-dynamics">Deep implicit layers for attention dynamics</h2>
+<p>An interesting way forward might be to integrate attention with <em>deep implicit layers</em>. Funnily enough, the authors of the NeurIPS 2020 tutorial on <a href="https://implicit-layers-tutorial.org/" target="_blank" rel="noopener">Deep Implicit Layers</a> list self-attention as a prime example of an explicit layer in their <a href="https://colab.research.google.com/drive/1OUVzeUh66wVOFI_Nc_rIAuO70gHimHH8?usp=sharing#scrollTo=vFlF3gTnzOpp" target="_blank" rel="noopener">introductory notebook</a>. Yet we have seen in a <a href="https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/" target="_blank" rel="noopener">previous post</a> that self-attention can &mdash; and perhaps should &mdash; actually be considered an implicit layer solving for a fixed point query. Because of the lack of dynamics of the current generation of attention mechanisms, this can be done in a single big gradient step, removing the need to iterate. Attention models with more complicated dynamics might benefit from a differentiable solver to find a fixed point and return the most appropriate result in a given context.</p>
+<p>Compared to modifying explicit architectures, the implicit-layer perspective seems to act on a different &ldquo;conceptual level&rdquo; of neural network architecture design. This raises a lot of questions. Which families of attention architectures can be expressed in terms of implicit energy functions like <code>softmax</code>-attention? How many of these have efficient minimization properties with closed-form gradients? Beyond closed-form gradients, how far can we go in parametrizing more general energy-based attention models and still sample and backpropagate efficiently? What does the trade-off look like between a model&rsquo;s complexity and it still being implicitly trainable?</p>
+<p>In a next post, we might have a go at implementing a few implicit attention mechanisms ourselves. Most likely, we will observe how they all perform worse than the current generation of simpler models when scaled to industrial levels of compute<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>.</p>
+<h1 id="4-conclusion">4. Conclusion</h1>
+<p>Looking back and reversing causation, one could argue that the now-famous dot-product attention module introduced in <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need</a><sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup> could only have been arrived at because of the properties of its implicit energy function \eqref{eq:mhnenergy}. Indeed, it is only because of the associative memory&rsquo;s decoupled and rather crude way of storing patterns in isolated, high-dimensional valleys that expensive, implicit energy minimization steps can be traded for a cheap, explicit one-step gradient update like \eqref{eq:mhnupdate}.</p>
+<p>The obvious pitfall of continuing to hold on to the conceptual framework introduced by this shortcut is that a potentially far richer picture of (sparse) attention dynamics remains obscured. Rather than perpetually rethinking what is all you <em>really</em> need within the confines of existing, explicit attention modules, why not opt for implicit modules built on top of an energy-based perspective to try to push things forward?</p>
+<h1 id="references--footnotes">References &amp; footnotes</h1>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p><em>Pankaj Mehta, Marin Bukov, Ching-Hao Wang, Alexandre G.R. Day, Clint Richardson, Charles K. Fisher, David J. Schwab, <a href="https://arxiv.org/abs/1803.08823" target="_blank" rel="noopener">A high-bias, low-variance introduction to Machine Learning for physicists</a> (2019)</em> <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>Proof by Marcinkiewicz (1935) according to <a href="http://www.stat.uchicago.edu/~pmcc/courses/stat306/2013/cumulants.pdf">http://www.stat.uchicago.edu/~pmcc/courses/stat306/2013/cumulants.pdf</a>. <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3" role="doc-endnote">
+<p><em>Dmitry Krotov and John Hopfield, <a href="https://arxiv.org/abs/2008.06996" target="_blank" rel="noopener">Large Associative Memory Problem in Neurobiology and Machine Learning</a> (2020)</em> <a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:4" role="doc-endnote">
+<p><em>Rich Sutton, <a href="http://www.incompleteideas.net/IncIdeas/BitterLesson.html" target="_blank" rel="noopener">The Bitter Lesson</a> (2019)</em> <a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:5" role="doc-endnote">
+<p><em>Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need</a> (2017)</em> <a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+
+    </div>
+
+    
+
+
+
+
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tag/artificial-intelligence/">Artificial Intelligence</a>
+  
+  <a class="badge badge-light" href="/tag/associative-memories/">Associative Memories</a>
+  
+  <a class="badge badge-light" href="/tag/attention/">Attention</a>
+  
+  <a class="badge badge-light" href="/tag/deep-learning/">Deep Learning</a>
+  
+  <a class="badge badge-light" href="/tag/energy-based-models/">Energy-Based Models</a>
+  
+  <a class="badge badge-light" href="/tag/neural-networks/">Neural Networks</a>
+  
+  <a class="badge badge-light" href="/tag/renormalization-group/">Renormalization Group</a>
+  
+  <a class="badge badge-light" href="/tag/restricted-boltzmann-machine/">Restricted Boltzmann Machine</a>
+  
+  <a class="badge badge-light" href="/tag/statistical-physics/">Statistical Physics</a>
+  
+  <a class="badge badge-light" href="/tag/transformers/">Transformers</a>
+  
+</div>
+
+
+
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://twitter.com/intent/tweet?url=https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/&amp;text=Transformer%20Attention%20as%20an%20Implicit%20Mixture%20of%20Effective%20Energy-Based%20Models" target="_blank" rel="noopener" class="share-btn-twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.facebook.com/sharer.php?u=https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/&amp;t=Transformer%20Attention%20as%20an%20Implicit%20Mixture%20of%20Effective%20Energy-Based%20Models" target="_blank" rel="noopener" class="share-btn-facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="mailto:?subject=Transformer%20Attention%20as%20an%20Implicit%20Mixture%20of%20Effective%20Energy-Based%20Models&amp;body=https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/" target="_blank" rel="noopener" class="share-btn-email">
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.linkedin.com/shareArticle?url=https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/&amp;title=Transformer%20Attention%20as%20an%20Implicit%20Mixture%20of%20Effective%20Energy-Based%20Models" target="_blank" rel="noopener" class="share-btn-linkedin">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="whatsapp://send?text=Transformer%20Attention%20as%20an%20Implicit%20Mixture%20of%20Effective%20Energy-Based%20Models%20https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/" target="_blank" rel="noopener" class="share-btn-whatsapp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://service.weibo.com/share/share.php?url=https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/&amp;title=Transformer%20Attention%20as%20an%20Implicit%20Mixture%20of%20Effective%20Energy-Based%20Models" target="_blank" rel="noopener" class="share-btn-weibo">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+  
+  
+    
+  
+  
+  
+  <div class="media author-card content-widget-hr">
+    
+      
+      <a href="https://mcbal.github.io/"><img class="avatar mr-3 avatar-circle" src="/author/matthias-bal/avatar_huf6181012a34ccf45ad256514680767eb_86031_270x270_fill_q90_lanczos_center.jpg" alt="Matthias Bal"></a>
+    
+
+    <div class="media-body">
+      <h5 class="card-title"><a href="https://mcbal.github.io/">Matthias Bal</a></h5>
+      
+      <p class="card-text">Machine learning engineer with a background in physics.</p>
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+    <li>
+      <a href="mailto:matthiascbal@gmail.com" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://twitter.com/MatthiasBal" target="_blank" rel="noopener">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.goodreads.com/user/show/26132177-matthias" target="_blank" rel="noopener">
+        <i class="fab fa-goodreads"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.linkedin.com/in/matthiasbal/" target="_blank" rel="noopener">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://scholar.google.be/citations?user=vjYY0bMAAAAJ&amp;hl=en" target="_blank" rel="noopener">
+        <i class="ai ai-google-scholar"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/mcbal" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+<div class="article-widget">
+  
+<div class="post-nav">
+  
+  
+  
+  <div class="post-nav-item">
+    <div class="meta-nav">Previous</div>
+    <a href="/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/" rel="prev">An Energy-Based Perspective on Attention Mechanisms in Transformers</a>
+  </div>
+  
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  <div class="article-widget content-widget-hr">
+    <h3>Related</h3>
+    <ul>
+      
+      <li><a href="/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/">An Energy-Based Perspective on Attention Mechanisms in Transformers</a></li>
+      
+    </ul>
+  </div>
+  
+
+
+
+
+
+  </div>
+</article>
+
+      
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.1.0/instantpage.min.js" integrity="sha512-1+qUtKoh9XZW7j+6LhRMAyOrgSQKenQ4mluTR+cvxXjP1Z54RxZuzstR/H9kgPXQsVB8IW7DMDFUJpzLjvhGSQ==" crossorigin="anonymous"></script>
+
+      
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/highlight.min.js" integrity="sha512-TDKKr+IvoqZnPzc3l35hdjpHD0m+b2EC2SrLEgKDRWpxf2rFCxemkgvJ5kfU48ip+Y+m2XVKyOCD85ybtlZDmw==" crossorigin="anonymous"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/python.min.js"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/bash.min.js"></script>
+        
+      
+
+    
+
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js" integrity="sha512-SeiQaaDh73yrb56sTW/RgVdi/mMqNeM2oBwubFHagc5BkixSpP1fvqF47mKzPGWYSSy4RwbBunrJBQ4Co8fRWA==" crossorigin="anonymous"></script>
+    
+
+    
+    
+    <script>const code_highlighting = true;</script>
+    
+
+    
+    
+    
+    
+    
+    
+    <script>
+      const search_config = {"indexURI":"/index.json","minLength":1,"threshold":0.3};
+      const i18n = {"no_results":"No results found","placeholder":"Search...","results":"results found"};
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'talk' : "Talks",
+        'slides' : "Slides"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    
+    
+    
+    <script src="/js/wowchemy.min.4c2bca31150ce93c5a5e43b8a50f22fd.js"></script>
+
+    
+
+
+
+
+
+
+  
+  
+  <div class="container">
+    <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    Matthias Bal © 2020
+  </p>
+
+  
+  
+
+
+
+
+
+
+  <p class="powered-by">
+    
+    Published with
+    <a href="https://wowchemy.com" target="_blank" rel="noopener">Wowchemy</a>  —
+    the free, <a href="https://github.com/wowchemy/wowchemy-hugo-modules" target="_blank" rel="noopener">
+    open source</a> website builder that empowers creators.
+    
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" class="back-to-top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+  </div>
+  
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

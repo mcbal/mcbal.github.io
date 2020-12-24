@@ -5,12 +5,203 @@
     <link>https://mcbal.github.io/tag/deep-learning/</link>
       <atom:link href="https://mcbal.github.io/tag/deep-learning/index.xml" rel="self" type="application/rss+xml" />
     <description>Deep Learning</description>
-    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-gb</language><copyright>Matthias Bal © 2020</copyright><lastBuildDate>Sat, 28 Nov 2020 10:54:21 +0100</lastBuildDate>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-gb</language><copyright>Matthias Bal © 2020</copyright><lastBuildDate>Tue, 22 Dec 2020 10:03:17 +0100</lastBuildDate>
     <image>
       <url>https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png</url>
       <title>Deep Learning</title>
       <link>https://mcbal.github.io/tag/deep-learning/</link>
     </image>
+    
+    <item>
+      <title>Transformer Attention as an Implicit Mixture of Effective Energy-Based Models</title>
+      <link>https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/</link>
+      <pubDate>Tue, 22 Dec 2020 10:03:17 +0100</pubDate>
+      <guid>https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/</guid>
+      <description>&lt;hr&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#1-introduction&#34;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#2-attention-from-effective-energy-based-models&#34;&gt;Attention from effective energy-based models&lt;/a&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#restricted-boltzmann-machines&#34;&gt;Restricted Boltzmann Machines&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#integrating-out-hidden-units&#34;&gt;Integrating out hidden units&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#effective-energies-and-correlations&#34;&gt;Effective energies and correlations&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#modern-hopfield-networks-as-mixtures-of-effective-rbms&#34;&gt;Modern Hopfield networks as mixtures of effective RBMs&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#3-attention-as-implicit-energy-minimization&#34;&gt;Attention as implicit energy minimization&lt;/a&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#bending-the-explicit-architecture&#34;&gt;Bending the explicit architecture&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#from-explicit-architectures-to-implicit-energy-minimization&#34;&gt;From explicit architectures to implicit energy minimization&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#deep-implicit-layers-for-attention-dynamics&#34;&gt;Deep implicit layers for attention dynamics&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#4-conclusion&#34;&gt;Conclusion&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;!-- In this post, I will try to partly address the concerns of the following critic:
+
+&gt; _In your [previous post](https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/), you introduced the energy function of modern Hopfield networks without explanation. Where does it come from? What&#39;s up with the logarithm? Is there actually any other interpretation then it being reverse-engineered from the Transformers&#39; attention step? Is this all a desperate attempt to make Hopfield networks cool again? Also, I cannot see the value of looking at attention from an energy-based perspective if it doesn&#39;t help me achieve SOTA. Weak reject._ --&gt;
+&lt;h1 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h1&gt;
+&lt;p&gt;In a &lt;a href=&#34;https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;previous post&lt;/a&gt;, I provided an overview of attention in Transformer models and summarized its connections to modern Hopfield networks. We saw that the energy-based model
+\begin{equation}
+E(\boldsymbol{\Xi}; \boldsymbol{X}) = \frac{1}{2} \boldsymbol{\Xi}^T \boldsymbol{\Xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\Xi} \right).
+\label{eq:mhnenergy}
+\end{equation}
+enables fast pattern storage and retrieval through its simple and robust dynamics, leading to rapid convergence
+\begin{align}
+\boldsymbol{\Xi}_{n+1}  = \boldsymbol{X} \ \mathrm{softmax} \left( \boldsymbol{X}^T \boldsymbol{\Xi}_{n}\right)
+\label{eq:mhnupdate}
+\end{align}
+of input queries $\boldsymbol{\Xi}_{n}$ to updated queries $\boldsymbol{\Xi}_{n+1}$ lying in the convex hull of stored patterns $\boldsymbol{X}$. I also argued by means of handwaving that optimizing a Transformer looks like meta-learning from the point of view of its attention modules, sculpting energy landscapes to accommodate statistical patterns found in data.&lt;/p&gt;
+&lt;p&gt;The main goal of this post is to build on these insights and highlight how an energy-based perspective can be a useful, complementary approach towards improving attention-based neural network modules. Parallel to scaling compute and making (self-)attention more efficient, it might be worthwhile to try to scale learning itself by experimenting with radically different attention mechanisms. To this end, we will revisit ancient ideas at the boundary of statistical physics and machine learning and show how vanilla attention looks like a mixture of simple energy-based models. We will then try to argue how thinking in terms of implicit energy minimization instead of explicit attention modules suggests opportunities to put &lt;a href=&#34;https://implicit-layers-tutorial.org/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Layers&lt;/a&gt; to work.&lt;/p&gt;
+&lt;h1 id=&#34;2-attention-from-effective-energy-based-models&#34;&gt;2. Attention from effective energy-based models&lt;/h1&gt;
+&lt;p&gt;In this section, we will introduce Restricted Boltzmann Machines as a particular class of energy-based models and explain how their capacity for effective correlations makes them attractive for (generative) modeling. After identifying classical discrete Hopfield networks and modern discrete Hopfield networks, we will show a naive way to fit modern continuous Hopfield networks into this framework. Throughout this section, we will rely heavily on the wonderful review &lt;a href=&#34;https://arxiv.org/abs/1803.08823&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A high-bias, low-variance introduction to Machine Learning for physicists&lt;/a&gt; by &lt;a href=&#34;https://arxiv.org/abs/1803.08823&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Mehda et al.&lt;/a&gt;&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;restricted-boltzmann-machines&#34;&gt;Restricted Boltzmann Machines&lt;/h2&gt;
+&lt;p&gt;A &lt;a href=&#34;https://en.wikipedia.org/wiki/Restricted_Boltzmann_machine&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Restricted Boltzmann Machines&lt;/a&gt; (RBM) is an &lt;a href=&#34;https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/#energy-based-models-a-gentle-introduction&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;energy-based model&lt;/a&gt; with a bipartite structure imposed on visible and hidden degrees of freedom: visible and hidden degrees of freedom interact with each other but do not interact among themselves.&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+E \left( \boldsymbol{v}, \boldsymbol{h} \right) = - \sum_{i} a_{i} (v_{i}) - \sum_{\mu} b_{\mu} (h_{\mu}) - \sum_{i \mu} W_{i \mu} v_{i} h_{\mu}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;where the matrix $W_{i \mu}$ encodes the coupling between hidden and visible units and where $a_{i} (\cdot)$ and $b_{\mu} (\cdot)$ are functions that can be chosen at will. Popular options are:&lt;/p&gt;
+&lt;p&gt;\begin{align}
+a_{i} (\cdot) =
+\begin{cases}
+a_{i} v_{i} &amp;amp; \text{if $v_{i} \in {0,1}$ is binary (Bernouilli)}\\&lt;br&gt;
+\frac{v_{i}^2}{2\sigma_{i}^{2}} &amp;amp; \text{if $v_{i} \in \mathbb{R}$ is continuous (Gaussian)}\&lt;br&gt;
+\end{cases} &lt;br&gt;
+\end{align}&lt;/p&gt;
+&lt;p&gt;and similar for $b_{\mu} (\cdot)$.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/1803.08823&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;img src=&#34;rbm.png&#34; alt=&#34;alt text&#34; title=&#34;Structure of a Restricted Boltzmann Machine&#34;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;As we will see in the next sections, the bipartite structure of RBMs enables pairwise and higher-order correlations to emerge between visible units after integrating out hidden units. Additionally, the conditional independence of visible and hidden units enables tractable training methods like (block) Gibbs sampling and contrastive divergence&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;. We will not consider explicitly training RBMs in this post but will instead reflect on the idea of implicitly training these models, which is what seems to be happening inside Transformers.&lt;/p&gt;
+&lt;h2 id=&#34;integrating-out-hidden-units&#34;&gt;Integrating out hidden units&lt;/h2&gt;
+&lt;p&gt;Introducing hidden or latent variables in generative models is a powerful technique to encode interactions between visible units. Complex correlations between visible units can be captured at the cost of introducing new degrees of freedom and letting them interact with visible units. Since this trick often relies on exploiting &lt;a href=&#34;https://en.wikipedia.org/wiki/Common_integrals_in_quantum_field_theory&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Gaussian integral identities&lt;/a&gt; and physicists like their Gaussians, it shows up in several places across physics, e.g. in the &lt;a href=&#34;https://en.wikipedia.org/wiki/Hubbard%E2%80%93Stratonovich_transformation&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hubbard-Stratonovich transformation&lt;/a&gt;.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Renormalization group&lt;/strong&gt;: Rather than trying to fix the interactions in the &amp;ldquo;microscopic theory&amp;rdquo; like is done in the generative modeling scenario above, physicists are more familiar with the reverse procedure of deducing what effective theory emerges at large scales from a given microscopic theory. Indeed, integrating out degrees of freedom in physical theories can lead to complex, effective interactions between remaining degrees of freedom. This insight crystallized in the development of &lt;a href=&#34;https://en.wikipedia.org/wiki/Renormalization_group&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;renormalization group&lt;/a&gt; theory in the early 1970s. By focusing on theories defined at different length scales, &lt;a href=&#34;https://en.wikipedia.org/wiki/Kenneth_G._Wilson&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Kenneth G. Wilson&lt;/a&gt; and his contemporaries introduced and unified the notions of flows, fixed points, and universilty in theory space to understand the behavior of physical systems under a change of scale.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;effective-energies-and-correlations&#34;&gt;Effective energies and correlations&lt;/h2&gt;
+&lt;p&gt;Let us now consider what kind of correlations between visible degrees of freedom are supported by RBMs. The distribution of the visible degrees of freedom can be obtained by marginalizing over the hidden degrees of freedom:&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+p \left( \boldsymbol{v} \right) = \int \mathrm{d} \boldsymbol{h} \  p \left( \boldsymbol{v}, \boldsymbol{h} \right) = \int \mathrm{d} \boldsymbol{h} \  \frac{\mathrm{e}^{- E \left( \boldsymbol{v}, \boldsymbol{h} \right)}}{Z}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;We try to find an expression for the marginalized energy $E (\boldsymbol{v})$ by defining&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+p \left( \boldsymbol{v} \right) = \frac{\mathrm{e}^{- E (\boldsymbol{v})}}{Z}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;so that we can identify&lt;/p&gt;
+&lt;p&gt;\begin{align}
+E \left( \boldsymbol{v} \right) &amp;amp;= - \mathrm{log} \int \mathrm{d} \boldsymbol{h} \  \mathrm{e}^{- E \left( \boldsymbol{v}, \boldsymbol{h} \right)} \\&lt;br&gt;
+&amp;amp;= - \sum_{i} a_{i} (v_{i}) - \sum_{\mu} \log \int \mathrm{d} h_{\mu}\ \mathrm{e}^{b_{\mu}(h_{\mu}) + \sum_{i} W_{i\mu} v_{i} h_{\mu}} \label{eq:effvisenergy}
+\end{align}&lt;/p&gt;
+&lt;p&gt;Following &lt;a href=&#34;https://arxiv.org/abs/1803.08823&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Mehda et al.&lt;/a&gt;, we can try to better understand the correlations in $p(\boldsymbol{v})$ by introducing the (prior) distribution&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+q_{\mu} \left( h_{\mu} \right) = \frac{\mathrm{e}^{b_{\mu} (h_{\mu})}}{Z}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;for the hidden units $h_{\mu}$, ignoring the interactions between $\boldsymbol{v}$ and $\boldsymbol{h}$. Additionally, we can introduce the hidden unit&amp;rsquo;s distribution&amp;rsquo;s &lt;a href=&#34;https://en.wikipedia.org/wiki/Cumulant&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;cumulant generating function&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;\begin{align}
+K_{\mu} (t) &amp;amp;= \mathrm{log}\ \mathbb{E} \left[ \mathrm{e}^{t h_{\mu}} \right] \\&lt;br&gt;
+&amp;amp;= \mathrm{log} \int \mathrm{d} h_{\mu} \  q_{\mu} \left( h_{\mu} \right) \mathrm{e}^{t h_{\mu}}\\&lt;br&gt;
+&amp;amp;= \sum_{n=1}^{\infty} \kappa_{\mu}^{(n)} \frac{t^{n}}{n!},
+\end{align}&lt;/p&gt;
+&lt;p&gt;which is defined such that the $n^{\mathrm{th}}$ cumulant $\kappa_{\mu}^{(n)}$ of $q_{\mu} \left( h_{\mu} \right)$ can be obtained by taking derivatives $\kappa_{\mu}^{(n)} = \partial_{t}^{n} K_{\mu} \rvert_{t=0}$.&lt;/p&gt;
+&lt;p&gt;Looking back at the effective energy function \eqref{eq:effvisenergy} for the visible units, we find that the effective energy looks like&lt;/p&gt;
+&lt;p&gt;\begin{align}
+E \left( \boldsymbol{v} \right) &amp;amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{\mu} K_{\mu} \left( \sum_{i} W_{i\mu} v_{i} \right) \\&lt;br&gt;
+&amp;amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{\mu} \sum_{n=1}^{\infty} \kappa_{\mu}^{(n)} \frac{\left( \sum_{i} W_{i\mu} v_{i} \right)^{n}}{n!} \\&lt;br&gt;
+&amp;amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{i} \left( \sum_{\mu} \kappa_{\mu}^{(1)} W_{i\mu} \right) v_{i} \\&lt;br&gt;
+&amp;amp;\ \ \ \ \ - \frac{1}{2} \sum_{ij} \left( \sum_{\mu} \kappa_{\mu}^{(2)} W_{i\mu} W_{j\mu} \right) v_{i} v_{j} + \ldots \label{eq:effectivenergy}
+\end{align}&lt;/p&gt;
+&lt;p&gt;We see that the auxiliary, hidden degrees of freedom induce effective pairwise and higher-order correlations among visible degrees of freedom. Each hidden unit $h_{\mu}$ can encode interactions of arbitrarily high order, with the $n$-th order cumulants of $q_{\mu} \left( h_{\mu} \right)$ weighting the $n$-th order interactions. By combining many hidden units and/or stacking layers, we can in principle encode complex interactions at all orders and learn them from data.&lt;/p&gt;
+&lt;p&gt;Let us now recover some known models by picking a suitable prior distribution for the hidden units:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Classical discrete Hopfield networks&lt;/strong&gt;: Consider a Bernouilli distribution for the visible units and a standard Gaussian distribution for the hidden units. For a standard Gaussian, the mean $\kappa_{\mu}^{(1)} = 0$, the variance $\kappa_{\mu}^{(2)} = 1$, and $\kappa_{\mu}^{(n)} = 0$, $\forall n\geq 3$, leading to the quadratic energy function of Hopfield networks:
+\begin{align}
+E \left( \boldsymbol{v} \right) = - \sum_{i} a_{i} v_{i} - \frac{1}{2} \sum_{ij} \left( \sum_{\mu} W_{i\mu} W_{j\mu} \right) v_{i} v_{j}
+\end{align}&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Modern discrete Hopfield networks&lt;/strong&gt;: Consider a Bernouilli distribution for the visible units. Since it can be shown that the normal distribution is the only distribution whose cumulant generating function is a polynomial, i.e. the only distribution having a finite number of non-zero cumulants&lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;, it looks like we cannot model a finite amount of polynomial interactions in this framework. But we can model an exponential interaction by considering a Poisson distribution $\mathrm{Pois}(\lambda)$ with rate $\lambda=1$ for the hidden units, whose cumulants are all equal to the rate, i.e. $\kappa_{\mu}^{(n)} = 1$, $\forall n\geq 1$. Up to a constant, we then obtain an exponential interaction
+\begin{align}
+E \left( \boldsymbol{v} \right) = - \sum_{i} a_{i} v_{i} - \sum_{\mu} \exp \left( \sum_{i} W_{i\mu} v_{i} \right)
+\end{align}&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Other kinds of effective interactions can be obtained by substituting the cumulants of your favorite probability distribution. The &lt;a href=&#34;https://en.wikipedia.org/wiki/Bernoulli_distribution#Higher_moments_and_cumulants&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;cumulants of hidden Bernouilli units&lt;/a&gt; induce interactions of all orders. Considering exponential or Laplacian distributions where $\kappa^{(n)} \sim (n-1)!$ seems to lead to funky logarithmic interactions.&lt;/p&gt;
+&lt;h2 id=&#34;modern-hopfield-networks-as-mixtures-of-effective-rbms&#34;&gt;Modern Hopfield networks as mixtures of effective RBMs&lt;/h2&gt;
+&lt;p&gt;Let us now return to the energy function of modern Hopfield networks for a single query $\boldsymbol{\xi} \in \mathbb{R}^{d}$ and $N$ stored patterns encoded by $\boldsymbol{X} \in \mathbb{R}^{d \times N}$,
+\begin{equation}
+E(\boldsymbol{\xi}; \boldsymbol{X}) = \frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right),
+\end{equation}
+which we can transform into the RBM notation of the previous section by changing the names of variables and transposing the stored pattern matrix,
+\begin{equation}
+E(\boldsymbol{v}; W) = \frac{1}{2} \sum_{i} v_{i}^{2} -\log \left( \sum_{\mu} \exp \left( \sum_{i} W_{\mu i} v_{i} \right) \right).
+\end{equation}&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s imagine this energy to be an effective energy $E(\boldsymbol{v})$ for the visible units with probability distribution
+\begin{equation}
+p(\boldsymbol{v}) = \frac{\mathrm{e}^{-E(\boldsymbol{v})}}{Z} = \frac{1}{Z} \sum_{\mu} \mathrm{e}^{-\frac{1}{2} \sum_{i} v_{i}^{2} + \sum_{i} W_{\mu i} v_{i}},
+\end{equation}
+where the partition function $Z$ follows from doing a &lt;a href=&#34;https://en.wikipedia.org/wiki/Gaussian_integral#n-dimensional_with_linear_term&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Gaussian integral&lt;/a&gt;
+\begin{equation}
+Z = (2\pi)^{n/2} \sum_{\mu} Z_{\mu} = (2\pi)^{n/2} \sum_{\mu} \mathrm{e}^{\frac{1}{2} \sum_{i} W_{\mu i} W_{i\mu}}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;We can now identify the probability distribution $p(\boldsymbol{v})$ with a mixture of effective energy-based models
+\begin{equation}
+p(\boldsymbol{v}) = \sum_{\mu} w_{\mu} \frac{\mathrm{e}^{-\frac{1}{2} \sum_{i} v_{i}^{2} + \sum_{i} \mathbf{W}_{\mu i} v_{i}}}{Z_{\mu}} = \sum_{\mu} w_{\mu} \frac{ \mathrm{e}^{ -E_{\mu}(\boldsymbol{v}) }}{Z_{\mu}}
+\end{equation}
+where $w_{\mu} = Z_{\mu} / Z$ so that $\sum_{\mu} w_{\mu} = 1$. During training, the model can control prior weights $w_{\mu}$ by adjusting relative norms of patterns. If the difference in norms between the stored patterns is not too wild, one might expect $w_{\mu} \approx 1/d$.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;We are aware that this identification might be tremendously trivial when considering prior work on &lt;a href=&#34;https://papers.nips.cc/paper/2008/hash/e820a45f1dfc7b95282d10b6087e11c0-Abstract.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Implicit Mixtures of Restricted Boltzmann Machines&lt;/a&gt; or, more generally, mixture models in the context of &lt;a href=&#34;https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;expectation-minimization optimization&lt;/a&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Let&amp;rsquo;s finish the story by looking at a single model in the mixture. Each effective energy function $E_{\mu}(\boldsymbol{v})$ is derived from a joint energy function with just a single hidden unit,&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+E_{\mu} \left( \boldsymbol{v}, h_{\mu} \right) = - \sum_{i} a_{i} (v_{i}) - b_{\mu} (h_{\mu}) - \sum_{i} W_{i \mu} v_{i} h_{\mu}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;Looking back at \eqref{eq:effectivenergy}, we see that we can recover $E_{\mu}(\boldsymbol{v})$ by picking a hidden prior distribution that is a constant random variable so that $\kappa_{\mu}^{(1)}=1$ is the only non-zero cumulant. This frozen property of hidden units seems to agree with the fast dynamics of memory neurons in the dynamical systems model proposed in &lt;a href=&#34;https://arxiv.org/abs/2008.06996&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Krotov and Hopfield (2020)&lt;/a&gt;&lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;In conclusion, the energy-based model underlying vanilla Transformer attention is not terribly exciting.&lt;/p&gt;
+&lt;h1 id=&#34;3-attention-as-implicit-energy-minimization&#34;&gt;3. Attention as implicit energy minimization&lt;/h1&gt;
+&lt;p&gt;Let&amp;rsquo;s finish this post with some comments on how one could leverage the idea of implicit energy minimization to develop novel attention mechanisms.&lt;/p&gt;
+&lt;h2 id=&#34;bending-the-explicit-architecture&#34;&gt;Bending the explicit architecture&lt;/h2&gt;
+&lt;p&gt;A lot of work on post-vanilla Transformer architectures tries to improve &lt;code&gt;softmax&lt;/code&gt;-attention by making it more efficient through approximations and/or modifications at the level of the architecture. Kernel-based approaches like &lt;a href=&#34;https://arxiv.org/abs/2009.14794&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Rethinking Attention with Performers&lt;/a&gt; have shown not only that &lt;code&gt;softmax&lt;/code&gt; attention can be efficiently approximated by a generalized attention mechanism but also that generalized &lt;code&gt;ReLU&lt;/code&gt;-based attention performed better in practice. Papers like &lt;a href=&#34;https://arxiv.org/abs/2005.09561&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Normalized Attention Without Probability Cage&lt;/a&gt; show how we can replace the &lt;code&gt;softmax&lt;/code&gt; non-linearity in \eqref{eq:mhnupdate} with pure normalization and still end up with a competitive algorithm, noting that the updated query being restricted to lie in the convex hull of the stored patterns is a bias we might want to question.&lt;/p&gt;
+&lt;p&gt;Does an energy-based perspective help to understand these developments? From the above examples, it seems like at least a part of current research on attention is trying to break away from the confines of existing, explicit attention architectures but doesn&amp;rsquo;t quite know how to do so in a principled way.&lt;/p&gt;
+&lt;h2 id=&#34;from-explicit-architectures-to-implicit-energy-minimization&#34;&gt;From explicit architectures to implicit energy minimization&lt;/h2&gt;
+&lt;p&gt;We have seen in this post that the energy function behind the &lt;code&gt;softmax&lt;/code&gt; attention mechanism can be understood as a mixture of simple energy-based models. But what can we actually do with this information? Especially since we know from language modeling experiments that &amp;ldquo;just scaling&amp;rdquo; these simple models to billions of parameters enables them to store enough patterns to be useful. Despite huge progress, there however remain important challenges in terms of efficiency and generalizability.&lt;/p&gt;
+&lt;p&gt;Considering slightly less trivial energy-based models might address both. By adding interactions in such a way that, for example, in a language model, input sequences containing the word &lt;code&gt;terrifying&lt;/code&gt; can pay attention to concepts and experiences induced by &lt;code&gt;terrifying&lt;/code&gt; that do not appear in the input sequence. By having attention modules return a &lt;em&gt;collective response&lt;/em&gt; rather than the sum of decoupled entities.&lt;/p&gt;
+&lt;p&gt;To some extent, the additional linear transformations on the input patterns in the query-key-value formulation of Transformer self-attention already try to address this:
+\begin{equation}
+\mathrm{Attention}\left( \mathbf{Q}, \mathbf{K}, \mathbf{V} \right) = \mathrm{softmax} \left( \frac{\mathbf{Q} \mathbf{K}^T}{\sqrt{d}} \right) \mathbf{V}
+\label{eq:vanilla-attention}
+\end{equation}
+These linear transformations slightly generalize the &amp;ldquo;naked&amp;rdquo; explicit gradient step of \eqref{eq:mhnupdate} and can in principle learn to cluster and direct patterns to neighborhoods in the energy landscape. But why stop there?&lt;/p&gt;
+&lt;h2 id=&#34;deep-implicit-layers-for-attention-dynamics&#34;&gt;Deep implicit layers for attention dynamics&lt;/h2&gt;
+&lt;p&gt;An interesting way forward might be to integrate attention with &lt;em&gt;deep implicit layers&lt;/em&gt;. Funnily enough, the authors of the NeurIPS 2020 tutorial on &lt;a href=&#34;https://implicit-layers-tutorial.org/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Layers&lt;/a&gt; list self-attention as a prime example of an explicit layer in their &lt;a href=&#34;https://colab.research.google.com/drive/1OUVzeUh66wVOFI_Nc_rIAuO70gHimHH8?usp=sharing#scrollTo=vFlF3gTnzOpp&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;introductory notebook&lt;/a&gt;. Yet we have seen in a &lt;a href=&#34;https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;previous post&lt;/a&gt; that self-attention can &amp;mdash; and perhaps should &amp;mdash; actually be considered an implicit layer solving for a fixed point query. Because of the lack of dynamics of the current generation of attention mechanisms, this can be done in a single big gradient step, removing the need to iterate. Attention models with more complicated dynamics might benefit from a differentiable solver to find a fixed point and return the most appropriate result in a given context.&lt;/p&gt;
+&lt;p&gt;Compared to modifying explicit architectures, the implicit-layer perspective seems to act on a different &amp;ldquo;conceptual level&amp;rdquo; of neural network architecture design. This raises a lot of questions. Which families of attention architectures can be expressed in terms of implicit energy functions like &lt;code&gt;softmax&lt;/code&gt;-attention? How many of these have efficient minimization properties with closed-form gradients? Beyond closed-form gradients, how far can we go in parametrizing more general energy-based attention models and still sample and backpropagate efficiently? What does the trade-off look like between a model&amp;rsquo;s complexity and it still being implicitly trainable?&lt;/p&gt;
+&lt;p&gt;In a next post, we might have a go at implementing a few implicit attention mechanisms ourselves. Most likely, we will observe how they all perform worse than the current generation of simpler models when scaled to industrial levels of compute&lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;h1 id=&#34;4-conclusion&#34;&gt;4. Conclusion&lt;/h1&gt;
+&lt;p&gt;Looking back and reversing causation, one could argue that the now-famous dot-product attention module introduced in &lt;a href=&#34;https://arxiv.org/abs/1706.03762&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Attention Is All You Need&lt;/a&gt;&lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt; could only have been arrived at because of the properties of its implicit energy function \eqref{eq:mhnenergy}. Indeed, it is only because of the associative memory&amp;rsquo;s decoupled and rather crude way of storing patterns in isolated, high-dimensional valleys that expensive, implicit energy minimization steps can be traded for a cheap, explicit one-step gradient update like \eqref{eq:mhnupdate}.&lt;/p&gt;
+&lt;p&gt;The obvious pitfall of continuing to hold on to the conceptual framework introduced by this shortcut is that a potentially far richer picture of (sparse) attention dynamics remains obscured. Rather than perpetually rethinking what is all you &lt;em&gt;really&lt;/em&gt; need within the confines of existing, explicit attention modules, why not opt for implicit modules built on top of an energy-based perspective to try to push things forward?&lt;/p&gt;
+&lt;h1 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h1&gt;
+&lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;em&gt;Pankaj Mehta, Marin Bukov, Ching-Hao Wang, Alexandre G.R. Day, Clint Richardson, Charles K. Fisher, David J. Schwab, &lt;a href=&#34;https://arxiv.org/abs/1803.08823&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A high-bias, low-variance introduction to Machine Learning for physicists&lt;/a&gt; (2019)&lt;/em&gt; &lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;Proof by Marcinkiewicz (1935) according to &lt;a href=&#34;http://www.stat.uchicago.edu/~pmcc/courses/stat306/2013/cumulants.pdf&#34;&gt;http://www.stat.uchicago.edu/~pmcc/courses/stat306/2013/cumulants.pdf&lt;/a&gt;. &lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/2008.06996&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Associative Memory Problem in Neurobiology and Machine Learning&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:4&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;em&gt;Rich Sutton, &lt;a href=&#34;http://www.incompleteideas.net/IncIdeas/BitterLesson.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;The Bitter Lesson&lt;/a&gt; (2019)&lt;/em&gt; &lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:5&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;em&gt;Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, &lt;a href=&#34;https://arxiv.org/abs/1706.03762&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Attention Is All You Need&lt;/a&gt; (2017)&lt;/em&gt; &lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</description>
+    </item>
     
     <item>
       <title>An Energy-Based Perspective on Attention Mechanisms in Transformers</title>
