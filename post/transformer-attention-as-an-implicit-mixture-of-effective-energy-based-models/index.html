@@ -688,7 +688,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    14 min read
+    13 min read
   </span>
   
 
@@ -790,7 +790,7 @@ a_{i} v_{i} &amp; \text{if $v_{i} \in {0,1}$ is binary (Bernouilli)}\\<br>
 <h2 id="why-hidden-units">Why hidden units?</h2>
 <p>Introducing hidden or latent variables is a powerful technique to encode interactions between visible units. Complex correlations between visible units can be captured at the cost of introducing new degrees of freedom and letting them interact with visible units in a simpler way. Since this trick often relies on exploiting <a href="https://en.wikipedia.org/wiki/Common_integrals_in_quantum_field_theory" target="_blank" rel="noopener">Gaussian integral identities</a> and physicists like their Gaussians, it shows up in several places across physics, e.g. in the <a href="https://en.wikipedia.org/wiki/Hubbard%E2%80%93Stratonovich_transformation" target="_blank" rel="noopener">Hubbard-Stratonovich transformation</a>.</p>
 <blockquote>
-<p><strong>Renormalization group</strong>: Rather than trying to fix the interactions in the &ldquo;microscopic theory&rdquo; like is done in the modeling scenario above, physicists are more familiar with the &ldquo;reverse&rdquo; procedure of deducing what effective theory emerges at large scales from a given microscopic theory. Indeed, integrating out degrees of freedom in physical theories can lead to complex, effective interactions between remaining degrees of freedom. This insight crystallized in the development of <a href="https://en.wikipedia.org/wiki/Renormalization_group" target="_blank" rel="noopener">renormalization group</a> theory in the early 1970s. By focusing on theories defined at different length scales, <a href="https://en.wikipedia.org/wiki/Kenneth_G._Wilson" target="_blank" rel="noopener">Kenneth G. Wilson</a> and his contemporaries introduced and unified the notions of flows, fixed points, and universilty in theory space to understand the behavior of physical systems under a change of scale.</p>
+<p><strong>Renormalization group</strong>: Rather than trying to fix the interactions in the &ldquo;microscopic theory&rdquo; like is done in the modeling scenario above, physicists are more familiar with the &ldquo;reverse&rdquo; procedure of deducing what effective theory emerges at large scales from a given microscopic theory. Indeed, integrating out degrees of freedom in physical theories can lead to complex, effective interactions between remaining degrees of freedom. This insight crystallized in the development of <a href="https://en.wikipedia.org/wiki/Renormalization_group" target="_blank" rel="noopener">renormalization group</a> theory in the early 1970s. By focusing on theories defined at different length scales, <a href="https://en.wikipedia.org/wiki/Kenneth_G._Wilson" target="_blank" rel="noopener">Kenneth G. Wilson</a> and his contemporaries introduced and unified the notions of flows, fixed points, and universality in theory space to understand the behavior of physical systems under a change of scale.</p>
 </blockquote>
 <p>As we will see in the next sections, the bipartite structure of RBMs enables pairwise and higher-order correlations to emerge between visible units after integrating out hidden units. Additionally, the conditional independence of visible and hidden units enables tractable training methods like (block) Gibbs sampling and contrastive divergence<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>. We will not consider explicitly training RBMs in this post but will instead reflect on the idea of implicitly training these models, which is what seems to be happening inside Transformers.</p>
 <h2 id="effective-energies-and-correlations">Effective energies and correlations</h2>
@@ -890,7 +890,6 @@ These linear transformations slightly generalize the &ldquo;naked&rdquo; explici
 <h1 id="4-conclusion">4. Conclusion</h1>
 <p>Looking back and reversing causation, one could argue that the now-famous dot-product attention module introduced in <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need</a><sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup> could only have been arrived at because of the properties of its implicit energy function \eqref{eq:mhnenergy}. Indeed, it is only because of the associative memory&rsquo;s decoupled and rather crude way of storing patterns in isolated, high-dimensional valleys that expensive, implicit energy minimization steps can be traded for a cheap, explicit one-step gradient update like \eqref{eq:mhnupdate}.</p>
 <p>The obvious pitfall of continuing to hold on to the conceptual framework introduced by this shortcut is that a potentially far richer picture of (sparse) attention dynamics remains obscured. Rather than perpetually rethinking what is all you <em>really</em> need within the confines of existing, explicit attention modules, why not opt for implicit modules built on top of an energy-based perspective to try to push things forward?</p>
-<p>In a next post, we might have a go at <a href="https://github.com/mcbal/deep-implicit-attention" target="_blank" rel="noopener">implementing</a> a few implicit attention mechanisms ourselves. Most likely though, we will observe how they all perform worse than the current generation of simpler modules when scaled to industrial levels of compute<sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup>.</p>
 <h1 id="references--footnotes">References &amp; footnotes</h1>
 <section class="footnotes" role="doc-endnotes">
 <hr>
@@ -909,9 +908,6 @@ These linear transformations slightly generalize the &ldquo;naked&rdquo; explici
 </li>
 <li id="fn:5" role="doc-endnote">
 <p><em>Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need</a> (2017)</em> <a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
-</li>
-<li id="fn:6" role="doc-endnote">
-<p><em>Rich Sutton, <a href="http://www.incompleteideas.net/IncIdeas/BitterLesson.html" target="_blank" rel="noopener">The Bitter Lesson</a> (2019)</em> <a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>
@@ -1307,7 +1303,7 @@ These linear transformations slightly generalize the &ldquo;naked&rdquo; explici
   
 
   <p class="powered-by">
-    Matthias Bal © 2020
+    Matthias Bal © 2021
   </p>
 
   
