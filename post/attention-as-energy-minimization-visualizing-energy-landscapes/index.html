@@ -1206,7 +1206,7 @@ fig, ax = simulate_and_plot_patterns(
 )
 </code></pre>
 <p><img src="vanilla_softmax_attention_final_refactor_62_0.png" alt="alt text" title="Bare self-attention visualization"></p>
-<p>Wait, what? Why did the updated state patterns move from their initialization? Didn&rsquo;t we see before that the norm between inputs and outputs hardly changed at all for bare self-attention? Let&rsquo;s do a numerical experiment in Appendix A to find out what&rsquo;s going on.</p>
+<p>Wait, what? Why did the updated state patterns move from their initialization? Didn&rsquo;t we see before that the norm between inputs and outputs hardly changed at all for bare self-attention?</p>
 <p>To look into this, let&rsquo;s plot the norm between inputs and outputs in function of the latent dimension, while scaling the inverse temperature relative to the transformer default $\beta = 1/\sqrt{\mathrm{d_k}}$. We sample toy patterns repeatedly for every dimension/scale combination to get an idea of the statistical behavior.</p>
 <pre><code class="language-python">dims = np.linspace(2.0, 1024, num=100, dtype=np.int32)
 beta_scales = np.linspace(0.2, 2.0, num=50, dtype=np.float32)
