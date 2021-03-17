@@ -1,0 +1,1711 @@
+<!DOCTYPE html><html lang="en-gb" >
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  
+  
+  <meta name="generator" content="Wowchemy 4.8.0 for Hugo">
+  
+
+  
+
+  
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Matthias Bal">
+
+  
+  
+  
+    
+  
+  <meta name="description" content="Can we just swap softmax attention for energy function gradient descent?">
+
+  
+  <link rel="alternate" hreflang="en-gb" href="https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/">
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+
+  
+  
+  
+  <meta name="theme-color" content="#2962ff">
+  
+
+  
+  
+  
+  <script src="/js/mathjax-config.js"></script>
+  
+
+  
+  
+  
+  
+    
+    
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.9.0/css/academicons.min.css" integrity="sha512-W4yqoT1+8NLkinBLBZko+dFB2ZbHsYLDdr50VElllRcNt2Q4/GSs6u71UHKxB7S6JEMCp5Ve4xjh3eGQl/HRvg==" crossorigin="anonymous">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha256-FMvZuGapsJLjouA6k7Eo2lusoAX9i0ShlWFG6qt7SLc=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/github.min.css" crossorigin="anonymous" title="hl-light">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
+        
+      
+    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" integrity="sha512-1xoFisiGdy9nvho8EgXuXvnpR5GAMSjFwp40gSRE3NwdUdIMIKuPa7bqoUhLD0O/5tPNhteAsE5XyyMi5reQVA==" crossorigin="anonymous">
+    
+
+    
+
+    
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.2.2/lazysizes.min.js" integrity="sha512-TmDwFLhg3UA4ZG0Eb4MIyT1O1Mb+Oww5kFG0uHqXsdbyZz9DcvYQhKpGgNkamAI6h2lGGZq2X8ftOJvF/XjTUg==" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" integrity="" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+
+  
+
+  
+  
+  
+    
+      
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Serif:ital,wght@0,300;0,400;1,300;1,400%7CIBM+Plex+Sans:ital,wght@0,300;0,400;0,700;1,400%7CFira+Code&display=swap">
+    
+  
+
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/wowchemy.css">
+
+  
+
+
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-H9Y98B2S2P"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag() {
+      dataLayer.push(arguments);
+  }
+
+  function trackOutboundLink(url, target) {
+    gtag('event', 'click', {
+         'event_category': 'outbound',
+         'event_label': url,
+         'transport_type': 'beacon',
+         'event_callback': function () {
+           if (target !== '_blank') {
+             document.location = url;
+           }
+         }
+    });
+    console.debug("Outbound link clicked: " + url);
+  }
+
+  function onClickCallback(event) {
+    if ((event.target.tagName !== 'A') || (event.target.host === window.location.host)) {
+      return;
+    }
+    trackOutboundLink(event.target, event.target.getAttribute('target'));  
+  }
+
+  gtag('js', new Date());
+  gtag('config', 'G-H9Y98B2S2P', { 'anonymize_ip': true });
+
+  
+  document.addEventListener('click', onClickCallback, false);
+</script>
+
+
+  
+
+
+  
+  
+
+  
+
+  <link rel="manifest" href="/index.webmanifest">
+  <link rel="icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_32x32_fill_lanczos_center_2.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png">
+
+  <link rel="canonical" href="https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/">
+
+  
+  
+  
+  
+  
+  
+  
+    
+  
+  
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="og:site_name" content="mcbal">
+  <meta property="og:url" content="https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/">
+  <meta property="og:title" content="Attention as Energy Minimization: Visualizing Energy Landscapes | mcbal">
+  <meta property="og:description" content="Can we just swap softmax attention for energy function gradient descent?"><meta property="og:image" content="https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/featured.png">
+  <meta property="twitter:image" content="https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/featured.png"><meta property="og:locale" content="en-gb">
+  
+    
+      <meta property="article:published_time" content="2021-03-17T22:36:17&#43;01:00">
+    
+    <meta property="article:modified_time" content="2021-03-17T22:36:17&#43;01:00">
+  
+
+  
+
+
+    
+
+
+
+
+
+
+  
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/"
+  },
+  "headline": "Attention as Energy Minimization: Visualizing Energy Landscapes",
+  
+  "image": [
+    "https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/featured.png"
+  ],
+  
+  "datePublished": "2021-03-17T22:36:17+01:00",
+  "dateModified": "2021-03-17T22:36:17+01:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Matthias Bal"
+  },
+  
+  "publisher": {
+    "@type": "Organization",
+    "name": "mcbal",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png"
+    }
+  },
+  "description": "Can we just swap softmax attention for energy function gradient descent?"
+}
+</script>
+
+  
+
+  
+
+
+  
+  
+  
+  
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.1/cookieconsent.min.js" integrity="sha256-5VhCqFam2Cn+yjw61zbBNrbHVJ6SRydPeKopYlngbiQ=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.1/cookieconsent.min.css" integrity="sha256-zQ0LblD/Af8vOppw18+2anxsuaz3pWYyVWi+bTvTH8Q=" crossorigin="anonymous">
+  
+  <script>
+  window.addEventListener("load", function(){
+    window.cookieconsent.initialise({
+      "palette": {
+        "popup": {
+          "background": "#2962ff",
+          "text": "rgb(255, 255, 255)"
+        },
+        "button": {
+          "background": "rgb(255, 255, 255)",
+          "text": "#2962ff"
+        }
+      },
+      "theme": "classic",
+      "content": {
+        "message": "This website uses cookies to ensure you get the best experience on our website.",
+        "dismiss": "Got it!",
+        "link": "Learn more",
+        "href": "https://www.cookiesandyou.com"
+      }
+    })});
+  </script>
+
+
+
+  
+
+
+
+
+
+  <title>Attention as Energy Minimization: Visualizing Energy Landscapes | mcbal</title>
+
+</head>
+
+
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" class=" ">
+
+  
+  
+  
+    <script>window.wcDarkLightEnabled = true;</script>
+  
+  
+    <script>const isSiteThemeDark = false;</script>
+  
+  
+  <script src="/js/load-theme.js"></script>
+
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search" class="form-control">
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id="navbar-main">
+  <div class="container">
+
+    
+    <div class="d-none d-lg-inline-flex">
+      <a class="navbar-brand" href="/">mcbal</a>
+    </div>
+    
+
+    
+    <button type="button" class="navbar-toggler" data-toggle="collapse"
+            data-target="#navbar-content" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+    <span><i class="fas fa-bars"></i></span>
+    </button>
+    
+
+    
+    <div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none">
+      <a class="navbar-brand" href="/">mcbal</a>
+    </div>
+    
+
+    
+    
+    <div class="navbar-collapse main-menu-item collapse justify-content-start" id="navbar-content">
+
+      
+      <ul class="navbar-nav d-md-inline-flex">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#about"><span>About me</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#posts"><span>Blog</span></a>
+        </li>
+
+        
+        
+
+      
+
+        
+      </ul>
+    </div>
+
+    <ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+      
+      
+      <li class="nav-item">
+        <a class="nav-link js-search" href="#" aria-label="Search"><i class="fas fa-search" aria-hidden="true"></i></a>
+      </li>
+      
+
+      
+      
+
+      
+
+    </ul>
+
+  </div>
+</nav>
+
+
+
+  <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+<div class="article-container pt-3">
+  <h1>Attention as Energy Minimization: Visualizing Energy Landscapes</h1>
+
+  
+
+  
+
+
+<div class="article-metadata">
+
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+    
+    Mar 17, 2021
+  </span>
+  
+
+  
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    18 min read
+  </span>
+  
+
+  
+  
+  
+
+  
+  
+
+</div>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+<div class="article-header article-container featured-image-wrapper mt-4 mb-4" style="max-width: 577px; max-height: 496px;">
+  <div style="position: relative">
+    <img src="/post/attention-as-energy-minimization-visualizing-energy-landscapes/featured.png" alt="" class="featured-image">
+    
+  </div>
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      <hr>
+<ol>
+<li><a href="#prelude">Prelude: pattern terminology</a></li>
+<li><a href="#attention">Attention modules</a>
+<ol>
+<li><a href="#explicit">Explicit vanilla softmax attention</a></li>
+<li><a href="#implicit">Implicit energy-based attention</a></li>
+</ol>
+</li>
+<li><a href="#journey">From modern Hopfield networks to multi-head attention</a>
+<ol>
+<li><a href="#energyfunction">Energy function</a></li>
+<li><a href="#updaterule">Verifying the update rule</a>
+<ol>
+<li><a href="#crossattention">Cross-attention</a></li>
+<li><a href="#selfattention">Self-attention</a></li>
+</ol>
+</li>
+<li><a href="#qkv">Adding queries, keys, and values</a></li>
+<li><a href="#maskingmha">Adding masking and multiple attention heads</a></li>
+</ol>
+</li>
+<li><a href="#flatland">Attention in flatland: visualizing energy landscapes</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+<li><a href="#bareselfexp">Appendix A: Bare self-attention experiment</a></li>
+</ol>
+<hr>
+<h1 id="1-introduction">1. Introduction</h1>
+<blockquote>
+<p><strong>📓 Colab notebook available <a href="https://colab.research.google.com/drive/1UsJ24rwCT9sVjh_v3bnr6Ld5NwLbJq54?usp=sharing" target="_blank" rel="noopener">here</a>. Comments welcome!</strong></p>
+</blockquote>
+<p>Recent work <sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> <sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup> has shown that the softmax-attention update step in transformer models can be intepreted as a one-step gradient update or &ldquo;inference&rdquo; step of a judiciously chosen energy function. An overview of these ideas can be found in previous blog posts:</p>
+<ul>
+<li><a href="https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/" target="_blank" rel="noopener">An Energy-Based Perspective on Attention Mechanisms in Transformers</a></li>
+<li><a href="https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/" target="_blank" rel="noopener">Transformer Attention as an Implicit Mixture of Effective Energy-Based Models</a></li>
+</ul>
+<p>The goal of this blog post is to explicitly show how vanilla softmax attention is related to energy minimization approaches and how the former can be substituted for the latter. For pedagogical purposes, we will focus purely on the attention operation. However, for transformer models to perform well in practice, it is necessary to wrap attention in residual connections and point-wise feedforward processing layers, see e.g. <a href="https://arxiv.org/abs/2103.03404" target="_blank" rel="noopener">Attention is Not All You Need: Pure Attention Loses Rank Doubly Exponentially with Depth</a>.</p>
+<p><strong>Summary:</strong></p>
+<ol>
+<li>We provide a pedagogical energy-based attention module that stays as close as possible to vanilla softmax attention for ease of comparison.</li>
+<li>We walk through the correspondence between modern Hopfield networks and vanilla softmax attention by gradually adding complexity.</li>
+<li>We present visualizations of energy landscapes and trajectories associated to attention update steps for two-dimensional toy patterns.</li>
+</ol>
+<h1 id="prelude-pattern-terminologya-namepreludea">Prelude: pattern terminology<a name="prelude"></a></h1>
+<p>Transformer literature almost exclusively talks about queries, keys, and values. For self-attention, these are all obtained from different linear transformations acting on the same set of <em>input patterns</em>. For cross-attention, only the queries derive from the <em>input patterns</em>; the keys and values are obtained from a different set of <em>context patterns</em>: think of a decoder architecture attending to encoded translations or the <a href="https://arxiv.org/abs/2103.03206" target="_blank" rel="noopener">Perceiver</a> model attending to multimodal input.</p>
+<p>Hopfield networks literature starts from the idea of trying to implement an associative memory system for storing and retrieving patterns. Patterns stored in memory are called <em>stored patterns</em>. A <em>state pattern</em> is an input prompt for the associative memory system: what patterns stored in memory are closest to this particular prompt?</p>
+<p>Depending on the context (heh), we can refer to input patterns as state patterns or queries and to context patterns as stored patterns or memory or keys.</p>
+<h1 id="attention-modulesa-nameattentiona">Attention modules<a name="attention"></a></h1>
+<h2 id="explicit-vanilla-softmax-attentiona-nameexplicita">Explicit vanilla softmax attention<a name="explicit"></a></h2>
+<p>To compare the behavior of explicit attention modules to that of energy-based attention modules, we need to first of all define a vanilla softmax attention module. The annotated implementation below features a <code>bare_attn</code> toggle in the forward pass for ease of comparison with the &ldquo;bare&rdquo; modern continuous Hopfield energy function we will discuss later on. The flag essentially disables all linear mappings so input and context patterns are processed &ldquo;raw&rdquo;.</p>
+<pre><code class="language-python">class VanillaSoftmaxAttention(nn.Module):
+    &quot;&quot;&quot;Vanilla softmax attention.
+    
+    Adapted from https://github.com/lucidrains/perceiver-pytorch (commit 37e2eb6).
+    &quot;&quot;&quot;
+
+    def __init__(
+        self, query_dim, context_dim=None, heads=1, dim_head=2, scale=None,
+    ):
+        super().__init__()
+
+        # Inner dimension is expressed in terms of head count and dimensionality
+        # and thus decoupled from query_dim/context_dim (heads always &quot;fit&quot;).
+        inner_dim = dim_head * heads
+        context_dim = context_dim if context_dim is not None else query_dim
+
+        # Linear transformations (queries, keys, values, head-mixing).
+        self.to_q = nn.Linear(query_dim, inner_dim, bias=False)
+        self.to_k = nn.Linear(context_dim, inner_dim, bias=False)
+        self.to_v = nn.Linear(context_dim, inner_dim, bias=False)
+        self.to_out = nn.Linear(inner_dim, query_dim)
+
+        self.heads = heads
+        self.scale = scale if scale is not None else dim_head ** -0.5
+
+    def forward(self, x, context=None, mask=None, scale=None, bare_attn=False):
+        # To facilitate comparison with modern Hopfield networks, setting `bare_attn`
+        # to `True` disables all linear mappings, assures there's only a single head and
+        # reduces the module to a barebone attention which takes in &quot;raw&quot; queries or state
+        # patterns and attends to a &quot;raw&quot; context/memory of stored patterns.
+        if bare_attn:
+            assert self.heads == 1, &quot;only a single head when bare attention&quot;
+            if context is not None:
+                assert (
+                    x.shape[-1] == context.shape[-1]
+                ), &quot;query_dim/context_dim must match&quot;
+
+        # Adaptive scale.
+        scale = scale if scale is not None else self.scale
+        # Take context either from elsewhere of from self (attention vs. self-attention).
+        context = context if context is not None else x
+
+        # Map x to queries and context to keys and values.
+        q = x if bare_attn else self.to_q(x)
+        k = context if bare_attn else self.to_k(context)
+        v = context if bare_attn else self.to_v(context)
+
+        # Split up latent dimension into subspaces for heads to act on.
+        # Head dimension becomes part of batch dimension (=&gt; parallel processing of heads).
+        h = self.heads
+        q, k, v = map(lambda t: rearrange(t, &quot;b n (h d) -&gt; (b h) n d&quot;, h=h), (q, k, v))
+
+        # Scaled dot product of all queries against all keys (sum over `inner_dim`).
+        sim = einsum(&quot;b i d, b j d -&gt; b i j&quot;, q, k) * scale
+
+        # Optional masking.
+        if mask is not None:
+            max_neg_value = -torch.finfo(sim.dtype).max
+            mask = repeat(mask, &quot;b j -&gt; (b h) () j&quot;, h=h)
+            sim.masked_fill_(~mask, max_neg_value)
+
+        # Softmax operation across &quot;keys&quot; sequence dimension.
+        attn = sim.softmax(dim=-1)
+        # Contract attention matrix with values.
+        out = einsum(&quot;b i j, b j d -&gt; b i d&quot;, attn, v)
+        # Move head dimension out of batch again.
+        out = rearrange(out, &quot;(b h) n d -&gt; b n (h d)&quot;, h=h)
+
+        # Mix all the heads' outputs; stir well and serve immediately.
+        return out if bare_attn or h == 1 else self.to_out(out)
+</code></pre>
+<h2 id="implicit-energy-based-attentiona-nameimplicita">Implicit energy-based attention<a name="implicit"></a></h2>
+<p>Next, we define our energy-based attention module. Its forward pass will make use of the simple gradient descent function defined below to do energy minimization and update queries accordingly.</p>
+<pre><code class="language-python">def minimize_energy(
+    energy_func,
+    queries,
+    keys,
+    mask=None,
+    step_size=1.0,
+    num_steps=1,
+    return_trajs=False,
+):
+    &quot;&quot;&quot;Minimize energy function with respect to queries.
+    
+    Keeps track of energies and trajectories for logging and plotting.
+    &quot;&quot;&quot;
+    out = defaultdict(list)
+    out[&quot;queries&quot;].append(queries)
+    for _ in range(num_steps):
+        energies = energy_func(queries, keys, mask=mask)
+        grad_queries = torch.autograd.grad(
+            energies, queries, grad_outputs=torch.ones_like(energies),
+        )[0]
+        queries = queries - step_size * grad_queries
+        out[&quot;queries&quot;].append(queries)
+        out[&quot;energies&quot;].append(energies)
+    out[&quot;energies&quot;].append(energy_func(queries, keys, mask=mask))
+    if return_trajs:
+        return out
+    return out[&quot;queries&quot;][-1]
+</code></pre>
+<p>The <code>EnergyBasedAttention</code> module below has been structured to look as similar as possible to the the <code>VanillaSoftmaxAttention</code> module defined above. The main difference is the appearance of an energy function and the energy minimization call in the forward pass where the softmax attention used to be. Other differences include the absence of a linear map to &ldquo;values&rdquo; and masking being pushed into the energy function.</p>
+<pre><code class="language-python">class EnergyBasedAttention(nn.Module):
+    def __init__(
+        self,
+        query_dim,
+        context_dim=None,
+        heads=1,
+        dim_head=2,
+        scale=None,
+        energy_func=None,
+    ):
+        super().__init__()
+
+        inner_dim = dim_head * heads
+        context_dim = context_dim if context_dim is not None else query_dim
+
+        # Linear transformations (queries, keys, output).
+        self.to_q = nn.Linear(query_dim, inner_dim, bias=False)
+        self.to_k = nn.Linear(context_dim, inner_dim, bias=False)
+        self.to_out = nn.Linear(inner_dim, query_dim)
+
+        self.energy_func = energy_func if energy_func else hopfield_energy
+        self.heads = heads
+        self.scale = scale if scale is not None else dim_head ** -0.5
+
+    def forward(
+        self,
+        x,
+        context=None,
+        mask=None,
+        scale=None,
+        bare_attn=False,
+        step_size=1.0,
+        num_steps=1,
+        return_trajs=False,
+    ):
+        # Bare checks.
+        if bare_attn:
+            assert self.heads == 1, &quot;only a single head when bare attention&quot;
+            if context is not None:
+                assert (
+                    x.shape[-1] == context.shape[-1]
+                ), &quot;query_dim/context_dim must match&quot;
+
+        scale = scale if scale is not None else self.scale
+        context = context if context is not None else x
+
+        q = x if bare_attn else self.to_q(x)
+        k = context if bare_attn else self.to_k(context)
+
+        h = self.heads
+        q, k = map(lambda t: rearrange(t, &quot;b n (h d) -&gt; (b h) n d&quot;, h=h), (q, k))
+
+        if mask is not None:
+            mask = repeat(mask, &quot;b j -&gt; (b h) () j&quot;, h=h)
+
+        # Minimize energy with respect to queries.
+        outputs = minimize_energy(
+            partial(self.energy_func, scale=scale),
+            q,
+            k,
+            mask=mask,
+            step_size=step_size,
+            num_steps=num_steps,
+            return_trajs=return_trajs,
+        )
+        if return_trajs:
+            return outputs
+
+        out = rearrange(outputs, &quot;(b h) n d -&gt; b n (h d)&quot;, h=h)
+        return out if bare_attn or h == 1 else self.to_out(out)
+</code></pre>
+<h1 id="from-modern-hopfield-networks-to-multi-head-attentiona-namejourneya">From modern Hopfield networks to multi-head attention<a name="journey"></a></h1>
+<p>Let&rsquo;s start with the simplest possible case: bare attention. We disable all linear mappings to queries/keys/values/output to make sure input and context patterns are processed &ldquo;raw&rdquo; and restrict ourselves to a single attention head. We numerically verify that a &ldquo;bare&rdquo; explicit attention module indeed returns the same result as doing a single, big step of energy minimization with respect to input state patterns. Put differently and more to the point, we merely show that automatic differentiation works.</p>
+<h2 id="energy-functiona-nameenergyfunctiona">Energy function<a name="energyfunction"></a></h2>
+<p>Consider the energy function of a modern continuous Hopfield network for a set of state patterns $\boldsymbol{\Xi}$ and stored patterns $\boldsymbol{X}$:</p>
+<p>\begin{equation}
+E(\boldsymbol{\Xi}; \boldsymbol{X}) = \frac{1}{2} \boldsymbol{\Xi}^T \boldsymbol{\Xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\Xi} \right),\label{eq:energy}
+\end{equation}</p>
+<p>Think of this model as the scoring function of an associative memory system. For now, we&rsquo;d like to keep the stored patterns fixed as memory slots and wiggle around the state patterns. We can translate this energy function into the following (batched) function:</p>
+<pre><code class="language-python">def hopfield_energy(state_patterns, stored_patterns, scale, mask=None):
+    kinetic = 0.5 * einsum(&quot;b i d, b i d -&gt; b i&quot;, state_patterns, state_patterns)
+    scaled_dot_product = scale * einsum(
+        &quot;b i d, b j d -&gt; b i j&quot;, state_patterns, stored_patterns
+    )
+    if mask is not None:
+        max_neg_value = -torch.finfo(scaled_dot_product.dtype).max
+        scaled_dot_product.masked_fill_(~mask, max_neg_value)
+    potential = -(1.0 / scale) * torch.logsumexp(scaled_dot_product, dim=2)
+    return kinetic + potential
+</code></pre>
+<h2 id="verifying-the-update-rulea-nameupdaterulea">Verifying the update rule<a name="updaterule"></a></h2>
+<p>Let&rsquo;s sample some state patterns and stored patterns and enable gradient tracking for the state patterns since we want to take derivatives with respect to these parameters later on.</p>
+<pre><code class="language-python">latent_dim = 512
+
+state_patterns = torch.randn(1, 8, latent_dim).requires_grad_(True)
+stored_patterns = torch.randn(1, 32, latent_dim)
+</code></pre>
+<h3 id="cross-attentiona-namecrossattentiona">Cross-attention<a name="crossattention"></a></h3>
+<p>First up is cross-attention. We feed state patterns as input and stored patterns as context into a vanilla softmax attention module.</p>
+<pre><code class="language-python">softmax_attn = VanillaSoftmaxAttention(
+    latent_dim,
+    context_dim=latent_dim,
+    heads=1,
+    dim_head=latent_dim,
+    scale=latent_dim ** -0.5,
+)
+
+output_bare_softmax_attn = softmax_attn(
+    copy_tensor(state_patterns), context=copy_tensor(stored_patterns), bare_attn=True,
+)
+</code></pre>
+<p>Now we do the same for an energy-based attention module and tell it to take a single, big gradient update step.</p>
+<pre><code class="language-python">energy_attn = EnergyBasedAttention(
+    latent_dim,
+    context_dim=latent_dim,
+    heads=1,
+    dim_head=latent_dim,
+    scale=latent_dim ** -0.5,
+    energy_func=hopfield_energy,
+)
+
+output_bare_energy_attn = energy_attn(
+    copy_tensor(state_patterns),
+    context=copy_tensor(stored_patterns),
+    step_size=1.0,
+    num_steps=1,
+    bare_attn=True,
+)
+</code></pre>
+<p>Now let&rsquo;s compare the outputs of the two methods:</p>
+<pre><code class="language-python">torch.allclose(output_bare_softmax_attn, output_bare_energy_attn, atol=1e-6)
+</code></pre>
+<pre><code>True
+</code></pre>
+<p>Both tensors are approximately equal: bare softmax attention corresponds to taking a single gradient step of <code>step_size=1.0</code> with respect to the state patterns using the energy function of modern Hopfield networks as a loss. For more details on this correspondence, we refer to <a href="https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/#modern-continuous-hopfield-networks" target="_blank" rel="noopener">a previous blog post</a>.</p>
+<h3 id="self-attentiona-nameselfattentiona">Self-attention<a name="selfattention"></a></h3>
+<p>Let&rsquo;s do the same check for self-attention, which boils down to only inputting state patterns. Internally, the modules will consider the state patterns as stored patterns and effectively make the patterns pay attention to themselves.</p>
+<pre><code class="language-python">output_bare_softmax_self_attn = softmax_attn(
+    copy_tensor(state_patterns), bare_attn=True
+)
+
+output_bare_energy_self_attn = energy_attn(
+    copy_tensor(state_patterns), step_size=1.0, num_steps=1, bare_attn=True,
+)
+
+print(
+    torch.allclose(
+        output_bare_softmax_self_attn, output_bare_energy_self_attn, atol=1e-6
+    )
+)
+print(
+    f&quot;Norm between input state patterns and energy-minimized patterns: &quot;
+    f&quot;{torch.norm(state_patterns - output_bare_energy_self_attn)}&quot;
+)
+</code></pre>
+<pre><code>True
+Norm between input state patterns and energy-minimized patterns: 5.553587470785715e-06
+</code></pre>
+<p>The pattern update step looks almost like an an identity operation, which is to be expected for &ldquo;bare&rdquo; self-attention. Without any linear transformations to map state patterns to queries and keys, every state pattern starts off already close to a local minimum since it coincides with itself as a stored pattern. The query starts off close to the key since the query-key mappings are identities. We will visualize this behavior in <a href="#flatland">Section 4</a> for two-dimensional patterns.</p>
+<blockquote>
+<p><strong>Caveat:</strong> For the special case of bare energy-based self-attention, state patterns actually appear quadratically in the argument of the <code>logsumexp</code> part of the energy function. Taking the derivative using <code>minimize_energy(..)</code> however assumes the context is a different node in the computational graph, which, in this case, where we <em>should</em> be taking the derivative of <code>energy(x, x)</code> instead of <code>energy(x, context)</code>, yields a gradient that misses a factor of 2. But ensuring the gradient is &ldquo;correct&rdquo; for this special case would of course screw up the cancellation of the state pattern with itself for <code>step_size=1.0</code> and <code>num_steps=1</code> so that the updated query would no longer match the output of bare vanilla softmax attention. Proper treatment of doing multiple steps of bare energy-based self-attention should also include manually setting the context to the updated queries (since the queries themselves change every update step). Luckily no one would seriously consider using bare energy-based self-attention.</p>
+</blockquote>
+<h2 id="adding-queries-keys-and-valuesa-nameqkva">Adding queries, keys, and values<a name="qkv"></a></h2>
+<p>Let&rsquo;s now move closer to proper vanilla softmax attention by enabling linear transformations which map state patterns to queries and stored patterns to keys (and values). These parameters are able to move patterns around on the energy landscape before (queries, keys) and after (values) paying attention.</p>
+<p>We recycle the previously instantiated patterns and modules and compare outputs again, making sure the parameters are equal and omitting the <code>bare_attn</code> flag:</p>
+<pre><code class="language-python">output_softmax_attn = softmax_attn(
+    copy_tensor(state_patterns), context=copy_tensor(stored_patterns)
+)
+
+energy_attn.load_state_dict(softmax_attn.state_dict(), strict=False)
+output_energy_attn = energy_attn(
+    copy_tensor(state_patterns),
+    context=copy_tensor(stored_patterns),
+    step_size=1.0,
+    num_steps=1,
+)
+
+torch.allclose(output_softmax_attn, output_energy_attn, atol=1e-6)
+</code></pre>
+<pre><code>False
+</code></pre>
+<p>Why don&rsquo;t the outputs match? We have to make sure we compare apples to apples and be mindful of the fact that the energy minimization step only knows about keys. Indeed, as shown previously in <a href="https://ml-jku.github.io/hopfield-layers/#update" target="_blank" rel="noopener">Hopfield Networks is All You Need</a>, the one-step energy minimization, expressed in terms of queries and keys, effectively implements</p>
+<p>\begin{equation}
+\boldsymbol{Q}^{\text{new}} = \text{softmax}\left( \frac{1}{\sqrt{d_k}} \boldsymbol{Q} \boldsymbol{K}^T \right) \boldsymbol{K}
+\end{equation}</p>
+<p>instead of the vanilla softmax attention step</p>
+<p>\begin{equation}
+\boldsymbol{Q}^{\text{new}} = \text{softmax}\left( \frac{1}{\sqrt{d_k}} \boldsymbol{Q} \boldsymbol{K}^T \right) \boldsymbol{V}
+\end{equation}</p>
+<p>We can approximately undo this mapping to make a forced comparison for fixed parameters:</p>
+<pre><code class="language-python">output_energy_attn_transformed = softmax_attn.to_v(
+    output_energy_attn @ torch.pinverse(energy_attn.to_k.weight.t())
+)
+
+torch.norm(output_softmax_attn - output_energy_attn_transformed)
+</code></pre>
+<pre><code>tensor(0.0005, grad_fn=&lt;CopyBackwards&gt;)
+</code></pre>
+<p>Yet since all these parameters would be optimized in a real-world scenario, we should only care about whether the representational power of the modules is similar. To make the single-head energy-based attention module more expressive, we can always add an output layer, parametrized by weights $W_{O}$, to the module. As long as the composition of linear transformations $W_{K}W_{O}$ doesn&rsquo;t collapse and its rank falls below that of the softmax attention&rsquo;s $W_{V}$, things should be okay.</p>
+<h2 id="adding-masking-and-multiple-attention-headsa-namemaskingmhaa">Adding masking and multiple attention heads<a name="maskingmha"></a></h2>
+<p>Finally, let us tie up some loose ends and complete the correspondence between vanilla softmax attention and energy-based minimization.</p>
+<h3 id="masking">Masking</h3>
+<p>Since masking boils down to putting restrictions on what patterns in the inputs are allowed to talk to each other, it can just as well be done at the level of the energy function. By filling the tensor inside the <code>logsumexp</code> operator in <code>hopfield_energy</code> with $-\infty$ values at to-be-masked-out positions, we get the same effect as the masking operation in the forward pass of <code>VanillaSoftmaxAttention</code>. Boolean masks can be passed to the <code>EnergyBasedAttention</code>&rsquo;s forward function and propagate to the energy function.</p>
+<h3 id="multi-head-attention">Multi-head attention</h3>
+<p>Up to now, we have only considered a single attention head. Essentially, multiple attention heads subdivide the latent space into equal parts and process these subproblems in parallel. The head dimension becomes part of the batch dimension. This translates to having parallel energy minimizations going on for different heads, each acting on their own subspace. Since our <code>hopfield_energy</code> function is already batched, we can use the same machinery of the previous sections, as shown below.</p>
+<pre><code class="language-python">heads = 8
+dim_head = latent_dim // heads
+scale = dim_head ** -0.5
+
+mha_energy_attn = EnergyBasedAttention(
+    latent_dim,
+    context_dim=latent_dim,
+    heads=heads,
+    dim_head=dim_head,
+    scale=scale,
+    energy_func=hopfield_energy,
+)
+
+mha_energy_attn(
+    copy_tensor(state_patterns),
+    context=copy_tensor(stored_patterns),
+    step_size=1.0,
+    num_steps=1,
+)
+</code></pre>
+<pre><code>tensor([[[-0.0514, -0.0353,  0.0243,  ..., -0.0335, -0.0060,  0.0243],
+         [-0.1004, -0.0136, -0.0297,  ...,  0.0079,  0.0083,  0.0336],
+         [-0.0507, -0.0369, -0.0219,  ..., -0.0022, -0.0246, -0.0223],
+         ...,
+         [-0.0388, -0.0217, -0.0470,  ..., -0.0067,  0.0020, -0.0139],
+         [-0.0283, -0.0699, -0.0205,  ..., -0.0261, -0.0667,  0.0052],
+         [-0.0262, -0.0360, -0.0139,  ..., -0.0011, -0.0199, -0.0004]]],
+       grad_fn=&lt;AddBackward0&gt;)
+</code></pre>
+<p>It is hard to compare with the exact output of the equivalent <code>VanillaSoftmaxAttention</code> module for fixed module parameters. For multi-head attention, the updated queries coming out of the separate energy minimization steps will have summed over each heads' keys instead of its values. For a single attention head we could undo the keys' transformation by acting with the inverse of the keys' weights. For multiple attention heads, that is no longer possible.</p>
+<p>Again, since all these parameters would be optimized in a real-world scenario, we should only care about whether the representational power of the modules is similar. One approach would be to add parameters inside the energy function that take care of mapping to &ldquo;values&rdquo; on the level of the heads.</p>
+<h1 id="attention-in-flatland-visualizing-energy-landscapesa-nameflatlanda">Attention in flatland: visualizing energy landscapes<a name="flatland"></a></h1>
+<p>We now leave the world of high-dimensional latent spaces behind us and focus on the toy model scenario of just two latent space dimensions. We only consider a single attention head because having just two heads, each with dimension one, is just silly. In the language of natural language processing applications, we are considering sequences of tokens which have been embedded in just two dimensions. For every two-dimensional token pattern vector, a third dimension will be provided by the value of the scalar energy function at that point.</p>
+<p>Let&rsquo;s sample some tiny toy patterns to play around with.</p>
+<pre><code class="language-python">toy_state_patterns = torch.randn(1, 16, 2).requires_grad_(True)
+toy_stored_patterns = torch.randn(1, 32, 2)
+</code></pre>
+<h4 id="bare-cross-attention">Bare cross-attention</h4>
+<p>Let&rsquo;s plot our tiny toy patterns taking a big gradient step!</p>
+<pre><code class="language-python">fig, ax = simulate_and_plot_patterns(
+    hopfield_energy,
+    copy_tensor(toy_state_patterns),
+    context=copy_tensor(toy_stored_patterns),
+    scale=2 ** -0.5,
+    step_size=1.0,
+    num_steps=1,
+    plot_title=f&quot;Energy landscape for two-dimensional toy patterns&quot;,
+)
+</code></pre>
+<p><img src="vanilla_softmax_attention_final_refactor_54_0.png" alt="alt text" title="Bare cross-attention"></p>
+<p>In the figure above, the blue open circles correspond to the stored patterns (memory, context, keys, &hellip;), the red circles denote the initial state patterns (inputs, queries, probes, &hellip;) and the red crosses the updated queries obtained after <code>n_steps</code> of energy minimization. The red arrows denote the trajectory in the energy landscape.</p>
+<p>We will now illustrate some example scenarios.</p>
+<h4 id="small-steps-go-nowhere">Small steps go nowhere</h4>
+<pre><code class="language-python">fig, ax = simulate_and_plot_patterns(
+    hopfield_energy,
+    copy_tensor(toy_state_patterns),
+    context=copy_tensor(toy_stored_patterns),
+    scale=2 ** -0.5,
+    step_size=0.1,
+    num_steps=1,
+    plot_title=f&quot;Energy landscape for two-dimensional toy patterns&quot;,
+)
+</code></pre>
+<p><img src="vanilla_softmax_attention_final_refactor_56_0.png" alt="alt text" title="Small steps"></p>
+<h4 id="lots-of-big-steps-converge-near-global-minimum-or-repeated-softmax-iterations-make-all-token-representations-identical">Lots of (big) steps converge near (global) minimum or repeated softmax iterations make all token representations identical</h4>
+<pre><code class="language-python">fig, ax = simulate_and_plot_patterns(
+    hopfield_energy,
+    copy_tensor(toy_state_patterns),
+    context=copy_tensor(toy_stored_patterns),
+    scale=2 ** -0.5,
+    step_size=1.0,
+    num_steps=10,
+    plot_title=f&quot;Energy landscape for two-dimensional toy patterns&quot;,
+)
+</code></pre>
+<p><img src="vanilla_softmax_attention_final_refactor_57_0.png" alt="alt text" title="Big steps"></p>
+<h4 id="decreasing-the-scale-increasing-the-temperature-makes-the-landscape-smoother-and-encourages-convergence-to-same-global-minimum">Decreasing the scale (increasing the temperature) makes the landscape smoother and encourages convergence to same (global) minimum</h4>
+<pre><code class="language-python">fig, ax = simulate_and_plot_patterns(
+    hopfield_energy,
+    copy_tensor(toy_state_patterns),
+    context=copy_tensor(toy_stored_patterns),
+    scale=0.1 * 2 ** -0.5,
+    step_size=1.0,
+    num_steps=1,
+    plot_title=f&quot;Energy landscape for two-dimensional toy patterns&quot;,
+)
+</code></pre>
+<p><img src="vanilla_softmax_attention_final_refactor_58_0.png" alt="alt text" title="Decrease scale"></p>
+<h4 id="increasing-the-scale-lowering-the-temperature-creates-disconnected-valleys-in-the-energy-landscape-inhabited-by-stored-patterns-which-act-as-attractors-for-any-query-that-happens-to-be-in-its-basin-of-attraction">Increasing the scale (lowering the temperature) creates &ldquo;disconnected&rdquo; valleys in the energy landscape inhabited by stored patterns which act as attractors for any query that happens to be in its basin of attraction</h4>
+<pre><code class="language-python">fig, ax = simulate_and_plot_patterns(
+    hopfield_energy,
+    copy_tensor(toy_state_patterns),
+    context=copy_tensor(toy_stored_patterns),
+    scale=10 * 2 ** -0.5,
+    step_size=1.0,
+    num_steps=5,
+    plot_title=f&quot;Energy landscape for two-dimensional toy patterns&quot;,
+)
+</code></pre>
+<p><img src="vanilla_softmax_attention_final_refactor_59_0.png" alt="alt text" title="Increase scale"></p>
+<h4 id="adding-linear-query-key-value-transformations">Adding linear query-key-value transformations</h4>
+<pre><code class="language-python"># As commented on before, the value transformation is applied
+# after the update step so that effectively the product
+# W_K x W_V is applied to the updated state patterns.
+
+to_q = nn.Linear(2, 2, bias=False)
+to_k = nn.Linear(2, 2, bias=False)
+to_v = nn.Linear(2, 2, bias=False)
+
+fig, ax = simulate_and_plot_patterns(
+    hopfield_energy,
+    to_q(copy_tensor(toy_state_patterns)),
+    context=to_k(copy_tensor(toy_stored_patterns)),
+    scale=2 * 2 ** -0.5,
+    step_size=1.0,
+    num_steps=1,
+    values_post_processing_func=to_v,
+    plot_grid_size=2,
+    plot_title=f&quot;Energy landscape for two-dimensional toy patterns&quot;,
+)
+</code></pre>
+<p><img src="vanilla_softmax_attention_final_refactor_60_0.png" alt="alt text" title="Adding query-key-value mappings"></p>
+<p>The yellow arrows point from the final, energy-minimized, query updates to the &ldquo;value-transformed&rdquo; output queries, which are denoted with yellow crosses. Running this cell again in the colab notebook will give different landscapes and trajectories every time since the queries and keys depend on the random linear layers. The differences are more pronounced when increasing the scale (lowering the temperature).</p>
+<p>Since the value transformation is done after the energy minimization, it can and does undo some of the influence of the keys' attractors, e.g. sending updated queries to &ldquo;uphill&rdquo; regions in the energy landscape defined at that that layer. This suggests that the value transformation should not be seen as part of the core attention mechanism but that it can learn during training how to best hop to different regions in preparation for whatever the next layer needs.</p>
+<h1 id="conclusiona-nameconclusiona">Conclusion<a name="conclusion"></a></h1>
+<p>Using the tools presented in this blog post, we have shown that it is possible to swap the explicit attention module in a transformer for an implicit energy minimization method.</p>
+<p>What happens when we start playing around with different energy functions? Can we make patterns interact? Can we make the energy minimization steps more efficient by treating them as fixed-point problems using implicit layers? It remains to be seen whether all of this is a useful thing to do.</p>
+<h1 id="appendix-a-bare-self-attention-experimenta-namebareselfexpa">Appendix A: Bare self-attention experiment<a name="bareselfexp"></a></h1>
+<pre><code class="language-python"># Bare self-attention.
+fig, ax = simulate_and_plot_patterns(
+    hopfield_energy,
+    copy_tensor(toy_state_patterns),
+    scale=2 ** -0.5,
+    step_size=1.0,
+    num_steps=1,
+    plot_title=f&quot;Energy landscape for two-dimensional toy patterns&quot;,
+)
+</code></pre>
+<p><img src="vanilla_softmax_attention_final_refactor_62_0.png" alt="alt text" title="Bare self-attention visualization"></p>
+<p>Wait, what? Why did the updated state patterns move from their initialization? Didn&rsquo;t we see before that the norm between inputs and outputs hardly changed at all for bare self-attention? Let&rsquo;s do a numerical experiment in Appendix A to find out what&rsquo;s going on.</p>
+<p>To look into this, let&rsquo;s plot the norm between inputs and outputs in function of the latent dimension, while scaling the inverse temperature relative to the transformer default $\beta = 1/\sqrt{\mathrm{d_k}}$. We sample toy patterns repeatedly for every dimension/scale combination to get an idea of the statistical behavior.</p>
+<pre><code class="language-python">dims = np.linspace(2.0, 1024, num=100, dtype=np.int32)
+beta_scales = np.linspace(0.2, 2.0, num=50, dtype=np.float32)
+norms = np.zeros((len(beta_scales), len(dims)))
+for i, dim in enumerate(dims):
+    bare_attention = VanillaSoftmaxAttention(dim, heads=1, dim_head=dim)
+    for j, beta_scale in enumerate(beta_scales):
+        inputs = torch.randn(1, 32, dim).requires_grad_(True)
+        outputs = bare_attention(inputs, bare_attn=True, scale=beta_scale * dim ** -0.5)
+        norms[j][i] = torch.norm(inputs - outputs)
+
+# Suppresses a warning.
+norms = np.ma.masked_where(norms &lt;= 0, norms)
+# Plot data.
+fig = plt.figure(figsize=(10, 8))
+ax = fig.gca()
+X, Y = np.meshgrid(beta_scales, dims)
+contourplot = ax.contourf(
+    dims,
+    beta_scales,
+    norms,
+    norm=colors.LogNorm(vmin=1e-5, vmax=1e2),
+    levels=np.logspace(-8, 2, 10),
+)
+ax.set_xlabel(&quot;d_k&quot;)
+ax.set_ylabel(&quot;scale / sqrt(d_k)&quot;)
+plt.colorbar(contourplot, format=&quot;%.e&quot;, ticks=ticker.LogLocator(base=10))
+ax.axvline(x=2, color=&quot;r&quot;)
+ax.axvline(x=512, color=&quot;r&quot;)
+transformer_default_scale = ax.axhline(y=1.0, color=&quot;r&quot;)
+</code></pre>
+<p><img src="vanilla_softmax_attention_final_refactor_68_0.png" alt="alt text" title="Bare self-attention experiment"></p>
+<p>In this contour plot, we plot the norm differences between inputs and outputs of a bare self-attention step for a sweep across latent dimensions and inverse temperature scale factors. The horizontal red line corresponds to the scale factor used by default in most transformer implementations. Some comments:</p>
+<ul>
+<li>For a fixed latent dimension, we see that increasing the scale factor corresponds to smaller norm differences, i.e. more pronounced valleys where it&rsquo;s much harder to get out of, especially if you start at the bottom and there is no query-key-value mapping taking you elsewhere.</li>
+<li>The vertical red line corresponds to the earlier bare self-attention result using a latent dimension of 512. The intersection point indeed corresponds a norm difference of the order we saw previously. The value for a latent dimension of 2 (left border of plot) suggests that patterns indeed move around quite a bit.</li>
+<li>Setting the scale for bare multi-head attention proportionally to the (smaller) head dimension instead of the full latent dimension corresponds to moving leftwards along the horizontal red line. The norm difference increases so that, for bare multi-head self-attention, patterns in multiple small heads tend to bounce around more than they would in a single big head.</li>
+</ul>
+<h1 id="references--footnotes">References &amp; footnotes</h1>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p><em>Hubert Ramsauer, Bernhard Schäfl, Johannes Lehner, Philipp Seidl, Michael Widrich, Lukas Gruber, Markus Holzleitner, Milena Pavlović, Geir Kjetil Sandve, Victor Greiff, David Kreil, Michael Kopp, Günter Klambauer, Johannes Brandstetter, and Sepp Hochreiter, <a href="https://arxiv.org/abs/2008.02217" target="_blank" rel="noopener">Hopfield Networks is All You Need</a> (2020)</em> <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p><em>Dmitry Krotov and John Hopfield, <a href="https://arxiv.org/abs/2008.06996" target="_blank" rel="noopener">Large Associative Memory Problem in Neurobiology and Machine Learning</a> (2020)</em> <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+
+    </div>
+
+    
+
+
+
+
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tag/artificial-intelligence/">Artificial Intelligence</a>
+  
+  <a class="badge badge-light" href="/tag/associative-memories/">Associative Memories</a>
+  
+  <a class="badge badge-light" href="/tag/attention/">Attention</a>
+  
+  <a class="badge badge-light" href="/tag/deep-learning/">Deep Learning</a>
+  
+  <a class="badge badge-light" href="/tag/dynamical-systems/">Dynamical Systems</a>
+  
+  <a class="badge badge-light" href="/tag/energy-based-models/">Energy-Based Models</a>
+  
+  <a class="badge badge-light" href="/tag/neural-networks/">Neural Networks</a>
+  
+  <a class="badge badge-light" href="/tag/transformers/">Transformers</a>
+  
+</div>
+
+
+
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://twitter.com/intent/tweet?url=https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/&amp;text=Attention%20as%20Energy%20Minimization:%20Visualizing%20Energy%20Landscapes" target="_blank" rel="noopener" class="share-btn-twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.facebook.com/sharer.php?u=https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/&amp;t=Attention%20as%20Energy%20Minimization:%20Visualizing%20Energy%20Landscapes" target="_blank" rel="noopener" class="share-btn-facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="mailto:?subject=Attention%20as%20Energy%20Minimization:%20Visualizing%20Energy%20Landscapes&amp;body=https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/" target="_blank" rel="noopener" class="share-btn-email">
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.linkedin.com/shareArticle?url=https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/&amp;title=Attention%20as%20Energy%20Minimization:%20Visualizing%20Energy%20Landscapes" target="_blank" rel="noopener" class="share-btn-linkedin">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="whatsapp://send?text=Attention%20as%20Energy%20Minimization:%20Visualizing%20Energy%20Landscapes%20https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/" target="_blank" rel="noopener" class="share-btn-whatsapp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://service.weibo.com/share/share.php?url=https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/&amp;title=Attention%20as%20Energy%20Minimization:%20Visualizing%20Energy%20Landscapes" target="_blank" rel="noopener" class="share-btn-weibo">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+  
+  
+    
+  
+  
+  
+  <div class="media author-card content-widget-hr">
+    
+      
+      <a href="https://mcbal.github.io/"><img class="avatar mr-3 avatar-circle" src="/author/matthias-bal/avatar_huf6181012a34ccf45ad256514680767eb_86031_270x270_fill_q90_lanczos_center.jpg" alt="Matthias Bal"></a>
+    
+
+    <div class="media-body">
+      <h5 class="card-title"><a href="https://mcbal.github.io/">Matthias Bal</a></h5>
+      
+      <p class="card-text">Machine learning engineer with a background in physics.</p>
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://twitter.com/MatthiasBal" target="_blank" rel="noopener">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.linkedin.com/in/matthiasbal/" target="_blank" rel="noopener">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://scholar.google.be/citations?user=vjYY0bMAAAAJ&amp;hl=en" target="_blank" rel="noopener">
+        <i class="ai ai-google-scholar"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/mcbal" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+<div class="article-widget">
+  
+<div class="post-nav">
+  
+  
+  
+  <div class="post-nav-item">
+    <div class="meta-nav">Previous</div>
+    <a href="/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/" rel="prev">Transformer Attention as an Implicit Mixture of Effective Energy-Based Models</a>
+  </div>
+  
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  <div class="article-widget content-widget-hr">
+    <h3>Related</h3>
+    <ul>
+      
+      <li><a href="/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/">Transformer Attention as an Implicit Mixture of Effective Energy-Based Models</a></li>
+      
+      <li><a href="/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/">An Energy-Based Perspective on Attention Mechanisms in Transformers</a></li>
+      
+    </ul>
+  </div>
+  
+
+
+
+
+
+  </div>
+</article>
+
+      
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.1.0/instantpage.min.js" integrity="sha512-1+qUtKoh9XZW7j+6LhRMAyOrgSQKenQ4mluTR+cvxXjP1Z54RxZuzstR/H9kgPXQsVB8IW7DMDFUJpzLjvhGSQ==" crossorigin="anonymous"></script>
+
+      
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/highlight.min.js" integrity="sha512-TDKKr+IvoqZnPzc3l35hdjpHD0m+b2EC2SrLEgKDRWpxf2rFCxemkgvJ5kfU48ip+Y+m2XVKyOCD85ybtlZDmw==" crossorigin="anonymous"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/python.min.js"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/bash.min.js"></script>
+        
+      
+
+    
+
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js" integrity="sha512-SeiQaaDh73yrb56sTW/RgVdi/mMqNeM2oBwubFHagc5BkixSpP1fvqF47mKzPGWYSSy4RwbBunrJBQ4Co8fRWA==" crossorigin="anonymous"></script>
+    
+
+    
+    
+    <script>const code_highlighting = true;</script>
+    
+
+    
+    
+    
+    
+    
+    
+    <script>
+      const search_config = {"indexURI":"/index.json","minLength":1,"threshold":0.3};
+      const i18n = {"no_results":"No results found","placeholder":"Search...","results":"results found"};
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'talk' : "Talks",
+        'slides' : "Slides"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    
+    
+    
+    <script src="/js/wowchemy.min.4c2bca31150ce93c5a5e43b8a50f22fd.js"></script>
+
+    
+
+
+
+
+
+
+  
+  
+  <div class="container">
+    <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    Matthias Bal © 2021
+  </p>
+
+  
+  
+
+
+
+
+
+
+  <p class="powered-by">
+    
+    Published with
+    <a href="https://wowchemy.com" target="_blank" rel="noopener">Wowchemy</a>  —
+    the free, <a href="https://github.com/wowchemy/wowchemy-hugo-modules" target="_blank" rel="noopener">
+    open source</a> website builder that empowers creators.
+    
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" class="back-to-top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+  </div>
+  
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
