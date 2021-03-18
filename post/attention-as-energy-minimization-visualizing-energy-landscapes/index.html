@@ -34,7 +34,7 @@
   
     
   
-  <meta name="description" content="Can we just swap softmax attention for energy function gradient descent?">
+  <meta name="description" content="Can we swap softmax attention for energy-based attention?">
 
   
   <link rel="alternate" hreflang="en-gb" href="https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/">
@@ -317,7 +317,7 @@
   <meta property="og:site_name" content="mcbal">
   <meta property="og:url" content="https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/">
   <meta property="og:title" content="Attention as Energy Minimization: Visualizing Energy Landscapes | mcbal">
-  <meta property="og:description" content="Can we just swap softmax attention for energy function gradient descent?"><meta property="og:image" content="https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/featured.png">
+  <meta property="og:description" content="Can we swap softmax attention for energy-based attention?"><meta property="og:image" content="https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/featured.png">
   <meta property="twitter:image" content="https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/featured.png"><meta property="og:locale" content="en-gb">
   
     
@@ -371,7 +371,7 @@
       "url": "https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png"
     }
   },
-  "description": "Can we just swap softmax attention for energy function gradient descent?"
+  "description": "Can we swap softmax attention for energy-based attention?"
 }
 </script>
 
@@ -698,7 +698,7 @@
 </div>
 
 
-<div class="article-header article-container featured-image-wrapper mt-4 mb-4" style="max-width: 577px; max-height: 496px;">
+<div class="article-header article-container featured-image-wrapper mt-4 mb-4" style="max-width: 428px; max-height: 428px;">
   <div style="position: relative">
     <img src="/post/attention-as-energy-minimization-visualizing-energy-landscapes/featured.png" alt="" class="featured-image">
     
@@ -739,7 +739,7 @@
 <hr>
 <h1 id="1-introduction">1. Introduction</h1>
 <blockquote>
-<p><strong>📓 Colab notebook available <a href="https://colab.research.google.com/drive/1UsJ24rwCT9sVjh_v3bnr6Ld5NwLbJq54?usp=sharing" target="_blank" rel="noopener">here</a>. Comments welcome!</strong></p>
+<p><strong>📓 Colab notebook available <a href="https://colab.research.google.com/drive/1UsJ24rwCT9sVjh_v3bnr6Ld5NwLbJq54?usp=sharing" target="_blank" rel="noopener">here</a>. Comments welcome.</strong></p>
 </blockquote>
 <p>Recent work <sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> <sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup> has shown that the softmax-attention update step in transformer models can be intepreted as a one-step gradient update or &ldquo;inference&rdquo; step of a judiciously chosen energy function. An overview of these ideas can be found in previous blog posts:</p>
 <ul>
@@ -1020,10 +1020,7 @@ print(
 <pre><code>True
 Norm between input state patterns and energy-minimized patterns: 5.553587470785715e-06
 </code></pre>
-<p>The pattern update step looks almost like an an identity operation, which is to be expected for &ldquo;bare&rdquo; self-attention. Without any linear transformations to map state patterns to queries and keys, every state pattern starts off already close to a local minimum since it coincides with itself as a stored pattern. The query starts off close to the key since the query-key mappings are identities. We will visualize this behavior in <a href="#flatland">Section 4</a> for two-dimensional patterns.</p>
-<blockquote>
-<p><strong>Caveat:</strong> For the special case of bare energy-based self-attention, state patterns actually appear quadratically in the argument of the <code>logsumexp</code> part of the energy function. Taking the derivative using <code>minimize_energy(..)</code> however assumes the context is a different node in the computational graph, which, in this case, where we <em>should</em> be taking the derivative of <code>energy(x, x)</code> instead of <code>energy(x, context)</code>, yields a gradient that misses a factor of 2. But ensuring the gradient is &ldquo;correct&rdquo; for this special case would of course screw up the cancellation of the state pattern with itself for <code>step_size=1.0</code> and <code>num_steps=1</code> so that the updated query would no longer match the output of bare vanilla softmax attention. Proper treatment of doing multiple steps of bare energy-based self-attention should also include manually setting the context to the updated queries (since the queries themselves change every update step). Luckily no one would seriously consider using bare energy-based self-attention.</p>
-</blockquote>
+<p>The pattern update step looks almost like an an identity operation, which is to be expected for &ldquo;bare&rdquo; self-attention<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>. Without any linear transformations to map state patterns to queries and keys, every state pattern starts off already close to a local minimum since it coincides with itself as a stored pattern. The query starts off close to the key since the query-key mappings are identities. We will visualize this behavior in <a href="#flatland">Section 4</a> for two-dimensional patterns.</p>
 <h2 id="adding-queries-keys-and-valuesa-nameqkva">Adding queries, keys, and values<a name="qkv"></a></h2>
 <p>Let&rsquo;s now move closer to proper vanilla softmax attention by enabling linear transformations which map state patterns to queries and stored patterns to keys (and values). These parameters are able to move patterns around on the energy landscape before (queries, keys) and after (values) paying attention.</p>
 <p>We recycle the previously instantiated patterns and modules and compare outputs again, making sure the parameters are equal and omitting the <code>bare_attn</code> flag:</p>
@@ -1099,7 +1096,7 @@ mha_energy_attn(
 <p>It is hard to compare with the exact output of the equivalent <code>VanillaSoftmaxAttention</code> module for fixed module parameters. For multi-head attention, the updated queries coming out of the separate energy minimization steps will have summed over each heads' keys instead of its values. For a single attention head we could undo the keys' transformation by acting with the inverse of the keys' weights. For multiple attention heads, that is no longer possible.</p>
 <p>Again, since all these parameters would be optimized in a real-world scenario, we should only care about whether the representational power of the modules is similar. One approach would be to add parameters inside the energy function that take care of mapping to &ldquo;values&rdquo; on the level of the heads.</p>
 <h1 id="attention-in-flatland-visualizing-energy-landscapesa-nameflatlanda">Attention in flatland: visualizing energy landscapes<a name="flatland"></a></h1>
-<p>We now leave the world of high-dimensional latent spaces behind us and focus on the toy model scenario of just two latent space dimensions. We only consider a single attention head because having just two heads, each with dimension one, is just silly. In the language of natural language processing applications, we are considering sequences of tokens which have been embedded in just two dimensions. For every two-dimensional token pattern vector, a third dimension will be provided by the value of the scalar energy function at that point.</p>
+<p>We now leave the world of high-dimensional latent spaces behind us and focus on the toy model scenario of just two latent space dimensions. We only consider a single attention head because having just two heads, each with dimension one, is just silly. For every two-dimensional token pattern vector, a third dimension will be provided by the value of the scalar energy function at that point.</p>
 <p>Let&rsquo;s sample some tiny toy patterns to play around with.</p>
 <pre><code class="language-python">toy_state_patterns = torch.randn(1, 16, 2).requires_grad_(True)
 toy_stored_patterns = torch.randn(1, 32, 2)
@@ -1192,8 +1189,7 @@ fig, ax = simulate_and_plot_patterns(
 <p>The yellow arrows point from the final, energy-minimized, query updates to the &ldquo;value-transformed&rdquo; output queries, which are denoted with yellow crosses. Running this cell again in the colab notebook will give different landscapes and trajectories every time since the queries and keys depend on the random linear layers. The differences are more pronounced when increasing the scale (lowering the temperature).</p>
 <p>Since the value transformation is done after the energy minimization, it can and does undo some of the influence of the keys' attractors, e.g. sending updated queries to &ldquo;uphill&rdquo; regions in the energy landscape defined at that that layer. This suggests that the value transformation should not be seen as part of the core attention mechanism but that it can learn during training how to best hop to different regions in preparation for whatever the next layer needs.</p>
 <h1 id="conclusiona-nameconclusiona">Conclusion<a name="conclusion"></a></h1>
-<p>Using the tools presented in this blog post, we have shown that it is possible to swap the explicit attention module in a transformer for an implicit energy minimization method.</p>
-<p>What happens when we start playing around with different energy functions? Can we make patterns interact? Can we make the energy minimization steps more efficient by treating them as fixed-point problems using implicit layers? It remains to be seen whether all of this is a useful thing to do.</p>
+<p>Using the tools presented in this blog post, we have shown that it is possible to swap the explicit attention module in a transformer for an implicit energy minimization method. What happens when we start playing around with different energy functions? It remains to be seen whether all of this is a useful thing to do.</p>
 <h1 id="appendix-a-bare-self-attention-experimenta-namebareselfexpa">Appendix A: Bare self-attention experiment<a name="bareselfexp"></a></h1>
 <pre><code class="language-python"># Bare self-attention.
 fig, ax = simulate_and_plot_patterns(
@@ -1254,6 +1250,9 @@ transformer_default_scale = ax.axhline(y=1.0, color=&quot;r&quot;)
 </li>
 <li id="fn:2" role="doc-endnote">
 <p><em>Dmitry Krotov and John Hopfield, <a href="https://arxiv.org/abs/2008.06996" target="_blank" rel="noopener">Large Associative Memory Problem in Neurobiology and Machine Learning</a> (2020)</em> <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3" role="doc-endnote">
+<p><strong>Caveat:</strong> For the special case of bare energy-based self-attention, state patterns actually appear quadratically in the argument of the <code>logsumexp</code> part of the energy function. Taking the derivative using <code>minimize_energy(..)</code> however assumes the context is a different node in the computational graph, which, in this case, where we <em>should</em> be taking the derivative of <code>energy(x, x)</code> instead of <code>energy(x, context)</code>, yields a gradient that misses a factor of 2. But ensuring the gradient is &ldquo;correct&rdquo; for this special case would of course screw up the cancellation of the state pattern with itself for <code>step_size=1.0</code> and <code>num_steps=1</code> so that the updated query would no longer match the output of bare vanilla softmax attention. Proper treatment of doing multiple steps of bare energy-based self-attention should also include manually setting the context to the updated queries (since the queries themselves change every update step). Luckily no one would seriously consider using bare energy-based self-attention. <a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>
