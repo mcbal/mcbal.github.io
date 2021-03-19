@@ -41,7 +41,6 @@
 &lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#flatland&#34;&gt;Attention in flatland: visualizing energy landscapes&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#conclusion&#34;&gt;Conclusion&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#bareselfexp&#34;&gt;Appendix A: Bare self-attention experiment&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
 &lt;hr&gt;
 &lt;h1 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h1&gt;
@@ -364,7 +363,7 @@ torch.norm(output_softmax_attn - output_energy_attn_transformed)
 &lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;tensor(0.0005, grad_fn=&amp;lt;CopyBackwards&amp;gt;)
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Yet since all these parameters would be optimized in a real-world scenario, we should only care about whether the representational power of the modules is similar. To make the single-head energy-based attention module more expressive, we can always add an output layer, parametrized by weights $W_{O}$, to the module. As long as the composition of linear transformations $W_{K}W_{O}$ doesn&amp;rsquo;t collapse and its rank falls below that of the softmax attention&amp;rsquo;s $W_{V}$, things should be okay.&lt;/p&gt;
+&lt;p&gt;Yet since all these parameters would be optimized in a real-world scenario, we should only care about whether the representational power of the modules is similar. To make the single-head energy-based attention module more expressive, we can always add an output layer, parametrized by weights $W_{O}$, to the module. As long as the composition of linear transformations $W_{K}W_{O}$ doesn&amp;rsquo;t collapse and its rank does not fall below that of the softmax attention&amp;rsquo;s $W_{V}$, things should be okay.&lt;/p&gt;
 &lt;h2 id=&#34;adding-masking-and-multiple-attention-headsa-namemaskingmhaa&#34;&gt;Adding masking and multiple attention heads&lt;a name=&#34;maskingmha&#34;&gt;&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;Finally, let us tie up some loose ends and complete the correspondence between vanilla softmax attention and energy-based minimization.&lt;/p&gt;
 &lt;h3 id=&#34;masking&#34;&gt;Masking&lt;/h3&gt;
@@ -494,12 +493,10 @@ fig, ax = simulate_and_plot_patterns(
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img src=&#34;vanilla_softmax_attention_final_refactor_60_0.png&#34; alt=&#34;alt text&#34; title=&#34;Adding query-key-value mappings&#34;&gt;&lt;/p&gt;
 &lt;p&gt;The yellow arrows point from the final, energy-minimized, query updates to the &amp;ldquo;value-transformed&amp;rdquo; output queries, which are denoted with yellow crosses. Running this cell again in the colab notebook will give different landscapes and trajectories every time since the queries and keys depend on the random linear layers. The differences are more pronounced when increasing the scale (lowering the temperature).&lt;/p&gt;
-&lt;p&gt;Since the value transformation is done after the energy minimization, it can and does undo some of the influence of the keys&#39; attractors, e.g. sending updated queries to &amp;ldquo;uphill&amp;rdquo; regions in the energy landscape defined at that that layer. This suggests that the value transformation should not be seen as part of the core attention mechanism but that it can learn during training how to best hop to different regions in preparation for whatever the next layer needs.&lt;/p&gt;
-&lt;h1 id=&#34;conclusiona-nameconclusiona&#34;&gt;Conclusion&lt;a name=&#34;conclusion&#34;&gt;&lt;/a&gt;&lt;/h1&gt;
-&lt;p&gt;Using the tools presented in this blog post, we have shown that it is possible to swap the explicit attention module in a transformer for an implicit energy minimization method. What happens when we start playing around with different energy functions? It remains to be seen whether all of this is a useful thing to do.&lt;/p&gt;
-&lt;h1 id=&#34;appendix-a-bare-self-attention-experimenta-namebareselfexpa&#34;&gt;Appendix A: Bare self-attention experiment&lt;a name=&#34;bareselfexp&#34;&gt;&lt;/a&gt;&lt;/h1&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# Bare self-attention.
-fig, ax = simulate_and_plot_patterns(
+&lt;p&gt;Since the value transformation is done after the energy minimization, it can and does undo some of the influence of the keys&#39; attractors, e.g. sending updated queries to &amp;ldquo;uphill&amp;rdquo; regions in the energy landscape defined at that that layer. This suggests that the value transformation should not be seen as part of the core attention mechanism but that its role is rather to learn during training how to best hop to different regions in preparation for whatever the next layer needs.&lt;/p&gt;
+&lt;h4 id=&#34;bare-self-attention-on-the-importance-of-scale-and-why-multiple-headsa-namebareselfexpa&#34;&gt;Bare self-attention: on the importance of scale and why multiple heads&lt;a name=&#34;bareselfexp&#34;&gt;&lt;/a&gt;&lt;/h4&gt;
+&lt;p&gt;Since all of the flatland examples so far have been for cross-attention, let&amp;rsquo;s also visualize a self-attention update below:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;fig, ax = simulate_and_plot_patterns(
     hopfield_energy,
     copy_tensor(toy_state_patterns),
     scale=2 ** -0.5,
@@ -510,7 +507,7 @@ fig, ax = simulate_and_plot_patterns(
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img src=&#34;vanilla_softmax_attention_final_refactor_62_0.png&#34; alt=&#34;alt text&#34; title=&#34;Bare self-attention visualization&#34;&gt;&lt;/p&gt;
 &lt;p&gt;Wait, what? Why did the updated state patterns move from their initialization? Didn&amp;rsquo;t we see before that the norm between inputs and outputs hardly changed at all for bare self-attention?&lt;/p&gt;
-&lt;p&gt;To look into this, let&amp;rsquo;s plot the norm between inputs and outputs in function of the latent dimension, while scaling the inverse temperature relative to the transformer default $\beta = 1/\sqrt{\mathrm{d_k}}$. We sample toy patterns repeatedly for every dimension/scale combination to get an idea of the statistical behavior.&lt;/p&gt;
+&lt;p&gt;To look into this, let&amp;rsquo;s plot the norm between inputs and outputs in function of the latent dimension, while scaling the scale or inverse temperature relative to the transformer default $\beta = 1/\sqrt{\mathrm{d_k}}$. We sample toy patterns repeatedly for every dimension/scale combination to get an idea of the statistical behavior.&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;dims = np.linspace(2.0, 1024, num=100, dtype=np.int32)
 beta_scales = np.linspace(0.2, 2.0, num=50, dtype=np.float32)
 norms = np.zeros((len(beta_scales), len(dims)))
@@ -545,9 +542,11 @@ transformer_default_scale = ax.axhline(y=1.0, color=&amp;quot;r&amp;quot;)
 &lt;p&gt;In this contour plot, we plot the norm differences between inputs and outputs of a bare self-attention step for a sweep across latent dimensions and inverse temperature scale factors. The horizontal red line corresponds to the scale factor used by default in most transformer implementations. Some comments:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;For a fixed latent dimension, we see that increasing the scale factor corresponds to smaller norm differences, i.e. more pronounced valleys where it&amp;rsquo;s much harder to get out of, especially if you start at the bottom and there is no query-key-value mapping taking you elsewhere.&lt;/li&gt;
-&lt;li&gt;The vertical red line corresponds to the earlier bare self-attention result using a latent dimension of 512. The intersection point indeed corresponds a norm difference of the order we saw previously. The value for a latent dimension of 2 (left border of plot) suggests that patterns indeed move around quite a bit.&lt;/li&gt;
-&lt;li&gt;Setting the scale for bare multi-head attention proportionally to the (smaller) head dimension instead of the full latent dimension corresponds to moving leftwards along the horizontal red line. The norm difference increases so that, for bare multi-head self-attention, patterns in multiple small heads tend to bounce around more than they would in a single big head.&lt;/li&gt;
+&lt;li&gt;The vertical red line corresponds to the earlier bare self-attention result using a latent dimension of 512. The intersection point indeed corresponds a norm difference of the order we saw previously. The value for a latent dimension of 2 (left border of plot) suggests that patterns do move around quite a bit, confirming our visualization above.&lt;/li&gt;
+&lt;li&gt;Setting the scale for bare multi-head attention proportionally to the (smaller) head dimension instead of the full latent dimension corresponds to moving leftwards along the horizontal red line. The norm difference increases so that, for bare multi-head self-attention, patterns in multiple small heads tend to bounce around more than they would in a single big head. This might be one of the reasons why multiple heads help with training transformers: since the effective temperature is lower in the smaller latent spaces, the topography of the lower-dimensional energy landscapes is more pronounced and individual heads can go explore a bit to find their niche valley.&lt;/li&gt;
 &lt;/ul&gt;
+&lt;h1 id=&#34;conclusiona-nameconclusiona&#34;&gt;Conclusion&lt;a name=&#34;conclusion&#34;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;p&gt;Using the tools presented in this blog post, we have shown that it is possible to swap the explicit attention module in a transformer for an implicit energy minimization method. What happens when we start playing around with different energy functions? Can we make patterns interact? Can we make the energy minimization step more efficient by treating it as a fixed-point problem? It remains to be seen whether all of this is a useful thing to do.&lt;/p&gt;
 &lt;h1 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h1&gt;
 &lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
 &lt;hr&gt;
