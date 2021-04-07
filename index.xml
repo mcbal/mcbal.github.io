@@ -158,6 +158,7 @@
         energies = energy_func(queries, keys, mask=mask)
         grad_queries = torch.autograd.grad(
             energies, queries, grad_outputs=torch.ones_like(energies),
+            create_graph=True,  # enables double backprop for optimization
         )[0]
         queries = queries - step_size * grad_queries
         out[&amp;quot;queries&amp;quot;].append(queries)
