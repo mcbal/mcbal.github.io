@@ -281,7 +281,7 @@
   }
 
   gtag('js', new Date());
-  gtag('config', 'G-H9Y98B2S2P', { 'anonymize_ip': true });
+  gtag('config', 'G-H9Y98B2S2P', {});
 
   
   document.addEventListener('click', onClickCallback, false);
@@ -381,36 +381,6 @@
 
 
   
-  
-  
-  
-  
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.1/cookieconsent.min.js" integrity="sha256-5VhCqFam2Cn+yjw61zbBNrbHVJ6SRydPeKopYlngbiQ=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.1/cookieconsent.min.css" integrity="sha256-zQ0LblD/Af8vOppw18+2anxsuaz3pWYyVWi+bTvTH8Q=" crossorigin="anonymous">
-  
-  <script>
-  window.addEventListener("load", function(){
-    window.cookieconsent.initialise({
-      "palette": {
-        "popup": {
-          "background": "#2962ff",
-          "text": "rgb(255, 255, 255)"
-        },
-        "button": {
-          "background": "rgb(255, 255, 255)",
-          "text": "#2962ff"
-        }
-      },
-      "theme": "classic",
-      "content": {
-        "message": "This website uses cookies to ensure you get the best experience on our website.",
-        "dismiss": "Got it!",
-        "link": "Learn more",
-        "href": "https://www.cookiesandyou.com"
-      }
-    })});
-  </script>
-
 
 
   
@@ -778,14 +748,20 @@ E(t) = - \left( \sum_{i,j} J_{ij} S_{i} S_{j} + \sum_{i} \theta_{i}(t) S_{i} \ri
 <p>Learning can happen in at least two ways: (1) for a fixed network structure, we can dump energy in the system and have the system figure out a way to dissipate the energy through relaxation, and (2) the structure of a network itself can be adjusted via the couplings through free energy minimization. The system should never stop learning since stopping learning means death, decay, and rigor mortis.</p>
 <p>A toy neural network agent in this framework would look something like this:</p>
 <p><img src="spin_1.png" alt="alt text" title="Random Ising spin model with inputs and outputs designated"></p>
-<p>where we again have a graph of spins with two-body interactions but have designated a node as a probe point (e.g. sense inputs) and two other nodes as outputs (e.g. motor commands and muscle nerves). All nodes are part of the computation and can talk to each other but don&rsquo;t have to.</p>
-<p>The probe point receives local time-varying &ldquo;magnetic fields&rdquo; $\theta_{i}(t)$ at every timestep which inject energy (and useful information if its content is low-entropy enough) into the system. We picture this system to operate at a sufficiently high level, i.e. the sense inputs could be feature vectors coming from a convolutional neural network.</p>
-<p>Without any explicit learning by tuning the couplings weights, relaxation of the system can lead to self-organization of the system&rsquo;s response across time scales. For an interesting toy example of this kind of behavior, see <a href="https://youtu.be/vSgHuErXuqk?t=2188" target="_blank" rel="noopener">this talk</a> on <em>Low rattling: a principle for understanding driven many-body self-organization</em>.</p>
-<p>Additionally minimizing free energy on top could (1) adjust the interaction weights to nudge the internal dynamics of the system, and (2) if the output nodes receive gradients, the output nodes could adapt to minimize free energy. This last concept is known as [active inference(https://en.wikipedia.org/wiki/Free_energy_principle) where an agent&rsquo;s actions are adjusted to improve its world model. You perform saccadic eye movements because doing so will instantaneously improve your hallucination.</p>
+<p>where we again have a graph of spins with two-body interactions but have designated a node as a probe point (e.g. sense inputs) and two other nodes as outputs (e.g. motor commands and muscle nerves). All nodes are part of the computation and can talk to each other but don&rsquo;t have to. The probe point receives local time-varying &ldquo;magnetic fields&rdquo; $\theta_{i}(t)$ at every timestep which inject energy (and useful information if its content is low-entropy enough) into the system. We picture this system to operate at a sufficiently high level, i.e. the sense inputs could be feature vectors coming from a convolutional neural network.</p>
+<p>Without any explicit learning by tuning the couplings weights, relaxation of the system can lead to self-organization of the system&rsquo;s response across time scales<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>. Additionally minimizing free energy on top could (1) adjust the interaction weights to nudge the internal dynamics of the system, and (2) if the output nodes receive gradients, the output nodes could adapt to minimize free energy. This last concept is known as <a href="https://en.wikipedia.org/wiki/Free_energy_principle" target="_blank" rel="noopener">active inference</a> where an agent&rsquo;s actions are adjusted to improve its current world model. You perform saccadic eye movements because doing so will instantaneously improve your hallucination.</p>
 <h2 id="8-">8. &hellip;</h2>
 <p>&hellip;</p>
 <h2 id="acknowledgements">Acknowledgements</h2>
 <p>I would like to thank L.G.P. for inspiring discussions.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>For an interesting toy example of this kind of behavior, see <a href="https://youtu.be/vSgHuErXuqk?t=2188" target="_blank" rel="noopener">this talk</a> on <em>Low rattling: a principle for understanding driven many-body self-organization</em>. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
 
     </div>
 
