@@ -1,0 +1,1448 @@
+<!DOCTYPE html><html lang="en-gb" >
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  
+  
+  <meta name="generator" content="Wowchemy 4.8.0 for Hugo">
+  
+
+  
+
+  
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Matthias Bal">
+
+  
+  
+  
+    
+  
+  <meta name="description" content="Can we model attention as the collective response of a statistical-mechanical system?">
+
+  
+  <link rel="alternate" hreflang="en-gb" href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/">
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+
+  
+  
+  
+  <meta name="theme-color" content="#2962ff">
+  
+
+  
+  
+  
+  <script src="/js/mathjax-config.js"></script>
+  
+
+  
+  
+  
+  
+    
+    
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.9.0/css/academicons.min.css" integrity="sha512-W4yqoT1+8NLkinBLBZko+dFB2ZbHsYLDdr50VElllRcNt2Q4/GSs6u71UHKxB7S6JEMCp5Ve4xjh3eGQl/HRvg==" crossorigin="anonymous">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha256-FMvZuGapsJLjouA6k7Eo2lusoAX9i0ShlWFG6qt7SLc=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/github.min.css" crossorigin="anonymous" title="hl-light">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
+        
+      
+    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" integrity="sha512-1xoFisiGdy9nvho8EgXuXvnpR5GAMSjFwp40gSRE3NwdUdIMIKuPa7bqoUhLD0O/5tPNhteAsE5XyyMi5reQVA==" crossorigin="anonymous">
+    
+
+    
+
+    
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.2.2/lazysizes.min.js" integrity="sha512-TmDwFLhg3UA4ZG0Eb4MIyT1O1Mb+Oww5kFG0uHqXsdbyZz9DcvYQhKpGgNkamAI6h2lGGZq2X8ftOJvF/XjTUg==" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" integrity="" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+
+  
+
+  
+  
+  
+    
+      
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Serif:ital,wght@0,300;0,400;1,300;1,400%7CIBM+Plex+Sans:ital,wght@0,300;0,400;0,700;1,400%7CFira+Code&display=swap">
+    
+  
+
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/wowchemy.css">
+
+  
+
+
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-H9Y98B2S2P"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag() {
+      dataLayer.push(arguments);
+  }
+
+  function trackOutboundLink(url, target) {
+    gtag('event', 'click', {
+         'event_category': 'outbound',
+         'event_label': url,
+         'transport_type': 'beacon',
+         'event_callback': function () {
+           if (target !== '_blank') {
+             document.location = url;
+           }
+         }
+    });
+    console.debug("Outbound link clicked: " + url);
+  }
+
+  function onClickCallback(event) {
+    if ((event.target.tagName !== 'A') || (event.target.host === window.location.host)) {
+      return;
+    }
+    trackOutboundLink(event.target, event.target.getAttribute('target'));  
+  }
+
+  gtag('js', new Date());
+  gtag('config', 'G-H9Y98B2S2P', {});
+
+  
+  document.addEventListener('click', onClickCallback, false);
+</script>
+
+
+  
+
+
+  
+  
+
+  
+
+  <link rel="manifest" href="/index.webmanifest">
+  <link rel="icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_32x32_fill_lanczos_center_2.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png">
+
+  <link rel="canonical" href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/">
+
+  
+  
+  
+  
+  
+  
+  
+    
+  
+  
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="og:site_name" content="mcbal">
+  <meta property="og:url" content="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/">
+  <meta property="og:title" content="Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms | mcbal">
+  <meta property="og:description" content="Can we model attention as the collective response of a statistical-mechanical system?"><meta property="og:image" content="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/featured.png">
+  <meta property="twitter:image" content="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/featured.png"><meta property="og:locale" content="en-gb">
+  
+    
+      <meta property="article:published_time" content="2021-04-07T15:17:17&#43;01:00">
+    
+    <meta property="article:modified_time" content="2021-05-03T17:10:17&#43;01:00">
+  
+
+  
+
+
+    
+
+
+
+
+
+
+  
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/"
+  },
+  "headline": "Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms",
+  
+  "image": [
+    "https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/featured.png"
+  ],
+  
+  "datePublished": "2021-04-07T15:17:17+01:00",
+  "dateModified": "2021-05-03T17:10:17+01:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Matthias Bal"
+  },
+  
+  "publisher": {
+    "@type": "Organization",
+    "name": "mcbal",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png"
+    }
+  },
+  "description": "Can we model attention as the collective response of a statistical-mechanical system?"
+}
+</script>
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  <title>Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms | mcbal</title>
+
+</head>
+
+
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" class=" ">
+
+  
+  
+  
+    <script>window.wcDarkLightEnabled = true;</script>
+  
+  
+    <script>const isSiteThemeDark = false;</script>
+  
+  
+  <script src="/js/load-theme.js"></script>
+
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search" class="form-control">
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id="navbar-main">
+  <div class="container">
+
+    
+    <div class="d-none d-lg-inline-flex">
+      <a class="navbar-brand" href="/">mcbal</a>
+    </div>
+    
+
+    
+    <button type="button" class="navbar-toggler" data-toggle="collapse"
+            data-target="#navbar-content" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+    <span><i class="fas fa-bars"></i></span>
+    </button>
+    
+
+    
+    <div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none">
+      <a class="navbar-brand" href="/">mcbal</a>
+    </div>
+    
+
+    
+    
+    <div class="navbar-collapse main-menu-item collapse justify-content-start" id="navbar-content">
+
+      
+      <ul class="navbar-nav d-md-inline-flex">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#about"><span>About me</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#posts"><span>Blog</span></a>
+        </li>
+
+        
+        
+
+      
+
+        
+      </ul>
+    </div>
+
+    <ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+      
+      
+      <li class="nav-item">
+        <a class="nav-link js-search" href="#" aria-label="Search"><i class="fas fa-search" aria-hidden="true"></i></a>
+      </li>
+      
+
+      
+      
+      <li class="nav-item dropdown theme-dropdown">
+        <a href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true">
+          <i class="fas fa-moon" aria-hidden="true"></i>
+        </a>
+        <div class="dropdown-menu">
+          <a href="#" class="dropdown-item js-set-theme-light">
+            <span>Light</span>
+          </a>
+          <a href="#" class="dropdown-item js-set-theme-dark">
+            <span>Dark</span>
+          </a>
+          <a href="#" class="dropdown-item js-set-theme-auto">
+            <span>Automatic</span>
+          </a>
+        </div>
+      </li>
+      
+
+      
+
+    </ul>
+
+  </div>
+</nav>
+
+
+
+  <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+<div class="article-container pt-3">
+  <h1>Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</h1>
+
+  
+  <p class="page-subtitle">Can we model attention as the collective response of a statistical-mechanical system?</p>
+  
+
+  
+
+
+<div class="article-metadata">
+
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+          Last updated on
+      
+    
+    May 3, 2021
+  </span>
+  
+
+  
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    18 min read
+  </span>
+  
+
+  
+  
+  
+
+  
+  
+
+</div>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+<div class="article-header article-container featured-image-wrapper mt-4 mb-4" style="max-width: 456px; max-height: 402px;">
+  <div style="position: relative">
+    <img src="/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/featured.png" alt="" class="featured-image">
+    
+  </div>
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      <hr>
+<ol>
+<li><a href="#1-introduction">Introduction</a></li>
+<li><a href="#2-mean-field-theory-for-disordered-systems">Mean-field theory for disordered systems</a>
+<ol>
+<li><a href="#21-random-ising-models-or-boltzmann-machines-or-">Random Ising models (or Boltzmann machines or &hellip;)</a></li>
+<li><a href="#22-adaptive-thouless--anderson--palmer-mean-field-theory">Adaptive Thouless&ndash;Anderson&ndash;Palmer mean-field theory</a></li>
+</ol>
+</li>
+<li><a href="#3-attention-as-a-fixed-point-method">Attention as a fixed-point method</a>
+<ol>
+<li><a href="#31-generalizing-spin-models-to-vector-degrees-of-freedom">Generalizing spin models to vector degrees of freedom</a></li>
+<li><a href="#32-deep-implicit-attention-attention-as-a-collective-response">Deep implicit attention: attention as a collective response</a></li>
+<li><a href="#33-slow-and-explicit-solving-the-adaptive-tap-equations">Slow and explicit: solving the adaptive TAP equations</a></li>
+<li><a href="#34-fast-and-neural-parametrizing-the-onsager-self-correction-term">Fast and neural: parametrizing the Onsager self-correction term</a></li>
+</ol>
+</li>
+<li><a href="#4-a-mean-field-theory-perspective-on-transformers">A mean-field theory perspective on transformers</a>
+<ol>
+<li><a href="#41-parametrizing-the-couplings-sparse-graph-structure-from-inputs">Parametrizing the couplings: sparse graph structure from inputs</a></li>
+<li><a href="#42-softmax-attention-does-a-single-naive-mean-field-update-step">Softmax attention does a single, naive mean-field update step</a></li>
+<li><a href="#43-feed-forward-layer-corrects-naive-mean-field-update">Feed-forward layer corrects naive mean-field update</a></li>
+</ol>
+</li>
+<li><a href="#5-conclusion-and-outlook">Conclusion and outlook</a></li>
+<li><a href="#6-related-work">Related work</a></li>
+</ol>
+<hr>
+<h1 id="1-introduction">1. Introduction</h1>
+<p>To explore progress beyond the cage of softmax attention, we have previously looked at energy-based perspectives on attention mechanisms:</p>
+<ul>
+<li><a href="https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/" target="_blank" rel="noopener">An Energy-Based Perspective on Attention Mechanisms in Transformers</a></li>
+<li><a href="https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/" target="_blank" rel="noopener">Transformer Attention as an Implicit Mixture of Effective Energy-Based Models</a></li>
+<li><a href="https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/" target="_blank" rel="noopener">Attention as Energy Minimization: Visualizing Energy Landscapes</a></li>
+</ul>
+<p>The main take-away so far has been that you can think of softmax attention as implementing a single, big gradient step of some energy function and that training transformers is akin to meta-learning how to best tune a stack of attention and feed-forward modules to perform well on some auxiliary (meta-)task(s). But what can an energy-based perspective actually provide beyond quaint and hand-wavy statements like <em>implicit energy landscapes are sculpted every time you train a transformer</em>?</p>
+<p>In this post, we approach attention in terms of the <em>collective response of a statistical-mechanical system</em>. Attention is interpreted as an inner-loop fixed-point optimization step which returns the approximate response of a system being probed by data. This response is a differentiable compromise between the system&rsquo;s internal dynamics and the data it&rsquo;s being exposed to. To better respond to incoming data, outer-loop optimization steps can nudge the interactions and the self-organizing behaviour of the system.</p>
+<p>To implement our proposal, we combine old ideas and new technology to construct a family of attention mechanisms based on fixed points. We use <a href="https://arxiv.org/abs/1909.01377" target="_blank" rel="noopener">deep equilibrium models</a> to solve a set of self-consistent mean-field equations of a vector generalization of the random Ising spin-model. By approximating these equations, we arrive at simplified update steps which mirror the vanilla transformer architecture. We conclude by showing how transformers can be understood from a mean-field theory perspective.</p>
+<blockquote>
+<p><strong>✨ Code: A reference PyTorch implementation of the ideas outlined in this blog post is available in the repository <a href="https://github.com/mcbal/deep-implicit-attention" target="_blank" rel="noopener"><code>deep-implicit-attention</code></a>. Comments welcome.</strong></p>
+</blockquote>
+<h1 id="2-mean-field-theory-for-disordered-systems">2. Mean-field theory for disordered systems</h1>
+<p>In physics, <a href="https://en.wikipedia.org/wiki/Mean-field_theory" target="_blank" rel="noopener">mean-field theory</a> is an approximation method to study models made up of many individual degrees of freedom that interact with each other. Mean-field theory approximates the effect of the environment on any given individual degree of freedom by a single, averaged effect, and thus reduces a many-body problem to an (effective) one-body problem. This is a drastic approximation. Whether mean-field theory a sensible thing to do depends on the problem and the properties of your variational ansatz.</p>
+<blockquote>
+<p><strong>Mean-field theory &amp; variational methods:</strong> From the point of view of variational methods, mean-field theory tries to approximate a complicated object (like a partition function of a statistical-mechanical system) by wiggling around the parameters of a tractable variational ansatz to get as close as possible to the real thing. You can picture this process as projecting down a complicated object living in a high-dimensional space to its shadow in an easier-to-handle subspace (<em>I can hear a mathematician fainting in the background</em>). This effectively reduces the problem to optimizing for the best possible approximation within your variational class. A lot of mean-field machinery also shows up in probability theory, statistics, and machine learning where it appears in belief propagation, approximate variational inference, expectation propagation, etc.</p>
+</blockquote>
+<p>In the next two subsections, we introduce random Ising models and sketch a physics-inspired approach to deal with disordered models using mean-field theory. In <a href="#3-attention-as-a-fixed-point-method">Section 3</a> we will then generalize these results to vector spin degrees of freedom and propose two flavours of attention models.</p>
+<h2 id="21-random-ising-models-or-boltzmann-machines-or-">2.1. Random Ising models (or Boltzmann machines or &hellip;)</h2>
+<p>The random Ising model is a prototypical model in the study of spin glasses and disordered random systems, where it is often referred to as the <a href="https://en.wikipedia.org/wiki/Spin_glass#The_model_of_Sherrington_and_Kirkpatrick" target="_blank" rel="noopener">Sherrington–Kirkpatrick model</a>, famous for its replica-method solution by Giorgio Parisi in 1979. Its energy function with external field for $N$ classical, binary spin variables looks like</p>
+<p>\begin{equation}
+E = \sum_{i,j} J_{ij} S_{i} S_{j} + \sum_{i} x_{i} S_{i}, \label{eq:randomising}
+\end{equation}</p>
+<p>where the couplings $J_{ij}$ between degrees of freedom are randomly distributed according to some probability distribution and self-interactions are absent ($J_{ii} = 0$). The external magnetic fields $x_{i}$ provide a preferential direction of alignment at every local site. Since the elements in the coupling matrix can have both negative and positive signs, the system is said to have both frustrated ferro- as well as antiferromagnetic couplings. The model defined by \eqref{eq:randomising} is also known as a <a href="https://en.wikipedia.org/wiki/Boltzmann_machine" target="_blank" rel="noopener">Boltzmann machine</a> or a <a href="https://en.wikipedia.org/wiki/Hopfield_network" target="_blank" rel="noopener">Hopfield network</a>.</p>
+<p>In contrast with disordered systems, we expect the couplings in the context of artificial neural networks to no longer be randomly drawn from a distribution but to reflect structure and organization between spins after being exposed to data. The system should self-organize in order to better respond to incoming data.</p>
+<p>A cartoon of a spin configuration of a 7-spin system looks something like
+<img src="binary_ising.png" alt="Random Ising model configuration with binary spins" width="250px"/>
+where we have only drawn the connections strongest in absolute value. It&rsquo;s helpful to think of classical spin degrees of freedom as arrows. For vector spins, we can imagine lifting the up/down restriction and letting the arrows rotate freely.</p>
+<h2 id="22-adaptive-thouless--anderson--palmer-mean-field-theory">2.2. Adaptive Thouless&ndash;Anderson&ndash;Palmer mean-field theory</h2>
+<p>One of the approaches physicists have come up with to tackle disordered random systems with pairwise interactions like those in Eq. \eqref{eq:randomising} is <a href="https://doi.org/10.1080/14786437708235992" target="_blank" rel="noopener">Thouless&ndash;Anderson&ndash;Palmer (TAP) mean-field theory (1977)</a>. The TAP equations improve mean-field theory results by adding a so-called <em>Onsager self-correction term</em> calculated from the couplings' distribution.</p>
+<p><a href="https://link.aps.org/doi/10.1103/PhysRevE.64.056131" target="_blank" rel="noopener">Opper and Winther (2001)</a> adapted this method to probabilisic modeling to be able to deal with scenarios where the distribution of the couplings between spins is not known a priori. To compensate for the lack of knowledge of the couplings distribution, they introduced a self-consistent computation to adapt the Onsager correction to the <em>actual</em> couplings using the cavity method and linear response relations. We will sketch the adaptive TAP approach below but refer to <a href="https://link.aps.org/doi/10.1103/PhysRevE.64.056131" target="_blank" rel="noopener">Opper and Winther (2001)</a> and <a href="https://arxiv.org/abs/1409.6179" target="_blank" rel="noopener">Raymond, Manoel, and Opper (2014)</a> for more details and derivations.</p>
+<h3 id="single-site-partition-function-from-cavity-method">Single-site partition function from cavity method</h3>
+<p>The adaptive TAP equations can be derived using the cavity method, where a cavity field distribution is introduced to rewrite the marginal distributions of the spins. The cavity corresponds to the &ldquo;hole&rdquo; left by removing a single spin. By assuming a Gaussian cavity distribution in the large connectivity limit, one can show that the single-site partition function looks like</p>
+<p>\begin{equation}
+Z_{0}^{(i)} = \int \mathrm{d} S \ \rho_{i}\left(S\right) \exp \left[ S \left( a_{i} + x_{i} \right) + \frac{V_{i} S^2}{2}  \right]
+\end{equation}</p>
+<p>where the $a_i$ denote <em>cavity means</em> and the $V_i$ <em>cavity variances</em>. The single-site partition function can be integrated to yield an explicit expression after choosing well-behaved priors $\rho_{i}(S)$ for the spins. For binary spins $S=\pm 1$, we can pick $\rho_{i}(S)=\frac{1}{2}\left( \delta(S-1) + \delta(S+1) \right)$ to find</p>
+<p>\begin{equation}
+Z_{0}^{(i)} = \cosh \left( a_{i} + x_{i} \right). \label{eq:partfunbinaryspins}
+\end{equation}</p>
+<h3 id="cavity-means-and-onsager-correction-term">Cavity means and Onsager correction term</h3>
+<p>The cavity means can be shown to be given by
+\begin{equation}
+a_{i} = \sum_{j} J_{ij} \langle S_{j} \rangle - V_{i} \langle S_{i} \rangle. \label{eq:cavitymean}
+\end{equation}</p>
+<p>where the last term is the <em>Onsager correction term</em>, a self-correction term for every spin which depends on the cavity variances.</p>
+<h3 id="cavity-variances-and-linear-response">Cavity variances and linear response</h3>
+<p>The cavity variances are determined self-consistently, i.e. by calculating the same quantity in two different ways and demanding the obtained expressions to be equal. To do this, we introduce the matrix of susceptibilities</p>
+<p>\begin{equation}
+\chi_{ij} = \langle S_{i} S_{j} \rangle - \langle S_{i} \rangle \langle S_{j} \rangle  = \frac{\partial^2}{\partial x_{i}\partial x_{j}} \log Z_{0}^{(i)}
+\end{equation}</p>
+<blockquote>
+<p>The susceptibility matrix $\chi_{ij}$ is a covariance matrix and should thus be positive semi-definite, which is criterion for the mean-field solution be consistent. As soon this property is lost, the fixed-point procedure will no longer be stable.</p>
+</blockquote>
+<p>Its diagonal elements $\chi_{ii}$ can be obtained both from the explicit calculation of the spin variances from the partition function</p>
+<p>\begin{equation}
+\chi_{ii} = \langle S_{i}^2 \rangle - \langle S_{i} \rangle^2 = \frac{\partial^2}{\partial x_{i}^2} \log Z_{0}^{(i)} \label{eq:chiii}
+\end{equation}</p>
+<p>but also from a linear response calculation assuming fixed $V_i$,</p>
+<p>\begin{align}
+\chi_{ij} = \frac{\partial \langle S_{i} \rangle}{\partial x_{j}} = \frac{\partial \langle S_{i} \rangle}{\partial x_{i}} \left( \delta_{ij} + \sum_{k} \left( J_{ik} - V_{k} \delta_{ik} \right) \chi_{kj} \right)  \label{eq:chiijlinrespexp}
+\end{align}</p>
+<p>which can be solved for $\chi_{ij}$ to yield
+\begin{equation}
+\chi_{ij} =  \left[ \left( \boldsymbol{\Lambda} - \boldsymbol{J} \right)^{-1} \right]_{ij} \label{eq:chiijlinresp}
+\end{equation}
+where
+\begin{align}
+\boldsymbol{\Lambda} = \mathrm{diag} \left( \Lambda_1, \ldots, \Lambda_{N} \right),\\<br>
+\Lambda_i = V_i + \left( \frac{\partial \langle S_{i} \rangle}{\partial x_{i}} \right)^{-1}.
+\end{align}</p>
+<p>The cavity variances $V_i$ are then determined by equating \eqref{eq:chiii} to the diagonal elements of \eqref{eq:chiijlinresp} and solving the following consistency condition for $V_i$
+\begin{equation}
+\frac{1}{\Lambda_i - V_i} =  \left[ \left( \boldsymbol{\Lambda} - \boldsymbol{J} \right)^{-1} \right]_{ii}.  \label{eq:viselfcons}
+\end{equation}</p>
+<p>Given updated values for the cavity means $a_i$ and the cavity variances $V_i$, spin means and spin variances can then be updated as follows:</p>
+<p>\begin{align}
+\langle S_{i} \rangle &amp;= \frac{\partial}{\partial x_{i}} \log Z_{0}^{(i)} (x_{i}, a_{i}, V_{i}),\\<br>
+\langle S_{i}^2 \rangle - \langle S_{i} \rangle^2 &amp;= \frac{\partial^2}{\partial x_{i}^2} \log Z_{0}^{(i)} (x_{i}, a_{i}, V_{i}),
+\end{align}</p>
+<p>These equations reduce to explicit expressions given an explicit expression for $Z_{0}^{(i)}$. For the binary-spin partition function \eqref{eq:partfunbinaryspins} where $S=\pm 1$, we get a set of fixed-point equations for the spin means that look like</p>
+<p>\begin{equation}
+\langle S_{i} \rangle = \tanh \left( \sum_{j} J_{ij} \langle S_{j} \rangle - V_{i} \langle S_{i} \rangle + x_{i} \right)
+\end{equation}</p>
+<p>with spin variances $\chi_{ii} = 1 - \langle S_{i} \rangle^2$.</p>
+<h1 id="3-attention-as-a-fixed-point-method">3. Attention as a fixed-point method</h1>
+<p>In this section, we attempt to generalize the mean-field equations obtained in the previous section to random Ising-like models with vector spin degrees of freedom. We then recognize the physical system as an attention model and provide both a slow, explicit implementation and a faster, neural one.</p>
+<blockquote>
+<p><strong>✨ Code: A reference PyTorch implementation of the models outlined below is available in the repository <a href="https://github.com/mcbal/deep-implicit-attention" target="_blank" rel="noopener"><code>deep-implicit-attention</code></a>.</strong></p>
+</blockquote>
+<h2 id="31-generalizing-spin-models-to-vector-degrees-of-freedom">3.1. Generalizing spin models to vector degrees of freedom</h2>
+<p>Let&rsquo;s return to our Ising model cartoon and replace the scalar spin degrees of freedom $S_i$ at every site with vectors $\boldsymbol{S}_i \in \mathbb{R}^d$, which we visualize using arrows below</p>
+<img src="featured.png" alt="Random Ising model configuration with vector spins" width="250px"/>
+<p>Let&rsquo;s consider a system of $N$ $d$-dimensional spins and let&rsquo;s label site indices with $i,j,\ldots$ and internal vector-space indices with Greek letters $\alpha,\beta,\ldots$. We let the coupling weight matrix become a tensor $\boldsymbol{J}_{ij} = J_{ij}^{\alpha\beta}$ (matrices coupling every pair of sites) and remove self-couplings by enforcing the couplings' block-diagonal to be zero. Additionally, we can symmetrize both the internal dimension and the sites to end up with $N(N-1)/2$ times $d(d+1)/2$ effective free parameters for the couplings. If we also turn the external fields into vectors, we obtain a vector generalization of Eq. \eqref{eq:randomising}:</p>
+<p>\begin{equation}
+E = \sum_{i,j} \boldsymbol{S}_{i}^{T} \boldsymbol{J}_{ij} \boldsymbol{S}_{j} + \sum_{i} \boldsymbol{X}_{i} \cdot \boldsymbol{S}_{i}. \label{eq:vectrandomising}
+\end{equation}</p>
+<h2 id="32-deep-implicit-attention-attention-as-a-collective-response">3.2. Deep implicit attention: attention as a collective response</h2>
+<p>Remember that our goal is to understand attention as the collective response of statistical-mechanical system. Let&rsquo;s now relate vector models like Eq.\eqref{eq:vectrandomising} to attention models by treating the external magnetic fields $\boldsymbol{X}_{i}$ as input data. Batches of sequences applied to every site act as probes for the system, pushing its behaviour into a certain direction. The system&rsquo;s mean-field average magnetizations $\langle \boldsymbol{S}_{i} \rangle$ are an approximation of the collective response at every site: what is the expected value of this particular vector spin? We interpret solving mean-field equations for $\langle \boldsymbol{S}_{i} \rangle$ in the presence of input injections $\boldsymbol{X}_{i}$ as an attention operation. If the whole system is differentiable, we can tune the couplings $\boldsymbol{J}_{ij}$ in an outer-loop optimization to steer the system&rsquo;s behaviour to better<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> respond to future incoming data.</p>
+<h2 id="33-slow-and-explicit-solving-the-adaptive-tap-equations">3.3. Slow and explicit: solving the adaptive TAP equations</h2>
+<p>What changes do we have to make to the adaptive TAP mean-field equations to turn them into a vector-based attention module and how can we implement them? Let&rsquo;s explicitly enumerate the objects introduced in <a href="#22-adaptive-thouless--anderson--palmer-mean-field-theory">Section 2.2</a> together with their (generalized) tensor shapes:</p>
+<ul>
+<li>
+<p>Iteratively determined fixed-point variables</p>
+<ul>
+<li>Spin means $\langle \boldsymbol{S}_{i} \rangle = \left[ \langle \boldsymbol{S}_{i} \rangle \right]^{\alpha}$ <code>(batch_size, N, d)</code></li>
+<li>Cavity variances $\boldsymbol{V}_{i} = V_{i}^{\alpha\beta}$ <code>(N, d, d)</code></li>
+</ul>
+</li>
+<li>
+<p>Other variables calculated during fixed-point iteration</p>
+<ul>
+<li>Cavity means $\boldsymbol{a}_{i} = a_{i}^{\alpha}$ <code>(batch_size, N, d)</code></li>
+<li>Spin variances $\langle \boldsymbol{S}_{i}^2 \rangle - \langle \boldsymbol{S}_{i} \rangle^2 = \boldsymbol{\chi}_{ii} = \chi_{ii}^{\alpha\beta}$ <code>(N, d, d)</code></li>
+</ul>
+</li>
+</ul>
+<p>For every site, the scalar spin and cavity variances have turned into $d \times d$ (inverse) covariance matrices on the level of the local dimension. Note that the &ldquo;system properties&rdquo; in the above list have no batch size: their values are identical across all examples and capture the properties of the system irrespective of the input injections $\boldsymbol{x}_i$.</p>
+<p>The vector translation of the single-site partition function looks like</p>
+<p>\begin{equation}
+Z_{0}^{(i)} = \int \mathrm{d}^{d} \boldsymbol{S} \  \rho_{i}\left(\boldsymbol{S}\right) \exp \left[ \boldsymbol{S} \cdot \left( \boldsymbol{a}_{i} + \boldsymbol{X}_{i} \right) + \frac{1}{2} \boldsymbol{S}^T  \boldsymbol{V}_{i} \boldsymbol{S} \right]
+\end{equation}</p>
+<p>where</p>
+<p>\begin{equation}
+\boldsymbol{a}_{i} = \sum_{j} \boldsymbol{J}_{ij} \langle \boldsymbol{S}_{j} \rangle - \boldsymbol{V}_{i}\langle \boldsymbol{S}_{i} \rangle. \label{eq:veccavmeans}
+\end{equation}</p>
+<p>Spin means and variances are then computed from</p>
+<p>\begin{equation}
+\langle \boldsymbol{S}_{i} \rangle = \frac{\partial}{\partial\boldsymbol{X}_{i}} \log Z_{0}^{(i)} (\boldsymbol{X}_{i}, \boldsymbol{a}_{i}, \boldsymbol{V}_{i})
+\end{equation}</p>
+<p>\begin{equation}
+\langle \boldsymbol{S}_{i}^2 \rangle - \langle \boldsymbol{S}_{i} \rangle^2 = \frac{\partial^2}{\partial\boldsymbol{X}_{i}^2} \log Z_{0}^{(i)} (\boldsymbol{X}_{i}, \boldsymbol{a}_{i}, \boldsymbol{V}_{i})
+\end{equation}</p>
+<p>As a spin prior $\rho_{i}\left(\boldsymbol{S}\right)$, we pick a simple diagonal multivariate Gaussian $\mathcal{N} \left( \boldsymbol{\mu} = \boldsymbol{0}_{d}, \boldsymbol{\Sigma}= \boldsymbol{1}_{d \times d} \right)$ at every site, leading to the explicit equations:</p>
+<p>\begin{equation}
+\langle \boldsymbol{S}_{i} \rangle = \left( \boldsymbol{\Sigma}^{-1} - \boldsymbol{V}_{i} \right)^{-1} \left( \boldsymbol{a}_{i} + \boldsymbol{X}_{i} \right)
+\end{equation}</p>
+<p>\begin{equation}
+\langle \boldsymbol{S}_{i}^2 \rangle - \langle \boldsymbol{S}_{i} \rangle^2 = \left( \boldsymbol{\Sigma}^{-1} - \boldsymbol{V}_{i} \right)^{-1}
+\end{equation}</p>
+<h3 id="generalizing-the-cavity-variance-calculation">Generalizing the cavity variance calculation</h3>
+<p>The cavity variance computation can be done by generalizing Eqs. \eqref{eq:chiijlinrespexp}&ndash;\eqref{eq:chiijlinresp} and solving the following system of equations for $\boldsymbol{\chi}_{ij}$,</p>
+<p>\begin{equation}
+\left( \delta_{ik} \otimes \boldsymbol{1}_{d} - \boldsymbol{\Sigma}_{i} \boldsymbol{J}_{ik} + \boldsymbol{\Sigma}_{i} \boldsymbol{V}_{i} \delta_{ik} \right)\boldsymbol{\chi}_{kj} = \boldsymbol{\Sigma}_{i} \delta_{ij}
+\end{equation}</p>
+<p>The generalization of the self-consistency condition Eq \eqref{eq:viselfcons} is then obtained by solving $\boldsymbol{\chi}_{ii} \boldsymbol{V}_{i} = \boldsymbol{\chi}_{ii} \boldsymbol{\Lambda}_{i} - \boldsymbol{1}_{N \times d \times d}$ for $\boldsymbol{V}_{i}$, where $ \boldsymbol{\Lambda}_{i} = \boldsymbol{V}_{i} + \boldsymbol{\Sigma}^{-1}$ is computed using the current values of $\boldsymbol{V}_{i}$. The price to pay for this added complexity is a computational cost of $O(N^3d^3)$ and an excruciatingly slow backward pass. The algorithm works, but it ain&rsquo;t pretty.</p>
+<blockquote>
+<p><strong>Implementation:</strong> To avoid <code>torch.solve</code> crashing on singular matrices during the fixed-point calculation, we found it crucial for stability and learning behaviour to initialize the couplings $J_{ij}^{\alpha\beta} \sim \mathcal{N}(0, \sigma^2)$ with small values $\sigma^2 = 1 / (N*d^2)$ to ensure $|J| \sim \mathcal{O}(1)$. It&rsquo;s also beneficial if the sources satisfy $|\boldsymbol{X}_{i}| \sim \mathcal{O}(1)$ so that terms are balanced in the update step, all together adding up to $\mathcal{O}(1)$.</p>
+</blockquote>
+<h2 id="34-fast-and-neural-parametrizing-the-onsager-self-correction-term">3.4. Fast and neural: parametrizing the Onsager self-correction term</h2>
+<p>Can we somehow approximate the slow and explicit calculation of the cavity variances? Since $\boldsymbol{z}^{*} = \left( \langle \boldsymbol{S}_{i}^{*} \rangle, \boldsymbol{V}_{i}^{*} \right)$ at the fixed point, the Onsager self-correction term in Eq. \eqref{eq:veccavmeans} converges to a constant vector $\boldsymbol{V}_{i}^{*}\langle \boldsymbol{S}_{i}^{*} \rangle$ for every site. We propose to make a bold move by getting rid of the cavity variables altogether and reducing the equations for the fixed-point update step to</p>
+<p>\begin{equation}
+\langle \boldsymbol{S}_{i} \rangle = \sum_{j} \boldsymbol{J}_{ij} \langle \boldsymbol{S}_{j} \rangle - f_{\theta} \left( \langle \boldsymbol{S}_{i} \rangle \right) + \boldsymbol{X}_{i}, \label{eq:diaupdate}
+\end{equation}</p>
+<p>where $f_{\theta}$ is a neural network parametrizing the action of the cavity variances on the spin means. Since the parameters $\theta$ stay fixed during the inner-loop fixed-point calculation, we have effectively lifted the optimization of the self-correction term to the outer-loop, which also optimizes the weights $\boldsymbol{J}_{ij}$.</p>
+<p>All of this starts to look an awful lot like a transformer module. Before discussing an explicit comparison in <a href="#4-a-mean-field-theory-perspective-on-transformers">Section 4</a>, let&rsquo;s finish this section with a simple example model.</p>
+<h3 id="simple-example-mnist">Simple example: MNIST</h3>
+<p>A simple image classification model for MNIST using a convolutional feature extractor and a deep implicit attention layer could look something like</p>
+<pre><code class="language-python">class MNISTNet(nn.Module):
+    def __init__(self, dim=10, dim_conv=32, num_spins=16):
+        super(MNISTNet, self).__init__()
+
+        self.to_patch_embedding = nn.Sequential(
+            nn.Conv2d(1, dim_conv, kernel_size=3),  # -&gt; 26 x 26
+            nn.ReLU(),
+            nn.MaxPool2d(3, stride=2),  # -&gt; 12 x 12
+            nn.Conv2d(dim_conv, dim_conv, kernel_size=3),  # -&gt; 10 x 10
+            nn.ReLU(),
+            nn.MaxPool2d(3, stride=2),  # -&gt; 4 x 4
+            Rearrange(
+                'b c h w -&gt; b (h w) c'
+            ),
+            nn.Linear(dim_conv, dim)
+        )
+        self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
+        self.deq_atn = nn.Sequential(
+            DEQFixedPoint(
+                DeepImplicitAttention(
+                    num_spins=num_spins+1,
+                    dim=dim,
+                    weight_sym_internal=True,
+                    weight_sym_sites=False,
+                    lin_response=True,
+                ),
+                anderson,
+                solver_fwd_max_iter=40,
+                solver_fwd_tol=1e-4,
+                solver_bwd_max_iter=40,
+                solver_bwd_tol=1e-4,
+            ),
+        )
+        self.final = nn.Linear(dim, 10)
+
+    def forward(self, x):
+        x = self.to_patch_embedding(x)
+        cls_tokens = self.cls_token.repeat(x.shape[0], 1, 1)
+        x = torch.cat((cls_tokens, x), dim=1)
+        x = self.deq_atn(x)
+        return self.final(x[:, 0, :])
+</code></pre>
+<p>The ViT-style classification token is interpreted as an additional site in the system, which is probed with a learnable input injection that is shared across examples. The model uses the classification token&rsquo;s output response to do the final classification. The system has to self-organize its behaviour so that the classification token gets all the information it needs.</p>
+<img src="vit_mnist.gif" alt="ViT-style model with deep implicit attention layer on MNIST" width="500px"/>
+<p>You can <a href="https://github.com/mcbal/deep-implicit-attention/blob/549ef3c76ccd1a7b7df6af3eeebb540abb7f7f31/examples/mnist.py" target="_blank" rel="noopener">train</a> this small model (26k parameters) on MNIST to find a test set accuracy hovering around 99.1%. The animation above shows a graph reflecting the (directed) connection strengths between spins during training as measured by the Frobenius norms of the matrices $\boldsymbol{J}_{ij}$. Almost all major organization of connections is seen to happen in the first few iterations. One imagines the model getting frustrated at zeros which <em>really</em> look like nines and just flat-out refusing to remember edge cases out of spite.</p>
+<h1 id="4-a-mean-field-theory-perspective-on-transformers">4. A mean-field theory perspective on transformers</h1>
+<p>Let&rsquo;s conclude this post by applying the mean-field theory perspective on attention to the transformer architecture. Schematically, a vanilla transformer module looks like</p>
+<img src="vanilla_transformer_module.png" alt="Vanilla transformer module" width="200px"/>
+<p>which consists of an attention module acting on all vectors in the sequence input followed by a feed-forward layer acting &ldquo;locally&rdquo; across individual vectors in the sequence, mixed with some residual connections and layer normalizations.</p>
+<h2 id="41-parametrizing-the-couplings-sparse-graph-structure-from-inputs">4.1. Parametrizing the couplings: sparse graph structure from inputs</h2>
+<p>Transformers can be interpreted as fully-connected graph neural networks acting on sets of vectors. Inside an attention module, the row-stochastic attention matrix corresponds to a particular parametrization of the couplings</p>
+<p>\begin{equation}
+J_{ij} = \left[\mathrm{softmax}\left( \frac{\boldsymbol{X} \boldsymbol{W}_{\boldsymbol{Q}} \boldsymbol{W}_{\boldsymbol{K}}^{T} \boldsymbol{X}^{T}}{\sqrt{d}} \right)\right]_{ij}. \label{eq:softmaxcouplings}
+\end{equation}</p>
+<p>which swaps storing explicit coupling weights for parameters of linear query-key transformations. By dynamically determining the connectivity of the sites based on the inputs $\boldsymbol{X}$ according to Eq. \eqref{eq:softmaxcouplings}, the coupling weights are no longer completely free parameters. The introduction of queries and keys can be seen as a neural network approach to &ldquo;amortizing&rdquo; the coupling tensor while the softmax temperature promotes sparsity. Multiple attention heads correspond to imposing a block-diagonal structure in the hidden dimensions of the couplings: the dot product gets cut into disjoint pieces, one for each attention head.</p>
+<h2 id="42-softmax-attention-does-a-single-naive-mean-field-update-step">4.2. Softmax attention does a single, naive mean-field update step</h2>
+<p>Looking at the update step \eqref{eq:diaupdate} and the softmax couplings \eqref{eq:softmaxcouplings}, we observe that the softmax attention module does a single, naive mean-field update step without a self-correction term. Ignoring layer normalizations, the attention update step for every input vector looks like</p>
+<p>\begin{equation}
+\boldsymbol{X}'_{i} = \sum_{j} \left[ \mathrm{softmax} \left( \frac{\boldsymbol{X} \boldsymbol{W}_{\boldsymbol{Q}} \boldsymbol{W}_{\boldsymbol{K}}^{T} \boldsymbol{X}^{T}}{\sqrt{d}} \right) \right]_{ij} \left[ \boldsymbol{X} \boldsymbol{W}_{\boldsymbol{V}} \right]_{j} + \boldsymbol{X}_{i}, \nonumber
+\label{eq:vanilla-attention}
+\end{equation}</p>
+<p>where, crucially, the residual connection is responsible for adding the source term to the update step. Without a residual connection, the applied magnetic field is effectively turned off and the signal would only be able to propagate via the coupling term.</p>
+<h2 id="43-feed-forward-layer-corrects-naive-mean-field-update">4.3. Feed-forward layer corrects naive mean-field update</h2>
+<p>Looking at the Onsager self-correction term $f_{\theta} \left( \langle \boldsymbol{S}_{i} \rangle \right)$ in the update step \eqref{eq:diaupdate}, we observe that the full transformer attention module emerges when we substitute $\langle \boldsymbol{S}_{i} \rangle$ for its naive mean-field value, leading to</p>
+<p>\begin{equation}
+\mathrm{Attention}(\boldsymbol{X})_{i} = \boldsymbol{X}'_{i} + \mathrm{FeedForward}\left( \boldsymbol{X}'_{i} \right),
+\end{equation}</p>
+<p>with $\boldsymbol{X}'_{i}$ defined above. Again, the residual connection appears to be crucial for the structure of the mean-field theory equations to match the vanilla transformer module&rsquo;s architecture. As previously discussed in <a href="#34-fast-and-neural-parametrizing-the-onsager-self-correction-term">Section 3.4</a>, we hypothesize that feed-forward networks in transformer modules &ldquo;amortize&rdquo; the linear response self-corrections.</p>
+<h1 id="5-conclusion-and-outlook">5. Conclusion and outlook</h1>
+<p>We have shown how attention can be understood as the mean-field response of Ising-like spin systems being probed by data. By thinking of incoming data as applied magnetic fields and the output of attention modules as spin expectation values, attention can be interpreted as a fixed-point optimization process solving for a compromise between a system&rsquo;s internal dynamics and the data it&rsquo;s being exposed to. Since the whole system is differentiable, we can optimize the interaction weights in an outer loop to nudge the system&rsquo;s behaviour.</p>
+<p>We have also seen how transformers fit into the mean-field theory framework. For scalability, transformers introduce two additional constraints/approximations on top of the mean-field approximation: (1) replacing explicit couplings with parametrized couplings that are dynamically computed from the input via linear transformations (softmax query-key-value attention), and (2) replacing the expensive self-consistent computation of Onsager self-correction terms with a neural network (feed-forward layer).</p>
+<p>Looking ahead, the methods introduced in this post could provide ways to implicitly train mean-field approximations of Boltzmann machines and have them serve as distributed attention modules in larger interconnected systems. To go beyond mean-field approaches, it could be interesting to look at tensor network approaches.</p>
+<h1 id="6-related-work">6. Related work</h1>
+<p>A non-exhaustive list of references and inspiration includes:</p>
+<ul>
+<li>On deep equilibrium models: <a href="https://arxiv.org/abs/1909.01377" target="_blank" rel="noopener">Deep Equilibrium Models</a> (2019) by Shaojie Bai, Zico Kolter, Vladlen Koltun and <a href="https://implicit-layers-tutorial.org/deep_equilibrium_models/" target="_blank" rel="noopener">Chapter 4: Deep Equilibrium Models</a> of the <a href="http://implicit-layers-tutorial.org/" target="_blank" rel="noopener">Deep Implicit Layers - Neural ODEs, Deep Equilibrium Models, and Beyond workshop (NeurIPS 2020)</a> by Zico Kolter, David Duvenaud, and Matt Johnson</li>
+<li>On the adaptive Thouless-Anderson-Palmer (TAP) mean-field approach in disorder physics: <a href="https://link.aps.org/doi/10.1103/PhysRevE.64.056131" target="_blank" rel="noopener">Adaptive and self-averaging Thouless-Anderson-Palmer mean-field theory for probabilistic modeling</a> (2001) by Manfred Opper and Ole Winther</li>
+<li>On variational inference, iterative approximation algorithms, expectation propagation, mean-field methods and belief propagation: <a href="https://arxiv.org/abs/1409.6179" target="_blank" rel="noopener">Expectation Propagation</a> (2014) by Jack Raymond, Andre Manoel, Manfred Opper</li>
+<li>On Boltzmann machines and mean-field theory: <a href="https://doi.org/10.1162/089976698300017386" target="_blank" rel="noopener">Efficient Learning in Boltzmann Machines Using Linear Response Theory</a> (1998) by H. J. Kappen and
+F. B. Rodríguez and <a href="https://link.aps.org/doi/10.1103/PhysRevE.58.2302" target="_blank" rel="noopener">Mean-field theory of Boltzmann machine learning</a> (1998) by Toshiyuki Tanaka</li>
+</ul>
+<h1 id="references--footnotes">References &amp; footnotes</h1>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>Whatever &ldquo;better&rdquo; means depends on the system&rsquo;s (meta-)loss function, e.g. predicting corrupted tokens BERT-style or aligning representations to a teacher BYOL/DINO-style. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+
+    </div>
+
+    
+
+
+
+
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tag/artificial-intelligence/">Artificial Intelligence</a>
+  
+  <a class="badge badge-light" href="/tag/associative-memories/">Associative Memories</a>
+  
+  <a class="badge badge-light" href="/tag/attention/">Attention</a>
+  
+  <a class="badge badge-light" href="/tag/belief-propagation/">Belief Propagation</a>
+  
+  <a class="badge badge-light" href="/tag/boltzmann-machine/">Boltzmann Machine</a>
+  
+  <a class="badge badge-light" href="/tag/deep-learning/">Deep Learning</a>
+  
+  <a class="badge badge-light" href="/tag/emergent-collective-computational-capabilities/">Emergent Collective Computational Capabilities</a>
+  
+  <a class="badge badge-light" href="/tag/energy-based-models/">Energy-Based Models</a>
+  
+  <a class="badge badge-light" href="/tag/expectation-propagation/">Expectation Propagation</a>
+  
+  <a class="badge badge-light" href="/tag/ising-model/">Ising Model</a>
+  
+  <a class="badge badge-light" href="/tag/mean-field-theory/">Mean-Field Theory</a>
+  
+  <a class="badge badge-light" href="/tag/neural-networks/">Neural Networks</a>
+  
+  <a class="badge badge-light" href="/tag/statistical-physics/">Statistical Physics</a>
+  
+  <a class="badge badge-light" href="/tag/transformers/">Transformers</a>
+  
+</div>
+
+
+
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://twitter.com/intent/tweet?url=https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&amp;text=Deep%20Implicit%20Attention:%20A%20Mean-Field%20Theory%20Perspective%20on%20Attention%20Mechanisms" target="_blank" rel="noopener" class="share-btn-twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.facebook.com/sharer.php?u=https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&amp;t=Deep%20Implicit%20Attention:%20A%20Mean-Field%20Theory%20Perspective%20on%20Attention%20Mechanisms" target="_blank" rel="noopener" class="share-btn-facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="mailto:?subject=Deep%20Implicit%20Attention:%20A%20Mean-Field%20Theory%20Perspective%20on%20Attention%20Mechanisms&amp;body=https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener" class="share-btn-email">
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.linkedin.com/shareArticle?url=https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&amp;title=Deep%20Implicit%20Attention:%20A%20Mean-Field%20Theory%20Perspective%20on%20Attention%20Mechanisms" target="_blank" rel="noopener" class="share-btn-linkedin">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="whatsapp://send?text=Deep%20Implicit%20Attention:%20A%20Mean-Field%20Theory%20Perspective%20on%20Attention%20Mechanisms%20https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener" class="share-btn-whatsapp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://service.weibo.com/share/share.php?url=https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&amp;title=Deep%20Implicit%20Attention:%20A%20Mean-Field%20Theory%20Perspective%20on%20Attention%20Mechanisms" target="_blank" rel="noopener" class="share-btn-weibo">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+  
+  
+    
+  
+  
+  
+  <div class="media author-card content-widget-hr">
+    
+      
+      <a href="https://mcbal.github.io/"><img class="avatar mr-3 avatar-circle" src="/author/matthias-bal/avatar_huf6181012a34ccf45ad256514680767eb_86031_270x270_fill_q90_lanczos_center.jpg" alt="Matthias Bal"></a>
+    
+
+    <div class="media-body">
+      <h5 class="card-title"><a href="https://mcbal.github.io/">Matthias Bal</a></h5>
+      
+      <p class="card-text">Machine learning engineer with a background in physics.</p>
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://twitter.com/MatthiasBal" target="_blank" rel="noopener">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.linkedin.com/in/matthiasbal/" target="_blank" rel="noopener">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://scholar.google.be/citations?user=vjYY0bMAAAAJ&amp;hl=en" target="_blank" rel="noopener">
+        <i class="ai ai-google-scholar"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/mcbal" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+<div class="article-widget">
+  
+<div class="post-nav">
+  
+  
+  
+  <div class="post-nav-item">
+    <div class="meta-nav">Previous</div>
+    <a href="/post/physics-and-the-brain/" rel="prev">Physics and the Brain</a>
+  </div>
+  
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  <div class="article-widget content-widget-hr">
+    <h3>Related</h3>
+    <ul>
+      
+      <li><a href="/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/">Transformer Attention as an Implicit Mixture of Effective Energy-Based Models</a></li>
+      
+      <li><a href="/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/">An Energy-Based Perspective on Attention Mechanisms in Transformers</a></li>
+      
+      <li><a href="/post/attention-as-energy-minimization-visualizing-energy-landscapes/">Attention as Energy Minimization: Visualizing Energy Landscapes</a></li>
+      
+      <li><a href="/post/physics-and-the-brain/">Physics and the Brain</a></li>
+      
+    </ul>
+  </div>
+  
+
+
+
+
+
+  </div>
+</article>
+
+      
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.1.0/instantpage.min.js" integrity="sha512-1+qUtKoh9XZW7j+6LhRMAyOrgSQKenQ4mluTR+cvxXjP1Z54RxZuzstR/H9kgPXQsVB8IW7DMDFUJpzLjvhGSQ==" crossorigin="anonymous"></script>
+
+      
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/highlight.min.js" integrity="sha512-TDKKr+IvoqZnPzc3l35hdjpHD0m+b2EC2SrLEgKDRWpxf2rFCxemkgvJ5kfU48ip+Y+m2XVKyOCD85ybtlZDmw==" crossorigin="anonymous"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/python.min.js"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/bash.min.js"></script>
+        
+      
+
+    
+
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js" integrity="sha512-SeiQaaDh73yrb56sTW/RgVdi/mMqNeM2oBwubFHagc5BkixSpP1fvqF47mKzPGWYSSy4RwbBunrJBQ4Co8fRWA==" crossorigin="anonymous"></script>
+    
+
+    
+    
+    <script>const code_highlighting = true;</script>
+    
+
+    
+    
+    
+    
+    
+    
+    <script>
+      const search_config = {"indexURI":"/index.json","minLength":1,"threshold":0.3};
+      const i18n = {"no_results":"No results found","placeholder":"Search...","results":"results found"};
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'talk' : "Talks",
+        'slides' : "Slides"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    
+    
+    
+    <script src="/js/wowchemy.min.4c2bca31150ce93c5a5e43b8a50f22fd.js"></script>
+
+    
+
+
+
+
+
+
+  
+  
+  <div class="container">
+    <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    Matthias Bal © 2021
+  </p>
+
+  
+  
+
+
+
+
+
+
+  <p class="powered-by">
+    
+    Published with
+    <a href="https://wowchemy.com" target="_blank" rel="noopener">Wowchemy</a>  —
+    the free, <a href="https://github.com/wowchemy/wowchemy-hugo-modules" target="_blank" rel="noopener">
+    open source</a> website builder that empowers creators.
+    
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" class="back-to-top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+  </div>
+  
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
