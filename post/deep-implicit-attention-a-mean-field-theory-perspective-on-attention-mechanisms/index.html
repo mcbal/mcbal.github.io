@@ -828,7 +828,7 @@ where
 E = \sum_{i,j} \boldsymbol{S}_{i}^{T} \boldsymbol{J}_{ij} \boldsymbol{S}_{j} + \sum_{i} \boldsymbol{X}_{i} \cdot \boldsymbol{S}_{i}. \label{eq:vectrandomising}
 \end{equation}</p>
 <h2 id="32-deep-implicit-attention-attention-as-a-collective-response">3.2. Deep implicit attention: attention as a collective response</h2>
-<p>Remember that our goal is to understand attention as the collective response of statistical-mechanical system. Let&rsquo;s now relate vector models like Eq.\eqref{eq:vectrandomising} to attention models by treating the external magnetic fields $\boldsymbol{X}_{i}$ as input data. Batches of sequences applied to every site act as probes for the system, pushing its behaviour into a certain direction. The system&rsquo;s mean-field average magnetizations $\langle \boldsymbol{S}_{i} \rangle$ are an approximation of the collective response at every site: what is the expected value of this particular vector spin? We interpret solving mean-field equations for $\langle \boldsymbol{S}_{i} \rangle$ in the presence of input injections $\boldsymbol{X}_{i}$ as an attention operation. If the whole system is differentiable, we can tune the couplings $\boldsymbol{J}_{ij}$ in an outer-loop optimization to steer the system&rsquo;s behaviour to better<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> respond to future incoming data.</p>
+<p>Remember that our goal is to understand attention as the collective response of a statistical-mechanical system. Let&rsquo;s now relate vector models like Eq. \eqref{eq:vectrandomising} to attention models by treating the external magnetic fields $\boldsymbol{X}_{i}$ as input data. Batches of sequences applied to every site act as probes for the system, pushing its behaviour into a certain direction. The system&rsquo;s mean-field average magnetizations $\langle \boldsymbol{S}_{i} \rangle$ are an approximation of the collective response at every site: what is the expected value of this particular vector spin? We interpret solving mean-field equations for $\langle \boldsymbol{S}_{i} \rangle$ in the presence of input injections $\boldsymbol{X}_{i}$ as an attention operation. If the whole system is differentiable, we can tune the couplings $\boldsymbol{J}_{ij}$ in an outer-loop optimization to steer the system&rsquo;s behaviour to better<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> respond to future incoming data.</p>
 <h2 id="33-slow-and-explicit-solving-the-adaptive-tap-equations">3.3. Slow and explicit: solving the adaptive TAP equations</h2>
 <p>What changes do we have to make to the adaptive TAP mean-field equations to turn them into a vector-based attention module and how can we implement them? Let&rsquo;s explicitly enumerate the objects introduced in <a href="#22-adaptive-thouless--anderson--palmer-mean-field-theory">Section 2.2</a> together with their (generalized) tensor shapes:</p>
 <ul>
@@ -907,7 +907,7 @@ Z_{0}^{(i)} = \int \mathrm{d}^{d} \boldsymbol{S} \  \rho_{i}\left(\boldsymbol{S}
         self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
         self.deq_atn = nn.Sequential(
             DEQFixedPoint(
-                DeepImplicitAttention(
+                DEQMeanFieldAttention(
                     num_spins=num_spins+1,
                     dim=dim,
                     weight_sym_internal=True,
