@@ -323,7 +323,7 @@
     
       <meta property="article:published_time" content="2021-04-07T15:17:17&#43;01:00">
     
-    <meta property="article:modified_time" content="2021-05-05T17:30:17&#43;01:00">
+    <meta property="article:modified_time" content="2021-05-11T17:30:17&#43;01:00">
   
 
   
@@ -356,7 +356,7 @@
   ],
   
   "datePublished": "2021-04-07T15:17:17+01:00",
-  "dateModified": "2021-05-05T17:30:17+01:00",
+  "dateModified": "2021-05-11T17:30:17+01:00",
   
   "author": {
     "@type": "Person",
@@ -649,7 +649,7 @@
           Last updated on
       
     
-    May 5, 2021
+    May 11, 2021
   </span>
   
 
@@ -658,7 +658,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    18 min read
+    19 min read
   </span>
   
 
@@ -723,6 +723,7 @@
 <li><a href="#41-parametrizing-the-couplings-sparse-graph-structure-from-inputs">Parametrizing the couplings: sparse graph structure from inputs</a></li>
 <li><a href="#42-softmax-attention-does-a-single-naive-mean-field-update-step">Softmax attention does a single, naive mean-field update step</a></li>
 <li><a href="#43-feed-forward-layer-corrects-naive-mean-field-update">Feed-forward layer corrects naive mean-field update</a></li>
+<li><a href="#44-mean-field-theory-framework-for-transformer-architectures">Mean-field theory framework for transformer architectures</a></li>
 </ol>
 </li>
 <li><a href="#5-conclusion-and-outlook">Conclusion and outlook</a></li>
@@ -847,7 +848,7 @@ E = \sum_{i,j} \boldsymbol{S}_{i}^{T} \boldsymbol{J}_{ij} \boldsymbol{S}_{j} + \
 </ul>
 </li>
 </ul>
-<p>For every site, the scalar spin and cavity variances have turned into $d \times d$ (inverse) covariance matrices on the level of the local dimension. Note that the &ldquo;system properties&rdquo; in the above list have no batch size: their values are identical across all examples and capture the properties of the system irrespective of the input injections $\boldsymbol{x}_i$.</p>
+<p>For every site, the scalar spin and cavity variances have turned into $d \times d$ (inverse) covariance matrices on the level of the local dimension. Note that the &ldquo;system properties&rdquo; in the above list have no batch size: their values are identical across all examples and capture the properties of the system irrespective of the input injections $\boldsymbol{X}_i$.</p>
 <p>The vector translation of the single-site partition function looks like</p>
 <p>\begin{equation}
 Z_{0}^{(i)} = \int \mathrm{d}^{d} \boldsymbol{S} \  \rho_{i}\left(\boldsymbol{S}\right) \exp \left[ \boldsymbol{S} \cdot \left( \boldsymbol{a}_{i} + \boldsymbol{X}_{i} \right) + \frac{1}{2} \boldsymbol{S}^T  \boldsymbol{V}_{i} \boldsymbol{S} \right]
@@ -956,9 +957,8 @@ J_{ij} = \left[\mathrm{softmax}\left( \frac{\boldsymbol{X} \boldsymbol{W}_{\bold
 \mathrm{Attention}(\boldsymbol{X})_{i} = \boldsymbol{X}'_{i} + \mathrm{FeedForward}\left( \boldsymbol{X}'_{i} \right),
 \end{equation}</p>
 <p>with $\boldsymbol{X}'_{i}$ defined above. Again, the residual connection appears to be crucial for the structure of the mean-field theory equations to match the vanilla transformer module&rsquo;s architecture. As previously discussed in <a href="#34-fast-and-neural-parametrizing-the-onsager-self-correction-term">Section 3.4</a>, we hypothesize that feed-forward networks in transformer modules &ldquo;amortize&rdquo; the linear response self-corrections.</p>
-<blockquote>
-<p><strong>Real-world example:</strong> Within the general mean-field structure outlined above, there is considerable freedom in parametrizing the interaction and self-correction terms. Most transformer papers parametrize the self-correction terms with a feed-forward layer, i.e. some variation of an MLP. In <a href="https://arxiv.org/abs/2105.01601" target="_blank" rel="noopener">MLP-Mixer: An all-MLP Architecture for Vision</a> the authors went even further and dropped the softmax parametrization of the interaction term to approximate the full action of summing over couplings with an MLP as well. Interestingly, it seems like one can get away with such a crude approximation for images in the large-scale regime.</p>
-</blockquote>
+<h2 id="44-mean-field-theory-framework-for-transformer-architectures">4.4. Mean-field theory framework for transformer architectures</h2>
+<p>Within the general mean-field (or <a href="https://arxiv.org/abs/2105.02180" target="_blank" rel="noopener">approximate message-passing</a>) structure outlined above, there is considerable freedom in parametrizing the interaction and self-correction terms. Most transformer papers parametrize the self-correction terms with a feed-forward layer, i.e. some variation of an MLP. In <a href="https://arxiv.org/abs/2105.01601" target="_blank" rel="noopener">MLP-Mixer: An all-MLP Architecture for Vision</a> the authors went even further and dropped the softmax parametrization of the interaction term to approximate the full action of summing over couplings with an MLP as well. Related papers like <a href="https://arxiv.org/abs/2105.08050" target="_blank" rel="noopener">Pay Attention to MLPs</a>, <a href="https://arxiv.org/abs/2105.03404" target="_blank" rel="noopener">ResMLP: Feedforward networks for image classification with data-efficient training</a>, and <a href="https://arxiv.org/abs/2105.03824" target="_blank" rel="noopener">FNet: Mixing Tokens with Fourier Transforms</a> can all be considered as explorations of different parametrizations of the mean-field interaction terms. In the large-scale regime, it seems like the softmax attention module can be swapped for just about any function which mixes tokens as long as the structure of residual connections and self-correction terms is preserved.</p>
 <h1 id="5-conclusion-and-outlook">5. Conclusion and outlook</h1>
 <p>We have shown how attention can be understood as the mean-field response of Ising-like spin systems being probed by data. By thinking of incoming data as applied magnetic fields and the output of attention modules as spin expectation values, attention can be interpreted as a fixed-point optimization process solving for a compromise between a system&rsquo;s internal dynamics and the data it&rsquo;s being exposed to. Since the whole system is differentiable, we can optimize the interaction weights in an outer loop to nudge the system&rsquo;s behaviour.</p>
 <p>We have also seen how transformers fit into the mean-field theory framework. For scalability, transformers introduce two additional constraints/approximations on top of the mean-field approximation: (1) replacing explicit couplings with parametrized couplings that are dynamically computed from the input via linear transformations (softmax query-key-value attention), and (2) replacing the expensive self-consistent computation of Onsager self-correction terms with a neural network (feed-forward layer).</p>
@@ -1232,7 +1232,7 @@ F. B. Rodríguez and <a href="https://link.aps.org/doi/10.1103/PhysRevE.58.2302"
   
   <div class="post-nav-item">
     <div class="meta-nav">Previous</div>
-    <a href="/post/physics-and-the-brain/" rel="prev">Physics and the Brain</a>
+    <a href="/post/attention-as-energy-minimization-visualizing-energy-landscapes/" rel="prev">Attention as Energy Minimization: Visualizing Energy Landscapes</a>
   </div>
   
 </div>
@@ -1254,8 +1254,6 @@ F. B. Rodríguez and <a href="https://link.aps.org/doi/10.1103/PhysRevE.58.2302"
       <li><a href="/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/">An Energy-Based Perspective on Attention Mechanisms in Transformers</a></li>
       
       <li><a href="/post/attention-as-energy-minimization-visualizing-energy-landscapes/">Attention as Energy Minimization: Visualizing Energy Landscapes</a></li>
-      
-      <li><a href="/post/physics-and-the-brain/">Physics and the Brain</a></li>
       
     </ul>
   </div>
