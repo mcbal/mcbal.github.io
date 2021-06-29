@@ -17,7 +17,10 @@
       <link>https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/</link>
       <pubDate>Tue, 22 Dec 2020 10:03:17 +0100</pubDate>
       <guid>https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/</guid>
-      <description>&lt;hr&gt;
+      <description>&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Update (May 2021):&lt;/strong&gt; Please consider reading &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms&lt;/a&gt; for an arguably more comprehensive approach towards understanding transformers.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
 &lt;ol&gt;
 &lt;li&gt;&lt;a href=&#34;#1-introduction&#34;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#2-attention-from-effective-energy-based-models&#34;&gt;Attention from effective energy-based models&lt;/a&gt;

@@ -701,30 +701,34 @@
   <div class="article-container">
 
     <div class="article-style">
-      <hr>
+      <blockquote>
+<p><strong>Update (May 2021):</strong> Please consider reading <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a> for an arguably more comprehensive approach towards understanding transformers.</p>
+</blockquote>
+<hr>
 <ol>
-<li><a href="#prelude">Prelude: pattern terminology</a></li>
-<li><a href="#attention">Attention modules</a>
+<li><a href="#1-introduction">Introduction</a></li>
+<li><a href="#2-prelude-pattern-terminology">Prelude: pattern terminology</a></li>
+<li><a href="#3-attention-modules">Attention modules</a>
 <ol>
-<li><a href="#explicit">Explicit vanilla softmax attention</a></li>
-<li><a href="#implicit">Implicit energy-based attention</a></li>
+<li><a href="#31-explicit-vanilla-softmax-attention">Explicit vanilla softmax attention</a></li>
+<li><a href="#32-implicit-energy-based-attention">Implicit energy-based attention</a></li>
 </ol>
 </li>
-<li><a href="#journey">From modern Hopfield networks to multi-head attention</a>
+<li><a href="#4-from-modern-hopfield-networks-to-multi-head-attention">From modern Hopfield networks to multi-head attention</a>
 <ol>
-<li><a href="#energyfunction">Energy function</a></li>
-<li><a href="#updaterule">Verifying the update rule</a>
+<li><a href="#41-energy-function">Energy function</a></li>
+<li><a href="#42-verifying-the-update-rule">Verifying the update rule</a>
 <ol>
-<li><a href="#crossattention">Cross-attention</a></li>
-<li><a href="#selfattention">Self-attention</a></li>
+<li><a href="#cross-attention">Cross-attention</a></li>
+<li><a href="#self-attention">Self-attention</a></li>
 </ol>
 </li>
-<li><a href="#qkv">Adding queries, keys, and values</a></li>
-<li><a href="#maskingmha">Adding masking and multiple attention heads</a></li>
+<li><a href="#43-adding-queries-keys-and-values">Adding queries, keys, and values</a></li>
+<li><a href="#44-adding-masking-and-multiple-attention-heads">Adding masking and multiple attention heads</a></li>
 </ol>
 </li>
-<li><a href="#flatland">Attention in flatland: visualizing energy landscapes</a></li>
-<li><a href="#conclusion">Conclusion</a></li>
+<li><a href="#5-attention-in-flatland-visualizing-energy-landscapes">Attention in flatland: visualizing energy landscapes</a></li>
+<li><a href="#6-conclusion">Conclusion</a></li>
 </ol>
 <hr>
 <h1 id="1-introduction">1. Introduction</h1>
@@ -743,12 +747,12 @@
 <li>We walk through the correspondence between modern Hopfield networks and vanilla softmax attention by gradually adding complexity.</li>
 <li>We present visualizations of energy landscapes and trajectories associated to attention update steps for two-dimensional toy patterns.</li>
 </ol>
-<h1 id="prelude-pattern-terminologya-namepreludea">Prelude: pattern terminology<a name="prelude"></a></h1>
+<h1 id="2-prelude-pattern-terminology">2. Prelude: pattern terminology</h1>
 <p>Transformer literature almost exclusively talks about queries, keys, and values. For self-attention, these are all obtained from different linear transformations acting on the same set of <em>input patterns</em>. For cross-attention, only the queries derive from the <em>input patterns</em>; the keys and values are obtained from a different set of <em>context patterns</em>: think of a decoder architecture attending to encoded translations or the <a href="https://arxiv.org/abs/2103.03206" target="_blank" rel="noopener">Perceiver</a> model attending to multimodal input.</p>
 <p>Hopfield networks literature starts from the idea of trying to implement an associative memory system for storing and retrieving patterns. Patterns stored in memory are called <em>stored patterns</em>. A <em>state pattern</em> is an input prompt for the associative memory system: what patterns stored in memory are closest to this particular prompt?</p>
 <p>Depending on the context (heh), we can refer to input patterns as state patterns or queries and to context patterns as stored patterns or memory or keys.</p>
-<h1 id="attention-modulesa-nameattentiona">Attention modules<a name="attention"></a></h1>
-<h2 id="explicit-vanilla-softmax-attentiona-nameexplicita">Explicit vanilla softmax attention<a name="explicit"></a></h2>
+<h1 id="3-attention-modules">3. Attention modules</h1>
+<h2 id="31-explicit-vanilla-softmax-attention">3.1. Explicit vanilla softmax attention</h2>
 <p>To compare the behavior of explicit attention modules to that of energy-based attention modules, we need to first of all define a vanilla softmax attention module. The annotated implementation below features a <code>bare_attn</code> toggle in the forward pass for ease of comparison with the &ldquo;bare&rdquo; modern continuous Hopfield energy function we will discuss later on. The flag essentially disables all linear mappings so input and context patterns are processed &ldquo;raw&rdquo;.</p>
 <pre><code class="language-python">class VanillaSoftmaxAttention(nn.Module):
     &quot;&quot;&quot;Vanilla softmax attention.
@@ -821,7 +825,7 @@
         # Mix all the heads' outputs; stir well and serve immediately.
         return out if bare_attn or h == 1 else self.to_out(out)
 </code></pre>
-<h2 id="implicit-energy-based-attentiona-nameimplicita">Implicit energy-based attention<a name="implicit"></a></h2>
+<h2 id="32-implicit-energy-based-attention">3.2. Implicit energy-based attention</h2>
 <p>Next, we define our energy-based attention module. Its forward pass will make use of the simple gradient descent function defined below to do energy minimization and update queries accordingly.</p>
 <pre><code class="language-python">def minimize_energy(
     energy_func,
@@ -924,9 +928,9 @@
         out = rearrange(outputs, &quot;(b h) n d -&gt; b n (h d)&quot;, h=h)
         return out if bare_attn or h == 1 else self.to_out(out)
 </code></pre>
-<h1 id="from-modern-hopfield-networks-to-multi-head-attentiona-namejourneya">From modern Hopfield networks to multi-head attention<a name="journey"></a></h1>
+<h1 id="4-from-modern-hopfield-networks-to-multi-head-attention">4. From modern Hopfield networks to multi-head attention</h1>
 <p>Let&rsquo;s start with the simplest possible case: bare attention. We disable all linear mappings to queries/keys/values/output to make sure input and context patterns are processed &ldquo;raw&rdquo; and restrict ourselves to a single attention head. We numerically verify that a &ldquo;bare&rdquo; explicit attention module indeed returns the same result as doing a single, big step of energy minimization with respect to input state patterns. Put differently and more to the point, we merely show that automatic differentiation works.</p>
-<h2 id="energy-functiona-nameenergyfunctiona">Energy function<a name="energyfunction"></a></h2>
+<h2 id="41-energy-function">4.1. Energy function</h2>
 <p>Consider the energy function of a modern continuous Hopfield network for a set of state patterns $\boldsymbol{\Xi}$ and stored patterns $\boldsymbol{X}$:</p>
 <p>\begin{equation}
 E(\boldsymbol{\Xi}; \boldsymbol{X}) = \frac{1}{2} \boldsymbol{\Xi}^T \boldsymbol{\Xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\Xi} \right),\label{eq:energy}
@@ -943,14 +947,14 @@ E(\boldsymbol{\Xi}; \boldsymbol{X}) = \frac{1}{2} \boldsymbol{\Xi}^T \boldsymbol
     potential = -(1.0 / scale) * torch.logsumexp(scaled_dot_product, dim=2)
     return kinetic + potential
 </code></pre>
-<h2 id="verifying-the-update-rulea-nameupdaterulea">Verifying the update rule<a name="updaterule"></a></h2>
+<h2 id="42-verifying-the-update-rule">4.2. Verifying the update rule</h2>
 <p>Let&rsquo;s sample some state patterns and stored patterns and enable gradient tracking for the state patterns since we want to take derivatives with respect to these parameters later on.</p>
 <pre><code class="language-python">latent_dim = 512
 
 state_patterns = torch.randn(1, 8, latent_dim).requires_grad_(True)
 stored_patterns = torch.randn(1, 32, latent_dim)
 </code></pre>
-<h3 id="cross-attentiona-namecrossattentiona">Cross-attention<a name="crossattention"></a></h3>
+<h3 id="cross-attention">Cross-attention</h3>
 <p>First up is cross-attention. We feed state patterns as input and stored patterns as context into a vanilla softmax attention module.</p>
 <pre><code class="language-python">softmax_attn = VanillaSoftmaxAttention(
     latent_dim,
@@ -988,7 +992,7 @@ output_bare_energy_attn = energy_attn(
 <pre><code>True
 </code></pre>
 <p>Both tensors are approximately equal: bare softmax attention corresponds to taking a single gradient step of <code>step_size=1.0</code> with respect to the state patterns using the energy function of modern Hopfield networks as a loss. For more details on this correspondence, we refer to <a href="https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/#modern-continuous-hopfield-networks" target="_blank" rel="noopener">a previous blog post</a>.</p>
-<h3 id="self-attentiona-nameselfattentiona">Self-attention<a name="selfattention"></a></h3>
+<h3 id="self-attention">Self-attention</h3>
 <p>Let&rsquo;s do the same check for self-attention, which boils down to only inputting state patterns. Internally, the modules will consider the state patterns as stored patterns and effectively make the patterns pay attention to themselves.</p>
 <pre><code class="language-python">output_bare_softmax_self_attn = softmax_attn(
     copy_tensor(state_patterns), bare_attn=True
@@ -1012,7 +1016,7 @@ print(
 Norm between input state patterns and energy-minimized patterns: 5.553587470785715e-06
 </code></pre>
 <p>The pattern update step looks almost like an an identity operation, which is to be expected for &ldquo;bare&rdquo; self-attention<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>. Without any linear transformations to map state patterns to queries and keys, every state pattern starts off already close to a local minimum since it coincides with itself as a stored pattern. The query starts off close to the key since the query-key mappings are identities. We will visualize this behavior in <a href="#flatland">Section 4</a> for two-dimensional patterns.</p>
-<h2 id="adding-queries-keys-and-valuesa-nameqkva">Adding queries, keys, and values<a name="qkv"></a></h2>
+<h2 id="43-adding-queries-keys-and-values">4.3. Adding queries, keys, and values</h2>
 <p>Let&rsquo;s now move closer to proper vanilla softmax attention by enabling linear transformations which map state patterns to queries and stored patterns to keys (and values). These parameters are able to move patterns around on the energy landscape before (queries, keys) and after (values) paying attention.</p>
 <p>We recycle the previously instantiated patterns and modules and compare outputs again, making sure the parameters are equal and omitting the <code>bare_attn</code> flag:</p>
 <pre><code class="language-python">output_softmax_attn = softmax_attn(
@@ -1049,7 +1053,7 @@ torch.norm(output_softmax_attn - output_energy_attn_transformed)
 <pre><code>tensor(0.0005, grad_fn=&lt;CopyBackwards&gt;)
 </code></pre>
 <p>Yet since all these parameters would be optimized in a real-world scenario, we should only care about whether the representational power of the modules is similar. To make the single-head energy-based attention module more expressive, we can always add an output layer, parametrized by weights $W_{O}$, to the module. As long as the composition of linear transformations $W_{K}W_{O}$ doesn&rsquo;t collapse and its rank does not fall below that of the softmax attention&rsquo;s $W_{V}$, things should be okay.</p>
-<h2 id="adding-masking-and-multiple-attention-headsa-namemaskingmhaa">Adding masking and multiple attention heads<a name="maskingmha"></a></h2>
+<h2 id="44-adding-masking-and-multiple-attention-heads">4.4. Adding masking and multiple attention heads</h2>
 <p>Finally, let us tie up some loose ends and complete the correspondence between vanilla softmax attention and energy-based minimization.</p>
 <h3 id="masking">Masking</h3>
 <p>Since masking boils down to putting restrictions on what patterns in the inputs are allowed to talk to each other, it can just as well be done at the level of the energy function. By filling the tensor inside the <code>logsumexp</code> operator in <code>hopfield_energy</code> with $-\infty$ values at to-be-masked-out positions, we get the same effect as the masking operation in the forward pass of <code>VanillaSoftmaxAttention</code>. Boolean masks can be passed to the <code>EnergyBasedAttention</code>&rsquo;s forward function and propagate to the energy function.</p>
@@ -1086,7 +1090,7 @@ mha_energy_attn(
 </code></pre>
 <p>It is hard to compare with the exact output of the equivalent <code>VanillaSoftmaxAttention</code> module for fixed module parameters. For multi-head attention, the updated queries coming out of the separate energy minimization steps will have summed over each heads' keys instead of its values. For a single attention head we could undo the keys' transformation by acting with the inverse of the keys' weights. For multiple attention heads, that is no longer possible.</p>
 <p>Again, since all these parameters would be optimized in a real-world scenario, we should only care about whether the representational power of the modules is similar. One approach would be to add parameters inside the energy function that take care of mapping to &ldquo;values&rdquo; on the level of the heads.</p>
-<h1 id="attention-in-flatland-visualizing-energy-landscapesa-nameflatlanda">Attention in flatland: visualizing energy landscapes<a name="flatland"></a></h1>
+<h1 id="5-attention-in-flatland-visualizing-energy-landscapes">5. Attention in flatland: visualizing energy landscapes</h1>
 <p>We now leave the world of high-dimensional latent spaces behind us and focus on the toy model scenario of just two latent space dimensions. We only consider a single attention head because having just two heads, each with dimension one, is just silly. For every two-dimensional token pattern vector, a third dimension will be provided by the value of the scalar energy function at that point.</p>
 <p>Let&rsquo;s sample some tiny toy patterns to play around with.</p>
 <pre><code class="language-python">toy_state_patterns = torch.randn(1, 16, 2).requires_grad_(True)
@@ -1179,7 +1183,7 @@ fig, ax = simulate_and_plot_patterns(
 <p><img src="vanilla_softmax_attention_final_refactor_60_0.png" alt="alt text" title="Adding query-key-value mappings"></p>
 <p>The yellow arrows point from the final, energy-minimized, query updates to the &ldquo;value-transformed&rdquo; output queries, which are denoted with yellow crosses. Running this cell again in the colab notebook will give different landscapes and trajectories every time since the queries and keys depend on the random linear layers. The differences are more pronounced when increasing the scale (lowering the temperature).</p>
 <p>Since the value transformation is done after the energy minimization, it can and does undo some of the influence of the keys' attractors, e.g. sending updated queries to &ldquo;uphill&rdquo; regions in the energy landscape defined at that that layer. This suggests that the value transformation should not be seen as part of the core attention mechanism but that its role is rather to learn during training how to best hop to different regions in preparation for whatever the next layer needs.</p>
-<h4 id="bare-self-attention-on-the-importance-of-scale-and-why-multiple-headsa-namebareselfexpa">Bare self-attention: on the importance of scale and why multiple heads<a name="bareselfexp"></a></h4>
+<h4 id="bare-self-attention-on-the-importance-of-scale-and-why-multiple-heads">Bare self-attention: on the importance of scale and why multiple heads</h4>
 <p>Since all of the flatland examples so far have been for cross-attention, let&rsquo;s also visualize a self-attention update below:</p>
 <pre><code class="language-python">fig, ax = simulate_and_plot_patterns(
     hopfield_energy,
@@ -1230,7 +1234,7 @@ transformer_default_scale = ax.axhline(y=1.0, color=&quot;r&quot;)
 <li>The vertical red line corresponds to the earlier bare self-attention result using a latent dimension of 512. The intersection point indeed corresponds a norm difference of the order we saw previously. The value for a latent dimension of 2 (left border of plot) suggests that patterns do move around quite a bit, confirming our visualization above.</li>
 <li>Setting the scale for bare multi-head attention proportionally to the (smaller) head dimension instead of the full latent dimension corresponds to moving leftwards along the horizontal red line. The norm difference increases so that, for bare multi-head self-attention, patterns in multiple small heads tend to bounce around more than they would in a single big head. This might be one of the reasons why multiple heads help with training transformers: since the effective temperature is lower in the smaller latent spaces, the topography of the lower-dimensional energy landscapes is more pronounced and individual heads can go explore a bit to find their niche valley.</li>
 </ul>
-<h1 id="conclusiona-nameconclusiona">Conclusion<a name="conclusion"></a></h1>
+<h1 id="6-conclusion">6. Conclusion</h1>
 <p>Using the tools presented in this blog post, we have shown that it is possible to swap the explicit attention module in a transformer for an implicit energy minimization method. What happens when we start playing around with different energy functions? Can we make patterns interact? Can we make the energy minimization step more efficient by treating it as a fixed-point problem? It remains to be seen whether all of this is a useful thing to do.</p>
 <h1 id="references--footnotes">References &amp; footnotes</h1>
 <section class="footnotes" role="doc-endnotes">
