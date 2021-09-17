@@ -866,6 +866,15 @@ These linear transformations slightly generalize the &ldquo;naked&rdquo; explici
 <p>Looking back and reversing causation, one could argue that the now-famous dot-product attention module introduced in <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need</a><sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup> could only have been arrived at because of the properties of its implicit energy function \eqref{eq:mhnenergy}. Indeed, it is only because of the associative memory&rsquo;s decoupled and rather crude way of storing patterns in isolated, high-dimensional valleys that expensive, implicit energy minimization steps can be traded for a cheap, explicit one-step gradient update like \eqref{eq:mhnupdate}.</p>
 <p>The obvious pitfall of continuing to hold on to the conceptual framework introduced by this shortcut is that a potentially far richer picture of (sparse) attention dynamics remains obscured. Rather than perpetually rethinking what is all you <em>really</em> need within the confines of existing, explicit attention modules, why not opt for implicit modules built on top of an energy-based perspective to try to push things forward?</p>
 <h1 id="references--footnotes">References &amp; footnotes</h1>
+<p>If you happen to find this work useful, please consider citing it as:</p>
+<pre><code>@article{bal2020attentionrbms,
+  title   = {Transformer Attention as an Implicit Mixture of Effective Energy-Based Models},
+  author  = {Bal, Matthias},
+  year    = {2020},
+  month   = {December},
+  url     = {https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/},
+}
+</code></pre>
 <section class="footnotes" role="doc-endnotes">
 <hr>
 <ol>

@@ -970,6 +970,15 @@ Checking whether this transformed energy function still leads to a tractable Gau
 <p>Even if attention turns out to <em>not</em> be all we need, (self-)attention modules have established themselves as highly parallelizable neural network building blocks capable of dynamically routing information based on context. We have seen that dot-product attention modules in Transformer models work by encoding high-dimensional patterns into the landscapes of simple energy functions, enabling fast pattern storage and retrieval. During training, these landscapes are sculpted to accommodate statistical patterns found in data by hierarchically matching and combining latent pattern representations through a sequence of implicit energy function minimizations.</p>
 <p>We argued that an energy-based perspective on attention provides an intuitive explanation of meta-learning capabilities of large-capacity language models and encourages the exploration of qualitatively different attention mechanisms for pattern storage and retrievel. Rather than naively scaling the current generation of Transformers, it might be more rewarding to scale learning itself by exploring more powerful, expressive, and computationally efficient attention mechanisms, guided by energy-based models. Perhaps we should consider looking at neural networks again like John Hopfield already did in 1982: <em>physical systems with emergent collective computational abilities</em>.</p>
 <h1 id="references--footnotes">References &amp; footnotes</h1>
+<p>If you happen to find this work useful, please consider citing it as:</p>
+<pre><code>@article{bal2020energyattention,
+  title   = {An Energy-Based Perspective on Attention Mechanisms in Transformers},
+  author  = {Bal, Matthias},
+  year    = {2020},
+  month   = {December},
+  url     = {https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/},
+}
+</code></pre>
 <section class="footnotes" role="doc-endnotes">
 <hr>
 <ol>

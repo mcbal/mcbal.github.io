@@ -293,6 +293,15 @@ F. B. Rodríguez and &lt;a href=&#34;https://link.aps.org/doi/10.1103/PhysRevE.5
 &lt;li&gt;On approximate message passing (AMP) methods in statistics: &lt;a href=&#34;https://arxiv.org/abs/2105.02180&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A unifying tutorial on Approximate Message Passing&lt;/a&gt; (2021) by Oliver Y. Feng, Ramji Venkataramanan, Cynthia Rush, Richard J. Samworth: the example on page 2 basically describes how transformers implement approximate message passing: an iterative algorithm with a &amp;ldquo;denoising&amp;rdquo; step (attention) followed by a &amp;ldquo;memory term&amp;rdquo; or Onsager correction term (feed-forward layer)&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h1 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h1&gt;
+&lt;p&gt;If you happen to find this work useful, please consider citing it as:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;@article{bal2021deepimplicitattention,
+  title   = {Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms},
+  author  = {Bal, Matthias},
+  year    = {2021},
+  month   = {May},
+  url     = {https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/},
+}
+&lt;/code&gt;&lt;/pre&gt;
 &lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
 &lt;hr&gt;
 &lt;ol&gt;
@@ -472,6 +481,15 @@ These linear transformations slightly generalize the &amp;ldquo;naked&amp;rdquo;
 &lt;p&gt;Looking back and reversing causation, one could argue that the now-famous dot-product attention module introduced in &lt;a href=&#34;https://arxiv.org/abs/1706.03762&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Attention Is All You Need&lt;/a&gt;&lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt; could only have been arrived at because of the properties of its implicit energy function \eqref{eq:mhnenergy}. Indeed, it is only because of the associative memory&amp;rsquo;s decoupled and rather crude way of storing patterns in isolated, high-dimensional valleys that expensive, implicit energy minimization steps can be traded for a cheap, explicit one-step gradient update like \eqref{eq:mhnupdate}.&lt;/p&gt;
 &lt;p&gt;The obvious pitfall of continuing to hold on to the conceptual framework introduced by this shortcut is that a potentially far richer picture of (sparse) attention dynamics remains obscured. Rather than perpetually rethinking what is all you &lt;em&gt;really&lt;/em&gt; need within the confines of existing, explicit attention modules, why not opt for implicit modules built on top of an energy-based perspective to try to push things forward?&lt;/p&gt;
 &lt;h1 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h1&gt;
+&lt;p&gt;If you happen to find this work useful, please consider citing it as:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;@article{bal2020attentionrbms,
+  title   = {Transformer Attention as an Implicit Mixture of Effective Energy-Based Models},
+  author  = {Bal, Matthias},
+  year    = {2020},
+  month   = {December},
+  url     = {https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/},
+}
+&lt;/code&gt;&lt;/pre&gt;
 &lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
 &lt;hr&gt;
 &lt;ol&gt;
@@ -769,6 +787,15 @@ Checking whether this transformed energy function still leads to a tractable Gau
 &lt;p&gt;Even if attention turns out to &lt;em&gt;not&lt;/em&gt; be all we need, (self-)attention modules have established themselves as highly parallelizable neural network building blocks capable of dynamically routing information based on context. We have seen that dot-product attention modules in Transformer models work by encoding high-dimensional patterns into the landscapes of simple energy functions, enabling fast pattern storage and retrieval. During training, these landscapes are sculpted to accommodate statistical patterns found in data by hierarchically matching and combining latent pattern representations through a sequence of implicit energy function minimizations.&lt;/p&gt;
 &lt;p&gt;We argued that an energy-based perspective on attention provides an intuitive explanation of meta-learning capabilities of large-capacity language models and encourages the exploration of qualitatively different attention mechanisms for pattern storage and retrievel. Rather than naively scaling the current generation of Transformers, it might be more rewarding to scale learning itself by exploring more powerful, expressive, and computationally efficient attention mechanisms, guided by energy-based models. Perhaps we should consider looking at neural networks again like John Hopfield already did in 1982: &lt;em&gt;physical systems with emergent collective computational abilities&lt;/em&gt;.&lt;/p&gt;
 &lt;h1 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h1&gt;
+&lt;p&gt;If you happen to find this work useful, please consider citing it as:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;@article{bal2020energyattention,
+  title   = {An Energy-Based Perspective on Attention Mechanisms in Transformers},
+  author  = {Bal, Matthias},
+  year    = {2020},
+  month   = {December},
+  url     = {https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/},
+}
+&lt;/code&gt;&lt;/pre&gt;
 &lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
 &lt;hr&gt;
 &lt;ol&gt;

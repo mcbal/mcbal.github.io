@@ -701,11 +701,7 @@
   <div class="article-container">
 
     <div class="article-style">
-      <blockquote>
-<p><strong>Update (May 2021):</strong> Please consider reading <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a> for an arguably more comprehensive approach towards understanding transformers.</p>
-</blockquote>
-<hr>
-<ol>
+      <ol>
 <li><a href="#1-introduction">Introduction</a></li>
 <li><a href="#2-prelude-pattern-terminology">Prelude: pattern terminology</a></li>
 <li><a href="#3-attention-modules">Attention modules</a>
@@ -1237,6 +1233,15 @@ transformer_default_scale = ax.axhline(y=1.0, color=&quot;r&quot;)
 <h1 id="6-conclusion">6. Conclusion</h1>
 <p>Using the tools presented in this blog post, we have shown that it is possible to swap the explicit attention module in a transformer for an implicit energy minimization method. What happens when we start playing around with different energy functions? Can we make patterns interact? Can we make the energy minimization step more efficient by treating it as a fixed-point problem? It remains to be seen whether all of this is a useful thing to do.</p>
 <h1 id="references--footnotes">References &amp; footnotes</h1>
+<p>If you happen to find this work useful, please consider citing it as:</p>
+<pre><code>@article{bal2021visualizingattention,
+  title   = {Attention as Energy Minimization: Visualizing Energy Landscapes},
+  author  = {Bal, Matthias},
+  year    = {2021},
+  month   = {March},
+  url     = {https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/},
+}
+</code></pre>
 <section class="footnotes" role="doc-endnotes">
 <hr>
 <ol>

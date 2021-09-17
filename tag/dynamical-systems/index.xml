@@ -17,11 +17,7 @@
       <link>https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/</link>
       <pubDate>Wed, 17 Mar 2021 22:36:17 +0100</pubDate>
       <guid>https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/</guid>
-      <description>&lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;Update (May 2021):&lt;/strong&gt; Please consider reading &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms&lt;/a&gt; for an arguably more comprehensive approach towards understanding transformers.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;hr&gt;
-&lt;ol&gt;
+      <description>&lt;ol&gt;
 &lt;li&gt;&lt;a href=&#34;#1-introduction&#34;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#2-prelude-pattern-terminology&#34;&gt;Prelude: pattern terminology&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#3-attention-modules&#34;&gt;Attention modules&lt;/a&gt;
@@ -553,6 +549,15 @@ transformer_default_scale = ax.axhline(y=1.0, color=&amp;quot;r&amp;quot;)
 &lt;h1 id=&#34;6-conclusion&#34;&gt;6. Conclusion&lt;/h1&gt;
 &lt;p&gt;Using the tools presented in this blog post, we have shown that it is possible to swap the explicit attention module in a transformer for an implicit energy minimization method. What happens when we start playing around with different energy functions? Can we make patterns interact? Can we make the energy minimization step more efficient by treating it as a fixed-point problem? It remains to be seen whether all of this is a useful thing to do.&lt;/p&gt;
 &lt;h1 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h1&gt;
+&lt;p&gt;If you happen to find this work useful, please consider citing it as:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;@article{bal2021visualizingattention,
+  title   = {Attention as Energy Minimization: Visualizing Energy Landscapes},
+  author  = {Bal, Matthias},
+  year    = {2021},
+  month   = {March},
+  url     = {https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/},
+}
+&lt;/code&gt;&lt;/pre&gt;
 &lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
 &lt;hr&gt;
 &lt;ol&gt;

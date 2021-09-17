@@ -293,6 +293,15 @@ F. B. Rodríguez and &lt;a href=&#34;https://link.aps.org/doi/10.1103/PhysRevE.5
 &lt;li&gt;On approximate message passing (AMP) methods in statistics: &lt;a href=&#34;https://arxiv.org/abs/2105.02180&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A unifying tutorial on Approximate Message Passing&lt;/a&gt; (2021) by Oliver Y. Feng, Ramji Venkataramanan, Cynthia Rush, Richard J. Samworth: the example on page 2 basically describes how transformers implement approximate message passing: an iterative algorithm with a &amp;ldquo;denoising&amp;rdquo; step (attention) followed by a &amp;ldquo;memory term&amp;rdquo; or Onsager correction term (feed-forward layer)&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h1 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h1&gt;
+&lt;p&gt;If you happen to find this work useful, please consider citing it as:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;@article{bal2021deepimplicitattention,
+  title   = {Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms},
+  author  = {Bal, Matthias},
+  year    = {2021},
+  month   = {May},
+  url     = {https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/},
+}
+&lt;/code&gt;&lt;/pre&gt;
 &lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
 &lt;hr&gt;
 &lt;ol&gt;
