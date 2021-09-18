@@ -103,6 +103,21 @@
   </url>
   
   <url>
+    <loc>https://mcbal.github.io/tag/renormalization-group/</loc>
+    <lastmod>2020-12-30T10:34:17+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mcbal.github.io/tag/restricted-boltzmann-machine/</loc>
+    <lastmod>2020-12-30T10:34:17+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/</loc>
+    <lastmod>2020-12-30T10:34:17+01:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/</loc>
     <lastmod>2020-12-03T12:30:21+01:00</lastmod>
   </url>
