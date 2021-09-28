@@ -1102,6 +1102,7 @@ These linear transformations slightly generalize the &amp;ldquo;naked&amp;rdquo;
 &lt;li&gt;&lt;a href=&#34;#classical-discrete-hopfield-networks&#34;&gt;Classical discrete Hopfield networks&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#modern-discrete-hopfield-networks&#34;&gt;Modern discrete Hopfield networks&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#modern-continuous-hopfield-networks&#34;&gt;Modern continuous Hopfield networks&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#modern-continuous-hopfield-networks-as-energy-based-models&#34;&gt;Modern continuous Hopfield Networks as energy-based models&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#transformers-store-and-retrieve-context-dependent-patterns&#34;&gt;Transformers store and retrieve context-dependent patterns&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#where-are-patterns-stored-in-a-transformer&#34;&gt;Where are patterns stored in a Transformer?&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
@@ -1229,99 +1230,77 @@ while for matrix arguments (like a batch of vectors), the $\mathrm{sumexp}$ is u
 \boldsymbol{\xi}_{n+1}  = \boldsymbol{X} \ \mathrm{softmax} \left( \boldsymbol{X}^T \boldsymbol{\xi}_{n}\right) .
 \end{align}&lt;/p&gt;
 &lt;p&gt;The updated vector is a linear combination of all stored patterns, weighted by an attention vector quantifying the overlap with the input pattern.&lt;/p&gt;
-&lt;!-- ## Modern continuous Hopfield Networks as energy-based models
-
-Let&#39;s now try to connect the system defined by the energy function \eqref{eq:energyfunc} to the statistical mechanics framework of energy-based models [^ref:lecun] [^ref:physicsml].
-
-### Energy-based models: a gentle introduction
-Energy-based models learn a parametrized energy function $E\_{\theta}$ which maps data points $\boldsymbol{x}$ to real, scalar energy values $E\_{\theta}(\boldsymbol{x})$. The data distribution is modeled by the [Boltzmann distribution](https://en.wikipedia.org/wiki/Boltzmann_distribution),
+&lt;h2 id=&#34;modern-continuous-hopfield-networks-as-energy-based-models&#34;&gt;Modern continuous Hopfield Networks as energy-based models&lt;/h2&gt;
+&lt;p&gt;Let&amp;rsquo;s now try to connect the system defined by the energy function \eqref{eq:energyfunc} to the statistical mechanics framework of energy-based models &lt;sup id=&#34;fnref:12&#34;&gt;&lt;a href=&#34;#fn:12&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;12&lt;/a&gt;&lt;/sup&gt; &lt;sup id=&#34;fnref:13&#34;&gt;&lt;a href=&#34;#fn:13&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;13&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;h3 id=&#34;energy-based-models-a-gentle-introduction&#34;&gt;Energy-based models: a gentle introduction&lt;/h3&gt;
+&lt;p&gt;Energy-based models learn a parametrized energy function $E_{\theta}$ which maps data points $\boldsymbol{x}$ to real, scalar energy values $E_{\theta}(\boldsymbol{x})$. The data distribution is modeled by the &lt;a href=&#34;https://en.wikipedia.org/wiki/Boltzmann_distribution&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Boltzmann distribution&lt;/a&gt;,
 \begin{equation}
-  p_{\theta}(\boldsymbol{x}) = \frac{\mathrm{e}^{ - E_{\theta}(\boldsymbol{x}) }}{Z(\theta)},
-  \label{eq:boltzmann}
+p_{\theta}(\boldsymbol{x}) = \frac{\mathrm{e}^{ - E_{\theta}(\boldsymbol{x}) }}{Z(\theta)},
+\label{eq:boltzmann}
 \end{equation}
-where $Z(\theta) = \int \mathrm{d} \boldsymbol{x} \ \mathrm{e}^{-E(\boldsymbol{x})}$ denotes the system&#39;s partition function. Configurations $\boldsymbol{x}$ with low energies $E_{\theta}(\boldsymbol{x})$ are considered more likely and their weight contributes more strongly to the partition function.
-
-To steer the model distribution $p_{\theta}$ towards a target data distribution $p_{\mathrm{data}}$, we can try to minimize the likelihood loss function
-
-\begin{equation}
-  \mathcal{L}\_{\mathrm{ML}} (\theta) = \mathbb{E}\_{\boldsymbol{x} \sim p_{\mathrm{data}}} \left[ -\log p\_{\theta} (\boldsymbol{x}) \right],
-  \label{eq:nll}
-\end{equation}
-
-where the negative log-likelihood equals
-
-\begin{equation}
-  -\log p_{\theta} (\boldsymbol{x}) = E_{\theta} (\boldsymbol{x}) + \log Z (\theta).
-\end{equation}
-
-This is a hard optimization problem because calculating $\log Z (\theta)$ is hard for the vast majority of high-dimensional data distributions we care about. In practice, people resort to approximations like contrastive divergence to push the energy down on &#34;positive examples&#34; drawn from the data distribution while pushing up on &#34;negative examples&#34; obtained from sampling the model distribution. Even though sampling from \eqref{eq:boltzmann} can be done with methods like Markov Chain Monte Carlo, it is computationally expensive to do so, especially as part of an inner-loop optimization step[^gan-remark].
-
-### Exactly optimizing modern continuous Hopfield networks
-So what about the system defined by the energy function \eqref{eq:energyfunc}? Let&#39;s consider the stored patterns $\mathbf{X} \in \mathbb{R}^{d \times N}$ as the model parameters we want to optimise. The task for the model is then to try to memorise incoming state patterns $\boldsymbol{\xi} \in \mathbb{R}^{d}$ drawn from some data distribution $p_{\mathrm{data}}$ by deciding what kind of patterns to store. The partition function looks like
-
-\begin{equation}
-  Z = \int \mathrm{d} \boldsymbol{\xi} \ \mathrm{e}^{-E(\boldsymbol{\xi})} = \int \mathrm{d} \boldsymbol{\xi} \ \mathrm{e}^{-\frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi}} \left( \sum_{i=1}^{N} \mathrm{e}^{ \boldsymbol{x}^{T}\_{i} \cdot \boldsymbol{\xi} } \right)
-  \label{eq:zforcontinuoushopfield}
-\end{equation}
-
-which, because of the $\log$ in the &#34;interaction term&#34;, boils down to a sum of [$n$-dimensional Gaussian integrals](https://en.wikipedia.org/wiki/Gaussian_integral#n-dimensional_with_linear_term)
-
-\begin{aligned}
-  Z = (2\pi)^{n/2} \sum_{i=1}^{N} \mathrm{e}^{ \frac{1}{2} \boldsymbol{x}\_{i}^{T} \cdot \boldsymbol{x}\_{i} }
-\end{aligned}
-
-After taking the logarithm, we end up with the $\mathrm{logsumexp}$ operator:
-
-\begin{equation}
-  \log Z = \frac{n}{2} \log \left( 2\pi \right) + \mathrm{logsumexp} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T} \boldsymbol{X} \right) \right)
-\end{equation}
-
-where the $\mathrm{diag}$ operator is understood to turn the diagonal of its matrix argument into a vector. Plugging this expression into \eqref{eq:nll} leads to the following loss function for the matrix of stored patterns
-
+where $Z(\theta) = \int \mathrm{d} \boldsymbol{x} \ \mathrm{e}^{-E(\boldsymbol{x})}$ denotes the system&amp;rsquo;s partition function. Configurations $\boldsymbol{x}$ with low energies $E_{\theta}(\boldsymbol{x})$ are considered more likely and their weight contributes more strongly to the partition function.&lt;/p&gt;
+&lt;p&gt;To steer the model distribution $p_{\theta}$ towards a target data distribution $p_{\mathrm{data}}$, we can try to minimize the likelihood loss function&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\mathcal{L}_{\mathrm{ML}} (\theta) = \mathbb{E}_{\boldsymbol{x} \sim p_{\mathrm{data}}} \left[ -\log p_{\theta} (\boldsymbol{x}) \right],
+\label{eq:nll}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;where the negative log-likelihood equals&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+-\log p_{\theta} (\boldsymbol{x}) = E_{\theta} (\boldsymbol{x}) + \log Z (\theta).
+\end{equation}&lt;/p&gt;
+&lt;p&gt;This is a hard optimization problem because calculating $\log Z (\theta)$ is hard for the vast majority of high-dimensional data distributions we care about. In practice, people resort to approximations like contrastive divergence to push the energy down on &amp;ldquo;positive examples&amp;rdquo; drawn from the data distribution while pushing up on &amp;ldquo;negative examples&amp;rdquo; obtained from sampling the model distribution. Even though sampling from \eqref{eq:boltzmann} can be done with methods like Markov Chain Monte Carlo, it is computationally expensive to do so, especially as part of an inner-loop optimization step&lt;sup id=&#34;fnref:14&#34;&gt;&lt;a href=&#34;#fn:14&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;14&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;h3 id=&#34;exactly-optimizing-modern-continuous-hopfield-networks&#34;&gt;Exactly optimizing modern continuous Hopfield networks&lt;/h3&gt;
+&lt;p&gt;So what about the system defined by the energy function \eqref{eq:energyfunc}? Let&amp;rsquo;s consider the stored patterns $\mathbf{X} \in \mathbb{R}^{d \times N}$ as the model parameters we want to optimise. The task for the model is then to try to memorise incoming state patterns $\boldsymbol{\xi} \in \mathbb{R}^{d}$ drawn from some data distribution $p_{\mathrm{data}}$ by deciding what kind of patterns to store. The partition function looks like&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+Z = \int \mathrm{d} \boldsymbol{\xi} \ \mathrm{e}^{-E(\boldsymbol{\xi})} = \int \mathrm{d} \boldsymbol{\xi} \ \mathrm{e}^{-\frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi}} \left( \sum_{i=1}^{N} \mathrm{e}^{ \boldsymbol{x}^{T}_{i} \cdot \boldsymbol{\xi} } \right)
+\label{eq:zforcontinuoushopfield}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;which, because of the $\log$ in the &amp;ldquo;interaction term&amp;rdquo;, boils down to a sum of &lt;a href=&#34;https://en.wikipedia.org/wiki/Gaussian_integral#n-dimensional_with_linear_term&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;$n$-dimensional Gaussian integrals&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;\begin{aligned}
+Z = (2\pi)^{n/2} \sum_{i=1}^{N} \mathrm{e}^{ \frac{1}{2} \boldsymbol{x}_{i}^{T} \cdot \boldsymbol{x}_{i} }
+\end{aligned}&lt;/p&gt;
+&lt;p&gt;After taking the logarithm, we end up with the $\mathrm{logsumexp}$ operator:&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\log Z = \frac{n}{2} \log \left( 2\pi \right) + \mathrm{logsumexp} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T} \boldsymbol{X} \right) \right)
+\end{equation}&lt;/p&gt;
+&lt;p&gt;where the $\mathrm{diag}$ operator is understood to turn the diagonal of its matrix argument into a vector. Plugging this expression into \eqref{eq:nll} leads to the following loss function for the matrix of stored patterns&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\mathcal{L}_{\mathrm{ML}} (\mathbf{X}) = &amp;amp; \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right) \right] \nonumber \\&lt;br&gt;
+&amp;amp; + \mathrm{logsumexp} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T} \boldsymbol{X} \right) \right) + \frac{n}{2} \log \left( 2\pi \right)
+\end{align}&lt;/p&gt;
+&lt;p&gt;and a gradient&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\nabla_{\mathbf{X}} \mathcal{L}_{\mathrm{ML}} (\mathbf{X}) = &amp;amp; - \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \boldsymbol{\xi} \otimes \mathrm{softmax} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right) \right] \nonumber \\&lt;br&gt;
+&amp;amp; + \boldsymbol{X} \ \mathrm{softmax} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T} \boldsymbol{X} \right) \right)
+\end{align}&lt;/p&gt;
+&lt;p&gt;and an update with step size $\gamma$&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\mathbf{X}_{n+1} = \ \mathbf{X}_{n} &amp;amp;+ \gamma \ \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \boldsymbol{\xi} \otimes \mathrm{softmax} \left( \boldsymbol{X}^T_{n} \boldsymbol{\xi} \right) \right] \nonumber \\&lt;br&gt;
+&amp;amp; - \gamma \ \mathbf{X}_{n} \ \mathrm{softmax} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T}_{n} \boldsymbol{X}_{n} \right) \right)
+\end{align}&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s try to guess what this means for a single input state pattern. The first gradient term pushes all stored patterns towards the sample but weighted by a dot-product attention vector quantifying their overlap with the input pattern, similar to \eqref{eq:conthopfupdate} but in the other direction. The second gradient term comes from the partition function and acts as a regularizer by keeping the norms of the stored patterns in check. Regularization keeps pattern values within a reasonable range and pushes the system towards regions in parameter space with non-trivial small dot-product values.&lt;/p&gt;
+&lt;h2 id=&#34;transformers-store-and-retrieve-context-dependent-patterns&#34;&gt;Transformers store and retrieve context-dependent patterns&lt;/h2&gt;
+&lt;p&gt;Making the leap from modern continous Hopfield networks to the vanilla Transformer (self-)attention mechanism we encountered in &lt;a href=&#34;#2-a-growing-zoo-of-transformers&#34;&gt;Section 2&lt;/a&gt; requires a few additional steps, as explained in detail in the &lt;a href=&#34;https://ml-jku.github.io/hopfield-layers/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;blog post&lt;/a&gt; accompanying &lt;a href=&#34;https://arxiv.org/abs/2008.02217&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield Networks is All You Need&lt;/a&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We want to act on multipe $d$-dimensional state patterns at the same time in order to retrieve multiple updated patterns in parallel:
 \begin{align}
-  \mathcal{L}\_{\mathrm{ML}} (\mathbf{X}) = &amp; \mathbb{E}\_{\boldsymbol{\xi} \sim p\_{\mathrm{data}}} \left[ \frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right) \right] \nonumber \\\\
-  &amp; + \mathrm{logsumexp} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T} \boldsymbol{X} \right) \right) + \frac{n}{2} \log \left( 2\pi \right)
-\end{align}
-
-and a gradient
-
-\begin{align}
-  \nabla\_{\mathbf{X}} \mathcal{L}\_{\mathrm{ML}} (\mathbf{X}) = &amp; - \mathbb{E}\_{\boldsymbol{\xi} \sim p\_{\mathrm{data}}} \left[ \boldsymbol{\xi} \otimes \mathrm{softmax} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right) \right] \nonumber \\\\
-  &amp; + \boldsymbol{X} \ \mathrm{softmax} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T} \boldsymbol{X} \right) \right) 
-\end{align}
-
-and an update with step size $\gamma$
-
-\begin{align}
-  \mathbf{X}\_{n+1} = \ \mathbf{X}\_{n} &amp;+ \gamma \ \mathbb{E}\_{\boldsymbol{\xi} \sim p\_{\mathrm{data}}} \left[ \boldsymbol{\xi} \otimes \mathrm{softmax} \left( \boldsymbol{X}^T\_{n} \boldsymbol{\xi} \right) \right] \nonumber \\\\
-  &amp; - \gamma \ \mathbf{X}\_{n} \ \mathrm{softmax} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T}\_{n} \boldsymbol{X}\_{n} \right) \right)
-\end{align}
-
-Let&#39;s try to guess what this means for a single input state pattern. The first gradient term pushes all stored patterns towards the sample but weighted by a dot-product attention vector quantifying their overlap with the input pattern, similar to \eqref{eq:conthopfupdate} but in the other direction. The second gradient term comes from the partition function and acts as a regularizer by keeping the norms of the stored patterns in check. Regularization keeps pattern values within a reasonable range and pushes the system towards regions in parameter space with non-trivial small dot-product values.
-
-## Transformers store and retrieve context-dependent patterns
-
-Making the leap from modern continous Hopfield networks to the vanilla Transformer (self-)attention mechanism we encountered in [Section 2](#2-a-growing-zoo-of-transformers) requires a few additional steps, as explained in detail in the [blog post](https://ml-jku.github.io/hopfield-layers/) accompanying [Hopfield Networks is All You Need](https://arxiv.org/abs/2008.02217).
-
-- We want to act on multipe $d$-dimensional state patterns at the same time in order to retrieve multiple updated patterns in parallel:
-\begin{align}
-  \boldsymbol{\xi} \in \mathbb{R}^{d} \to \boldsymbol{\Xi} = (\boldsymbol{\xi}\_{1}, \ldots, \boldsymbol{\xi}\_{S}) \in \mathbb{R}^{d \times S}
+\boldsymbol{\xi} \in \mathbb{R}^{d} \to \boldsymbol{\Xi} = (\boldsymbol{\xi}_{1}, \ldots, \boldsymbol{\xi}_{S}) \in \mathbb{R}^{d \times S}
 \end{align}
 so that
 \begin{align}
-  \boldsymbol{\Xi}\_{n+1}  = \boldsymbol{X} \ \mathrm{softmax} \left( \boldsymbol{X}^T \boldsymbol{\Xi}\_{n}\right) .
+\boldsymbol{\Xi}_{n+1}  = \boldsymbol{X} \ \mathrm{softmax} \left( \boldsymbol{X}^T \boldsymbol{\Xi}_{n}\right) .
 \end{align}
-In practice, the number of state patterns $S$ is often taken to be equal to the number of stored patterns $N$.
-- We want to map stored patterns $\mathbf{X}$ and state patterns $\boldsymbol{\Xi}$ respectively to _keys_ $\mathbf{K} \in \mathbb{R}^{N \times d}$ and _queries_ $\mathbf{Q} \in \mathbb{R}^{S \times d}$ in a common feature space using linear transformations $\mathbf{W\_{K}}$ and $\mathbf{W\_{Q}}$.
-- We want introduce another linear transformation $\mathbf{W\_{V}}$ on stored patterns to transform them into _values_ $\mathbf{V} \in \mathbb{R}^{N \times d}$ appropriate for the keys&#39; content.
-- We want to modify the learning dynamics by decreasing the inverse temperature to $\beta = 1 / \sqrt{d}$, effectively making the $\mathrm{softmax}$ softer by increasing the temperature of the system[^footnote:beta]. Physically, this might correspond to warming up the system just enough to get out of the spin-glass phase while not introducing too much thermal noise[^ref:spin-glass].
-
-The result is the update rule we stated without explanation in [Section 2](#2-a-growing-zoo-of-transformers):
+In practice, the number of state patterns $S$ is often taken to be equal to the number of stored patterns $N$.&lt;/li&gt;
+&lt;li&gt;We want to map stored patterns $\mathbf{X}$ and state patterns $\boldsymbol{\Xi}$ respectively to &lt;em&gt;keys&lt;/em&gt; $\mathbf{K} \in \mathbb{R}^{N \times d}$ and &lt;em&gt;queries&lt;/em&gt; $\mathbf{Q} \in \mathbb{R}^{S \times d}$ in a common feature space using linear transformations $\mathbf{W_{K}}$ and $\mathbf{W_{Q}}$.&lt;/li&gt;
+&lt;li&gt;We want introduce another linear transformation $\mathbf{W_{V}}$ on stored patterns to transform them into &lt;em&gt;values&lt;/em&gt; $\mathbf{V} \in \mathbb{R}^{N \times d}$ appropriate for the keys&#39; content.&lt;/li&gt;
+&lt;li&gt;We want to modify the learning dynamics by decreasing the inverse temperature to $\beta = 1 / \sqrt{d}$, effectively making the $\mathrm{softmax}$ softer by increasing the temperature of the system&lt;sup id=&#34;fnref:15&#34;&gt;&lt;a href=&#34;#fn:15&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;15&lt;/a&gt;&lt;/sup&gt;. Physically, this might correspond to warming up the system just enough to get out of the spin-glass phase while not introducing too much thermal noise&lt;sup id=&#34;fnref:8&#34;&gt;&lt;a href=&#34;#fn:8&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;8&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The result is the update rule we stated without explanation in &lt;a href=&#34;#2-a-growing-zoo-of-transformers&#34;&gt;Section 2&lt;/a&gt;:
 \begin{equation}
-  \mathbf{Q}^{\mathrm{updated}} = \mathrm{Attention}\left( \mathbf{Q}, \mathbf{K}, \mathbf{V} \right) = \mathrm{softmax} \left( \frac{\mathbf{Q} \mathbf{K}^T}{\sqrt{d}} \right) \mathbf{V},
-  \label{eq:transformerattnupdate}
+\mathbf{Q}^{\mathrm{updated}} = \mathrm{Attention}\left( \mathbf{Q}, \mathbf{K}, \mathbf{V} \right) = \mathrm{softmax} \left( \frac{\mathbf{Q} \mathbf{K}^T}{\sqrt{d}} \right) \mathbf{V},
+\label{eq:transformerattnupdate}
 \end{equation}
-where the $\mathrm{softmax}$ acts row-wise. In practice, the vanilla Transformer module additionally wraps the above attention module in (1) residual connections to control the flow of gradients, (2) layer norms to control pattern normalisations and learning dynamics, and (3) a positional feed-forward network for additional model capacity. --&gt;
+where the $\mathrm{softmax}$ acts row-wise. In practice, the vanilla Transformer module additionally wraps the above attention module in (1) residual connections to control the flow of gradients, (2) layer norms to control pattern normalisations and learning dynamics, and (3) a positional feed-forward network for additional model capacity.&lt;/p&gt;
 &lt;h2 id=&#34;where-are-patterns-stored-in-a-transformer&#34;&gt;Where are patterns stored in a Transformer?&lt;/h2&gt;
 &lt;p&gt;Let&amp;rsquo;s try to digest the implications of these quite substantial changes. It&amp;rsquo;s useful to think of Transformer (self-)attention modules as dynamic pattern storage and retrieval systems. In modern continuous Hopfield networks, stored patterns are considered a given. However, in the Transformer (self-)attenton module, patterns to be matched and retrieved are &lt;em&gt;dependent on inputs&lt;/em&gt; and &lt;em&gt;implicitly stored in the weights&lt;/em&gt; $\mathbf{W_{Q}}$, $\mathbf{W_{K}}$, and $\mathbf{W_{V}}$ of the linear transformations. In every layer, the module needs to learn how to map a set of inputs to patterns it wants to store (keys and values) as well as how to best retrieve them (queries). Within the same layer, dynamically generated queries are matched to keys within the same latent space. Between attention modules of neighboring layers, the non-linear activation function in the positional feed-forward network warps latent spaces.&lt;/p&gt;
 &lt;!-- ## Transformer self-attention as energy-based models
@@ -1347,7 +1326,7 @@ Checking whether this transformed energy function still leads to a tractable Gau
 &lt;h2 id=&#34;pretraining-loss-functions&#34;&gt;Pretraining loss functions&lt;/h2&gt;
 &lt;p&gt;The goal of pretraining loss functions is to induce &lt;em&gt;useful&lt;/em&gt; data-dependent pattern storage and retrieval behavior. Pretraining strategies for Transformer-based language models rely on loss functions derived from auxiliary tasks to learn statistical patterns in natural language. Starting from almost identical model architectures, autoregressive models like GPT-3 leverage all their parameters to predict the next token in a sequence given previous tokens while autoencoding models like BERT try to reconstruct corrupted tokens. In both cases, the loss function is a cross-entropy loss involving predictions in the space of the model&amp;rsquo;s token vocabulary.&lt;/p&gt;
 &lt;h2 id=&#34;stepping-through-the-transformer-implicit-energy-minimization&#34;&gt;Stepping through the Transformer: implicit energy minimization&lt;/h2&gt;
-&lt;p&gt;Although no energy function is &lt;em&gt;explicitly&lt;/em&gt; optimized during training&lt;sup id=&#34;fnref:12&#34;&gt;&lt;a href=&#34;#fn:12&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;12&lt;/a&gt;&lt;/sup&gt;, let&amp;rsquo;s see how far we can push hand-wavy energy-based arguments by stepping through the forward and backward pass of a Transformer model. We have learned that the attention update \eqref{eq:transformerattnupdate} in every Transformer layer is actually a hidden gradient step. This trivial insight leads to a trio of trivial observations.&lt;/p&gt;
+&lt;p&gt;Although no energy function is &lt;em&gt;explicitly&lt;/em&gt; optimized during training&lt;sup id=&#34;fnref:16&#34;&gt;&lt;a href=&#34;#fn:16&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;16&lt;/a&gt;&lt;/sup&gt;, let&amp;rsquo;s see how far we can push hand-wavy energy-based arguments by stepping through the forward and backward pass of a Transformer model. We have learned that the attention update \eqref{eq:transformerattnupdate} in every Transformer layer is actually a hidden gradient step. This trivial insight leads to a trio of trivial observations.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Trivial Observation #1:&lt;/strong&gt; &lt;em&gt;During training, the update step \eqref{eq:transformerattnupdate} of the attention mechanism in a Transformer layer acts as an inner-loop optimization step, minimizing an implicit energy function determined by the queries, keys, and values constructed from the output of the previous layer.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Trivial Observation #2:&lt;/strong&gt; &lt;em&gt;During the forward pass of a deep Transformer model, a nested hierarchy of energy functions is minimized.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Trivial Observation #3:&lt;/strong&gt; &lt;em&gt;During the backward pass of a deep Transformer model, the parameters of its attention modules get updated such that the inner-loop optimization steps conspire to pattern match queries to keys in such a way that the sequentially-updated final latent representations are useful for improving the loss.&lt;/em&gt;&lt;/p&gt;
@@ -1412,7 +1391,19 @@ Checking whether this transformed energy function still leads to a tractable Gau
 &lt;p&gt;A physicist might consider these continuous patterns spin configurations of the degrees of freedom in a vector spin model where the internal dimension $D \sim 10^2-10^4$ is much bigger than familiar small-$D$ cases like the &lt;a href=&#34;https://en.wikipedia.org/wiki/Classical_XY_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;XY model&lt;/a&gt; or the &lt;a href=&#34;https://en.wikipedia.org/wiki/Classical_Heisenberg_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Heisenberg model&lt;/a&gt; but much smaller than infinity. &lt;a href=&#34;#fnref:11&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:12&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;The implicitly defined energy functions in Tranformer layers are not optimized directly because they arguably do not provide a meaningful training signal on their own. Verifying whether this is true or not could make for an interesting experiment. &lt;a href=&#34;#fnref:12&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Yann LeCun, Sumit Chopra, Raia Hadsell, Marc&amp;rsquo;Aurelio Ranzato, and Fu Jie Huang, &lt;a href=&#34;http://yann.lecun.com/exdb/publis/pdf/lecun-06.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A Tutorial on Energy-Based Learning&lt;/a&gt; (2006)&lt;/em&gt; and &lt;em&gt;Yann LeCun and Alfredo Canziani, &lt;a href=&#34;https://atcold.github.io/pytorch-Deep-Learning/en/week07/07-1/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Learning DS-GA 1008 course&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:12&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:13&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;em&gt;Pankaj Mehta, Marin Bukov, Ching-Hao Wang, Alexandre G.R. Day, Clint Richardson, Charles K. Fisher, and David J. Schwab, &lt;a href=&#34;https://arxiv.org/abs/1803.08823&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A high-bias, low-variance introduction to Machine Learning for physicists&lt;/a&gt; (2019)&lt;/em&gt; &lt;a href=&#34;#fnref:13&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:14&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;The generator in a Generative Adverserial Network (GAN) setup can be considered a clever way to generate negative samples for the implicit energy function optimization taking place in the discriminator. &lt;a href=&#34;#fnref:14&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:15&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;As we have seen in &lt;a href=&#34;#2-a-growing-zoo-of-transformers&#34;&gt;Section 2&lt;/a&gt;, the naive interpretation of $\beta$ as &lt;em&gt;the&lt;/em&gt; effective inverse temperature is tenuous in practice given the influence of the surrounding layer normalisation modules. &lt;a href=&#34;#fnref:15&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:16&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;The implicitly defined energy functions in Tranformer layers are not optimized directly because they arguably do not provide a meaningful training signal on their own. Verifying whether this is true or not could make for an interesting experiment. &lt;a href=&#34;#fnref:16&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;
