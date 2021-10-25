@@ -321,9 +321,9 @@
   <meta property="twitter:image" content="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/featured.png"><meta property="og:locale" content="en-gb">
   
     
-      <meta property="article:published_time" content="2021-09-05T15:40:17&#43;01:00">
+      <meta property="article:published_time" content="2021-10-12T18:40:17&#43;01:00">
     
-    <meta property="article:modified_time" content="2021-10-12T18:40:17&#43;01:00">
+    <meta property="article:modified_time" content="2021-10-25T11:00:00&#43;01:00">
   
 
   
@@ -355,8 +355,8 @@
     "https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/featured.png"
   ],
   
-  "datePublished": "2021-09-05T15:40:17+01:00",
-  "dateModified": "2021-10-12T18:40:17+01:00",
+  "datePublished": "2021-10-12T18:40:17+01:00",
+  "dateModified": "2021-10-25T11:00:00+01:00",
   
   "author": {
     "@type": "Person",
@@ -612,7 +612,7 @@
           Last updated on
       
     
-    Oct 12, 2021
+    Oct 25, 2021
   </span>
   
 
@@ -621,7 +621,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    23 min read
+    24 min read
   </span>
   
 
@@ -708,7 +708,7 @@
 </blockquote>
 <p>In <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a>, we introduced a mean-field theory perspective on transformer modules. We showed how their outputs can be understood as mean-field spin expectation values of simple Ising-like vector-spin systems. Physically, the process of training a transformer module can then be interpreted as a classical many-body system modulating its behaviour by learning how to respond to being probed by incoming data. Stacking transformer modules corresponds to building up a differentiable structure of correlations by using the spin expectation values of one physical system to drive the next one.</p>
 <p>In this post, we flesh out the idea of looking at transformer modules as physical systems. Having identified vector spin systems as plausible physical models underlying transformers, we turn to the 1960s statistical-mechanics literature to look for inspiration on how to deal with their partition functions<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>. We rediscover that the partition function of a particular class of vector-spin models can be approximated in the limit of large local spin dimension using steepest descent, leading to approximate yet tractable expressions for the free energy and other derived quantities.</p>
-<p>Combining these canonical results from statistical mechanics with modern differentiable programming, we implement a differentiable vector-spin model based on an approximate free-energy minimization algorithm. Internally, the model uses an implicit layer to solve for the stationary point of the partition function in a differentiable way. We then construct a transformer-like attention module which encapsulates the spin model by routing inputs to applied magnetic fields and spin expectation values to outputs. The latter are obtained by following the familiar recipe of statistical mechanics: differentiating the spin model&rsquo;s $\log Z$ with respect to its conjugate input variables. Finally, we contextualize our approach by comparing it to vanilla transformers.</p>
+<p>Combining these canonical results from statistical mechanics with modern differentiable programming, we implement a differentiable vector-spin model based on an approximate free-energy minimization algorithm. Internally, the model uses an implicit layer to solve for the stationary point of the partition function in a differentiable way. We then construct a transformer-like attention module which encapsulates the spin model by routing inputs to applied magnetic fields and spin expectation values to outputs. The latter are obtained by following the familiar recipe of statistical mechanics: differentiating the spin model&rsquo;s $\log Z$ with respect to conjugate input variables. Finally, we contextualize our approach by comparing it to vanilla transformers and deep equilibrium transformers.</p>
 <h1 id="2-massaging-partition-functions">2. Massaging partition functions</h1>
 <p>In this section, we set out to derive an approximate, analytical expression for the free energy of a classical disordered vector-spin system exposed to a site-dependent external magnetic field. In deriving the results below, we found inspiration in H. E. Stanley&rsquo;s <a href="https://doi.org/10.1103/PhysRev.176.718" target="_blank" rel="noopener">Spherical Model as the Limit of Infinite Spin Dimensionality (1968)</a> and Chapter 5 of R. J. Baxter&rsquo;s bible on <a href="https://physics.anu.edu.au/theophys/baxter_book.php" target="_blank" rel="noopener">Exactly Solved Models in Statistical Mechanics (1982)</a>.</p>
 <h2 id="21-a-vector-spin-model-and-its-partition-function">2.1. A vector-spin model and its partition function</h2>
@@ -837,12 +837,12 @@ $.</p>
 <h4 id="243-spin-glasses-and-mean-field-approximation">2.4.3. Spin glasses and mean-field approximation</h4>
 <p>Ordered systems have a long history in statistical mechanics. Couplings in these models often encode a translation-invariant lattice geometry, e.g. nearest-neighbour interactions between spins living on a $d$-dimensional hypercubic lattice. One reason for this focus is practical: the regularity in these systems enables mathematical physicists to deploy all kinds of tricks and make progress towards some kind of understanding. In contrast, disordered systems, like spin glasses, are a mess and studying them is all about <a href="https://www.nobelprize.org/prizes/physics/2021/summary/" target="_blank" rel="noopener">finding order where there seems to be none</a>.</p>
 <p>Fully-connected models like Eq. \eqref{eq:vectrandomising} naturally lead to mean-field theory because the couplings $J_{ij}$ encode long-range interactions where every other spin is just a hop away, see e.g. <a href="https://arxiv.org/abs/1506.07128" target="_blank" rel="noopener">Janiš (2015)</a>. Intuitively, all-to-all interactions correspond to the mean-field limit of infinite spatial dimension. To see this, consider a spin in a local nearest-neighbour lattice model getting ever more neighbours as the spatial dimension grows: the notion of nearest neighbours melts away and all spins effectively become connected to each other<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>. Fully-connected non-local couplings and the limit of infinite spatial dimension are two sides of the same mean-field coin.</p>
-<p>From the perspective of spin glasses, we can summarize our approach as follows: <em>we want to arrive at an approximate yet tractable spin-glass model where its couplings are treated as parameters learned from data</em>. In contrast to spin glasses however, we do not (yet want to go full Bayesian and) treat the couplings as drawn from some kind of probability distribution. For now, we settle for obtaining point estimates of model parameters.</p>
+<p>From the perspective of spin glasses, we can hence summarize our approach as follows: we want to arrive at an approximate yet tractable mean-field spin-glass model where its couplings are treated as parameters learned from data<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>.</p>
 <h1 id="3-implementing-approximate-free-energy-minimization">3. Implementing approximate free-energy minimization</h1>
 <blockquote>
 <p><strong>✨ Code: An experimental PyTorch implementation of the ideas outlined in this blog post is available in the GitHub repository <a href="https://github.com/mcbal/afem" target="_blank" rel="noopener"><code>mcbal/afem</code></a>.</strong></p>
 </blockquote>
-<p>In this section, we turn the equations of the previous section into the algorithmic backbone of a differentiable vector-spin model. We begin by sketching an approximate free-energy minimization algorithm and show how it relates to the spin model. We then show how to wrap around the spin model to turn it into an attention module.</p>
+<p>In this section, we turn the equations of the previous section into the algorithmic backbone of a differentiable vector-spin model. We begin by sketching an approximate free-energy minimization algorithm. We then show how to wrap around the spin model to turn it into an attention module.</p>
 <h2 id="31-the-algorithm-bold-moves-on-a-tricky-landscape">3.1. The algorithm: bold moves on a tricky landscape</h2>
 <p>Our goal is to compute the steepest-descent approximation of our model&rsquo;s partition function in a differentiable way. Essentially, we need to solve the set of equations</p>
 <p>\begin{align}
@@ -862,7 +862,7 @@ where all spins $\boldsymbol{\sigma}_{i}$ are fixed to norm $\sqrt{D}$. We&rsquo
 \begin{equation}
 J_{ij} \sim \mathcal{N} (0, 1/\sqrt{ND} )
 \end{equation}
-The factor $1/\sqrt{N}$ can be explained from spin-glass mean-field theory<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup> whereas the $1/\sqrt{D}$ factor follows from additionally normalizing with respect to the vector dimension to ensure $\sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\sigma}_{j} \sim \mathcal{O}(N)$. One strategy to normalize the inputs $\boldsymbol{H}$ is to feed them into a layer normalization layer so that $\left\lVert \boldsymbol{h}_{i} \right\rVert \sim \mathcal{O}(\sqrt{D})$ and then explicitly dividing by $\sqrt{D}$ to make them $\mathcal{O}(1)$. A practical consequence of these initialization and normalization choices at the level of the energy function is that the $\varphi$-function changes to</p>
+The factor $1/\sqrt{N}$ can be explained from spin-glass mean-field theory<sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup> whereas the $1/\sqrt{D}$ factor follows from additionally normalizing with respect to the vector dimension to ensure $\sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\sigma}_{j} \sim \mathcal{O}(N)$. One strategy to normalize the inputs $\boldsymbol{H}$ is to feed them into a layer normalization layer so that $\left\lVert \boldsymbol{h}_{i} \right\rVert \sim \mathcal{O}(\sqrt{D})$ and then explicitly dividing by $\sqrt{D}$ to make them $\mathcal{O}(1)$. A practical consequence of these initialization and normalization choices at the level of the energy function is that the $\varphi$-function changes to</p>
 <p>\begin{align}
 \varphi \left(\boldsymbol{t}; \beta, J_{ij} \right) = \beta \sum_{j=1}^{N} t_{j} - \frac{1}{2} \log \det \left( \boldsymbol{V} \right) + \frac{\beta}{4} \mathrm{Tr} \left( \boldsymbol{H}^{T} \boldsymbol{V}^{-1} \boldsymbol{H} \right) \label{eq:varphinorm}
 \end{align}</p>
@@ -885,7 +885,7 @@ The factor $1/\sqrt{N}$ can be explained from spin-glass mean-field theory<sup i
 \end{align}</p>
 <p>Given an initial guess $\boldsymbol{t_{0}} \in \mathbb{R}^{N}_{&gt;0}$ and input data $\boldsymbol{H} \in \mathbb{R}^{N \times D}$, we can now construct a differentiable root-solver which returns $\boldsymbol{t^{*}}$. It is important to keep in mind that the stationary value $\boldsymbol{t^{*}}$ actually depends on $\left(\beta, \boldsymbol{J}, \boldsymbol{H} \right)$ implicitly. Since we make use of implicit layers within an automatic differentation framework, these dependencies are kept track of and are included in the computational graph.</p>
 <h4 id="313-fun-with-free-energies">3.1.3. Fun with free energies</h4>
-<p>Let&rsquo;s test the algorithm by initializing a random vector-spin model and probing it at every site with a random vector. For visualization purposes, we restrict the auxiliary variables to be effectively one-dimensional by defining $\boldsymbol{t} = t \boldsymbol{1}_{N}$ with just a single scalar parameter $t \in \mathbb{R}_{&gt;0}$. We can probe a <code>VectorSpinModel</code> and get the approximate free energy for a given set of parameters and inputs by running the following script:</p>
+<p>Let&rsquo;s test the algorithm by initializing a random vector-spin model and applying a random magnetic field at every site. For visualization purposes, we restrict the auxiliary variables to be effectively one-dimensional by defining $\boldsymbol{t} = t \boldsymbol{1}_{N}$ with just a single scalar parameter $t \in \mathbb{R}_{&gt;0}$. We can probe a <code>VectorSpinModel</code> and get the approximate free energy for a given set of parameters and inputs by running the following script:</p>
 <pre><code class="language-python">  from afem.models import VectorSpinModel
 
   num_spins, dim = 32, 128
@@ -899,7 +899,7 @@ The factor $1/\sqrt{N}$ can be explained from spin-glass mean-field theory<sup i
 <p>Inside the forward pass, the root $\boldsymbol{t^{*}}$ is computed and then fed into Eq. \eqref{eq:afe} to calculate the approximate free energy. We can verify that our algorithm is doing something sensible by sweeping across the auxiliary $t$-values and plotting $\varphi$ and its derivatives:</p>
 <p><img src="phi_1d_plot.png" alt="alt text" title="Sweep across auxiliary variable"></p>
 <p>The region close to $t=0$ looks terrifying. Let&rsquo;s try to stay away from it by always initializing $\boldsymbol{t}_{0}$ sufficiently far from it. Depending on the parameters provided to $\varphi$, one can of course end up in less favourable landscapes where root-solving can become difficult due to respectively zero gradients or extreme sensitivity to initial conditions. Fortunately, when the root-solving step fails, it tends to fail spectacularly.</p>
-<p>Let&rsquo;s now sweep across inverse temperature $\beta$ to get some intuition. We expect that for small $\beta$ (high temperature) the entropy term reigns while for large $\beta$ (low temperature) the energy terms take over.</p>
+<p>Let&rsquo;s now sweep across inverse temperature $\beta$ to get some intuition. From the analytical expression of the free energy, we can deduce that for small $\beta$ (high temperature) the entropy term reigns while for large $\beta$ (low temperature) the energy terms take over.</p>
 <p><img src="beta_sweep.gif" alt="alt text" title="Sweep across inverse temperature"></p>
 <p>Finally, let&rsquo;s lift the one-dimensional restriction on $\boldsymbol{t}$ and plot $\varphi (\boldsymbol{t})$ for two spins. In that case, $\boldsymbol{t}$ is also just two-dimensional so we can still visualize the function.</p>
 <p><img src="phi_2d_plot.png" alt="alt text" title="Two-dimensional auxiliary variables"></p>
@@ -910,11 +910,12 @@ The factor $1/\sqrt{N}$ can be explained from spin-glass mean-field theory<sup i
 <p>\begin{align}
 \langle \boldsymbol{\sigma}_{i} \rangle = \frac{\mathrm{d} \log Z \left( \boldsymbol{t}, \boldsymbol{H} \right)}{\mathrm{d} \boldsymbol{h}_{i}} = \frac{\partial \varphi}{\partial \boldsymbol{t}} \frac{\partial \boldsymbol{t}}{\partial \boldsymbol{h}_{i}} + \frac{\partial \varphi}{\partial \boldsymbol{h}_{i}} \label{eq:spinevgeneral}
 \end{align}</p>
-<p>If we evaluate the partition function approximation at the stationary point $\boldsymbol{t^{*}}$, the first term drops out because $\partial_{\boldsymbol{t}} \varphi \rvert_{\boldsymbol{t}=\boldsymbol{t^{*}}} = 0$. Since we assume that the couplings $\boldsymbol{J}$ (and hence the matrix $\boldsymbol{V}$) do not depend on the inputs $\boldsymbol{H}$, the spin expectation value boils down to</p>
+<p>If we evaluate the partition function approximation at the stationary point $\boldsymbol{t^{*}}$, the first term drops out because $\partial_{\boldsymbol{t}} \varphi \rvert_{\boldsymbol{t}=\boldsymbol{t^{*}}} = 0$. Assuming that the matrix $\boldsymbol{V}$ (and hence the couplings $\boldsymbol{J}$) do not depend on the inputs $\boldsymbol{H}$, the spin expectation value boils down to</p>
 <p>\begin{align}
 \langle \boldsymbol{\sigma}_{i} \rangle = \frac{\partial \varphi}{\partial \boldsymbol{h}_{i}} = \frac{\beta}{2} \sum_{ij} \boldsymbol{V}^{-1}_{ij} \boldsymbol{h}_{j} \label{eq:spinev}
 \end{align}</p>
-<p>which is just a matrix multiplication for every site<sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>. In the language of vanilla transformers, Eq. \eqref{eq:spinev} resembles an update step where $\boldsymbol{V}^{-1}$ can be interpreted as a symmetric attention matrix. If we were to consider couplings $\boldsymbol{J}(\boldsymbol{H})$ which depend on inputs, additional terms would appear in Eq. \eqref{eq:spinev} originating from dependencies in $\boldsymbol{V}$. Instead of calculating these gradients analytically, we should of course just let our automatic differentiation framework compute them for us.</p>
+<p>which is just a matrix multiplication for every site. In the language of vanilla transformers, Eq. \eqref{eq:spinev} resembles an update step where $\boldsymbol{V}^{-1}$ can be interpreted as a symmetric attention matrix. Expanding the matrix inverse reveals a residual connection as the zero-th order contribution<sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup>.</p>
+<p>Since the couplings are scalars at the level of the energy function Eq. \eqref{eq:vectrandomising}, getting terms to act on the hidden dimension seems to be impossible. But by considering couplings $\boldsymbol{J}(\boldsymbol{H})$ which do depend on inputs, additional terms can appear in Eq. \eqref{eq:spinev} propagating via from dependencies in $\boldsymbol{V}$. Instead of calculating these gradients analytically, we should of course just let our automatic differentiation framework compute them for us.</p>
 <h4 id="322-wrapping-around-the-spin-model">3.2.2. Wrapping around the spin model</h4>
 <p>At this point, we have done most of the work. All we have to do is write a wrapper so that we can use our module just like any other explicit attention module:</p>
 <pre><code class="language-python">  from afem.attention import VectorSpinAttention
@@ -930,22 +931,24 @@ The factor $1/\sqrt{N}$ can be explained from spin-glass mean-field theory<sup i
 <p>Let us now discuss some of the limitations and peculiarities of our approach:</p>
 <ul>
 <li><strong>Stability and symmetry:</strong> The root-finding is stable as long as $\det \boldsymbol{V} &gt; 0$, which ensures that $\boldsymbol{V}$ is nonsingular and which is garantueed as long as the quadratic form is positive definite. A quadratic form involving a general $\boldsymbol{V}$ (i.e. with nonsymmetric couplings $\boldsymbol{J}$) is positive definite iff its symmetric part has all positive eigenvalues. When this is no longer the case, things tend to blow up.</li>
-<li><strong>Scaling and lack of approximations:</strong> Our approach is slow because of the $\mathcal{O}\left(N^3\right)$ linear solving happening everywhere. There might however be ways to approximate the slow parts similar to how vanilla transformers can be understood to approximate mean-field fixed-point equations<sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup>.</li>
-<li><strong>Lack of permutation invariance:</strong> Our model is not permutation invariant with the default choice of coupling-independent couplings: every spin has a role to play.</li>
-<li><strong>Input-independent couplings:</strong> Because our default model assumes coupling-independent couplings $\boldsymbol{J}$, Eq. \eqref{eq:spinev} features just a &ldquo;token-mixing&rdquo; attention operation. Since the couplings are scalars at the level of the energy function Eq. \eqref{eq:vectrandomising}, getting terms to act on the hidden dimension is impossible. But they can appear when we consider the physically very weird setup where the couplings are made dependent on the applied magnetic fields. One possible choice could be:
+<li><strong>Scaling and lack of approximations:</strong> Our approach is slow because of the $\mathcal{O}\left(N^3\right)$ linear solving happening everywhere. There might however be ways to approximate the slow parts similar to how vanilla transformers can be understood to approximate mean-field fixed-point equations<sup id="fnref:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup>.</li>
+<li><strong>Lack of permutation invariance:</strong> Our model is not permutation invariant with the default choice of input-independent couplings: every spin has a role to play.</li>
+<li><strong>Input-dependent couplings:</strong> Because our default model assumes coupling-independent couplings $\boldsymbol{J}$, Eq. \eqref{eq:spinev} features just a &ldquo;token-mixing&rdquo; attention operation. Channel-mixing terms can appear when we consider the physically very weird setup where the couplings are made dependent on the applied magnetic fields. One possible choice could be:
 \begin{align}
 \boldsymbol{J}(\boldsymbol{H}) = \frac{\tanh \left( \boldsymbol{H} \boldsymbol{Q} \boldsymbol{K}^T \boldsymbol{H}^T \cdot \sqrt{D} \right)}{\sqrt{ND}} \nonumber
 \end{align}
-where $\boldsymbol{Q}$ and $\boldsymbol{K}$ are linear transformations acting on the hidden dimension and where the scaling factors have been inserted because of the normalization conventions we discussed in <a href="#311-initialization-and-normalization">Section 3.1.1</a>.</li>
+where $\boldsymbol{Q}$ and $\boldsymbol{K}$ are linear transformations acting on the hidden dimension and where the scaling factors have been inserted because of the normalization conventions we discussed in <a href="#311-initialization-and-normalization">Section 3.1.1</a>. We hypothesize that contributions like this are related to the appearance of feed-forward networks or channel-mixing modules in transformer modules.</li>
 </ul>
 <h4 id="323-comparison-with-vanilla-transformers">3.2.3. Comparison with vanilla transformers</h4>
 <p>In this final section, let&rsquo;s summarize our approach on a high level by visually comparing it to vanilla transformers and deep equilibrium approaches.</p>
 <p><img src="arch_vanilla_deq.png" alt="alt text" title="Cartoon of vector-spin system"></p>
 <p>The vanilla transformer <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">[Vaswani et al. (2017)]</a> (left above) is an explicit architecture which processes input sequences sequentially through a stack of transformer modules. Deep equilibrium transformers <a href="https://arxiv.org/abs/1909.01377" target="_blank" rel="noopener">[Bai et al. (2019)]</a> (right above) compute the output of a transformer module by implicitly solving for the fixed point of $f(z, x) = z$ where $f$ denotes the explicit transformer module. Data is repeatedly inserted by adding it to the current iteration of $z$ inside the module until fixed-point convergence. The  converged fixed point is considered the output of the module. Backpropagation through the iterations of the solver is avoided by using the implicit function theorem to calculate gradients directly at the equilibrium point. Instead of a stack of layers, there&rsquo;s just a single layer.</p>
-<p>But deep equilibrium transformers still treat the transformer module as a black box. In <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a> we looked for a physical spin-model interpretation of the deep equilibrium fixed-point procedure (left below). We argued how the update step of a vanilla transformer module resembled mean-field fixed-point equations of a vector-spin model. In this work (right below), we continued on the path of spin expectation values but replaced solving mean-field fixed-point equations with directly taking derivatives of the steepest-descent partition function of a particular class of vector-spin models.</p>
+<p>But deep equilibrium transformers still treat the transformer module as a black box. In <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a> we looked for a physical spin-model interpretation of the deep equilibrium fixed-point procedure (left below). We argued how the update step of a vanilla transformer module resembled mean-field fixed-point equations of a vector-spin model, explaining the succesful pattern of token-mixing, residual connections, normalization layers, and feed-forward or channel-mixing modules from a physical spin systems' perspective.</p>
 <p><img src="arch_dia_afem.png" alt="alt text" title="Cartoon of vector-spin system"></p>
+<p>In this work (right above), we continued on the path of spin expectation values but replaced solving mean-field fixed-point equations with directly taking derivatives of the steepest-descent partition function of a particular class of vector-spin models. The fixed-point procedure is replaced with a root-solving step to determine the steepest-descent partition function. The structure of our module&rsquo;s output reveals the same succesful transformer-like pattern of token-mixing (attention) and channel-mixing (feed-forward) interspersed with normalization layers and residual connections.</p>
 <h1 id="4-conclusion">4. Conclusion</h1>
-<p>We have shown how approaching transformers from a tangential, statistical-mechanical point of view can lead to insights that seem hard to arrive at when restricting oneself to perturbing explicit architectures. We have used implicit layers to construct a class of approximate yet tractable vector-spin models whose couplings act as parameters that can be learned from data. We showed how these models can act as transformer-like attention modules by routing inputs to applied magnetic fields and returning spin expectation values derived from their steepest-descent partition function. Even though our approach is admittedly premature, we hope it might still prove useful.</p>
+<p>We have used implicit layers to construct a class of approximate yet tractable vector-spin models whose couplings act as parameters that can be learned from data. We showed how these models can act as transformer-like attention modules by routing inputs to applied magnetic fields and returning spin expectation values derived from their steepest-descent partition function. Even though our approach is admittedly premature, we hope it might still prove useful.</p>
+<p>More generally, we have shown how approaching transformers from a tangential, statistical-mechanical point of view can lead to insights that seem hard to arrive at when restricting oneself to perturbing explicit architectures. We believe treating transformer modules as spin models in disguise can both unify architectural variations and elucidate the high-level architectural convergence and empirical success of transformers.</p>
 <h1 id="references--footnotes">References &amp; footnotes</h1>
 <p>If you happen to find this work useful, please consider citing it as:</p>
 <pre><code>@article{bal2021afem,
@@ -969,17 +972,20 @@ where $\boldsymbol{Q}$ and $\boldsymbol{K}$ are linear transformations acting on
 <p>By promoting sparseness in the couplings, a model might become less mean-field-y, which might be one of the reasons behind the sucess of scaled <code>softmax</code> attention in vanilla transformers. <a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:4" role="doc-endnote">
-<p>From <a href="https://arxiv.org/abs/1506.07128" target="_blank" rel="noopener">Janiš (2015)</a>: <em>The mean-field limit to infinite dimensions or long-range interaction introduces a new large scale. To make the thermodynamic limit meaningful the dependence of the energy on this new large scale must be compensated by rescaling the non-local spin exchange so that the energy remains linearly proportional to the volume or the number of lattice sites (spins).</em> <a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>In contrast to spin glasses however, we do not (yet want to go full Bayesian and) treat the couplings as drawn from some kind of probability distribution. For now, we settle for obtaining point estimates of model parameters. <a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:5" role="doc-endnote">
+<p>From <a href="https://arxiv.org/abs/1506.07128" target="_blank" rel="noopener">Janiš (2015)</a>: <em>The mean-field limit to infinite dimensions or long-range interaction introduces a new large scale. To make the thermodynamic limit meaningful the dependence of the energy on this new large scale must be compensated by rescaling the non-local spin exchange so that the energy remains linearly proportional to the volume or the number of lattice sites (spins).</em> <a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:6" role="doc-endnote">
 <p>We can expand the right-hand side using a <a href="https://en.wikipedia.org/wiki/Woodbury_matrix_identity#Inverse_of_a_sum" target="_blank" rel="noopener">special case of the Woodbury matrix identity</a> to find
 \begin{align}
 \boldsymbol{V}^{-1} &amp;= \left( \mathrm{diag} ( \boldsymbol{t} ) - \boldsymbol{J} \right)^{-1} = \sum_{k=0}^{\infty} \left( \mathrm{diag} \left( \boldsymbol{t}^{-1} \right) \boldsymbol{J} \right)^{k} \mathrm{diag} \left( \boldsymbol{t}^{-1} \right) \nonumber
 \end{align}
-which converges if the largest absolute value of the eigenvalues of the matrix inside the power-brackets is less than 1. So the spin expectation value looks like a sum of contributions that mix and weigh inputs. <a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+which converges if the largest absolute value of the eigenvalues of the matrix inside the power-brackets is less than 1. So the spin expectation value looks like a sum of contributions that mix and weigh inputs of different sites. <a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
-<li id="fn:6" role="doc-endnote">
-<p>As discussed previously in <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a>. In that setting, calculating inverses was sidestepped by approximating part of the solution with a feed-forward neural network. <a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<li id="fn:7" role="doc-endnote">
+<p>As discussed previously in <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a>. In that setting, calculating inverses was sidestepped by approximating part of the solution with a feed-forward neural network. <a href="#fnref:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>
