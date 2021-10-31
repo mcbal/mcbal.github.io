@@ -519,6 +519,43 @@
         
         
 
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#about"><span>About</span></a>
+        </li>
+
+        
+        
+
       
 
         
@@ -621,7 +658,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    24 min read
+    25 min read
   </span>
   
 
@@ -664,7 +701,8 @@
   <div class="article-container">
 
     <div class="article-style">
-      <hr>
+      <p><strong>✨ TL;DR: <em>We consider transformer modules as wrappers around a differentiable steepest-descent approximation of simple Ising-like vector-spin models familiar from statistical mechanics. We observe that the succesful transformer-like architectural pattern of token-mixing (attention) followed by channel-mixing (feed-forward) naturally emerges when computing spin expectation values in these models. From a spin-model perspective, training a transformer module corresponds to driving spins with data and iteratively shaping the differentiable collective response of the underlying spin model through coupling-weight parameter updates. Stacking transformer modules into a deep transformer model builds up a differentiable structure of correlations by sequentially routing the spin expectation values of one physical system into the inputs of the next one. Recognizing transformer modules as spin models in disguise might not only unify architectural variations but also elucidate the high-level architectural convergence and empirical success of transformers.</em></strong></p>
+<hr>
 <ol>
 <li><a href="#1-introduction">Introduction</a></li>
 <li><a href="#2-massaging-partition-functions">Massaging partition functions</a>
@@ -707,8 +745,9 @@
 <p><strong>✨ Code: An experimental PyTorch implementation of the ideas outlined in this blog post is available in the GitHub repository <a href="https://github.com/mcbal/afem" target="_blank" rel="noopener"><code>mcbal/afem</code></a>.</strong></p>
 </blockquote>
 <p>In <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a>, we introduced a mean-field theory perspective on transformer modules. We showed how their outputs can be understood as mean-field spin expectation values of simple Ising-like vector-spin systems. Physically, the process of training a transformer module can then be interpreted as a classical many-body system modulating its behaviour by learning how to respond to being probed by incoming data. Stacking transformer modules corresponds to building up a differentiable structure of correlations by using the spin expectation values of one physical system to drive the next one.</p>
-<p>In this post, we flesh out the idea of looking at transformer modules as physical systems. Having identified vector spin systems as plausible physical models underlying transformers, we turn to the 1960s statistical-mechanics literature to look for inspiration on how to deal with their partition functions<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>. We rediscover that the partition function of a particular class of vector-spin models can be approximated in the limit of large local spin dimension using steepest descent, leading to approximate yet tractable expressions for the free energy and other derived quantities.</p>
-<p>Combining these canonical results from statistical mechanics with modern differentiable programming, we implement a differentiable vector-spin model based on an approximate free-energy minimization algorithm. Internally, the model uses an implicit layer to solve for the stationary point of the partition function in a differentiable way. We then construct a transformer-like attention module which encapsulates the spin model by routing inputs to applied magnetic fields and spin expectation values to outputs. The latter are obtained by following the familiar recipe of statistical mechanics: differentiating the spin model&rsquo;s $\log Z$ with respect to conjugate input variables. Finally, we contextualize our approach by comparing it to vanilla transformers and deep equilibrium transformers.</p>
+<p>In this post, we flesh out the idea of looking at transformer modules as physical systems. Having identified vector spin systems as plausible physical models underlying transformers, we turn to 1960s statistical-mechanics literature to look for inspiration on how to deal with their partition functions<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>. We rediscover that the partition function of a particular class of vector-spin models can be approximated in the limit of large local spin dimension using steepest descent, leading to approximate yet tractable expressions for the free energy and other derived quantities.</p>
+<p>Combining these canonical results from statistical mechanics with modern differentiable programming, we implement a differentiable vector-spin model based on an approximate free-energy minimization algorithm. Internally, the model uses an implicit layer to solve for the stationary point of the partition function in a differentiable way.</p>
+<p>We then construct a transformer-like attention module which encapsulates the spin model by routing inputs to applied magnetic fields and spin expectation values to outputs. The latter are obtained by following the familiar recipe of statistical mechanics: differentiating the spin model&rsquo;s $\log Z$ with respect to conjugate input variables. Finally, we contextualize our approach by comparing it to vanilla transformers, deep equilibrium transformers, and deep implicit attention.</p>
 <h1 id="2-massaging-partition-functions">2. Massaging partition functions</h1>
 <p>In this section, we set out to derive an approximate, analytical expression for the free energy of a classical disordered vector-spin system exposed to a site-dependent external magnetic field. In deriving the results below, we found inspiration in H. E. Stanley&rsquo;s <a href="https://doi.org/10.1103/PhysRev.176.718" target="_blank" rel="noopener">Spherical Model as the Limit of Infinite Spin Dimensionality (1968)</a> and Chapter 5 of R. J. Baxter&rsquo;s bible on <a href="https://physics.anu.edu.au/theophys/baxter_book.php" target="_blank" rel="noopener">Exactly Solved Models in Statistical Mechanics (1982)</a>.</p>
 <h2 id="21-a-vector-spin-model-and-its-partition-function">2.1. A vector-spin model and its partition function</h2>
@@ -836,7 +875,7 @@ $
 $.</p>
 <h4 id="243-spin-glasses-and-mean-field-approximation">2.4.3. Spin glasses and mean-field approximation</h4>
 <p>Ordered systems have a long history in statistical mechanics. Couplings in these models often encode a translation-invariant lattice geometry, e.g. nearest-neighbour interactions between spins living on a $d$-dimensional hypercubic lattice. One reason for this focus is practical: the regularity in these systems enables mathematical physicists to deploy all kinds of tricks and make progress towards some kind of understanding. In contrast, disordered systems, like spin glasses, are a mess and studying them is all about <a href="https://www.nobelprize.org/prizes/physics/2021/summary/" target="_blank" rel="noopener">finding order where there seems to be none</a>.</p>
-<p>Fully-connected models like Eq. \eqref{eq:vectrandomising} naturally lead to mean-field theory because the couplings $J_{ij}$ encode long-range interactions where every other spin is just a hop away, see e.g. <a href="https://arxiv.org/abs/1506.07128" target="_blank" rel="noopener">Janiš (2015)</a>. Intuitively, all-to-all interactions correspond to the mean-field limit of infinite spatial dimension. To see this, consider a spin in a local nearest-neighbour lattice model getting ever more neighbours as the spatial dimension grows: the notion of nearest neighbours melts away and all spins effectively become connected to each other<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>. Fully-connected non-local couplings and the limit of infinite spatial dimension are two sides of the same mean-field coin.</p>
+<p>Fully-connected models like Sherrington-Kirkpatrick spin-glass models (or Eq. \eqref{eq:vectrandomising}) naturally lead to mean-field theory because the couplings $J_{ij}$ encode long-range interactions where every other spin is just a hop away, see e.g. <a href="https://arxiv.org/abs/1506.07128" target="_blank" rel="noopener">Janiš (2015)</a>. Intuitively, all-to-all interactions correspond to the mean-field limit of infinite spatial dimension. To see this, consider a spin in a local nearest-neighbour lattice model getting ever more neighbours as the spatial dimension grows: the notion of nearest neighbours melts away and all spins effectively become connected to each other<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>. Fully-connected non-local couplings and the limit of infinite spatial dimension are two sides of the same mean-field coin.</p>
 <p>From the perspective of spin glasses, we can hence summarize our approach as follows: we want to arrive at an approximate yet tractable mean-field spin-glass model where its couplings are treated as parameters learned from data<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>.</p>
 <h1 id="3-implementing-approximate-free-energy-minimization">3. Implementing approximate free-energy minimization</h1>
 <blockquote>
@@ -947,11 +986,8 @@ where $\boldsymbol{Q}$ and $\boldsymbol{K}$ are linear transformations acting on
 <img src="arch_dia_afem.png" alt="Deep implicit attention and approximate free-energy minimization" width="600px"/>
 <p>In this work (right above), we continued on the path of spin expectation values but replaced solving mean-field fixed-point equations with directly taking derivatives of the steepest-descent partition function of a particular class of vector-spin models. The fixed-point procedure is replaced with a root-solving step to determine the steepest-descent partition function. The structure of our module&rsquo;s output reveals the same succesful transformer-like pattern of token-mixing (attention) and channel-mixing (feed-forward) interspersed with normalization layers and residual connections.</p>
 <h1 id="4-conclusion">4. Conclusion</h1>
-<p>In this post, we tried to understand transformer modules as statistical-mechanical vector-spin models in disguise. We used implicit layers to construct a class of approximate yet tractable vector-spin models whose couplings act as parameters that can be learned from data. We showed how these models can act as transformer-like attention modules by routing inputs to applied magnetic fields and returning spin expectation values derived from their steepest-descent partition function.</p>
-<p>By zooming out and approaching transformers from a tangential, statistical-mechanical point of view, we were able to develop physical intuition that seems hard to arrive at when restricting oneself to perturbing explicit neural network architectures. Recognizing transformer modules as spin models in disguise might not only unify architectural variations but also elucidate the high-level architectural convergence and empirical success of transformers in deep learning.</p>
-<hr>
-<p><strong>✨ TL;DR: A transformer module is a differentiable vector-spin system. Training amounts to probing spins with data and engineering the system&rsquo;s responses.</strong></p>
-<hr>
+<p>In this post, we tried to understand transformer modules as wrappers around statistical-mechanical vector-spin models. We used implicit layers to construct a class of approximate yet tractable vector-spin models whose couplings act as parameters that can be learned from data. We showed how these models can act as transformer-like attention modules by routing inputs to applied magnetic fields and returning spin expectation values derived from their steepest-descent partition function.</p>
+<p>By zooming out and approaching transformers from a tangential, statistical-mechanical point of view, we were able to develop a physical intuition of transformers that seems hard to arrive at when restricting oneself to perturbing explicit neural network architectures. Recognizing transformer modules as spin models in disguise might not only unify architectural variations but also elucidate the high-level architectural convergence and empirical success of transformers in deep learning.</p>
 <h1 id="references--footnotes">References &amp; footnotes</h1>
 <p>If you happen to find this work useful, please consider citing it as:</p>
 <pre><code>@article{bal2021afem,
