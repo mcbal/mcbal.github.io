@@ -323,7 +323,7 @@
     
       <meta property="article:published_time" content="2021-10-12T18:40:17&#43;01:00">
     
-    <meta property="article:modified_time" content="2021-10-25T11:00:00&#43;01:00">
+    <meta property="article:modified_time" content="2021-10-12T19:40:17&#43;01:00">
   
 
   
@@ -356,7 +356,7 @@
   ],
   
   "datePublished": "2021-10-12T18:40:17+01:00",
-  "dateModified": "2021-10-25T11:00:00+01:00",
+  "dateModified": "2021-10-12T19:40:17+01:00",
   
   "author": {
     "@type": "Person",
@@ -612,7 +612,7 @@
           Last updated on
       
     
-    Oct 25, 2021
+    Oct 12, 2021
   </span>
   
 
@@ -941,14 +941,17 @@ where $\boldsymbol{Q}$ and $\boldsymbol{K}$ are linear transformations acting on
 </ul>
 <h4 id="323-comparison-with-vanilla-transformers">3.2.3. Comparison with vanilla transformers</h4>
 <p>In this final section, let&rsquo;s summarize our approach on a high level by visually comparing it to vanilla transformers and deep equilibrium approaches.</p>
-<p><img src="arch_vanilla_deq.png" alt="alt text" title="Cartoon of vector-spin system"></p>
+<img src="arch_vanilla_deq.png" alt="Vanilla transformer and deep equilibrium transformer" width="500px"/>
 <p>The vanilla transformer <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">[Vaswani et al. (2017)]</a> (left above) is an explicit architecture which processes input sequences sequentially through a stack of transformer modules. Deep equilibrium transformers <a href="https://arxiv.org/abs/1909.01377" target="_blank" rel="noopener">[Bai et al. (2019)]</a> (right above) compute the output of a transformer module by implicitly solving for the fixed point of $f(z, x) = z$ where $f$ denotes the explicit transformer module. Data is repeatedly inserted by adding it to the current iteration of $z$ inside the module until fixed-point convergence. The  converged fixed point is considered the output of the module. Backpropagation through the iterations of the solver is avoided by using the implicit function theorem to calculate gradients directly at the equilibrium point. Instead of a stack of layers, there&rsquo;s just a single layer.</p>
 <p>But deep equilibrium transformers still treat the transformer module as a black box. In <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a> we looked for a physical spin-model interpretation of the deep equilibrium fixed-point procedure (left below). We argued how the update step of a vanilla transformer module resembled mean-field fixed-point equations of a vector-spin model, explaining the succesful pattern of token-mixing, residual connections, normalization layers, and feed-forward or channel-mixing modules from a physical spin systems' perspective.</p>
-<p><img src="arch_dia_afem.png" alt="alt text" title="Cartoon of vector-spin system"></p>
+<img src="arch_dia_afem.png" alt="Deep implicit attention and approximate free-energy minimization" width="600px"/>
 <p>In this work (right above), we continued on the path of spin expectation values but replaced solving mean-field fixed-point equations with directly taking derivatives of the steepest-descent partition function of a particular class of vector-spin models. The fixed-point procedure is replaced with a root-solving step to determine the steepest-descent partition function. The structure of our module&rsquo;s output reveals the same succesful transformer-like pattern of token-mixing (attention) and channel-mixing (feed-forward) interspersed with normalization layers and residual connections.</p>
 <h1 id="4-conclusion">4. Conclusion</h1>
-<p>We have used implicit layers to construct a class of approximate yet tractable vector-spin models whose couplings act as parameters that can be learned from data. We showed how these models can act as transformer-like attention modules by routing inputs to applied magnetic fields and returning spin expectation values derived from their steepest-descent partition function. Even though our approach is admittedly premature, we hope it might still prove useful.</p>
-<p>More generally, we have shown how approaching transformers from a tangential, statistical-mechanical point of view can lead to insights that seem hard to arrive at when restricting oneself to perturbing explicit architectures. We believe treating transformer modules as spin models in disguise can both unify architectural variations and elucidate the high-level architectural convergence and empirical success of transformers.</p>
+<p>In this post, we tried to understand transformer modules as statistical-mechanical vector-spin models in disguise. We used implicit layers to construct a class of approximate yet tractable vector-spin models whose couplings act as parameters that can be learned from data. We showed how these models can act as transformer-like attention modules by routing inputs to applied magnetic fields and returning spin expectation values derived from their steepest-descent partition function.</p>
+<p>By zooming out and approaching transformers from a tangential, statistical-mechanical point of view, we were able to develop physical intuition that seems hard to arrive at when restricting oneself to perturbing explicit neural network architectures. Recognizing transformer modules as spin models in disguise might not only unify architectural variations but also elucidate the high-level architectural convergence and empirical success of transformers in deep learning.</p>
+<hr>
+<p><strong>✨ TL;DR: A transformer module is a differentiable vector-spin system. Training amounts to probing spins with data and engineering the system&rsquo;s responses.</strong></p>
+<hr>
 <h1 id="references--footnotes">References &amp; footnotes</h1>
 <p>If you happen to find this work useful, please consider citing it as:</p>
 <pre><code>@article{bal2021afem,
