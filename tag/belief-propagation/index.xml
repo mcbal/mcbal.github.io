@@ -17,7 +17,8 @@
       <link>https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/</link>
       <pubDate>Wed, 07 Apr 2021 15:17:17 +0100</pubDate>
       <guid>https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/</guid>
-      <description>&lt;hr&gt;
+      <description>&lt;p&gt;&lt;strong&gt;✨ Update (October 2021):&lt;/strong&gt; &lt;em&gt;Consider reading the follow-up post &lt;a href=&#34;https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers from Spin Models: Approximate Free Energy Minimization&lt;/a&gt; for a more general partition-function based approach to interpreting transformer modules as spin systems.&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
 &lt;ol&gt;
 &lt;li&gt;&lt;a href=&#34;#1-introduction&#34;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#2-mean-field-theory-for-disordered-systems&#34;&gt;Mean-field theory for disordered systems&lt;/a&gt;
