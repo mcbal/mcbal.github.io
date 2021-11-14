@@ -17,8 +17,7 @@
       <link>https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/</link>
       <pubDate>Tue, 12 Oct 2021 18:40:17 +0100</pubDate>
       <guid>https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/</guid>
-      <description>&lt;p&gt;&lt;strong&gt;✨ TL;DR:&lt;/strong&gt; &lt;em&gt;We consider transformer modules as wrappers around a differentiable steepest-descent approximation of simple Ising-like vector-spin models familiar from statistical mechanics. We observe that a blueprint of the successful transformer-like architectural pattern of token-mixing (attention) followed by channel-mixing (feed-forward) naturally emerges when computing spin expectation values in vector-spin models with input-dependent couplings. Feel free to skip to the &lt;a href=&#34;#323-comparison-with-vanilla-transformers&#34;&gt;final section&lt;/a&gt; for a visual comparison of this work to vanilla transformers, deep equilibrium transformers, and deep implicit attention.&lt;/em&gt;&lt;/p&gt;
-&lt;hr&gt;
+      <description>&lt;hr&gt;
 &lt;ol&gt;
 &lt;li&gt;&lt;a href=&#34;#1-introduction&#34;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#2-massaging-partition-functions&#34;&gt;Massaging partition functions&lt;/a&gt;
@@ -56,14 +55,15 @@
 &lt;li&gt;&lt;a href=&#34;#4-conclusion&#34;&gt;Conclusion&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
 &lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;✨ TL;DR:&lt;/strong&gt; &lt;em&gt;We consider transformer modules as wrappers around a differentiable steepest-descent approximation of simple Ising-like vector-spin models familiar from statistical mechanics. We observe that a blueprint of the successful transformer-like architectural pattern of token-mixing (attention) and channel-mixing (feed-forward) naturally emerges when computing spin expectation values in vector-spin models with input-dependent couplings. Feel free to skip to the &lt;a href=&#34;#323-comparison-with-vanilla-transformers&#34;&gt;final section&lt;/a&gt; for a visual comparison of this work to vanilla transformers, deep equilibrium transformers, and deep implicit attention.&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
 &lt;h1 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h1&gt;
+&lt;p&gt;In &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms&lt;/a&gt;, we introduced a mean-field theory perspective on transformer modules. We showed how their outputs can be understood as mean-field spin expectation values of simple Ising-like vector-spin systems. Physically, the process of training a transformer module can be understood as driving a classical many-body system with data and iteratively shaping its collective response behaviour through coupling-weight parameter updates. Stacking transformer modules corresponds to building up a differentiable structure of correlations by using the spin expectation values of one physical system to drive the next one.&lt;/p&gt;
+&lt;p&gt;In this post, we flesh out the idea of looking at transformer modules as physical systems. Having identified vector spin systems as plausible physical models underlying transformers, we turn to 1960s statistical-mechanics literature to look for inspiration on how to deal with their partition functions&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;. We rediscover that the partition function of a particular class of vector-spin models can be approximated in the limit of large local spin dimension using steepest descent, leading to approximate yet tractable expressions for the free energy and other derived quantities.&lt;/p&gt;
+&lt;p&gt;Combining these canonical results from statistical mechanics with modern differentiable programming, we implement a differentiable vector-spin model based on an approximate free-energy minimization algorithm. Internally, the model uses an implicit layer to solve for the stationary point of the partition function in a differentiable way. We then construct a transformer-like attention module which encapsulates the spin model by routing inputs to applied magnetic fields and spin expectation values to outputs. The latter are obtained by following the familiar recipe of statistical mechanics: differentiating the spin model&amp;rsquo;s $\log Z$ with respect to conjugate input variables. Finally, we contextualize our approach by comparing it to vanilla transformers, deep equilibrium transformers, and deep implicit attention.&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;✨ Code: A PyTorch implementation of the ideas outlined in this blog post is available in the GitHub repository &lt;a href=&#34;https://github.com/mcbal/afem&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;mcbal/afem&lt;/code&gt;&lt;/a&gt;.&lt;/strong&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;In &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms&lt;/a&gt;, we introduced a mean-field theory perspective on transformer modules. We showed how their outputs can be understood as mean-field spin expectation values of simple Ising-like vector-spin systems. Physically, the process of training a transformer module can be understood as driving a classical many-body system with data and iteratively shaping its collective response behaviour through coupling-weight parameter updates. Stacking transformer modules corresponds to building up a differentiable structure of correlations by using the spin expectation values of one physical system to drive the next one.&lt;/p&gt;
-&lt;p&gt;In this post, we flesh out the idea of looking at transformer modules as physical systems. Having identified vector spin systems as plausible physical models underlying transformers, we turn to 1960s statistical-mechanics literature to look for inspiration on how to deal with their partition functions&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;. We rediscover that the partition function of a particular class of vector-spin models can be approximated in the limit of large local spin dimension using steepest descent, leading to approximate yet tractable expressions for the free energy and other derived quantities.&lt;/p&gt;
-&lt;p&gt;Combining these canonical results from statistical mechanics with modern differentiable programming, we implement a differentiable vector-spin model based on an approximate free-energy minimization algorithm. Internally, the model uses an implicit layer to solve for the stationary point of the partition function in a differentiable way.&lt;/p&gt;
-&lt;p&gt;We then construct a transformer-like attention module which encapsulates the spin model by routing inputs to applied magnetic fields and spin expectation values to outputs. The latter are obtained by following the familiar recipe of statistical mechanics: differentiating the spin model&amp;rsquo;s $\log Z$ with respect to conjugate input variables. Finally, we contextualize our approach by comparing it to vanilla transformers, deep equilibrium transformers, and deep implicit attention.&lt;/p&gt;
 &lt;h1 id=&#34;2-massaging-partition-functions&#34;&gt;2. Massaging partition functions&lt;/h1&gt;
 &lt;p&gt;In this section, we set out to derive an approximate, analytical expression for the free energy of a classical disordered vector-spin system exposed to a site-dependent external magnetic field. In deriving the results below, we found inspiration in H. E. Stanley&amp;rsquo;s &lt;a href=&#34;https://doi.org/10.1103/PhysRev.176.718&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Spherical Model as the Limit of Infinite Spin Dimensionality (1968)&lt;/a&gt; and Chapter 5 of R. J. Baxter&amp;rsquo;s bible on &lt;a href=&#34;https://physics.anu.edu.au/theophys/baxter_book.php&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Exactly Solved Models in Statistical Mechanics (1982)&lt;/a&gt;.&lt;/p&gt;
 &lt;h2 id=&#34;21-a-vector-spin-model-and-its-partition-function&#34;&gt;2.1. A vector-spin model and its partition function&lt;/h2&gt;
@@ -340,6 +340,640 @@ which converges if the largest absolute value of the eigenvalues of the matrix i
 &lt;/li&gt;
 &lt;li id=&#34;fn:7&#34; role=&#34;doc-endnote&#34;&gt;
 &lt;p&gt;As discussed previously in &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms&lt;/a&gt;. In that setting, calculating inverses was sidestepped by approximating part of the solution with a feed-forward neural network. &lt;a href=&#34;#fnref:7&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</title>
+      <link>https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/</link>
+      <pubDate>Wed, 07 Apr 2021 15:17:17 +0100</pubDate>
+      <guid>https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/</guid>
+      <description>&lt;p&gt;&lt;strong&gt;✨ Update (October 2021):&lt;/strong&gt; &lt;em&gt;Consider reading the follow-up post &lt;a href=&#34;https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers from Spin Models: Approximate Free Energy Minimization&lt;/a&gt; for a more general partition-function based approach to interpreting transformer modules as spin systems.&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#1-introduction&#34;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#2-mean-field-theory-for-disordered-systems&#34;&gt;Mean-field theory for disordered systems&lt;/a&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#21-random-ising-models-or-boltzmann-machines-or-&#34;&gt;Random Ising models (or Boltzmann machines or &amp;hellip;)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#22-adaptive-thouless--anderson--palmer-mean-field-theory&#34;&gt;Adaptive Thouless&amp;ndash;Anderson&amp;ndash;Palmer mean-field theory&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#3-attention-as-a-fixed-point-method&#34;&gt;Attention as a fixed-point method&lt;/a&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#31-generalizing-spin-models-to-vector-degrees-of-freedom&#34;&gt;Generalizing spin models to vector degrees of freedom&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#32-deep-implicit-attention-attention-as-a-collective-response&#34;&gt;Deep implicit attention: attention as a collective response&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#33-slow-and-explicit-solving-the-adaptive-tap-equations&#34;&gt;Slow and explicit: solving the adaptive TAP equations&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#34-fast-and-neural-parametrizing-the-onsager-self-correction-term&#34;&gt;Fast and neural: parametrizing the Onsager self-correction term&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#4-a-mean-field-theory-perspective-on-transformers&#34;&gt;A mean-field theory perspective on transformers&lt;/a&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#41-parametrizing-the-couplings-sparse-graph-structure-from-inputs&#34;&gt;Parametrizing the couplings: sparse graph structure from inputs&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#42-softmax-attention-does-a-single-naive-mean-field-update-step&#34;&gt;Softmax attention does a single, naive mean-field update step&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#43-feed-forward-layer-corrects-naive-mean-field-update&#34;&gt;Feed-forward layer corrects naive mean-field update&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#44-mean-field-theory-framework-for-transformer-architectures&#34;&gt;Mean-field theory framework for transformer architectures&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#45-comparison-with-energy-based-perspective&#34;&gt;Comparison with energy-based perspective&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#5-conclusion-and-outlook&#34;&gt;Conclusion and outlook&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#6-related-work&#34;&gt;Related work&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h1&gt;
+&lt;p&gt;To explore progress beyond the cage of softmax attention, we have previously looked at energy-based perspectives on attention mechanisms:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;An Energy-Based Perspective on Attention Mechanisms in Transformers&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformer Attention as an Implicit Mixture of Effective Energy-Based Models&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Attention as Energy Minimization: Visualizing Energy Landscapes&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The main take-away so far has been that you can think of softmax attention as implementing a single, big gradient step of some energy function and that training transformers is akin to meta-learning how to best tune a stack of attention and feed-forward modules to perform well on some auxiliary (meta-)task(s). But what can an energy-based perspective actually provide beyond quaint and hand-wavy statements like &lt;em&gt;implicit energy landscapes are sculpted every time you train a transformer&lt;/em&gt;?&lt;/p&gt;
+&lt;p&gt;In this post, we approach attention in terms of the &lt;em&gt;collective response of a statistical-mechanical system&lt;/em&gt;. Attention is interpreted as an inner-loop fixed-point optimization step which returns the approximate response of a system being probed by data. This response is a differentiable compromise between the system&amp;rsquo;s internal dynamics and the data it&amp;rsquo;s being exposed to. To better respond to incoming data, outer-loop optimization steps can nudge the interactions and the self-organizing behaviour of the system.&lt;/p&gt;
+&lt;p&gt;To implement our proposal, we combine old ideas and new technology to construct a family of attention mechanisms based on fixed points. We use &lt;a href=&#34;https://arxiv.org/abs/1909.01377&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;deep equilibrium models&lt;/a&gt; to solve a set of self-consistent mean-field equations of a vector generalization of the random Ising spin-model. By approximating these equations, we arrive at simplified update steps which mirror the vanilla transformer architecture. We conclude by showing how transformers can be understood from a mean-field theory perspective.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;✨ Code: A reference PyTorch implementation of the ideas outlined in this blog post is available in the repository &lt;a href=&#34;https://github.com/mcbal/deep-implicit-attention&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;deep-implicit-attention&lt;/code&gt;&lt;/a&gt;. Comments welcome.&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h1 id=&#34;2-mean-field-theory-for-disordered-systems&#34;&gt;2. Mean-field theory for disordered systems&lt;/h1&gt;
+&lt;p&gt;In physics, &lt;a href=&#34;https://en.wikipedia.org/wiki/Mean-field_theory&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;mean-field theory&lt;/a&gt; is an approximation method to study models made up of many individual degrees of freedom that interact with each other. Mean-field theory approximates the effect of the environment on any given individual degree of freedom by a single, averaged effect, and thus reduces a many-body problem to an (effective) one-body problem. This is a drastic approximation. Whether mean-field theory a sensible thing to do depends on the problem and the properties of your variational ansatz.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Mean-field theory &amp;amp; variational methods:&lt;/strong&gt; From the point of view of variational methods, mean-field theory tries to approximate a complicated object (like a partition function of a statistical-mechanical system) by wiggling around the parameters of a tractable variational ansatz to get as close as possible to the real thing. You can picture this process as projecting down a complicated object living in a high-dimensional space to its shadow in an easier-to-handle subspace (&lt;em&gt;I can hear a mathematician fainting in the background&lt;/em&gt;). This effectively reduces the problem to optimizing for the best possible approximation within your variational class. A lot of mean-field machinery also shows up in probability theory, statistics, and machine learning where it appears in belief propagation, approximate variational inference, expectation propagation, etc.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;In the next two subsections, we introduce random Ising models and sketch a physics-inspired approach to deal with disordered models using mean-field theory. In &lt;a href=&#34;#3-attention-as-a-fixed-point-method&#34;&gt;Section 3&lt;/a&gt; we will then generalize these results to vector spin degrees of freedom and propose two flavours of attention models.&lt;/p&gt;
+&lt;h2 id=&#34;21-random-ising-models-or-boltzmann-machines-or-&#34;&gt;2.1. Random Ising models (or Boltzmann machines or &amp;hellip;)&lt;/h2&gt;
+&lt;p&gt;The random Ising model is a prototypical model in the study of spin glasses and disordered random systems, where it is often referred to as the &lt;a href=&#34;https://en.wikipedia.org/wiki/Spin_glass#The_model_of_Sherrington_and_Kirkpatrick&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Sherrington–Kirkpatrick model&lt;/a&gt;, famous for its replica-method solution by Giorgio Parisi in 1979. Its energy function with external field for $N$ classical, binary spin variables looks like&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+E = \sum_{i,j} J_{ij} S_{i} S_{j} + \sum_{i} x_{i} S_{i}, \label{eq:randomising}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;where the couplings $J_{ij}$ between degrees of freedom are randomly distributed according to some probability distribution and self-interactions are absent ($J_{ii} = 0$). The external magnetic fields $x_{i}$ provide a preferential direction of alignment at every local site. Since the elements in the coupling matrix can have both negative and positive signs, the system is said to have both frustrated ferro- as well as antiferromagnetic couplings. The model defined by \eqref{eq:randomising} is also known as a &lt;a href=&#34;https://en.wikipedia.org/wiki/Boltzmann_machine&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Boltzmann machine&lt;/a&gt; or a &lt;a href=&#34;https://en.wikipedia.org/wiki/Hopfield_network&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield network&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;In contrast with disordered systems, we expect the couplings in the context of artificial neural networks to no longer be randomly drawn from a distribution but to reflect structure and organization between spins after being exposed to data. The system should self-organize in order to better respond to incoming data.&lt;/p&gt;
+&lt;p&gt;A cartoon of a spin configuration of a 7-spin system looks something like
+&lt;img src=&#34;binary_ising.png&#34; alt=&#34;Random Ising model configuration with binary spins&#34; width=&#34;250px&#34;/&gt;
+where we have only drawn the connections strongest in absolute value. It&amp;rsquo;s helpful to think of classical spin degrees of freedom as arrows. For vector spins, we can imagine lifting the up/down restriction and letting the arrows rotate freely.&lt;/p&gt;
+&lt;h2 id=&#34;22-adaptive-thouless--anderson--palmer-mean-field-theory&#34;&gt;2.2. Adaptive Thouless&amp;ndash;Anderson&amp;ndash;Palmer mean-field theory&lt;/h2&gt;
+&lt;p&gt;One of the approaches physicists have come up with to tackle disordered random systems with pairwise interactions like those in Eq. \eqref{eq:randomising} is &lt;a href=&#34;https://doi.org/10.1080/14786437708235992&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Thouless&amp;ndash;Anderson&amp;ndash;Palmer (TAP) mean-field theory (1977)&lt;/a&gt;. The TAP equations improve mean-field theory results by adding a so-called &lt;em&gt;Onsager self-correction term&lt;/em&gt; calculated from the couplings&#39; distribution.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://link.aps.org/doi/10.1103/PhysRevE.64.056131&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Opper and Winther (2001)&lt;/a&gt; adapted this method to probabilisic modeling to be able to deal with scenarios where the distribution of the couplings between spins is not known a priori. To compensate for the lack of knowledge of the couplings distribution, they introduced a self-consistent computation to adapt the Onsager correction to the &lt;em&gt;actual&lt;/em&gt; couplings using the cavity method and linear response relations. We will sketch the adaptive TAP approach below but refer to &lt;a href=&#34;https://link.aps.org/doi/10.1103/PhysRevE.64.056131&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Opper and Winther (2001)&lt;/a&gt; and &lt;a href=&#34;https://arxiv.org/abs/1409.6179&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Raymond, Manoel, and Opper (2014)&lt;/a&gt; for more details and derivations.&lt;/p&gt;
+&lt;h3 id=&#34;single-site-partition-function-from-cavity-method&#34;&gt;Single-site partition function from cavity method&lt;/h3&gt;
+&lt;p&gt;The adaptive TAP equations can be derived using the cavity method, where a cavity field distribution is introduced to rewrite the marginal distributions of the spins. The cavity corresponds to the &amp;ldquo;hole&amp;rdquo; left by removing a single spin. By assuming a Gaussian cavity distribution in the large connectivity limit, one can show that the single-site partition function looks like&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+Z_{0}^{(i)} = \int \mathrm{d} S \ \rho_{i}\left(S\right) \exp \left[ S \left( a_{i} + x_{i} \right) + \frac{V_{i} S^2}{2}  \right]
+\end{equation}&lt;/p&gt;
+&lt;p&gt;where the $a_i$ denote &lt;em&gt;cavity means&lt;/em&gt; and the $V_i$ &lt;em&gt;cavity variances&lt;/em&gt;. The single-site partition function can be integrated to yield an explicit expression after choosing well-behaved priors $\rho_{i}(S)$ for the spins. For binary spins $S=\pm 1$, we can pick $\rho_{i}(S)=\frac{1}{2}\left( \delta(S-1) + \delta(S+1) \right)$ to find&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+Z_{0}^{(i)} = \cosh \left( a_{i} + x_{i} \right). \label{eq:partfunbinaryspins}
+\end{equation}&lt;/p&gt;
+&lt;h3 id=&#34;cavity-means-and-onsager-correction-term&#34;&gt;Cavity means and Onsager correction term&lt;/h3&gt;
+&lt;p&gt;The cavity means can be shown to be given by
+\begin{equation}
+a_{i} = \sum_{j} J_{ij} \langle S_{j} \rangle - V_{i} \langle S_{i} \rangle. \label{eq:cavitymean}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;where the last term is the &lt;em&gt;Onsager correction term&lt;/em&gt;, a self-correction term for every spin which depends on the cavity variances.&lt;/p&gt;
+&lt;h3 id=&#34;cavity-variances-and-linear-response&#34;&gt;Cavity variances and linear response&lt;/h3&gt;
+&lt;p&gt;The cavity variances are determined self-consistently, i.e. by calculating the same quantity in two different ways and demanding the obtained expressions to be equal. To do this, we introduce the matrix of susceptibilities&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\chi_{ij} = \langle S_{i} S_{j} \rangle - \langle S_{i} \rangle \langle S_{j} \rangle  = \frac{\partial^2}{\partial x_{i}\partial x_{j}} \log Z_{0}^{(i)}
+\end{equation}&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The susceptibility matrix $\chi_{ij}$ is a covariance matrix and should thus be positive semi-definite, which is criterion for the mean-field solution be consistent. As soon this property is lost, the fixed-point procedure will no longer be stable.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Its diagonal elements $\chi_{ii}$ can be obtained both from the explicit calculation of the spin variances from the partition function&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\chi_{ii} = \langle S_{i}^2 \rangle - \langle S_{i} \rangle^2 = \frac{\partial^2}{\partial x_{i}^2} \log Z_{0}^{(i)} \label{eq:chiii}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;but also from a linear response calculation assuming fixed $V_i$,&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\chi_{ij} = \frac{\partial \langle S_{i} \rangle}{\partial x_{j}} = \frac{\partial \langle S_{i} \rangle}{\partial x_{i}} \left( \delta_{ij} + \sum_{k} \left( J_{ik} - V_{k} \delta_{ik} \right) \chi_{kj} \right)  \label{eq:chiijlinrespexp}
+\end{align}&lt;/p&gt;
+&lt;p&gt;which can be solved for $\chi_{ij}$ to yield
+\begin{equation}
+\chi_{ij} =  \left[ \left( \boldsymbol{\Lambda} - \boldsymbol{J} \right)^{-1} \right]_{ij} \label{eq:chiijlinresp}
+\end{equation}
+where
+\begin{align}
+\boldsymbol{\Lambda} = \mathrm{diag} \left( \Lambda_1, \ldots, \Lambda_{N} \right),\\&lt;br&gt;
+\Lambda_i = V_i + \left( \frac{\partial \langle S_{i} \rangle}{\partial x_{i}} \right)^{-1}.
+\end{align}&lt;/p&gt;
+&lt;p&gt;The cavity variances $V_i$ are then determined by equating \eqref{eq:chiii} to the diagonal elements of \eqref{eq:chiijlinresp} and solving the following consistency condition for $V_i$
+\begin{equation}
+\frac{1}{\Lambda_i - V_i} =  \left[ \left( \boldsymbol{\Lambda} - \boldsymbol{J} \right)^{-1} \right]_{ii}.  \label{eq:viselfcons}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;Given updated values for the cavity means $a_i$ and the cavity variances $V_i$, spin means and spin variances can then be updated as follows:&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\langle S_{i} \rangle &amp;amp;= \frac{\partial}{\partial x_{i}} \log Z_{0}^{(i)} (x_{i}, a_{i}, V_{i}),\\&lt;br&gt;
+\langle S_{i}^2 \rangle - \langle S_{i} \rangle^2 &amp;amp;= \frac{\partial^2}{\partial x_{i}^2} \log Z_{0}^{(i)} (x_{i}, a_{i}, V_{i}),
+\end{align}&lt;/p&gt;
+&lt;p&gt;These equations reduce to explicit expressions given an explicit expression for $Z_{0}^{(i)}$. For the binary-spin partition function \eqref{eq:partfunbinaryspins} where $S=\pm 1$, we get a set of fixed-point equations for the spin means that look like&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\langle S_{i} \rangle = \tanh \left( \sum_{j} J_{ij} \langle S_{j} \rangle - V_{i} \langle S_{i} \rangle + x_{i} \right)
+\end{equation}&lt;/p&gt;
+&lt;p&gt;with spin variances $\chi_{ii} = 1 - \langle S_{i} \rangle^2$.&lt;/p&gt;
+&lt;h1 id=&#34;3-attention-as-a-fixed-point-method&#34;&gt;3. Attention as a fixed-point method&lt;/h1&gt;
+&lt;p&gt;In this section, we attempt to generalize the mean-field equations obtained in the previous section to random Ising-like models with vector spin degrees of freedom. We then recognize the physical system as an attention model and provide both a slow, explicit implementation and a faster, neural one.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;✨ Code: A reference PyTorch implementation of the models outlined below is available in the repository &lt;a href=&#34;https://github.com/mcbal/deep-implicit-attention&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;deep-implicit-attention&lt;/code&gt;&lt;/a&gt;.&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;31-generalizing-spin-models-to-vector-degrees-of-freedom&#34;&gt;3.1. Generalizing spin models to vector degrees of freedom&lt;/h2&gt;
+&lt;p&gt;Let&amp;rsquo;s return to our Ising model cartoon and replace the scalar spin degrees of freedom $S_i$ at every site with vectors $\boldsymbol{S}_i \in \mathbb{R}^d$, which we visualize using arrows below&lt;/p&gt;
+&lt;img src=&#34;featured.png&#34; alt=&#34;Random Ising model configuration with vector spins&#34; width=&#34;250px&#34;/&gt;
+&lt;p&gt;Let&amp;rsquo;s consider a system of $N$ $d$-dimensional spins and let&amp;rsquo;s label site indices with $i,j,\ldots$ and internal vector-space indices with Greek letters $\alpha,\beta,\ldots$. We let the coupling weight matrix become a tensor $\boldsymbol{J}_{ij} = J_{ij}^{\alpha\beta}$ (matrices coupling every pair of sites) and remove self-couplings by enforcing the couplings&#39; block-diagonal to be zero. Additionally, we can symmetrize both the internal dimension and the sites to end up with $N(N-1)/2$ times $d(d+1)/2$ effective free parameters for the couplings. If we also turn the external fields into vectors, we obtain a vector generalization of Eq. \eqref{eq:randomising}:&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+E = \sum_{i,j} \boldsymbol{S}_{i}^{T} \boldsymbol{J}_{ij} \boldsymbol{S}_{j} + \sum_{i} \boldsymbol{X}_{i} \cdot \boldsymbol{S}_{i}. \label{eq:vectrandomising}
+\end{equation}&lt;/p&gt;
+&lt;h2 id=&#34;32-deep-implicit-attention-attention-as-a-collective-response&#34;&gt;3.2. Deep implicit attention: attention as a collective response&lt;/h2&gt;
+&lt;p&gt;Remember that our goal is to understand attention as the collective response of a statistical-mechanical system. Let&amp;rsquo;s now relate vector models like Eq. \eqref{eq:vectrandomising} to attention models by treating the external magnetic fields $\boldsymbol{X}_{i}$ as input data. Batches of sequences applied to every site act as probes for the system, pushing its behaviour into a certain direction. The system&amp;rsquo;s mean-field average magnetizations $\langle \boldsymbol{S}_{i} \rangle$ are an approximation of the collective response at every site: what is the expected value of this particular vector spin? We interpret solving mean-field equations for $\langle \boldsymbol{S}_{i} \rangle$ in the presence of input injections $\boldsymbol{X}_{i}$ as an attention operation. If the whole system is differentiable, we can tune the couplings $\boldsymbol{J}_{ij}$ in an outer-loop optimization to steer the system&amp;rsquo;s behaviour to better&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; respond to future incoming data.&lt;/p&gt;
+&lt;h2 id=&#34;33-slow-and-explicit-solving-the-adaptive-tap-equations&#34;&gt;3.3. Slow and explicit: solving the adaptive TAP equations&lt;/h2&gt;
+&lt;p&gt;What changes do we have to make to the adaptive TAP mean-field equations to turn them into a vector-based attention module and how can we implement them? Let&amp;rsquo;s explicitly enumerate the objects introduced in &lt;a href=&#34;#22-adaptive-thouless--anderson--palmer-mean-field-theory&#34;&gt;Section 2.2&lt;/a&gt; together with their (generalized) tensor shapes:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Iteratively determined fixed-point variables&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Spin means $\langle \boldsymbol{S}_{i} \rangle = \left[ \langle \boldsymbol{S}_{i} \rangle \right]^{\alpha}$ &lt;code&gt;(batch_size, N, d)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Cavity variances $\boldsymbol{V}_{i} = V_{i}^{\alpha\beta}$ &lt;code&gt;(N, d, d)&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Other variables calculated during fixed-point iteration&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Cavity means $\boldsymbol{a}_{i} = a_{i}^{\alpha}$ &lt;code&gt;(batch_size, N, d)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Spin variances $\langle \boldsymbol{S}_{i}^2 \rangle - \langle \boldsymbol{S}_{i} \rangle^2 = \boldsymbol{\chi}_{ii} = \chi_{ii}^{\alpha\beta}$ &lt;code&gt;(N, d, d)&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;For every site, the scalar spin and cavity variances have turned into $d \times d$ (inverse) covariance matrices on the level of the local dimension. Note that the &amp;ldquo;system properties&amp;rdquo; in the above list have no batch size: their values are identical across all examples and capture the properties of the system irrespective of the input injections $\boldsymbol{X}_i$.&lt;/p&gt;
+&lt;p&gt;The vector translation of the single-site partition function looks like&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+Z_{0}^{(i)} = \int \mathrm{d}^{d} \boldsymbol{S} \  \rho_{i}\left(\boldsymbol{S}\right) \exp \left[ \boldsymbol{S} \cdot \left( \boldsymbol{a}_{i} + \boldsymbol{X}_{i} \right) + \frac{1}{2} \boldsymbol{S}^T  \boldsymbol{V}_{i} \boldsymbol{S} \right]
+\end{equation}&lt;/p&gt;
+&lt;p&gt;where&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\boldsymbol{a}_{i} = \sum_{j} \boldsymbol{J}_{ij} \langle \boldsymbol{S}_{j} \rangle - \boldsymbol{V}_{i}\langle \boldsymbol{S}_{i} \rangle. \label{eq:veccavmeans}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;Spin means and variances are then computed from&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\langle \boldsymbol{S}_{i} \rangle = \frac{\partial}{\partial\boldsymbol{X}_{i}} \log Z_{0}^{(i)} (\boldsymbol{X}_{i}, \boldsymbol{a}_{i}, \boldsymbol{V}_{i})
+\end{equation}&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\langle \boldsymbol{S}_{i}^2 \rangle - \langle \boldsymbol{S}_{i} \rangle^2 = \frac{\partial^2}{\partial\boldsymbol{X}_{i}^2} \log Z_{0}^{(i)} (\boldsymbol{X}_{i}, \boldsymbol{a}_{i}, \boldsymbol{V}_{i})
+\end{equation}&lt;/p&gt;
+&lt;p&gt;As a spin prior $\rho_{i}\left(\boldsymbol{S}\right)$, we pick a simple diagonal multivariate Gaussian $\mathcal{N} \left( \boldsymbol{\mu} = \boldsymbol{0}_{d}, \boldsymbol{\Sigma}= \boldsymbol{1}_{d \times d} \right)$ at every site, leading to the explicit equations:&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\langle \boldsymbol{S}_{i} \rangle = \left( \boldsymbol{\Sigma}^{-1} - \boldsymbol{V}_{i} \right)^{-1} \left( \boldsymbol{a}_{i} + \boldsymbol{X}_{i} \right)
+\end{equation}&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\langle \boldsymbol{S}_{i}^2 \rangle - \langle \boldsymbol{S}_{i} \rangle^2 = \left( \boldsymbol{\Sigma}^{-1} - \boldsymbol{V}_{i} \right)^{-1}
+\end{equation}&lt;/p&gt;
+&lt;h3 id=&#34;generalizing-the-cavity-variance-calculation&#34;&gt;Generalizing the cavity variance calculation&lt;/h3&gt;
+&lt;p&gt;The cavity variance computation can be done by generalizing Eqs. \eqref{eq:chiijlinrespexp}&amp;ndash;\eqref{eq:chiijlinresp} and solving the following system of equations for $\boldsymbol{\chi}_{ij}$,&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\left( \delta_{ik} \otimes \boldsymbol{1}_{d} - \boldsymbol{\Sigma}_{i} \boldsymbol{J}_{ik} + \boldsymbol{\Sigma}_{i} \boldsymbol{V}_{i} \delta_{ik} \right)\boldsymbol{\chi}_{kj} = \boldsymbol{\Sigma}_{i} \delta_{ij}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;The generalization of the self-consistency condition Eq \eqref{eq:viselfcons} is then obtained by solving $\boldsymbol{\chi}_{ii} \boldsymbol{V}_{i} = \boldsymbol{\chi}_{ii} \boldsymbol{\Lambda}_{i} - \boldsymbol{1}_{N \times d \times d}$ for $\boldsymbol{V}_{i}$, where $ \boldsymbol{\Lambda}_{i} = \boldsymbol{V}_{i} + \boldsymbol{\Sigma}^{-1}$ is computed using the current values of $\boldsymbol{V}_{i}$. The price to pay for this added complexity is a computational cost of $O(N^3d^3)$ and an excruciatingly slow backward pass. The algorithm works, but it ain&amp;rsquo;t pretty.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Implementation:&lt;/strong&gt; To avoid &lt;code&gt;torch.solve&lt;/code&gt; crashing on singular matrices during the fixed-point calculation, we found it crucial for stability and learning behaviour to initialize the couplings $J_{ij}^{\alpha\beta} \sim \mathcal{N}(0, \sigma^2)$ with small values $\sigma^2 = 1 / (N*d^2)$ to ensure $|J| \sim \mathcal{O}(1)$. It&amp;rsquo;s also beneficial if the sources satisfy $|\boldsymbol{X}_{i}| \sim \mathcal{O}(1)$ so that terms are balanced in the update step, all together adding up to $\mathcal{O}(1)$.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;34-fast-and-neural-parametrizing-the-onsager-self-correction-term&#34;&gt;3.4. Fast and neural: parametrizing the Onsager self-correction term&lt;/h2&gt;
+&lt;p&gt;Can we somehow approximate the slow and explicit calculation of the cavity variances? Since $\boldsymbol{z}^{*} = \left( \langle \boldsymbol{S}_{i}^{*} \rangle, \boldsymbol{V}_{i}^{*} \right)$ at the fixed point, the Onsager self-correction term in Eq. \eqref{eq:veccavmeans} converges to a constant vector $\boldsymbol{V}_{i}^{*}\langle \boldsymbol{S}_{i}^{*} \rangle$ for every site. We propose to make a bold move by getting rid of the cavity variables altogether and reducing the equations for the fixed-point update step to&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\langle \boldsymbol{S}_{i} \rangle = \sum_{j} \boldsymbol{J}_{ij} \langle \boldsymbol{S}_{j} \rangle - f_{\theta} \left( \langle \boldsymbol{S}_{i} \rangle \right) + \boldsymbol{X}_{i}, \label{eq:diaupdate}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;where $f_{\theta}$ is a neural network parametrizing the action of the cavity variances on the spin means. Since the parameters $\theta$ stay fixed during the inner-loop fixed-point calculation, we have effectively lifted the optimization of the self-correction term to the outer-loop, which also optimizes the weights $\boldsymbol{J}_{ij}$.&lt;/p&gt;
+&lt;p&gt;All of this starts to look an awful lot like a transformer module. Before discussing an explicit comparison in &lt;a href=&#34;#4-a-mean-field-theory-perspective-on-transformers&#34;&gt;Section 4&lt;/a&gt;, let&amp;rsquo;s finish this section with a simple example model.&lt;/p&gt;
+&lt;h3 id=&#34;simple-example-mnist&#34;&gt;Simple example: MNIST&lt;/h3&gt;
+&lt;p&gt;A simple image classification model for MNIST using a convolutional feature extractor and a deep implicit attention layer could look something like&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;class MNISTNet(nn.Module):
+    def __init__(self, dim=10, dim_conv=32, num_spins=16):
+        super(MNISTNet, self).__init__()
+
+        self.to_patch_embedding = nn.Sequential(
+            nn.Conv2d(1, dim_conv, kernel_size=3),  # -&amp;gt; 26 x 26
+            nn.ReLU(),
+            nn.MaxPool2d(3, stride=2),  # -&amp;gt; 12 x 12
+            nn.Conv2d(dim_conv, dim_conv, kernel_size=3),  # -&amp;gt; 10 x 10
+            nn.ReLU(),
+            nn.MaxPool2d(3, stride=2),  # -&amp;gt; 4 x 4
+            Rearrange(
+                &#39;b c h w -&amp;gt; b (h w) c&#39;
+            ),
+            nn.Linear(dim_conv, dim)
+        )
+        self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
+        self.deq_atn = nn.Sequential(
+            DEQFixedPoint(
+                DEQMeanFieldAttention(
+                    num_spins=num_spins+1,
+                    dim=dim,
+                    weight_sym_internal=True,
+                    weight_sym_sites=False,
+                    lin_response=True,
+                ),
+                anderson,
+                solver_fwd_max_iter=40,
+                solver_fwd_tol=1e-4,
+                solver_bwd_max_iter=40,
+                solver_bwd_tol=1e-4,
+            ),
+        )
+        self.final = nn.Linear(dim, 10)
+
+    def forward(self, x):
+        x = self.to_patch_embedding(x)
+        cls_tokens = self.cls_token.repeat(x.shape[0], 1, 1)
+        x = torch.cat((cls_tokens, x), dim=1)
+        x = self.deq_atn(x)
+        return self.final(x[:, 0, :])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The ViT-style classification token is interpreted as an additional site in the system, which is probed with a learnable input injection that is shared across examples. The model uses the classification token&amp;rsquo;s output response to do the final classification. The system has to self-organize its behaviour so that the classification token gets all the information it needs.&lt;/p&gt;
+&lt;img src=&#34;vit_mnist.gif&#34; alt=&#34;ViT-style model with deep implicit attention layer on MNIST&#34; width=&#34;500px&#34;/&gt;
+&lt;p&gt;You can &lt;a href=&#34;https://github.com/mcbal/deep-implicit-attention/blob/549ef3c76ccd1a7b7df6af3eeebb540abb7f7f31/examples/mnist.py&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;train&lt;/a&gt; this small model (26k parameters) on MNIST to find a test set accuracy hovering around 99.1%. The animation above shows a graph reflecting the (directed) connection strengths between spins during training as measured by the Frobenius norms of the matrices $\boldsymbol{J}_{ij}$. Almost all major organization of connections is seen to happen in the first few iterations. One imagines the model getting frustrated at zeros which &lt;em&gt;really&lt;/em&gt; look like nines and just flat-out refusing to remember edge cases out of spite.&lt;/p&gt;
+&lt;h1 id=&#34;4-a-mean-field-theory-perspective-on-transformers&#34;&gt;4. A mean-field theory perspective on transformers&lt;/h1&gt;
+&lt;p&gt;Let&amp;rsquo;s conclude this post by applying the mean-field theory perspective on attention to the transformer architecture. Schematically, a vanilla transformer module looks like&lt;/p&gt;
+&lt;img src=&#34;vanilla_transformer_module.png&#34; alt=&#34;Vanilla transformer module&#34; width=&#34;200px&#34;/&gt;
+&lt;p&gt;which consists of an attention module acting on all vectors in the sequence input followed by a feed-forward layer acting &amp;ldquo;locally&amp;rdquo; across individual vectors in the sequence, mixed with some residual connections and layer normalizations.&lt;/p&gt;
+&lt;h2 id=&#34;41-parametrizing-the-couplings-sparse-graph-structure-from-inputs&#34;&gt;4.1. Parametrizing the couplings: sparse graph structure from inputs&lt;/h2&gt;
+&lt;p&gt;Transformers can be interpreted as fully-connected graph neural networks acting on sets of vectors. Inside an attention module, the row-stochastic attention matrix corresponds to a particular parametrization of the couplings&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+J_{ij} = \left[\mathrm{softmax}\left( \frac{\boldsymbol{X} \boldsymbol{W}_{\boldsymbol{Q}} \boldsymbol{W}_{\boldsymbol{K}}^{T} \boldsymbol{X}^{T}}{\sqrt{d}} \right)\right]_{ij}. \label{eq:softmaxcouplings}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;which swaps storing explicit coupling weights for parameters of linear query-key transformations. By dynamically determining the connectivity of the sites based on the inputs $\boldsymbol{X}$ according to Eq. \eqref{eq:softmaxcouplings}, the coupling weights are no longer completely free parameters. The introduction of queries and keys can be seen as a neural network approach to &amp;ldquo;amortizing&amp;rdquo; the coupling tensor while the softmax temperature promotes sparsity. Multiple attention heads correspond to imposing a block-diagonal structure in the hidden dimensions of the couplings: the dot product gets cut into disjoint pieces, one for each attention head.&lt;/p&gt;
+&lt;h2 id=&#34;42-softmax-attention-does-a-single-naive-mean-field-update-step&#34;&gt;4.2. Softmax attention does a single, naive mean-field update step&lt;/h2&gt;
+&lt;p&gt;Looking at the update step \eqref{eq:diaupdate} and the softmax couplings \eqref{eq:softmaxcouplings}, we observe that the softmax attention module does a single, naive mean-field update step without a self-correction term. Ignoring layer normalizations, the attention update step for every input vector looks like&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\boldsymbol{X}&#39;_{i} = \sum_{j} \left[ \mathrm{softmax} \left( \frac{\boldsymbol{X} \boldsymbol{W}_{\boldsymbol{Q}} \boldsymbol{W}_{\boldsymbol{K}}^{T} \boldsymbol{X}^{T}}{\sqrt{d}} \right) \right]_{ij} \left[ \boldsymbol{X} \boldsymbol{W}_{\boldsymbol{V}} \right]_{j} + \boldsymbol{X}_{i}, \nonumber
+\label{eq:vanilla-attention}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;where, crucially, the residual connection is responsible for adding the source term to the update step. Without a residual connection, the applied magnetic field is effectively turned off and the signal would only be able to propagate via the coupling term.&lt;/p&gt;
+&lt;h2 id=&#34;43-feed-forward-layer-corrects-naive-mean-field-update&#34;&gt;4.3. Feed-forward layer corrects naive mean-field update&lt;/h2&gt;
+&lt;p&gt;Looking at the Onsager self-correction term $f_{\theta} \left( \langle \boldsymbol{S}_{i} \rangle \right)$ in the update step \eqref{eq:diaupdate}, we observe that the full transformer attention module emerges when we substitute $\langle \boldsymbol{S}_{i} \rangle$ for its naive mean-field value, leading to&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\mathrm{Attention}(\boldsymbol{X})_{i} = \boldsymbol{X}&#39;_{i} + \mathrm{FeedForward}\left( \boldsymbol{X}&#39;_{i} \right),
+\end{equation}&lt;/p&gt;
+&lt;p&gt;with $\boldsymbol{X}&#39;_{i}$ defined above. Again, the residual connection appears to be crucial for the structure of the mean-field theory equations to match the vanilla transformer module&amp;rsquo;s architecture. As previously discussed in &lt;a href=&#34;#34-fast-and-neural-parametrizing-the-onsager-self-correction-term&#34;&gt;Section 3.4&lt;/a&gt;, we hypothesize that feed-forward networks in transformer modules &amp;ldquo;amortize&amp;rdquo; the linear response self-corrections.&lt;/p&gt;
+&lt;h2 id=&#34;44-mean-field-theory-framework-for-transformer-architectures&#34;&gt;4.4. Mean-field theory framework for transformer architectures&lt;/h2&gt;
+&lt;p&gt;Within the general mean-field (or &lt;a href=&#34;https://arxiv.org/abs/2105.02180&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;approximate message-passing&lt;/a&gt;) structure outlined above, there is considerable freedom in parametrizing the interaction and self-correction terms. Most transformer papers parametrize the self-correction terms with a feed-forward layer, i.e. some variation of an MLP. In &lt;a href=&#34;https://arxiv.org/abs/2105.01601&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;MLP-Mixer: An all-MLP Architecture for Vision&lt;/a&gt; the authors went even further and dropped the softmax parametrization of the interaction term to approximate the full action of summing over couplings with an MLP as well. Related papers like &lt;a href=&#34;https://arxiv.org/abs/2105.08050&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Pay Attention to MLPs&lt;/a&gt;, &lt;a href=&#34;https://arxiv.org/abs/2105.03404&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;ResMLP: Feedforward networks for image classification with data-efficient training&lt;/a&gt;, and &lt;a href=&#34;https://arxiv.org/abs/2105.03824&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;FNet: Mixing Tokens with Fourier Transforms&lt;/a&gt; can all be considered as explorations of different parametrizations of the mean-field interaction terms. In the large-scale regime, it seems like the softmax attention module can be swapped for just about any function which mixes tokens as long as the structure of residual connections and self-correction terms is preserved.&lt;/p&gt;
+&lt;h2 id=&#34;45-comparison-with-energy-based-perspective&#34;&gt;4.5. Comparison with energy-based perspective&lt;/h2&gt;
+&lt;p&gt;In a previous post on &lt;a href=&#34;https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;An Energy-Based Perspective on Attention Mechanisms in Transformers&lt;/a&gt;, we introduced a picture of attention modules in transformers as stacks of energy functions which are defined dynamically at every layer depending on the outputs of the previous layer (so ultimately on the inputs of the first layer). Looking back, this interpretation feels kind of forced and is also unable to explain the presence of skip connections and fully-connected layers surrounding the attention modules. The mean-field perspective seems more interesting since it (1) relies on just one layer (one energy function) whose fixed-point (an infinite amount of &amp;ldquo;layers&amp;rdquo;) gets calculated, and (2) explains the presence of skip connections (source terms) and fully-connected layers (amortized self-correction terms).&lt;/p&gt;
+&lt;h1 id=&#34;5-conclusion-and-outlook&#34;&gt;5. Conclusion and outlook&lt;/h1&gt;
+&lt;p&gt;We have shown how attention can be understood as the mean-field response of Ising-like spin systems being probed by data. By thinking of incoming data as applied magnetic fields and the output of attention modules as spin expectation values, attention can be interpreted as a fixed-point optimization process solving for a compromise between a system&amp;rsquo;s internal dynamics and the data it&amp;rsquo;s being exposed to. Since the whole system is differentiable, we can optimize the interaction weights in an outer loop to nudge the system&amp;rsquo;s behaviour.&lt;/p&gt;
+&lt;p&gt;We have also seen how transformers fit into the mean-field theory framework. For scalability, transformers introduce two additional constraints/approximations on top of the mean-field approximation: (1) replacing explicit couplings with parametrized couplings that are dynamically computed from the input via linear transformations (softmax query-key-value attention), and (2) replacing the expensive self-consistent computation of Onsager self-correction terms with a neural network (feed-forward layer).&lt;/p&gt;
+&lt;p&gt;Looking ahead, the methods introduced in this post could provide ways to implicitly train mean-field approximations of Boltzmann machines and have them serve as distributed attention modules in larger interconnected systems. To go beyond mean-field approaches, it could be interesting to look at tensor network approaches. Conceptually, the physical interpretation of attention as an interacting many-body system modulating its behaviour by &lt;em&gt;learning to respond to being driven in particular ways&lt;/em&gt; is fun to think about.&lt;/p&gt;
+&lt;h1 id=&#34;6-related-work&#34;&gt;6. Related work&lt;/h1&gt;
+&lt;p&gt;A non-exhaustive list of references and inspiration includes:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;On deep equilibrium models: &lt;a href=&#34;https://arxiv.org/abs/1909.01377&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Equilibrium Models&lt;/a&gt; (2019) by Shaojie Bai, Zico Kolter, Vladlen Koltun and &lt;a href=&#34;https://implicit-layers-tutorial.org/deep_equilibrium_models/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Chapter 4: Deep Equilibrium Models&lt;/a&gt; of the &lt;a href=&#34;http://implicit-layers-tutorial.org/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Layers - Neural ODEs, Deep Equilibrium Models, and Beyond workshop (NeurIPS 2020)&lt;/a&gt; by Zico Kolter, David Duvenaud, and Matt Johnson&lt;/li&gt;
+&lt;li&gt;On the adaptive Thouless-Anderson-Palmer (TAP) mean-field approach in disorder physics: &lt;a href=&#34;https://link.aps.org/doi/10.1103/PhysRevE.64.056131&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Adaptive and self-averaging Thouless-Anderson-Palmer mean-field theory for probabilistic modeling&lt;/a&gt; (2001) by Manfred Opper and Ole Winther&lt;/li&gt;
+&lt;li&gt;On variational inference, iterative approximation algorithms, expectation propagation, mean-field methods and belief propagation: &lt;a href=&#34;https://arxiv.org/abs/1409.6179&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Expectation Propagation&lt;/a&gt; (2014) by Jack Raymond, Andre Manoel, Manfred Opper&lt;/li&gt;
+&lt;li&gt;On Boltzmann machines and mean-field theory: &lt;a href=&#34;https://doi.org/10.1162/089976698300017386&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Efficient Learning in Boltzmann Machines Using Linear Response Theory&lt;/a&gt; (1998) by H. J. Kappen and
+F. B. Rodríguez and &lt;a href=&#34;https://link.aps.org/doi/10.1103/PhysRevE.58.2302&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Mean-field theory of Boltzmann machine learning&lt;/a&gt; (1998) by Toshiyuki Tanaka&lt;/li&gt;
+&lt;li&gt;On approximate message passing (AMP) methods in statistics: &lt;a href=&#34;https://arxiv.org/abs/2105.02180&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A unifying tutorial on Approximate Message Passing&lt;/a&gt; (2021) by Oliver Y. Feng, Ramji Venkataramanan, Cynthia Rush, Richard J. Samworth: the example on page 2 basically describes how transformers implement approximate message passing: an iterative algorithm with a &amp;ldquo;denoising&amp;rdquo; step (attention) followed by a &amp;ldquo;memory term&amp;rdquo; or Onsager correction term (feed-forward layer)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h1&gt;
+&lt;p&gt;If you happen to find this work useful, please consider citing it as:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;@article{bal2021deepimplicitattention,
+  title   = {Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms},
+  author  = {Bal, Matthias},
+  year    = {2021},
+  month   = {May},
+  url     = {https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/},
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;Whatever &amp;ldquo;better&amp;rdquo; means depends on the system&amp;rsquo;s (meta-)loss function, e.g. predicting corrupted tokens BERT-style or aligning representations to a teacher BYOL/DINO-style. &lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>An Energy-Based Perspective on Attention Mechanisms in Transformers</title>
+      <link>https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/</link>
+      <pubDate>Sat, 28 Nov 2020 10:54:21 +0100</pubDate>
+      <guid>https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/</guid>
+      <description>&lt;p align=&#34;center&#34;&gt;
+  &lt;a href=&#34;https://xkcd.com/793/&#34;&gt;XKCD 793: A physicist encountering machine learning for the first time&lt;/a&gt;
+&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;✨ Update (October 2021):&lt;/strong&gt; &lt;em&gt;Consider reading the series of follow-up posts &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms&lt;/a&gt; and &lt;a href=&#34;https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers from Spin Models: Approximate Free Energy Minimization&lt;/a&gt; for an arguably more comprehensive approach towards understanding transformers from a physics perspective.&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#1-introduction&#34;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#2-a-growing-zoo-of-transformers&#34;&gt;A growing zoo of Transformers&lt;/a&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#vanilla-transformers&#34;&gt;Vanilla Transformers&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#beyond-vanilla-confronting-quadratic-scaling&#34;&gt;Beyond vanilla: confronting quadratic scaling&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#3-from-hopfield-networks-to-transformers&#34;&gt;From Hopfield networks to Transformers&lt;/a&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#classical-discrete-hopfield-networks&#34;&gt;Classical discrete Hopfield networks&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#modern-discrete-hopfield-networks&#34;&gt;Modern discrete Hopfield networks&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#modern-continuous-hopfield-networks&#34;&gt;Modern continuous Hopfield networks&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#modern-continuous-hopfield-networks-as-energy-based-models&#34;&gt;Modern continuous Hopfield Networks as energy-based models&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#transformers-store-and-retrieve-context-dependent-patterns&#34;&gt;Transformers store and retrieve context-dependent patterns&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#where-are-patterns-stored-in-a-transformer&#34;&gt;Where are patterns stored in a Transformer?&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#4-training-transformers&#34;&gt;Training Transformers&lt;/a&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#pretraining-loss-functions&#34;&gt;Pretraining loss functions&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#stepping-through-the-transformer-implicit-energy-minimization&#34;&gt;Stepping through the Transformer: implicit energy minimization&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#meta-learning-and-few-shot-inference&#34;&gt;Meta-learning and few-shot inference&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#5-beyond-dot-product-attention&#34;&gt;Beyond dot-product attention&lt;/a&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#attention-dynamics-embracing-collective-phenomena&#34;&gt;Attention dynamics: embracing collective phenomena&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#why-very-long-sequences-should-not-be-needed&#34;&gt;Why very long sequences should not be needed&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#6-conclusion&#34;&gt;Conclusion&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h1&gt;
+&lt;p&gt;In 2017, &lt;a href=&#34;https://arxiv.org/abs/1706.03762&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Attention Is All You Need&lt;/a&gt; &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; demonstrated state-of-the-art performance in neural machine translation by stacking only (self-)attention layers. Compared to recurrent neural networks, Transformer models exhibit efficient parallel processing of tokens, leading to better modeling of long-range correlations and, most importantly, &lt;a href=&#34;https://arxiv.org/abs/2001.08361&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;favorable scaling in terms of data and compute&lt;/a&gt;. Since then, Transformers seem to have taken over natural language processing. Widespread adoption of attention-based architectures seems likely given recent work like &lt;a href=&#34;https://arxiv.org/abs/2010.11929&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale&lt;/a&gt; and the flurry of developments addressing the architecture&amp;rsquo;s quadratic scaling bottlenecks.&lt;/p&gt;
+&lt;p&gt;Recently, the papers &lt;a href=&#34;https://arxiv.org/abs/2008.02217&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield Networks is All You Need&lt;/a&gt; &lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt; &lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt; &lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt; and &lt;a href=&#34;https://arxiv.org/abs/2008.06996&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Associative Memory Problem in Neurobiology and Machine Learning&lt;/a&gt; &lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt; provided complementary post-facto explanations of some of the success of Transformers from the perspective of energy-based models. In this post, I provide a biased overview of (self-)attention in Transformers and summarize its connections to modern Hopfield networks. Along the way, I look for intuition from physics and indulge in hand-wavy arguments on how an energy-based perspective can shed light on training and improving Transformer models.&lt;/p&gt;
+&lt;h1 id=&#34;2-a-growing-zoo-of-transformers&#34;&gt;2. A growing zoo of Transformers&lt;/h1&gt;
+&lt;p&gt;Let&amp;rsquo;s start off with an overview of the components in a vanilla Transformer model. Since our focus is on (self-)attention, I am going to assume some prior knowledge&lt;sup id=&#34;fnref:6&#34;&gt;&lt;a href=&#34;#fn:6&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;6&lt;/a&gt;&lt;/sup&gt; and skip comprehensive architecture descriptions and experimental results. In &lt;a href=&#34;#3-from-hopfield-networks-to-transformers&#34;&gt;Section 3&lt;/a&gt;, we will start from scratch and use Hopfield networks to build back up to the attention module described below.&lt;/p&gt;
+&lt;h2 id=&#34;vanilla-transformers&#34;&gt;Vanilla Transformers&lt;/h2&gt;
+&lt;p&gt;The proto-Transformer was introduced in an encoder-decoder context for machine translation in &lt;a href=&#34;https://arxiv.org/abs/1706.03762&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Attention Is All You Need&lt;/a&gt;. The original motivation seems to have been mostly driven by engineering efforts to model long-range correlations in sequence data and the recent successes of attention mechanisms stacked on top of recurrent neural networks. The main contribution and selling point of the paper was making an attention-only approach to sequence modeling work.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;vanilla_transformer.png&#34; alt=&#34;alt text&#34; title=&#34;Vanilla Transformers encoder-decoder architecture&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s focus on the encoder on the left and ignore the decoder on the right. Transformer models accept (batches of) sets of vectors, which covers most inputs people care about in machine learning. Text can be modelled as a sequence of embedded tokens. Images can be viewed as a snaky sequence of embedded pixels or embedded patches of pixels. Since sets have no notion of ordering, learned or fixed positional information needs to be explicitly added to the input vectors.&lt;/p&gt;
+&lt;p&gt;The main module in the Transformer encoder block is the multi-head &lt;em&gt;self-attention&lt;/em&gt;, which is based on a (scaled) dot-product attention mechanism acting on a set of $d$-dimensional vectors:&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\mathrm{Attention}\left( \mathbf{Q}, \mathbf{K}, \mathbf{V} \right) = \mathrm{softmax} \left( \frac{\mathbf{Q} \mathbf{K}^T}{\sqrt{d}} \right) \mathbf{V}
+\label{eq:vanilla-attention}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;Here, queries $\mathbf{Q}$, keys $\mathbf{K}$, and values $\mathbf{V}$ are matrices obtained from acting with different linear transformations &amp;mdash; parametrized respectively by weights $\mathbf{W}_{\mathbf{Q}}$, $\mathbf{W}_{\mathbf{K}}$, and $\mathbf{W}_{\mathbf{V}}$ &amp;mdash; on the same set of $d$-dimensional inputs. &lt;em&gt;Cross-attention&lt;/em&gt; takes the inputs for its queries from a different source than for its keys and values, as can be glimpsed from the decoder part of the architecture on the right.&lt;/p&gt;
+&lt;p&gt;For every input query, the updated output query of \eqref{eq:vanilla-attention} is a linear combination of values weighted by an attention vector quantifying the overlap of the input query with the keys corresponding to these values. Stacking input query attention vectors leads to an attention matrix. Since all objects are vectors and the attention mechanism is just a dot product between vectors, we can think of the attention module as matching query vectors to their &amp;ldquo;closest&amp;rdquo; key vectors in latent space and summing up contributions from value vectors, weighted by the &amp;ldquo;closeness&amp;rdquo; of their keys to the queries.&lt;/p&gt;
+&lt;p&gt;The remaining components of the Transformer encoder block are needed to make the module work properly in practice:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The &lt;em&gt;multi-headedness&lt;/em&gt; of the attention module refers to chunking up the dimension of the vector space and having multiple attention operations running in parallel in the same module, yet with each acting on a lower-dimensional segment of the full space. This is a trick to (1) get around the fact that every input vector only couples to one query at a time to calculate its attention coefficient, and (2) provide multiple starting points in the subspaces for the queries, which might help to avoid bad local minima in parameter space during optimization.&lt;/li&gt;
+&lt;li&gt;A positional feed-forward network, made up of two linear layers with a non-linearity in between, is inserted at the end of the module. Folklore wisdom tells us that the feed-forward layer needs to blow up the dimension of the latent space by a factor of four for it to be able to &amp;ldquo;disentangle&amp;rdquo; the represention. More likely though, it&amp;rsquo;s a way to increase model capacity and warp latent spaces since the attention modules on their own are pretty much linear apart from the $\mathrm{softmax}$-operator used to obtain the normalized attention coefficients.&lt;/li&gt;
+&lt;li&gt;Residual connections are added to control the flow of gradients.&lt;/li&gt;
+&lt;li&gt;Layer normalisation is used to control learning dynamics and keep vector norms from exploding.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;beyond-vanilla-confronting-quadratic-scaling&#34;&gt;Beyond vanilla: confronting quadratic scaling&lt;/h2&gt;
+&lt;p&gt;Most architectural variations of the vanilla Transformer are targeted at the attention module, which scales poorly with respect to the input sequence length $N$. Since the overlap of all queries with all keys is required, calculating a dense attention matrix scales like $\mathcal{O}(N^2)$ in time and space. Limits on the context window of the attention mechanism during training prevent the model from learning how to deal with long sequences and long-range correlations. The majority of post-vanilla Transformer species can be classified into one of the following buckets&lt;sup id=&#34;fnref:6&#34;&gt;&lt;a href=&#34;#fn:6&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;6&lt;/a&gt;&lt;/sup&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Low-rank approximations: truncate the matrix product $\mathbf{Q} \mathbf{K}^T$ since it&amp;rsquo;s likely not full rank for structured data&lt;/li&gt;
+&lt;li&gt;Sparsification: reduce the attention calculation from all query-key pairs to a subset because not all of them feel the need to talk to each other&lt;/li&gt;
+&lt;li&gt;Recurrence: keep track of a (compressed) history of context&lt;/li&gt;
+&lt;li&gt;Kernels: approximate the attention operation with kernel methods&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;For the remainder of our discussion, we will focus on vanilla Transformers. One of the goals of this blog post is to explore how a different perspective on the &lt;em&gt;function&lt;/em&gt; of attention-based algorithms might lead to qualitatively different improvements beyond what is possible by relying on scaling and reducing computational complexity alone.&lt;/p&gt;
+&lt;h1 id=&#34;3-from-hopfield-networks-to-transformers&#34;&gt;3. From Hopfield networks to Transformers&lt;/h1&gt;
+&lt;p&gt;In this section, we provide a short history of Hopfield networks and gradually build up intuition until we can recognize the Transformer self-attention mechanism for what it really is. We refer to the &lt;a href=&#34;https://ml-jku.github.io/hopfield-layers/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;blog post&lt;/a&gt; accompanying &lt;a href=&#34;https://arxiv.org/abs/2008.02217&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield Networks is All You Need&lt;/a&gt; for more details and insightful visualizations of pattern storage and retrieval.&lt;/p&gt;
+&lt;h2 id=&#34;classical-discrete-hopfield-networks&#34;&gt;Classical discrete Hopfield networks&lt;/h2&gt;
+&lt;p&gt;A &lt;a href=&#34;https://en.wikipedia.org/wiki/Hopfield_network&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield network&lt;/a&gt; is a simple model for associative memory popularized by John Hopfield in his 1982 paper &lt;a href=&#34;https://www.pnas.org/content/pnas/79/8/2554.full.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Neural Networks and Physical Systems with Emergent Collective Computational Abilities&lt;/a&gt;&lt;sup id=&#34;fnref:7&#34;&gt;&lt;a href=&#34;#fn:7&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;7&lt;/a&gt;&lt;/sup&gt;. The task of an associative memory is to store and retrieve patterns, preferably in a way that allows one to recover stored patterns quickly with a low error rate.&lt;/p&gt;
+&lt;p&gt;The basic idea of the Hopfield network &amp;mdash; and other energy-based models like &lt;a href=&#34;https://en.wikipedia.org/wiki/Boltzmann_machine&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Boltzmann machines&lt;/a&gt; &amp;mdash; is to construct an &lt;em&gt;energy function&lt;/em&gt; which defines an &lt;em&gt;energy landscape&lt;/em&gt; containing basins of attraction around patterns we want to store. Starting at any pattern, we want to have an update rule pointing towards the closest stored pattern, guided by a scalar &amp;ldquo;closeness&amp;rdquo; score provided by the energy function.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Hopfield_network&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;img src=&#34;energy_landscape.png&#34; alt=&#34;alt text&#34; title=&#34;Toy energy landscape of a Hopfield Network&#34;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s make this a bit more formal but not too formal. Consider trying to store a set of $N$ binary patterns $\{\boldsymbol{x}_{i}\}_{i=1}^{N}$ where each pattern $\boldsymbol{x}_{i}$ is a $d$-dimensional vector whose entries are either $-1$ or $1$. For example, in the case of storing black-and-white images, every image would correspond to a string of pixel values, a binary pattern $\boldsymbol{x}_{i}$.&lt;/p&gt;
+&lt;p&gt;For any query $\boldsymbol{\xi} \in \mathbb{R}^{d}$, or &lt;em&gt;state pattern&lt;/em&gt;, we want to find a way to retrieve the closest &lt;em&gt;stored pattern&lt;/em&gt;. In his paper, Hopfield considered the energy function&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+E = - \frac{1}{2} \boldsymbol{\xi}^{T} \boldsymbol{W} \boldsymbol{\xi} + \boldsymbol{\xi}^{T} \boldsymbol{b} = - \frac{1}{2} \sum_{i=1}^{d} \sum_{j=1}^{d} w_{ij} \xi_{i} \xi_{j} + \sum_{i=1}^{d} b_{i} \xi_{i} ,
+\label{eq:ising}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;where $\boldsymbol{b} \in \mathbb{R}^{d}$ denotes a bias vector and the weights $\boldsymbol{W} \in \mathbb{R}^{d \times d}$ are set to the sum of the outer products of the patterns we want to store&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\boldsymbol{W} = \sum_{i=1}^{N} \boldsymbol{x}_{i} \otimes \boldsymbol{x}_{i}^{T}.
+\end{equation}&lt;/p&gt;
+&lt;p&gt;The state pattern update rule is given by the sign of the gradient of \eqref{eq:ising} with respect to $\boldsymbol{\xi}$ and can be done in one step (synchronously) or separately for every component of the vector (asynchronously):&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\boldsymbol{\xi}_{n+1} = \mathrm{sgn} \left( \boldsymbol{W}  \boldsymbol{\xi}_{n} - \boldsymbol{b} \right).
+\end{equation}&lt;/p&gt;
+&lt;p&gt;The storage capacity of this system for retrieval of patterns with a small amount of errors can be shown to be $C \cong 0.14 d$, scaling linearly with the dimension of the pattern vector.&lt;/p&gt;
+&lt;h3 id=&#34;physical-intuition&#34;&gt;Physical intuition&lt;/h3&gt;
+&lt;p&gt;Physicists immediately recognize the energy function \eqref{eq:ising} as an incarnation of the &lt;a href=&#34;https://en.wikipedia.org/wiki/Ising_model#Application_to_neuroscience&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Ising model&lt;/a&gt;. Spin degree of freedoms $\xi_{i}$ are grouped into patterns $\boldsymbol{\xi}$ that are equivalent to &lt;em&gt;spin configurations&lt;/em&gt; of $d$ spins. The weight matrix is a sum of stored-pattern spin configurations, serving as attractors for the state-pattern spin configuration. The couplings $w_{ij}$ can be regarded a sum of samples of an underlying pattern data distribution. They are not restricted to (nearest-)neighbors and their values are neither uniform like in exactly solvable models nor totally random like in spin glass models.&lt;/p&gt;
+&lt;!-- After identifying relevant degrees of freedom, physicists combine appropriate conceptual structures with arguments based on locality, symmetry, and physical and mathematical intuition to write down a model description, usually after a lot of hard work and trial-and-error.--&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Neural networks and spin glasses&lt;/strong&gt;: There is some literature on connections between &lt;a href=&#34;https://en.wikipedia.org/wiki/Spin_glass&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;spin glasses&lt;/a&gt; and &lt;a href=&#34;https://en.wikipedia.org/wiki/Neural_network&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;neural networks&lt;/a&gt;. Spin glasses are phases of matter describing disordered magnetic systems exhibiting both &lt;a href=&#34;https://en.wikipedia.org/wiki/Order_and_disorder#Quenched_disorder&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;quenched disorder&lt;/a&gt; and frustratation. Spin glasses were a major inspiration for Hopfield networks, as beautifully explained by the condensed matter physicist &lt;a href=&#34;https://en.wikipedia.org/wiki/Philip_W._Anderson&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Philip W. Anderson&lt;/a&gt; in a &lt;a href=&#34;https://en.wikipedia.org/wiki/Spin_glass#cite_note-10&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;column series for Physics Today&lt;/a&gt; (1988-1990). However, apart from &lt;a href=&#34;https://arxiv.org/abs/1910.01592&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Efficient training of energy-based models via spin-glass control&lt;/a&gt; &lt;sup id=&#34;fnref:8&#34;&gt;&lt;a href=&#34;#fn:8&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;8&lt;/a&gt;&lt;/sup&gt;, I could not find any recent papers that point to a productive research direction beyond qualitative statements like &amp;ldquo;here&amp;rsquo;s two hard problems where symmetry and order will not help you solve them&amp;rdquo;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;modern-discrete-hopfield-networks&#34;&gt;Modern discrete Hopfield networks&lt;/h2&gt;
+&lt;p&gt;Modern discrete Hopfield networks (or &lt;em&gt;dense&lt;/em&gt; associative memories) introduced the following family of energy functions to improve pattern storage capacity and pattern separation capabilities &lt;sup id=&#34;fnref:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt; &lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+E = - \sum_{i=1}^{N} F \left( \boldsymbol{x}_{i}^{T} \cdot \boldsymbol{\xi} \right)
+\end{equation}&lt;/p&gt;
+&lt;p&gt;Compared to the classical discrete Hopfield network energy function \eqref{eq:ising}, the explicit weight matrix is gone and the energy has been reduced to a sum of a function of dot products between the state pattern $\boldsymbol{\xi}$ and every stored pattern $\boldsymbol{x}_i$. For a polynomial interaction function $F(x) = x^{a}$, low-error storage capacity is $C \cong d^{a-1}$. The quadratic, classical discrete Hopfield network is recovered by setting $a=2$.&lt;/p&gt;
+&lt;p&gt;Essentially, the role of $F(x)$ is to separate close patterns by blowing up differences in dot product values. Few things blow up better than exponentials, so
+we can generalize the energy to&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+E = - \sum_{i=1}^{N} \exp \left( \boldsymbol{x}_{i}^{T} \cdot \boldsymbol{\xi} \right)
+\end{equation}&lt;/p&gt;
+&lt;p&gt;with storage capacity $C \cong 2^{d/2}$. The corresponding update rules for modern discrete Hopfield networks can be shown to converge quickly with high probability&lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;modern-continuous-hopfield-networks&#34;&gt;Modern continuous Hopfield networks&lt;/h2&gt;
+&lt;p&gt;Most machine learning applications are tailored to work with continuous embeddings (vector representations) rather than discrete patterns. Is there a way to generalize modern Hopfield networks to continuous data? Recently, &lt;a href=&#34;https://arxiv.org/abs/2008.02217&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield Networks is All You Need&lt;/a&gt; proposed the following energy function to deal with continuous $d$-dimensional patterns&lt;sup id=&#34;fnref:11&#34;&gt;&lt;a href=&#34;#fn:11&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;11&lt;/a&gt;&lt;/sup&gt;:&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+E(\boldsymbol{\xi}; \boldsymbol{X}) = \frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right),
+\label{eq:energyfunc}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;which we consider to be a function of the state pattern $\boldsymbol{\xi} \in \mathbb{R}^{d}$ and parametrized by $N$ stored patterns $\boldsymbol{X} = (\mathbf{x}_{1}, \ldots, \mathbf{x}_{N}) \in \mathbb{R}^{d \times N}$. From the point of view of &lt;a href=&#34;https://en.wikipedia.org/wiki/Restricted_Boltzmann_machine&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;restricted Boltzmann machines&lt;/a&gt;, the stored patterns $\boldsymbol{X}^T$ can also be interpreted as weights mapping $\boldsymbol{\xi}$ to hidden units&lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Smoothly taking a maximum&lt;/strong&gt;: The $\mathrm{logsumexp}$ operator is defined for vectors $\mathbf{x}$ as
+\begin{equation}
+\mathrm{logsumexp} \left( \mathbf{x} \right) = \log \left( \sum_{i=1}^{N} \mathrm{e}^{x_i} \right)
+\end{equation}
+while for matrix arguments (like a batch of vectors), the $\mathrm{sumexp}$ is understood to apply to just one dimension after which the $\log$ acts element-wise on the resulting vector.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&#34;physical-intuition-1&#34;&gt;Physical intuition&lt;/h3&gt;
+&lt;p&gt;We assume that the stored patterns equilibrate much quicker than those of the state pattern so that the former can effectively be considered &amp;ldquo;frozen&amp;rdquo;. The energy function \eqref{eq:energyfunc} looks deceptively simple: there is a single state pattern and there are no interactions among stored patterns. The first term takes care of making sure the norm of the input state pattern is finite, while the second term scores the query&amp;rsquo;s overlap based on its individual alignment with every stored pattern. The exponential function in the term&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right) = \log \left( \sum_{i=1}^{N} \mathrm{e}^{\mathbf{x}_i \cdot \boldsymbol{\xi}} \right)
+\end{equation}&lt;/p&gt;
+&lt;p&gt;is used to pull apart close patterns by blowing up differences in the dot product between state pattern and stored patterns. From the perspective of the query, it is not so much an interaction term but rather a measure of the alignment of the query to external &amp;ldquo;magnetic fields&amp;rdquo; generated by the stored patterns.&lt;/p&gt;
+&lt;h3 id=&#34;deriving-the-update-rule&#34;&gt;Deriving the update rule&lt;/h3&gt;
+&lt;p&gt;In the spirit of hand-waving, let us refuse to resort to of the dynamical systems machinery used in the original references &lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt; &lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt; and rather derive the update rule for the state pattern $\boldsymbol{\xi}$ by taking the derivative of the energy function \eqref{eq:energyfunc} with respect to $\boldsymbol{\xi}$&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\nabla_{\boldsymbol{\xi}} E(\boldsymbol{\xi}; \boldsymbol{X}) = \boldsymbol{\xi} - \boldsymbol{X} \ \mathrm{softmax} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right).
+\end{equation}&lt;/p&gt;
+&lt;p&gt;A gradient descent update with step size $\gamma$ looks like&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\boldsymbol{\xi}_{n+1} = \boldsymbol{\xi}_{n} - \gamma \left( \boldsymbol{\xi}_{n} - \boldsymbol{X} \ \mathrm{softmax} \left( \boldsymbol{X}^T \boldsymbol{\xi}_{n}\right) \right).
+\label{eq:conthopfupdate}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;We are very confident that the topography of the energy landscape allows us to take big steps and boldly set $\gamma = 1$ to recover the familiar update rule&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\boldsymbol{\xi}_{n+1}  = \boldsymbol{X} \ \mathrm{softmax} \left( \boldsymbol{X}^T \boldsymbol{\xi}_{n}\right) .
+\end{align}&lt;/p&gt;
+&lt;p&gt;The updated vector is a linear combination of all stored patterns, weighted by an attention vector quantifying the overlap with the input pattern.&lt;/p&gt;
+&lt;h2 id=&#34;modern-continuous-hopfield-networks-as-energy-based-models&#34;&gt;Modern continuous Hopfield Networks as energy-based models&lt;/h2&gt;
+&lt;p&gt;Let&amp;rsquo;s now try to connect the system defined by the energy function \eqref{eq:energyfunc} to the statistical mechanics framework of energy-based models &lt;sup id=&#34;fnref:12&#34;&gt;&lt;a href=&#34;#fn:12&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;12&lt;/a&gt;&lt;/sup&gt; &lt;sup id=&#34;fnref:13&#34;&gt;&lt;a href=&#34;#fn:13&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;13&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;h3 id=&#34;energy-based-models-a-gentle-introduction&#34;&gt;Energy-based models: a gentle introduction&lt;/h3&gt;
+&lt;p&gt;Energy-based models learn a parametrized energy function $E_{\theta}$ which maps data points $\boldsymbol{x}$ to real, scalar energy values $E_{\theta}(\boldsymbol{x})$. The data distribution is modeled by the &lt;a href=&#34;https://en.wikipedia.org/wiki/Boltzmann_distribution&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Boltzmann distribution&lt;/a&gt;,
+\begin{equation}
+p_{\theta}(\boldsymbol{x}) = \frac{\mathrm{e}^{ - E_{\theta}(\boldsymbol{x}) }}{Z(\theta)},
+\label{eq:boltzmann}
+\end{equation}
+where $Z(\theta) = \int \mathrm{d} \boldsymbol{x} \ \mathrm{e}^{-E(\boldsymbol{x})}$ denotes the system&amp;rsquo;s partition function. Configurations $\boldsymbol{x}$ with low energies $E_{\theta}(\boldsymbol{x})$ are considered more likely and their weight contributes more strongly to the partition function.&lt;/p&gt;
+&lt;p&gt;To steer the model distribution $p_{\theta}$ towards a target data distribution $p_{\mathrm{data}}$, we can try to minimize the likelihood loss function&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\mathcal{L}_{\mathrm{ML}} (\theta) = \mathbb{E}_{\boldsymbol{x} \sim p_{\mathrm{data}}} \left[ -\log p_{\theta} (\boldsymbol{x}) \right],
+\label{eq:nll}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;where the negative log-likelihood equals&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+-\log p_{\theta} (\boldsymbol{x}) = E_{\theta} (\boldsymbol{x}) + \log Z (\theta).
+\end{equation}&lt;/p&gt;
+&lt;p&gt;This is a hard optimization problem because calculating $\log Z (\theta)$ is hard for the vast majority of high-dimensional data distributions we care about. In practice, people resort to approximations like contrastive divergence to push the energy down on &amp;ldquo;positive examples&amp;rdquo; drawn from the data distribution while pushing up on &amp;ldquo;negative examples&amp;rdquo; obtained from sampling the model distribution. Even though sampling from \eqref{eq:boltzmann} can be done with methods like Markov Chain Monte Carlo, it is computationally expensive to do so, especially as part of an inner-loop optimization step&lt;sup id=&#34;fnref:14&#34;&gt;&lt;a href=&#34;#fn:14&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;14&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;h3 id=&#34;exactly-optimizing-modern-continuous-hopfield-networks&#34;&gt;Exactly optimizing modern continuous Hopfield networks&lt;/h3&gt;
+&lt;p&gt;So what about the system defined by the energy function \eqref{eq:energyfunc}? Let&amp;rsquo;s consider the stored patterns $\mathbf{X} \in \mathbb{R}^{d \times N}$ as the model parameters we want to optimise. The task for the model is then to try to memorise incoming state patterns $\boldsymbol{\xi} \in \mathbb{R}^{d}$ drawn from some data distribution $p_{\mathrm{data}}$ by deciding what kind of patterns to store. The partition function looks like&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+Z = \int \mathrm{d} \boldsymbol{\xi} \ \mathrm{e}^{-E(\boldsymbol{\xi})} = \int \mathrm{d} \boldsymbol{\xi} \ \mathrm{e}^{-\frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi}} \left( \sum_{i=1}^{N} \mathrm{e}^{ \boldsymbol{x}^{T}_{i} \cdot \boldsymbol{\xi} } \right)
+\label{eq:zforcontinuoushopfield}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;which, because of the $\log$ in the &amp;ldquo;interaction term&amp;rdquo;, boils down to a sum of &lt;a href=&#34;https://en.wikipedia.org/wiki/Gaussian_integral#n-dimensional_with_linear_term&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;$n$-dimensional Gaussian integrals&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;\begin{aligned}
+Z = (2\pi)^{n/2} \sum_{i=1}^{N} \mathrm{e}^{ \frac{1}{2} \boldsymbol{x}_{i}^{T} \cdot \boldsymbol{x}_{i} }
+\end{aligned}&lt;/p&gt;
+&lt;p&gt;After taking the logarithm, we end up with the $\mathrm{logsumexp}$ operator:&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\log Z = \frac{n}{2} \log \left( 2\pi \right) + \mathrm{logsumexp} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T} \boldsymbol{X} \right) \right)
+\end{equation}&lt;/p&gt;
+&lt;p&gt;where the $\mathrm{diag}$ operator is understood to turn the diagonal of its matrix argument into a vector. Plugging this expression into \eqref{eq:nll} leads to the following loss function for the matrix of stored patterns&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\mathcal{L}_{\mathrm{ML}} (\mathbf{X}) = &amp;amp; \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right) \right] \nonumber \\&lt;br&gt;
+&amp;amp; + \mathrm{logsumexp} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T} \boldsymbol{X} \right) \right) + \frac{n}{2} \log \left( 2\pi \right)
+\end{align}&lt;/p&gt;
+&lt;p&gt;and a gradient&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\nabla_{\mathbf{X}} \mathcal{L}_{\mathrm{ML}} (\mathbf{X}) = &amp;amp; - \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \boldsymbol{\xi} \otimes \mathrm{softmax} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right) \right] \nonumber \\&lt;br&gt;
+&amp;amp; + \boldsymbol{X} \ \mathrm{softmax} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T} \boldsymbol{X} \right) \right)
+\end{align}&lt;/p&gt;
+&lt;p&gt;and an update with step size $\gamma$&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\mathbf{X}_{n+1} = \ \mathbf{X}_{n} &amp;amp;+ \gamma \ \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \boldsymbol{\xi} \otimes \mathrm{softmax} \left( \boldsymbol{X}^T_{n} \boldsymbol{\xi} \right) \right] \nonumber \\&lt;br&gt;
+&amp;amp; - \gamma \ \mathbf{X}_{n} \ \mathrm{softmax} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T}_{n} \boldsymbol{X}_{n} \right) \right)
+\end{align}&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s try to guess what this means for a single input state pattern. The first gradient term pushes all stored patterns towards the sample but weighted by a dot-product attention vector quantifying their overlap with the input pattern, similar to \eqref{eq:conthopfupdate} but in the other direction. The second gradient term comes from the partition function and acts as a regularizer by keeping the norms of the stored patterns in check. Regularization keeps pattern values within a reasonable range and pushes the system towards regions in parameter space with non-trivial small dot-product values.&lt;/p&gt;
+&lt;h2 id=&#34;transformers-store-and-retrieve-context-dependent-patterns&#34;&gt;Transformers store and retrieve context-dependent patterns&lt;/h2&gt;
+&lt;p&gt;Making the leap from modern continous Hopfield networks to the vanilla Transformer (self-)attention mechanism we encountered in &lt;a href=&#34;#2-a-growing-zoo-of-transformers&#34;&gt;Section 2&lt;/a&gt; requires a few additional steps, as explained in detail in the &lt;a href=&#34;https://ml-jku.github.io/hopfield-layers/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;blog post&lt;/a&gt; accompanying &lt;a href=&#34;https://arxiv.org/abs/2008.02217&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield Networks is All You Need&lt;/a&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We want to act on multipe $d$-dimensional state patterns at the same time in order to retrieve multiple updated patterns in parallel:
+\begin{align}
+\boldsymbol{\xi} \in \mathbb{R}^{d} \to \boldsymbol{\Xi} = (\boldsymbol{\xi}_{1}, \ldots, \boldsymbol{\xi}_{S}) \in \mathbb{R}^{d \times S}
+\end{align}
+so that
+\begin{align}
+\boldsymbol{\Xi}_{n+1}  = \boldsymbol{X} \ \mathrm{softmax} \left( \boldsymbol{X}^T \boldsymbol{\Xi}_{n}\right) .
+\end{align}
+In practice, the number of state patterns $S$ is often taken to be equal to the number of stored patterns $N$.&lt;/li&gt;
+&lt;li&gt;We want to map stored patterns $\mathbf{X}$ and state patterns $\boldsymbol{\Xi}$ respectively to &lt;em&gt;keys&lt;/em&gt; $\mathbf{K} \in \mathbb{R}^{N \times d}$ and &lt;em&gt;queries&lt;/em&gt; $\mathbf{Q} \in \mathbb{R}^{S \times d}$ in a common feature space using linear transformations $\mathbf{W_{K}}$ and $\mathbf{W_{Q}}$.&lt;/li&gt;
+&lt;li&gt;We want introduce another linear transformation $\mathbf{W_{V}}$ on stored patterns to transform them into &lt;em&gt;values&lt;/em&gt; $\mathbf{V} \in \mathbb{R}^{N \times d}$ appropriate for the keys&#39; content.&lt;/li&gt;
+&lt;li&gt;We want to modify the learning dynamics by decreasing the inverse temperature to $\beta = 1 / \sqrt{d}$, effectively making the $\mathrm{softmax}$ softer by increasing the temperature of the system&lt;sup id=&#34;fnref:15&#34;&gt;&lt;a href=&#34;#fn:15&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;15&lt;/a&gt;&lt;/sup&gt;. Physically, this might correspond to warming up the system just enough to get out of the spin-glass phase while not introducing too much thermal noise&lt;sup id=&#34;fnref:8&#34;&gt;&lt;a href=&#34;#fn:8&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;8&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The result is the update rule we stated without explanation in &lt;a href=&#34;#2-a-growing-zoo-of-transformers&#34;&gt;Section 2&lt;/a&gt;:
+\begin{equation}
+\mathbf{Q}^{\mathrm{updated}} = \mathrm{Attention}\left( \mathbf{Q}, \mathbf{K}, \mathbf{V} \right) = \mathrm{softmax} \left( \frac{\mathbf{Q} \mathbf{K}^T}{\sqrt{d}} \right) \mathbf{V},
+\label{eq:transformerattnupdate}
+\end{equation}
+where the $\mathrm{softmax}$ acts row-wise. In practice, the vanilla Transformer module additionally wraps the above attention module in (1) residual connections to control the flow of gradients, (2) layer norms to control pattern normalisations and learning dynamics, and (3) a positional feed-forward network for additional model capacity.&lt;/p&gt;
+&lt;h2 id=&#34;where-are-patterns-stored-in-a-transformer&#34;&gt;Where are patterns stored in a Transformer?&lt;/h2&gt;
+&lt;p&gt;Let&amp;rsquo;s try to digest the implications of these quite substantial changes. It&amp;rsquo;s useful to think of Transformer (self-)attention modules as dynamic pattern storage and retrieval systems. In modern continuous Hopfield networks, stored patterns are considered a given. However, in the Transformer (self-)attenton module, patterns to be matched and retrieved are &lt;em&gt;dependent on inputs&lt;/em&gt; and &lt;em&gt;implicitly stored in the weights&lt;/em&gt; $\mathbf{W_{Q}}$, $\mathbf{W_{K}}$, and $\mathbf{W_{V}}$ of the linear transformations. In every layer, the module needs to learn how to map a set of inputs to patterns it wants to store (keys and values) as well as how to best retrieve them (queries). Within the same layer, dynamically generated queries are matched to keys within the same latent space. Between attention modules of neighboring layers, the non-linear activation function in the positional feed-forward network warps latent spaces.&lt;/p&gt;
+&lt;!-- ## Transformer self-attention as energy-based models
+For completeness, we can try to write down the energy function of the Transformer self-attention module. Starting from \eqref{eq:energyfunc}
+
+Instead of stored patterns $X$ we considered fixed, the energy function 
+
+that is implicitly being optimised for by making the necessary substitutions in Eq [] :
+
+\begin{equation}
+  E(\boldsymbol{\xi}; \boldsymbol{X}) = \frac{1}{2} \mathrm{diag} \left( \boldsymbol{\Xi}^T \boldsymbol{\Xi} \right) -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\Xi} \right),
+  \label{eq:transformerenergy}
+\end{equation}
+
+\begin{equation}
+  E(\boldsymbol{\xi}; \boldsymbol{X}) = \frac{1}{2} \mathrm{diag} \left( \boldsymbol{\Xi}^T \boldsymbol{\Xi} \right) -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\Xi} \right),
+  \label{eq:transformerenergy}
+\end{equation}
+
+Checking whether this transformed energy function still leads to a tractable Gaussian partition function (possibly involving the determinant of a sum of products of linear transformation matrices), is left as an exercise for the reader. --&gt;
+&lt;h1 id=&#34;4-training-transformers&#34;&gt;4. Training Transformers&lt;/h1&gt;
+&lt;p&gt;Now that we are aware of an energy-based interpretation of dot-product (self-)attention, we can start hand-waving about what could be going on during the supervised training procedure of Transformer models and how energy-based models suggest a qualitatively different approach to improving attention mechanisms.&lt;/p&gt;
+&lt;h2 id=&#34;pretraining-loss-functions&#34;&gt;Pretraining loss functions&lt;/h2&gt;
+&lt;p&gt;The goal of pretraining loss functions is to induce &lt;em&gt;useful&lt;/em&gt; data-dependent pattern storage and retrieval behavior. Pretraining strategies for Transformer-based language models rely on loss functions derived from auxiliary tasks to learn statistical patterns in natural language. Starting from almost identical model architectures, autoregressive models like GPT-3 leverage all their parameters to predict the next token in a sequence given previous tokens while autoencoding models like BERT try to reconstruct corrupted tokens. In both cases, the loss function is a cross-entropy loss involving predictions in the space of the model&amp;rsquo;s token vocabulary.&lt;/p&gt;
+&lt;h2 id=&#34;stepping-through-the-transformer-implicit-energy-minimization&#34;&gt;Stepping through the Transformer: implicit energy minimization&lt;/h2&gt;
+&lt;p&gt;Although no energy function is &lt;em&gt;explicitly&lt;/em&gt; optimized during training&lt;sup id=&#34;fnref:16&#34;&gt;&lt;a href=&#34;#fn:16&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;16&lt;/a&gt;&lt;/sup&gt;, let&amp;rsquo;s see how far we can push hand-wavy energy-based arguments by stepping through the forward and backward pass of a Transformer model. We have learned that the attention update \eqref{eq:transformerattnupdate} in every Transformer layer is actually a hidden gradient step. This trivial insight leads to a trio of trivial observations.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Trivial Observation #1:&lt;/strong&gt; &lt;em&gt;During training, the update step \eqref{eq:transformerattnupdate} of the attention mechanism in a Transformer layer acts as an inner-loop optimization step, minimizing an implicit energy function determined by the queries, keys, and values constructed from the output of the previous layer.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Trivial Observation #2:&lt;/strong&gt; &lt;em&gt;During the forward pass of a deep Transformer model, a nested hierarchy of energy functions is minimized.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Trivial Observation #3:&lt;/strong&gt; &lt;em&gt;During the backward pass of a deep Transformer model, the parameters of its attention modules get updated such that the inner-loop optimization steps conspire to pattern match queries to keys in such a way that the sequentially-updated final latent representations are useful for improving the loss.&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&#34;meta-learning-and-few-shot-inference&#34;&gt;Meta-learning and few-shot inference&lt;/h2&gt;
+&lt;p&gt;Squinting our eyes, we can see traces of a &lt;em&gt;meta-learning&lt;/em&gt; problem: how to tune model parameters &amp;mdash; in particular the attention mechanisms&#39; linear transformation matrices &amp;mdash; such that applying a sequence of one-step attention updates to sets of input patterns converges to representations useful for minimizing the (meta-)loss function. Learnable modules of a differentiable program can of course often be considered part of a larger meta-learning setup. But what this point of view suggests is that confining the one-step inner-loop update to a simple associative memory pattern lookup might be quite restrictive.&lt;/p&gt;
+&lt;p&gt;Yet even with with a simple dense associative memory, OpenAI&amp;rsquo;s paper &lt;a href=&#34;https://arxiv.org/abs/2005.14165&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Language Models are Few-Shot Learners&lt;/a&gt; showed that large-capacity models like GPT-3 already exhibit quite impressive meta-learning capabilities. The energy-based perspective provides a naive yet attractive explanation for this phenomenon. At inference time, the few-shot demonstrations, which make up the initial part of a few-shot learning query, condition the sequential generation process by providing basins of attraction in the energy landscape for other energy minimization steps to be pulled towards. &lt;em&gt;The GPT-3 model is memorizing to the extent the demonstrations match patterns seen during training and generalizing within the possibilities of the rudimentary attention dynamics of the simple underlying energy functions.&lt;/em&gt;&lt;/p&gt;
+&lt;h1 id=&#34;5-beyond-dot-product-attention&#34;&gt;5. Beyond dot-product attention&lt;/h1&gt;
+&lt;p&gt;Let&amp;rsquo;s conclude this post with two related thoughts inspired by an energy-based perspective on current attention architectures: attention dynamics and modeling very long sequences.&lt;/p&gt;
+&lt;h2 id=&#34;attention-dynamics-embracing-collective-phenomena&#34;&gt;Attention dynamics: embracing collective phenomena&lt;/h2&gt;
+&lt;p&gt;We have seen that the energy function of a modern continuous Hopfield network \eqref{eq:energyfunc} is rather uninspiring from a physics perspective. Theoretically, the exponential storage and efficient retrieval of patterns is obtained by burning deep valleys into the energy landscape around stored patterns (keys) for neighbouring state patterns (queries) to quickly roll into. In practice, the authors of &lt;a href=&#34;https://arxiv.org/abs/2008.02217&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield Networks is All You Need&lt;/a&gt; observed three kinds of fixed-point behavior in a pretrained BERT model: (1) global fixed points averaging over all stored patterns, (2) metastable states averaging over a subset of stored patterns, and (3) fixed points returning a single, well-separated stored pattern.&lt;/p&gt;
+&lt;p&gt;What does this tell us? Assuming the attention updates converge faithfully during training, the linear maps turning input vectors into queries, keys, and values can become bottlenecks in terms of being able to separate patterns and organise the energy landscape. Additionally, the lack of interactions among patterns and the decoupled dot-product overlap between queries and keys puts considerable limits on how the network can process information. In practice, this is being partially addressed by using multiple attention heads (see &lt;a href=&#34;#2-a-growing-zoo-of-transformers&#34;&gt;Section 2&lt;/a&gt;), but this solution does not feel satisfactory.&lt;/p&gt;
+&lt;h2 id=&#34;why-very-long-sequences-should-not-be-needed&#34;&gt;Why very long sequences should not be needed&lt;/h2&gt;
+&lt;p&gt;Recurrent neural networks try to compress patterns in a single hidden state via sequential propagation but often fail to do so and forget stuff along the way. Transformers bake patterns into a hierarchical energy landscape but focus on a fixed-length context window to store and retrieve patterns. As we&amp;rsquo;ve seen in &lt;a href=&#34;#2-a-growing-zoo-of-transformers&#34;&gt;Section 2&lt;/a&gt;, a lot of research on improving Transformers focuses on alleviating the $\mathcal{O}(N^2)$ bottleneck of the attention computation with the implicit goal of scaling to longer sequences and enabling larger context windows.&lt;/p&gt;
+&lt;p&gt;But very long sequences should not be needed if patterns are allowed to talk to each other. A model should not need all of the world as context if patterns and emergent concepts can be connected. It&amp;rsquo;s definitely worthwhile to try to reduce the computational complexity of current attention architectures, but it might be far more valuable to swap the simple energy-based model \eqref{eq:energyfunc} for more interesting energy-based models. Why not dust off the old unrestricted Boltzmann machine once again? Or experiment with any one of a century&amp;rsquo;s worth of physics models? Not to train them explicitly, but have them serve as implicit models underlying more intricate attention mechanisms, mediated by (local) interactions among patterns. Naturally, after so much hand-waving, our journey has to end here.&lt;/p&gt;
+&lt;h1 id=&#34;6-conclusion&#34;&gt;6. Conclusion&lt;/h1&gt;
+&lt;p&gt;Even if attention turns out to &lt;em&gt;not&lt;/em&gt; be all we need, (self-)attention modules have established themselves as highly parallelizable neural network building blocks capable of dynamically routing information based on context. We have seen that dot-product attention modules in Transformer models work by encoding high-dimensional patterns into the landscapes of simple energy functions, enabling fast pattern storage and retrieval. During training, these landscapes are sculpted to accommodate statistical patterns found in data by hierarchically matching and combining latent pattern representations through a sequence of implicit energy function minimizations.&lt;/p&gt;
+&lt;p&gt;We argued that an energy-based perspective on attention provides an intuitive explanation of meta-learning capabilities of large-capacity language models and encourages the exploration of qualitatively different attention mechanisms for pattern storage and retrievel. Rather than naively scaling the current generation of Transformers, it might be more rewarding to scale learning itself by exploring more powerful, expressive, and computationally efficient attention mechanisms, guided by energy-based models. Perhaps we should consider looking at neural networks again like John Hopfield already did in 1982: &lt;em&gt;physical systems with emergent collective computational abilities&lt;/em&gt;.&lt;/p&gt;
+&lt;h1 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h1&gt;
+&lt;p&gt;If you happen to find this work useful, please consider citing it as:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;@article{bal2020energyattention,
+  title   = {An Energy-Based Perspective on Attention Mechanisms in Transformers},
+  author  = {Bal, Matthias},
+  year    = {2020},
+  month   = {December},
+  url     = {https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/},
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;em&gt;Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, &lt;a href=&#34;https://arxiv.org/abs/1706.03762&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Attention Is All You Need&lt;/a&gt; (2017)&lt;/em&gt; &lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;em&gt;Hubert Ramsauer, Bernhard Schäfl, Johannes Lehner, Philipp Seidl, Michael Widrich, Lukas Gruber, Markus Holzleitner, Milena Pavlović, Geir Kjetil Sandve, Victor Greiff, David Kreil, Michael Kopp, Günter Klambauer, Johannes Brandstetter, and Sepp Hochreiter, &lt;a href=&#34;https://arxiv.org/abs/2008.02217&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield Networks is All You Need&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;em&gt;Johannes Brandstetter, &lt;a href=&#34;https://ml-jku.github.io/hopfield-layers/&#34;&gt;https://ml-jku.github.io/hopfield-layers/&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:4&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;em&gt;Johannes Brandstetter and Hubert Ramsauer, &lt;a href=&#34;https://ml-jku.github.io/blog-post-performer/&#34;&gt;https://ml-jku.github.io/blog-post-performer/&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:5&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/2008.06996&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Associative Memory Problem in Neurobiology and Machine Learning&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:6&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;If you have only just joined the attention revolution, there are a lot of great resources out there to get you started. Yannic Kilcher provides a great introduction in his &lt;a href=&#34;https://www.youtube.com/watch?v=iDulhoQ2pro&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;video on Attention is All You Need&lt;/a&gt;. The &lt;a href=&#34;http://gabrielilharco.com/publications/EMNLP_2020_Tutorial__High_Performance_NLP.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;High Performance NLP tutorial slides&lt;/a&gt; presented at &lt;a href=&#34;https://2020.emnlp.org/tutorials&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;EMNLP 2020&lt;/a&gt; contain a thorough and visually appealing introduction to attention-based models. Because code is usually more to the point than papers that need to sell themselves, I highly recommend Phil Wang&amp;rsquo;s &lt;a href=&#34;https://github.com/lucidrains?tab=repositories&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;excellent collection of self-contained repositories&lt;/a&gt; showcasing some of the latest models and techniques. &lt;a href=&#34;#fnref:6&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:7&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;em&gt;John Hopfield, &lt;a href=&#34;https://www.pnas.org/content/pnas/79/8/2554.full.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Neural Networks and Physical Systems with Emergent Collective Computational Abilities&lt;/a&gt; (1982)&lt;/em&gt; &lt;a href=&#34;#fnref:7&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:8&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;em&gt;Alejandro Pozas-Kerstjens, Gorka Muñoz-Gil, Miguel Ángel García-March, Antonio Acín, Maciej Lewenstein, Przemysław R. Grzybowski, &lt;a href=&#34;https://arxiv.org/abs/1910.01592&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Efficient training of energy-based models via spin-glass control&lt;/a&gt; (2019)&lt;/em&gt; &lt;a href=&#34;#fnref:8&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:9&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/1606.01164&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Dense Associative Memory for Pattern Recognition&lt;/a&gt; (2016)&lt;/em&gt; &lt;a href=&#34;#fnref:9&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:10&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;em&gt;Mete Demircigil, Judith Heusel, Matthias Löwe, Sven Upgang, and Franck Vermet, &lt;a href=&#34;https://arxiv.org/abs/1702.01929&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;On a Model of Associative Memory with Huge Storage Capacity&lt;/a&gt; (2017)&lt;/em&gt; &lt;a href=&#34;#fnref:10&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:11&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;A physicist might consider these continuous patterns spin configurations of the degrees of freedom in a vector spin model where the internal dimension $D \sim 10^2-10^4$ is much bigger than familiar small-$D$ cases like the &lt;a href=&#34;https://en.wikipedia.org/wiki/Classical_XY_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;XY model&lt;/a&gt; or the &lt;a href=&#34;https://en.wikipedia.org/wiki/Classical_Heisenberg_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Heisenberg model&lt;/a&gt; but much smaller than infinity. &lt;a href=&#34;#fnref:11&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:12&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;em&gt;Yann LeCun, Sumit Chopra, Raia Hadsell, Marc&amp;rsquo;Aurelio Ranzato, and Fu Jie Huang, &lt;a href=&#34;http://yann.lecun.com/exdb/publis/pdf/lecun-06.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A Tutorial on Energy-Based Learning&lt;/a&gt; (2006)&lt;/em&gt; and &lt;em&gt;Yann LeCun and Alfredo Canziani, &lt;a href=&#34;https://atcold.github.io/pytorch-Deep-Learning/en/week07/07-1/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Learning DS-GA 1008 course&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:12&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:13&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;&lt;em&gt;Pankaj Mehta, Marin Bukov, Ching-Hao Wang, Alexandre G.R. Day, Clint Richardson, Charles K. Fisher, and David J. Schwab, &lt;a href=&#34;https://arxiv.org/abs/1803.08823&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A high-bias, low-variance introduction to Machine Learning for physicists&lt;/a&gt; (2019)&lt;/em&gt; &lt;a href=&#34;#fnref:13&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:14&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;The generator in a Generative Adverserial Network (GAN) setup can be considered a clever way to generate negative samples for the implicit energy function optimization taking place in the discriminator. &lt;a href=&#34;#fnref:14&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:15&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;As we have seen in &lt;a href=&#34;#2-a-growing-zoo-of-transformers&#34;&gt;Section 2&lt;/a&gt;, the naive interpretation of $\beta$ as &lt;em&gt;the&lt;/em&gt; effective inverse temperature is tenuous in practice given the influence of the surrounding layer normalisation modules. &lt;a href=&#34;#fnref:15&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:16&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;The implicitly defined energy functions in Tranformer layers are not optimized directly because they arguably do not provide a meaningful training signal on their own. Verifying whether this is true or not could make for an interesting experiment. &lt;a href=&#34;#fnref:16&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;

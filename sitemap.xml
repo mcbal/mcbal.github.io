@@ -8,6 +8,11 @@
   </url>
   
   <url>
+    <loc>https://mcbal.github.io/tag/associative-memories/</loc>
+    <lastmod>2021-10-12T19:40:17+01:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://mcbal.github.io/tag/attention/</loc>
     <lastmod>2021-10-12T19:40:17+01:00</lastmod>
   </url>
@@ -98,11 +103,6 @@
   </url>
   
   <url>
-    <loc>https://mcbal.github.io/tag/associative-memories/</loc>
-    <lastmod>2021-05-11T17:30:17+01:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://mcbal.github.io/tag/belief-propagation/</loc>
     <lastmod>2021-05-11T17:30:17+01:00</lastmod>
   </url>
@@ -119,11 +119,6 @@
   
   <url>
     <loc>https://mcbal.github.io/tag/expectation-propagation/</loc>
-    <lastmod>2021-05-11T17:30:17+01:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://mcbal.github.io/tag/ising-model/</loc>
     <lastmod>2021-05-11T17:30:17+01:00</lastmod>
   </url>
   
