@@ -701,8 +701,7 @@
   <div class="article-container">
 
     <div class="article-style">
-      <p><strong>✨ Update (October 2021):</strong> <em>Consider reading the follow-up post <a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Transformers from Spin Models: Approximate Free Energy Minimization</a> for a more general partition-function based approach to interpreting transformer modules as spin systems.</em></p>
-<hr>
+      <hr>
 <ol>
 <li><a href="#1-introduction">Introduction</a></li>
 <li><a href="#2-mean-field-theory-for-disordered-systems">Mean-field theory for disordered systems</a>
@@ -733,6 +732,9 @@
 </ol>
 <hr>
 <h1 id="1-introduction">1. Introduction</h1>
+<blockquote>
+<p><strong>✨ Code: A reference PyTorch implementation of the ideas outlined in this blog post is available in the repository <a href="https://github.com/mcbal/deep-implicit-attention" target="_blank" rel="noopener"><code>deep-implicit-attention</code></a>. Comments welcome.</strong></p>
+</blockquote>
 <p>To explore progress beyond the cage of softmax attention, we have previously looked at energy-based perspectives on attention mechanisms:</p>
 <ul>
 <li><a href="https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/" target="_blank" rel="noopener">An Energy-Based Perspective on Attention Mechanisms in Transformers</a></li>
@@ -742,9 +744,6 @@
 <p>The main take-away so far has been that you can think of softmax attention as implementing a single, big gradient step of some energy function and that training transformers is akin to meta-learning how to best tune a stack of attention and feed-forward modules to perform well on some auxiliary (meta-)task(s). But what can an energy-based perspective actually provide beyond quaint and hand-wavy statements like <em>implicit energy landscapes are sculpted every time you train a transformer</em>?</p>
 <p>In this post, we approach attention in terms of the <em>collective response of a statistical-mechanical system</em>. Attention is interpreted as an inner-loop fixed-point optimization step which returns the approximate response of a system being probed by data. This response is a differentiable compromise between the system&rsquo;s internal dynamics and the data it&rsquo;s being exposed to. To better respond to incoming data, outer-loop optimization steps can nudge the interactions and the self-organizing behaviour of the system.</p>
 <p>To implement our proposal, we combine old ideas and new technology to construct a family of attention mechanisms based on fixed points. We use <a href="https://arxiv.org/abs/1909.01377" target="_blank" rel="noopener">deep equilibrium models</a> to solve a set of self-consistent mean-field equations of a vector generalization of the random Ising spin-model. By approximating these equations, we arrive at simplified update steps which mirror the vanilla transformer architecture. We conclude by showing how transformers can be understood from a mean-field theory perspective.</p>
-<blockquote>
-<p><strong>✨ Code: A reference PyTorch implementation of the ideas outlined in this blog post is available in the repository <a href="https://github.com/mcbal/deep-implicit-attention" target="_blank" rel="noopener"><code>deep-implicit-attention</code></a>. Comments welcome.</strong></p>
-</blockquote>
 <h1 id="2-mean-field-theory-for-disordered-systems">2. Mean-field theory for disordered systems</h1>
 <p>In physics, <a href="https://en.wikipedia.org/wiki/Mean-field_theory" target="_blank" rel="noopener">mean-field theory</a> is an approximation method to study models made up of many individual degrees of freedom that interact with each other. Mean-field theory approximates the effect of the environment on any given individual degree of freedom by a single, averaged effect, and thus reduces a many-body problem to an (effective) one-body problem. This is a drastic approximation. Whether mean-field theory a sensible thing to do depends on the problem and the properties of your variational ansatz.</p>
 <blockquote>
@@ -1168,6 +1167,21 @@ F. B. Rodríguez and <a href="https://link.aps.org/doi/10.1103/PhysRevE.58.2302"
     
     
     
+    <li>
+      <a href="mailto:matthiascbal@gmail.com" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
       
     
     <li>
@@ -1270,6 +1284,8 @@ F. B. Rodríguez and <a href="https://link.aps.org/doi/10.1103/PhysRevE.58.2302"
   <div class="article-widget content-widget-hr">
     <h3>Related</h3>
     <ul>
+      
+      <li><a href="/post/transformers-are-secretly-collectives-of-spin-systems/">Transformers Are Secretly Collectives of Spin Systems</a></li>
       
       <li><a href="/post/transformers-from-spin-models-approximate-free-energy-minimization/">Transformers from Spin Models: Approximate Free Energy Minimization</a></li>
       

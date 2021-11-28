@@ -17,7 +17,8 @@
       <link>https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/</link>
       <pubDate>Wed, 17 Mar 2021 22:36:17 +0100</pubDate>
       <guid>https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/</guid>
-      <description>&lt;ol&gt;
+      <description>&lt;hr&gt;
+&lt;ol&gt;
 &lt;li&gt;&lt;a href=&#34;#1-introduction&#34;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#2-prelude-pattern-terminology&#34;&gt;Prelude: pattern terminology&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#3-attention-modules&#34;&gt;Attention modules&lt;/a&gt;
