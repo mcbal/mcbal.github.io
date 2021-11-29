@@ -34,7 +34,7 @@
   
     
   
-  <meta name="description" content="Is the Ising model all you really need?">
+  <meta name="description" content="Is the Ising model all you need?">
 
   
   <link rel="alternate" hreflang="en-gb" href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/">
@@ -297,8 +297,8 @@
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/">
 
@@ -317,7 +317,7 @@
   <meta property="og:site_name" content="mcbal">
   <meta property="og:url" content="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/">
   <meta property="og:title" content="Transformers Are Secretly Collectives of Spin Systems | mcbal">
-  <meta property="og:description" content="Is the Ising model all you really need?"><meta property="og:image" content="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/featured.jpg">
+  <meta property="og:description" content="Is the Ising model all you need?"><meta property="og:image" content="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/featured.jpg">
   <meta property="twitter:image" content="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/featured.jpg"><meta property="og:locale" content="en-gb">
   
     
@@ -368,10 +368,10 @@
     "name": "mcbal",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png"
+      "url": "https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_3.png"
     }
   },
-  "description": "Is the Ising model all you really need?"
+  "description": "Is the Ising model all you need?"
 }
 </script>
 
@@ -630,7 +630,7 @@
   <h1>Transformers Are Secretly Collectives of Spin Systems</h1>
 
   
-  <p class="page-subtitle">Is the Ising model all you really need?</p>
+  <p class="page-subtitle">Is the Ising model all you need?</p>
   
 
   
@@ -722,7 +722,7 @@
 <li><a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a></li>
 <li><a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Transformers from Spin Models: Approximate Free Energy Minimization</a></li>
 </ul>
-<p>We argue that the neural-network architecture of the archetypical transformer module can be derived from the structure of physical spin systems familiar from classical statistical mechanics. More specifically, we claim that the forward pass of transformer modules maps onto computing magnetizations in vector-spin models in response to incoming data. We imagine transformers as collectives of differentiable spin systems whose behavior can be shaped through training.</p>
+<p>We argue that the neural-network architecture of the archetypical transformer module can be derived from the structure of physical spin systems familiar from classical statistical mechanics. More specifically, we claim that the forward pass of transformer modules maps onto computing magnetizations in vector-spin models in response to incoming data. We imagine transformers secretly being collectives of differentiable spin systems whose behavior can be shaped through training.</p>
 <h3 id="2-where-does-the-transformer-module-architecture-come-from">2. Where does the transformer module architecture come from?</h3>
 <p>Taking a bird&rsquo;s eye view of the evergrowing zoo of transformer architectures in natural language processing and computer vision suggests that the high-level design pattern introduced in <em><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention is All You Need (Vaswani et al., 2017)</a></em><sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> is still dominant. Almost all architectural variations of transformer modules published in the last four years have stuck to a successful combination of residual connections, an attention-like operation (token-mixing), normalization layers, and a feed-forward-like operation (channel-mixing).</p>
 <p><a href="https://arxiv.org/abs/2111.11418" target=_blank><img src="metaformer.png" alt="MetaFormer architecture comparison" width="400px"/></a></p>
@@ -751,9 +751,9 @@ E = - \sum_{i,j=1}^{N} J_{ij} \sigma_{i} \sigma_{j} - \sum_{i=1}^{N} h_{i} \sigm
 <img src="binary_ising.png" alt="Random Ising model configuration with binary spins" width="200px"/>
 <p>At thermal equilibrium, the system&rsquo;s energy function determines what spin configurations (patterns of up/down spins) are preferred according to the Boltzmann probability distribution $p(\sigma) = e^{-\beta E\left( \sigma \right)} / Z$, where $Z = \sum_{\sigma} e^{-\beta E\left( \sigma \right)}$ denotes the partition function of the system and $\beta$ the inverse temperature. The partition function of a physical system is a magical object which relates the microscopic world to observable thermodynamic quantities via the free energy $F = - \beta^{-1} \log Z$. It is also shockingly hard to compute in most scenarios, but let&rsquo;s ignore that for now.</p>
 <p>Even though binary spin models are nice, they rarely excite machine learning practitioners anymore nowadays. Since modern neural networks like transformers act on sets or sequences of vector data, it seems much more natural to consider <em>vector-spin models</em>. After replacing binary degrees of freedom with $d$-dimensional vector degrees of freedom, we can define an energy function</p>
-<p>\begin{equation}
+<p>\begin{align}
 E = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\sigma}_{j} - \sum_{i=1}^{N} \boldsymbol{h}_{i} \cdot \boldsymbol{\sigma}_{i} \label{eq:vectorrandomising}
-\end{equation}</p>
+\end{align}</p>
 <p>where the scalar products have turned into dot products.</p>
 <img src="vector_ising.png" alt="Random Ising model configuration with vector spins" width="200px"/>
 <p>Now how can we relate vector-spin systems like Eq. \eqref{eq:vectorrandomising} to neural networks?</p>
@@ -788,11 +788,11 @@ J_{ij} \left( \boldsymbol{h}_{1}, \boldsymbol{h}_{2}, \ldots, \boldsymbol{h}_{N}
 <p>Let&rsquo;s now use the ingredients defined above to construct a neural network module which wraps around a vector-spin system. Given the energy function Eq. \eqref{eq:vectorrandomising} and the free energy $F_{\theta} \left( h \right) = - \beta^{-1} \log \int \mathrm{d} \sigma \ \mathrm{e}^{ - \beta E_{\theta}\left( \sigma, h \right) }$, we let incoming data play the role of the external magnetic field and return magnetizations in response.</p>
 <img src="spinmodule_new.png" alt="Spin system as a neural network" width="600px"/>
 <p>But didn&rsquo;t we mention before that partition functions (and hence free energies and thus magnetizations) are shockingly hard to compute? Why introduce all these formal expressions if we cannot compute anything?</p>
-<p>It turns out physicists have already developed several tricks and approximation methods that can be applied to vector-spin systems. Numerical evidence that the partition function approach outlined above <em>is</em> possible for vector-spin systems can be found in <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention</a> (below, left) and <a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Approximate Free Energy Minimization</a> (below, right). In these examples, approximations of the partition function Eq. \eqref{eq:partfun} were obtained respectively following a mean-field theory and a steepest-descent approach. Numerical implementations of both approaches rely internally on <a href="http://implicit-layers-tutorial.org/" target="_blank" rel="noopener">deep implicit layers</a> to ensure that the respective fixed-point calculations and root-solving steps are differentiable.</p>
+<p>It turns out physicists have already developed several tricks and approximation methods that can be applied to vector-spin systems. Numerical evidence that the partition function approach outlined above <em>is</em> possible for vector-spin systems can be found in <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention</a> (below, left) and <a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Approximate Free Energy Minimization</a> (below, right). In these examples, approximations of the partition function Eq. \eqref{eq:partfun} were obtained following a mean-field theory and a steepest-descent approach, respectively. Our numerical implementations of both approaches rely internally on <a href="http://implicit-layers-tutorial.org/" target="_blank" rel="noopener">deep implicit layers</a> to ensure that fixed-point calculations and root-solving steps are efficiently differentiable.</p>
 <img src="arch_dia_afem_new.png" alt="Deep implicit attention and approximate free-energy minimization" width="600px"/>
 <h3 id="8-an-exercise-in-squinting-recognizing-the-transformer-module">8. An exercise in squinting: recognizing the transformer module</h3>
 <p>In both <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention</a> and <a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Approximate Free Energy Minimization</a>, computing the magnetizations from (approximate) free energies according to Eq. \eqref{eq:magnetization} reveals a structure that is surprisingly familiar: a pattern of residual connections, token-mixing, normalizations, and channel-mixing.</p>
-<p>Residual connections are proportional to the inputs and arise from the presence of the external magnetic field. Token-mixing contributions emerge from the coupling terms in the energy function and weight and mix inputs without acting on the local vector-spin dimension. Normalization follows from normalizing external magnetic fields with respect to the vector dimension and requiring that the energy of the spin system remain linearly proportional to the number of lattice sites. Channel-mixing terms collect terms in the magnetization that can be applied locally, like Onsager self-correction terms in mean-field approaches or contributions coming from input-dependent couplings (see Eq. \eqref{eq:sigmaweird}).</p>
+<p>Residual connections are proportional to the inputs and arise from the presence of the external magnetic field. Token-mixing contributions emerge from the coupling terms in the energy function and weigh and mix inputs without acting on the local vector-spin dimension. Normalization follows from normalizing external magnetic fields with respect to the vector dimension and requiring that the energy of the spin system remain linearly proportional to the number of lattice sites. Channel-mixing terms collect terms in the magnetization that can be applied locally, like Onsager self-correction terms in mean-field approaches or contributions coming from input-dependent couplings (see Eq. \eqref{eq:sigmaweird}).</p>
 <p>These observations suggest that we can picture the forward pass of a transformer module as a wrapper around a vector-spin system: module inputs are routed to the external magnetic field (and, optionally, to a parametrized couplings function) and magnetizations are returned as outputs. The transformer module bears an uncanny resemblance to a differentiable physical system whose collective behavior we can control through training.</p>
 <h3 id="9-training-transformer-modules-shapes-collective-behavior">9. Training transformer modules shapes collective behavior</h3>
 <p>Now that we can picture transformer modules as physical spin systems responding to getting probed with data, let&rsquo;s imagine what training them looks like.</p>
@@ -805,40 +805,40 @@ E(t) = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\s
 <p>We can think about this training process as gradually shaping the collective behavior of a differentiable vector-spin system that is driven by data. If the couplings depend on the inputs, like in Eq. \eqref{eq:softmaxcouplings}, we should make the couplings time-dependent as well in Eq. \eqref{eq:sloppyenergy}. In that case, the external magnetic fields as well as the parametrized couplings change instantaneously at every training step.</p>
 <h3 id="10-training-deep-transformers-orchestrates-spin-system-collectives">10. Training deep transformers orchestrates spin-system collectives</h3>
 <p>Training a deep transformer model corresponds to orchestrating a stack of transformer modules by building up a differentiable structure of correlations where the magnetizations of one spin system drive the next one. Wiggling billions of parameters during training then nudges the cascading response behavior of the collective of spin systems to better adapt to the collective&rsquo;s (meta-)tasks as specified by the data and the loss function.</p>
-<img src="transformertraining_new.png" alt="Training a transformer" width="400px"/>
+<img src="transformertraining_new.png" alt="Training a transformer" width="500px"/>
 <h3 id="11-conclusion">11. Conclusion</h3>
-<p>In this post, we have argued that the forward pass of a transformer module maps onto computing magnetizations in a vector-spin model responding to data. Generalizing previous work on understanding softmax attention modules in terms of modern continuous Hopfield networks by taking derivatives of a judiciously chosen <em>energy</em> function, we propose to take derivatives of the <em>free energy</em> of a general vector-spin system to elucidate the architecture of a full transformer module.</p>
-<p>By zooming out and approaching transformers from a tangential, statistical-mechanical point of view, we were able to develop a physical intuition of transformers that seems hard to arrive at when restricting oneself to perturbing explicit neural network architectures. Recognizing transformer modules as spin models in disguise might not only unify architectural variations but also elucidate the high-level architectural convergence and empirical success of transformers in deep learning.</p>
+<p>In this post, we have argued that the forward pass of a transformer module maps onto computing magnetizations in a vector-spin model responding to data. Generalizing previous work on understanding softmax attention modules in terms of modern continuous Hopfield networks by taking derivatives of a judiciously chosen <em>energy</em> function, we propose to take derivatives of the <em>free energy</em> of a general vector-spin system to get to the architecture of a full transformer module.</p>
+<p>By zooming out and approaching transformers from a tangential, statistical-mechanical point of view, we arrived at a physical intuition of transformers that seems hard to obtain when restricting oneself to perturbing explicit neural network architectures. Recognizing transformer modules as spin models in disguise might not only unify architectural variations but also elucidate the high-level architectural convergence and empirical success of transformers in deep learning.</p>
 <h2 id="references--footnotes">References &amp; footnotes</h2>
 <p>If you happen to find this work useful, please consider citing it as:</p>
-<pre><code>@article{bal2021isingmodelisallyouneed,
+<pre><code>@article{bal2021isingisallyouneed,
   title   = {Transformers Are Secretly Collectives of Spin Systems},
   author  = {Bal, Matthias},
   year    = {2021},
   month   = {November},
-  url     = {https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/}
+  url     = {https://mcbal.github.io/post/transformers-as-collectives-of-spin-systems/}
 }
 </code></pre>
 <section class="footnotes" role="doc-endnotes">
 <hr>
 <ol>
 <li id="fn:1" role="doc-endnote">
-<p><em>Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need</a> (2017)</em> <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need</a> (2017)</em>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:2" role="doc-endnote">
-<p><em>Weihao Yu, Mi Luo, Pan Zhou, Chenyang Si, Yichen Zhou, Xinchao Wang, Jiashi Feng, and Shuicheng Yan, <a href="https://arxiv.org/abs/2111.11418" target="_blank" rel="noopener">MetaFormer is Actually What You Need for Vision</a> (2021)</em> <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Weihao Yu, Mi Luo, Pan Zhou, Chenyang Si, Yichen Zhou, Xinchao Wang, Jiashi Feng, and Shuicheng Yan, <a href="https://arxiv.org/abs/2111.11418" target="_blank" rel="noopener">MetaFormer is Actually What You Need for Vision</a> (2021)</em>&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:3" role="doc-endnote">
-<p><em>Hubert Ramsauer, Bernhard Schäfl, Johannes Lehner, Philipp Seidl, Michael Widrich, Lukas Gruber, Markus Holzleitner, Milena Pavlović, Geir Kjetil Sandve, Victor Greiff, David Kreil, Michael Kopp, Günter Klambauer, Johannes Brandstetter, and Sepp Hochreiter, <a href="https://arxiv.org/abs/2008.02217" target="_blank" rel="noopener">Hopfield Networks is All You Need</a> (2020)</em> <a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Hubert Ramsauer, Bernhard Schäfl, Johannes Lehner, Philipp Seidl, Michael Widrich, Lukas Gruber, Markus Holzleitner, Milena Pavlović, Geir Kjetil Sandve, Victor Greiff, David Kreil, Michael Kopp, Günter Klambauer, Johannes Brandstetter, and Sepp Hochreiter, <a href="https://arxiv.org/abs/2008.02217" target="_blank" rel="noopener">Hopfield Networks is All You Need</a> (2020)</em>&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:4" role="doc-endnote">
-<p><em>Dmitry Krotov and John Hopfield, <a href="https://arxiv.org/abs/2008.06996" target="_blank" rel="noopener">Large Associative Memory Problem in Neurobiology and Machine Learning</a> (2020)</em> <a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Dmitry Krotov and John Hopfield, <a href="https://arxiv.org/abs/2008.06996" target="_blank" rel="noopener">Large Associative Memory Problem in Neurobiology and Machine Learning</a> (2020)</em>&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:5" role="doc-endnote">
-<p>For example, see the content of Chapter 2 in the <a href="https://giamarchi.unige.ch/local/people/thierry.giamarchi/pdf/cours_sft.pdf" target="_blank" rel="noopener">lecture notes on statistical field theory</a> by Thierry Giamarchi. <a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>For example, see the content of Chapter 2 in the <a href="https://giamarchi.unige.ch/local/people/thierry.giamarchi/pdf/cours_sft.pdf" target="_blank" rel="noopener">lecture notes on statistical field theory</a> by Thierry Giamarchi.&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:6" role="doc-endnote">
-<p>The time-dependence in Eq. \eqref{eq:sloppyenergy} smells of non-equilibrium statistical mechanics. Incoming data might be considered as time-dependent &ldquo;probes&rdquo; which inject energy (and useful information if its content is low-entropy enough) into a non-equilibrium system. By nudging its dynamical response behavior across spatiotemporal scales, the system could potentially learn how to deal with being driven by all kinds of patterns in incoming data. For an interesting toy example of such behavior, see <a href="https://youtu.be/vSgHuErXuqk?t=2188" target="_blank" rel="noopener">this talk</a> by Jeremy England on <em>Low rattling: a principle for understanding driven many-body self-organization</em>. <a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>The time-dependence in Eq. \eqref{eq:sloppyenergy} smells of non-equilibrium statistical mechanics. Incoming data might be considered as time-dependent &ldquo;probes&rdquo; which inject energy (and useful information if its content is low-entropy enough) into a non-equilibrium system. By nudging its dynamical response behavior across spatiotemporal scales, the system could potentially learn how to deal with being driven by all kinds of patterns in incoming data. For an interesting toy example of such behavior, see <a href="https://youtu.be/vSgHuErXuqk?t=2188" target="_blank" rel="noopener">this talk</a> by Jeremy England on <em>Low rattling: a principle for understanding driven many-body self-organization</em>.&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>
@@ -1003,21 +1003,6 @@ E(t) = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\s
       
       <p class="card-text">Machine learning engineer with a background in physics.</p>
       <ul class="network-icon" aria-hidden="true">
-  
-    
-    
-    
-      
-    
-    
-    
-    
-    
-    <li>
-      <a href="mailto:matthiascbal@gmail.com" >
-        <i class="fas fa-envelope"></i>
-      </a>
-    </li>
   
     
     
@@ -1249,7 +1234,7 @@ E(t) = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\s
     
     
     
-    <script src="/js/wowchemy.min.4c2bca31150ce93c5a5e43b8a50f22fd.js"></script>
+    <script src="/js/wowchemy.min.434af0ebce9e15b273b954d65feb39c7.js"></script>
 
     
 

@@ -13,10 +13,10 @@
     </image>
     
     <item>
-      <title>Transformers as Collectives of Spin Systems</title>
-      <link>https://mcbal.github.io/post/transformers-as-collectives-of-spin-systems/</link>
+      <title>Transformers Are Secretly Collectives of Spin Systems</title>
+      <link>https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/</link>
       <pubDate>Tue, 23 Nov 2021 12:17:17 +0100</pubDate>
-      <guid>https://mcbal.github.io/post/transformers-as-collectives-of-spin-systems/</guid>
+      <guid>https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/</guid>
       <description>&lt;hr&gt;
 &lt;ol&gt;
 &lt;li&gt;&lt;a href=&#34;#1-introduction&#34;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
@@ -128,7 +128,7 @@ E(t) = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\s
 &lt;h2 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h2&gt;
 &lt;p&gt;If you happen to find this work useful, please consider citing it as:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;@article{bal2021isingisallyouneed,
-  title   = {Transformers as Collectives of Spin Systems},
+  title   = {Transformers Are Secretly Collectives of Spin Systems},
   author  = {Bal, Matthias},
   year    = {2021},
   month   = {November},
