@@ -132,7 +132,7 @@ E(t) = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\s
   author  = {Bal, Matthias},
   year    = {2021},
   month   = {November},
-  url     = {https://mcbal.github.io/post/transformers-as-collectives-of-spin-systems/}
+  url     = {https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/}
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
