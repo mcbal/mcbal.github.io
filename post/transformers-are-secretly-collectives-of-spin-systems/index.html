@@ -323,7 +323,7 @@
     
       <meta property="article:published_time" content="2021-11-23T12:17:17&#43;01:00">
     
-    <meta property="article:modified_time" content="2021-11-28T20:02:18&#43;01:00">
+    <meta property="article:modified_time" content="2021-11-29T20:12:18&#43;01:00">
   
 
   
@@ -356,7 +356,7 @@
   ],
   
   "datePublished": "2021-11-23T12:17:17+01:00",
-  "dateModified": "2021-11-28T20:02:18+01:00",
+  "dateModified": "2021-11-29T20:12:18+01:00",
   
   "author": {
     "@type": "Person",
@@ -649,7 +649,7 @@
           Last updated on
       
     
-    Nov 28, 2021
+    Nov 29, 2021
   </span>
   
 
@@ -780,7 +780,7 @@ J_{ij} \left( \boldsymbol{h}_{1}, \boldsymbol{h}_{2}, \ldots, \boldsymbol{h}_{N}
 <p>\begin{align}
 \boldsymbol{m}_{i} &amp;= - \frac{\mathrm{d} F_{\theta} \left( \boldsymbol{h}_{1}, \boldsymbol{h}_{2}, \ldots, \boldsymbol{h}_{N} \right)}{\mathrm{d} \boldsymbol{h}_{i}} \nonumber \\ &amp;= \langle \boldsymbol{\sigma}_{i} \rangle + \sum_{m,n} \langle \boldsymbol{\sigma}_{m} \cdot \boldsymbol{\sigma}_{n} \rangle \frac{\partial J_{mn} \left( \boldsymbol{h}_{1}, \boldsymbol{h}_{2}, \ldots, \boldsymbol{h}_{N} \right) }{ \partial \boldsymbol{h}_{i} } , \label{eq:sigmaweird}
 \end{align}</p>
-<p>which looks rather annoying. In practice, we should let an automatic differentiation framework keep track of dependencies so that we can get away with computing</p>
+<p>which looks rather annoying<sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup>. In practice, we should let an automatic differentiation framework keep track of dependencies so that we can get away with computing</p>
 <p>\begin{align}
 \boldsymbol{m}_{i} = - \frac{\mathrm{d} F_{\theta} \left( \boldsymbol{h}_{1}, \boldsymbol{h}_{2}, \ldots, \boldsymbol{h}_{N} \right)}{\mathrm{d} \boldsymbol{h}_{i}}, \label{eq:magnetization}
 \end{align}</p>
@@ -798,7 +798,7 @@ J_{ij} \left( \boldsymbol{h}_{1}, \boldsymbol{h}_{2}, \ldots, \boldsymbol{h}_{N}
 <p>These observations suggest that we can picture the forward pass of a transformer module as a wrapper around a vector-spin system: module inputs are routed to the external magnetic field (and, optionally, to a parametrized couplings function) and magnetizations are returned as outputs. The transformer module bears an uncanny resemblance to a differentiable physical system whose collective behavior we can control through training.</p>
 <h3 id="9-training-transformer-modules-shapes-collective-behavior">9. Training transformer modules shapes collective behavior</h3>
 <p>Now that we can picture transformer modules as physical spin systems responding to getting probed with data, let&rsquo;s imagine what training them looks like.</p>
-<p>On the level of the energy function of our spin system Eq. \eqref{eq:vectorrandomising}, we can model the training process of a transformer module by introducing a (discrete) time dimension and making the external magnetic field time-dependent, leading to<sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup></p>
+<p>On the level of the energy function of our spin system Eq. \eqref{eq:vectorrandomising}, we can model the training process of a transformer module by introducing a (discrete) time dimension and making the external magnetic field time-dependent, leading to<sup id="fnref:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup></p>
 <p>\begin{equation}
 E(t) = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\sigma}_{j} - \sum_{i=1}^{N} \boldsymbol{h}_{i}(t) \cdot \boldsymbol{\sigma}_{i} \label{eq:sloppyenergy}
 \end{equation}</p>
@@ -811,6 +811,8 @@ E(t) = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\s
 <h3 id="11-conclusion">11. Conclusion</h3>
 <p>In this post, we have argued that the forward pass of a transformer module maps onto computing magnetizations in a vector-spin model responding to data. Generalizing previous work on understanding softmax attention modules in terms of modern continuous Hopfield networks by taking derivatives of a judiciously chosen <em>energy</em> function, we propose to take derivatives of the <em>free energy</em> of a general vector-spin system to get to the blueprint of the architecture of a full transformer module.</p>
 <p>By zooming out and approaching transformers from a tangential, statistical-mechanical point of view, we arrived at a physical intuition of transformers that seems hard to obtain when restricting oneself to perturbing explicit neural network architectures. Recognizing transformer modules as spin models in disguise might not only unify architectural variations but also elucidate the high-level architectural convergence and empirical success of transformers in deep learning.</p>
+<h2 id="acknowledgements">Acknowledgements</h2>
+<p>We would like to thank <a href="https://mlcollective.org/" target="_blank" rel="noopener">ML Collective</a> for hosting its research jams and providing a friendly environment to present ideas.</p>
 <h2 id="references--footnotes">References &amp; footnotes</h2>
 <p>If you happen to find this work useful, please consider citing it as:</p>
 <pre><code>@article{bal2021isingisallyouneed,
@@ -840,7 +842,10 @@ E(t) = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\s
 <p>For example, see the content of Chapter 2 in the <a href="https://giamarchi.unige.ch/local/people/thierry.giamarchi/pdf/cours_sft.pdf" target="_blank" rel="noopener">lecture notes on statistical field theory</a> by Thierry Giamarchi.&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:6" role="doc-endnote">
-<p>The time-dependence in Eq. \eqref{eq:sloppyenergy} smells of non-equilibrium statistical mechanics. Incoming data might be considered as time-dependent &ldquo;probes&rdquo; which inject energy (and useful information if its content is low-entropy enough) into a non-equilibrium system. By nudging its dynamical response behavior across spatiotemporal scales, the system could potentially learn how to deal with being driven by all kinds of patterns in incoming data. For an interesting toy example of such behavior, see <a href="https://youtu.be/vSgHuErXuqk?t=2188" target="_blank" rel="noopener">this talk</a> by Jeremy England on <em>Low rattling: a principle for understanding driven many-body self-organization</em>.&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>The spin-system approach actually seems to suggest that the coupling parameters are the only learnable parameters in a vanilla transformer module. In the absence of an expression for the free energy, the feed-forward network&rsquo;s role might be to try to approximate the awfully complicated dependencies in the second term of Eq. \eqref{eq:sigmaweird}. It seems hard to believe that such a drastic reduction of parameters should <em>not</em> lead to a severe drop in performance in practice.&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:7" role="doc-endnote">
+<p>The time-dependence in Eq. \eqref{eq:sloppyenergy} smells of non-equilibrium statistical mechanics. Incoming data might be considered as time-dependent &ldquo;probes&rdquo; which inject energy (and useful information if its content is low-entropy enough) into a non-equilibrium system. By nudging its dynamical response behavior across spatiotemporal scales, the system could potentially learn how to deal with being driven by all kinds of patterns in incoming data. For an interesting toy example of such behavior, see <a href="https://youtu.be/vSgHuErXuqk?t=2188" target="_blank" rel="noopener">this talk</a> by Jeremy England on <em>Low rattling: a principle for understanding driven many-body self-organization</em>.&#160;<a href="#fnref:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>
