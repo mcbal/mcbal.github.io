@@ -297,8 +297,8 @@
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/">
 
@@ -368,7 +368,7 @@
     "name": "mcbal",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png"
+      "url": "https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "How far can we push the idea of transformers as physical systems?"
@@ -764,9 +764,9 @@ E = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\sigm
 <p>In statistical mechanics, the model Eq. \eqref{eq:vectrandomising} is known as a <a href="https://en.wikipedia.org/wiki/N-vector_model" target="_blank" rel="noopener">vector model</a> whose familiar small-$D$ cases include the <a href="https://en.wikipedia.org/wiki/Ising_model" target="_blank" rel="noopener">Ising model</a> ($D=1$), the <a href="https://en.wikipedia.org/wiki/Classical_XY_model" target="_blank" rel="noopener">XY model</a> ($D=2$), and the <a href="https://en.wikipedia.org/wiki/Classical_Heisenberg_model" target="_blank" rel="noopener">Heisenberg model</a> ($D=3$). For infinite-dimensional spins $D \to \infty$, one can show that the system approaches the <a href="https://en.wikipedia.org/wiki/Spherical_model" target="_blank" rel="noopener">spherical model</a>. The model defined by \eqref{eq:vectrandomising} can also be regarded as a vector generalization of <a href="https://en.wikipedia.org/wiki/Boltzmann_machine" target="_blank" rel="noopener">Boltzmann machines</a> or <a href="https://en.wikipedia.org/wiki/Hopfield_network" target="_blank" rel="noopener">Hopfield networks</a> or disordered <a href="https://en.wikipedia.org/wiki/Spin_glass#The_model_of_Sherrington_and_Kirkpatrick" target="_blank" rel="noopener">Sherrington-Kirkpatrick spin-glass models</a> (but with just a single sample of non-local couplings instead of an underlying probability distribution).</p>
 <p>The partition function for our spin system looks like:</p>
 <p>\begin{align}
-Z_{N}^{(D)} &amp;\left( \beta, J_{ij}, \{ \boldsymbol{h}_{i} \} \right) \nonumber \\<br>
-&amp;= \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty} \ \mathrm{d}\sigma_{1}(1) \cdots \mathrm{d}\sigma_{D}(N) \nonumber \\<br>
-&amp; \qquad \times \ \prod_{j=1}^{N} \delta \left( D - \lVert \boldsymbol{\sigma}_{j} \rVert _{2}^{2} \right) \nonumber \\<br>
+Z_{N}^{(D)} &amp;\left( \beta, J_{ij}, \{ \boldsymbol{h}_{i} \} \right) \nonumber \\
+&amp;= \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty} \ \mathrm{d}\sigma_{1}(1) \cdots \mathrm{d}\sigma_{D}(N) \nonumber \\
+&amp; \qquad \times \ \prod_{j=1}^{N} \delta \left( D - \lVert \boldsymbol{\sigma}_{j} \rVert _{2}^{2} \right) \nonumber \\
 &amp; \qquad \times \exp \left[ \beta \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\sigma}_{j} + \beta \sum_{i=1}^{N} \boldsymbol{h}_{i} \cdot \boldsymbol{\sigma}_{i} \right] \label{eq:fullpartfun}
 \end{align}</p>
 <p>where we have made all dependencies explicit. This looks absolutely mental. We somehow need to find a way to do $N \times D$ integrals while taking into account all the constraints and interactions.</p>
@@ -777,8 +777,8 @@ Z_{N}^{(D)} &amp;\left( \beta, J_{ij}, \{ \boldsymbol{h}_{i} \} \right) \nonumbe
 \end{align}</p>
 <p>so that</p>
 <p>\begin{align}
-Z_{N}^{(D)} &amp;= \left(\frac{\beta}{2 \pi i}\right)^{N} \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty} \ \mathrm{d}\sigma_{1}(1) \cdots \mathrm{d}\sigma_{D}(N) \nonumber \\<br>
-&amp; \times \int_{-i\infty}^{i\infty} \cdots \int_{-i\infty}^{i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \ \exp \left( \beta D \sum_{j=1}^{N} t_{j} \right)\nonumber \\<br>
+Z_{N}^{(D)} &amp;= \left(\frac{\beta}{2 \pi i}\right)^{N} \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty} \ \mathrm{d}\sigma_{1}(1) \cdots \mathrm{d}\sigma_{D}(N) \nonumber \\
+&amp; \times \int_{-i\infty}^{i\infty} \cdots \int_{-i\infty}^{i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \ \exp \left( \beta D \sum_{j=1}^{N} t_{j} \right)\nonumber \\
 &amp; \times \prod_{\alpha=1}^{D} \exp \left[ -\beta \sum_{i,j=1}^{N} \left(t_{j}\delta_{ij}-J_{ij}\right) \; \sigma_{\alpha}(i) \sigma_{\alpha}(j) + \beta \sum_{i=1}^{N} h_{\alpha}(i) \sigma_{\alpha}(i) \right] \nonumber
 \end{align}</p>
 <p>Great, even more integrals. The next frustrating trick involves writing the number 1 as a judiciously chosen exponential,</p>
@@ -787,30 +787,30 @@ Z_{N}^{(D)} &amp;= \left(\frac{\beta}{2 \pi i}\right)^{N} \int_{-\infty}^{\infty
 \end{align}</p>
 <p>for some arbitrary constant $a$, which, inside the integral, indeed evaluates to $\exp (0) = 1$ because of the constraints. Inserting this expression gives</p>
 <p>\begin{align}
-&amp;Z_{N}^{(D)} = \left(\frac{\beta}{2 \pi i}\right)^{N} \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty} \ \mathrm{d}\sigma_{1}(1) \cdots \mathrm{d}\sigma_{D}(N) \nonumber \\<br>
-&amp; \times \int_{-i\infty}^{i\infty} \cdots \int_{-i\infty}^{i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \ \exp \left( \beta D \sum_{j=1}^{N} \left( t_{j} + a\right) \right)\nonumber \\<br>
+&amp;Z_{N}^{(D)} = \left(\frac{\beta}{2 \pi i}\right)^{N} \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty} \ \mathrm{d}\sigma_{1}(1) \cdots \mathrm{d}\sigma_{D}(N) \nonumber \\
+&amp; \times \int_{-i\infty}^{i\infty} \cdots \int_{-i\infty}^{i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \ \exp \left( \beta D \sum_{j=1}^{N} \left( t_{j} + a\right) \right)\nonumber \\
 &amp; \times \prod_{\alpha=1}^{D} \exp \left[ -\beta \sum_{i,j=1}^{N} \left( \left( t_{j} + a \right) \delta_{ij}-J_{ij}\right) \; \sigma_{\alpha}(i) \sigma_{\alpha}(j) + \beta \sum_{i=1}^{N} h_{\alpha}(i) \sigma_{\alpha}(i) \right] \nonumber
 \end{align}</p>
 <p>Next, we&rsquo;d like to swap the order of the $\mathrm{d}\sigma_{a}(j)$ and $\mathrm{d}t_{j}$ integrations to start integrating. But we are only allowed to do this if we assume $a$ to be a sufficiently large positive real number. Why? Essentially, we are deforming the contours of the complex integrals sufficiently far to the right such that the real part the quadratic form appearing in the exponential is positive definite, see e.g. <a href="https://doi.org/10.1103/PhysRev.160.437" target="_blank" rel="noopener">Helfand &amp; Langer (1967)</a>.</p>
 <p>Let&rsquo;s go ahead and assume that everything is fine. We swap integrals and do a change of variables $t_j \to t_j + a$ so that</p>
 <p>\begin{align}
 Z_{N}^{(D)} &amp;= \left(\frac{\beta}{2 \pi i}\right)^{N} \int_{a-i\infty}^{a+i\infty} \cdots \int_{a-i\infty}^{a+
-i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \\<br>
+i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \\
 &amp; \times \exp \left( \beta D \sum_{j=1}^{N} t_{j} \right)\nonumber \prod_{\alpha=1}^{D} I_{\alpha} \left( \beta, \{ t_{j} \}, \{ h_{\alpha}(i) \} \right)\nonumber
 \end{align}</p>
 <p>where</p>
 <p>\begin{align}
-I_{\alpha} &amp;\left( \beta, \{ t_{j} \}, \{ h_{\alpha}(i) \} \right) = \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty} \ \mathrm{d}\sigma_{\alpha}(1) \cdots \mathrm{d}\sigma_{\alpha}(N) \nonumber \\<br>
-&amp; \times \exp \left[ -\beta \sum_{i,j=1}^{N} \left( t_{j} \delta_{ij}-J_{ij}\right) \; \sigma_{\alpha}(i) \sigma_{\alpha}(j) + \beta \sum_{i=1}^{N} h_{\alpha}(i) \sigma_{\alpha}(i) \right]\nonumber \\<br>
+I_{\alpha} &amp;\left( \beta, \{ t_{j} \}, \{ h_{\alpha}(i) \} \right) = \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty} \ \mathrm{d}\sigma_{\alpha}(1) \cdots \mathrm{d}\sigma_{\alpha}(N) \nonumber \\
+&amp; \times \exp \left[ -\beta \sum_{i,j=1}^{N} \left( t_{j} \delta_{ij}-J_{ij}\right) \; \sigma_{\alpha}(i) \sigma_{\alpha}(j) + \beta \sum_{i=1}^{N} h_{\alpha}(i) \sigma_{\alpha}(i) \right]\nonumber \\
 \end{align}</p>
 <p>Notice how the integrals have kind of factorized over the vector dimension: for every $\alpha$-component we can evaluate an $N$-dimensional Gaussian integral with a linear term. The $I_{\alpha}$ functions depend on the sources $\{ \boldsymbol{h}_{i} \}$ indexed along local dimension instead of spin. Introducing the symmetric $N \times N$ matrix $V_{ij} = t_{j} \delta_{ij}-J_{ij}$, we can evaluate the Gaussian integrals and find</p>
 <p>\begin{align}
-I_{\alpha} &amp;\left( \beta, \{ t_{j} \}, \{ h_{\alpha}(i) \} \right) = \left( \frac{\pi}{\beta} \right)^{N/2} \left[ \det \left( \boldsymbol{V} \right) \right]^{-1/2} \exp \left(\frac{\beta}{4} \boldsymbol{h}_{\alpha}^{T} \boldsymbol{V}^{-1} \boldsymbol{h}_{\alpha} \right) \nonumber \\<br>
+I_{\alpha} &amp;\left( \beta, \{ t_{j} \}, \{ h_{\alpha}(i) \} \right) = \left( \frac{\pi}{\beta} \right)^{N/2} \left[ \det \left( \boldsymbol{V} \right) \right]^{-1/2} \exp \left(\frac{\beta}{4} \boldsymbol{h}_{\alpha}^{T} \boldsymbol{V}^{-1} \boldsymbol{h}_{\alpha} \right) \nonumber \\
 \end{align}</p>
 <p>where $\boldsymbol{h}_{\alpha} = \left[ h_{\alpha}(1), h_{\alpha}(2), \ldots, h_{\alpha}(N) \right]$ denote $N$-dimensional vectors. The expression for the partition function becomes</p>
 <p>\begin{align}
 &amp;Z_{N}^{(D)} = \left(\frac{\beta}{2 \pi i}\right)^{N} \left( \frac{\pi}{\beta} \right)^{DN/2} \int_{a-i\infty}^{a+i\infty} \cdots \int_{a-i\infty}^{a
-+i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \nonumber \\<br>
++i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \nonumber \\
 &amp; \times \exp \left( D \left( \beta \sum_{j=1}^{N} t_{j} - \frac{1}{2} \log \det \left( \boldsymbol{V} \right) \right) \right) \exp \left( \frac{\beta}{4} \mathrm{Tr} \left( \boldsymbol{H}^{T} \boldsymbol{V}^{-1} \boldsymbol{H} \right) \right) \nonumber
 \end{align}</p>
 <p>where we have introduced the matrix notation $\boldsymbol{H} \in \mathbb{R}^{N \times D}$ to group the vectors $\{ \boldsymbol{h}_{i} \}$.</p>
@@ -818,7 +818,7 @@ I_{\alpha} &amp;\left( \beta, \{ t_{j} \}, \{ h_{\alpha}(i) \} \right) = \left( 
 <p>But there&rsquo;s still $N$ complex integrals over the auxiliary variables $\{ t_{j} \}$ left to do. Can we avoid doing them? Maybe. Let&rsquo;s rewrite our partition function as</p>
 <p>\begin{align}
 Z_{N}^{(D)} = \left(\frac{\beta}{2 \pi i}\right)^{N} &amp;\left( \frac{\pi}{\beta} \right)^{DN/2} \int_{a-i\infty}^{a+i\infty} \cdots \int_{a-i\infty}^{a
-+i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \ \mathrm{e}^{D \varphi \left(\boldsymbol{t} \right) } \label{eq:partfunsteep} \\<br>
++i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \ \mathrm{e}^{D \varphi \left(\boldsymbol{t} \right) } \label{eq:partfunsteep} \\
 \end{align}</p>
 <p>with</p>
 <p>\begin{align}
@@ -867,11 +867,11 @@ p_{\theta} \left( h \right) = \frac{\int \mathrm{d} \sigma \  \mathrm{e}^{-E_{\t
 \end{align}</p>
 <p>where the applied magnetic fields act as observables and the spins as latent variables. The effective energy $E_{\theta}\left( h \right)$ equals
 $
-E_{\theta}\left( h \right) = - \log \int \mathrm{d} \sigma \ \mathrm{e}^{-E_{\theta}\left( \sigma, h \right)} \approx - \log Z^{*}_{\theta} \left( h \right),
+E_{\theta}\left( h \right) = - \log \int \mathrm{d} \sigma \ \mathrm{e}^{-E_{\theta}\left( \sigma, h \right)} \approx - \log Z^{<em>}_{\theta} \left( h \right),
 $
 where we have used the steepest-descent approximation for the integral. Taking the logarithm of Eq. \eqref{eq:ph}, we find that
 $
-\log p_{\theta} \left( h \right) \approx \log Z^{*}_{\theta} \left( h \right) - \log \int \mathrm{d} h \ Z^{*}_{\theta} \left( h \right)
+\log p_{\theta} \left( h \right) \approx \log Z^{</em>}_{\theta} \left( h \right) - \log \int \mathrm{d} h \ Z^{*}_{\theta} \left( h \right)
 $.</p>
 <h4 id="243-spin-glasses-and-mean-field-approximation">2.4.3. Spin glasses and mean-field approximation</h4>
 <p>Ordered systems have a long history in statistical mechanics. Couplings in these models often encode a translation-invariant lattice geometry, e.g. nearest-neighbour interactions between spins living on a $d$-dimensional hypercubic lattice. One reason for this focus is practical: the regularity in these systems enables mathematical physicists to deploy all kinds of tricks and make progress towards some kind of understanding. In contrast, disordered systems, like spin glasses, are a mess and studying them is all about <a href="https://www.nobelprize.org/prizes/physics/2021/summary/" target="_blank" rel="noopener">finding order where there seems to be none</a>. From the perspective of spin glasses, we can summarize our approach as follows: we want to arrive at an approximate yet tractable mean-field spin-glass model where its couplings are treated as parameters learned from data<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>.</p>
@@ -917,8 +917,8 @@ The factor $1/\sqrt{N}$ can be explained from spin-glass mean-field theory<sup i
 <li>when we wiggle around both $t_{i}$ and $t_{j}$ (the symmetric Hessian matrix at $\boldsymbol{t}$)</li>
 </ul>
 <p>\begin{align}
-\left[ \boldsymbol{J}(\nabla \varphi \left( \boldsymbol{t} \right)) \right]_{ij} = \frac{1}{2} &amp;\left[ \boldsymbol{V}^{-1} \odot \boldsymbol{V}^{-T} \right]_{ij} \nonumber \\<br>
-&amp;+ \frac{\beta}{4} \left[ \boldsymbol{V}^{-T} \boldsymbol{H} \boldsymbol{H}^{T} \boldsymbol{V}^{-T} \boldsymbol{V}^{-T} \odot \boldsymbol{I} \right]_{ij} \nonumber \\<br>
+\left[ \boldsymbol{J}(\nabla \varphi \left( \boldsymbol{t} \right)) \right]_{ij} = \frac{1}{2} &amp;\left[ \boldsymbol{V}^{-1} \odot \boldsymbol{V}^{-T} \right]_{ij} \nonumber \\
+&amp;+ \frac{\beta}{4} \left[ \boldsymbol{V}^{-T} \boldsymbol{H} \boldsymbol{H}^{T} \boldsymbol{V}^{-T} \boldsymbol{V}^{-T} \odot \boldsymbol{I} \right]_{ij} \nonumber \\
 &amp;+ \frac{\beta}{4} \left[ \boldsymbol{V}^{-T} \boldsymbol{V}^{-T} \boldsymbol{H} \boldsymbol{H}^{T} \boldsymbol{V}^{-T} \odot \boldsymbol{I} \right]_{ij} \nonumber
 \end{align}</p>
 <p>Given an initial guess $\boldsymbol{t_{0}} \in \mathbb{R}^{N}_{&gt;0}$ and input data $\boldsymbol{H} \in \mathbb{R}^{N \times D}$, we can now construct a differentiable root-solver which returns $\boldsymbol{t^{*}}$. It is important to keep in mind that the stationary value $\boldsymbol{t^{*}}$ actually depends on $\left(\beta, \boldsymbol{J}, \boldsymbol{H} \right)$ implicitly. Since we make use of implicit layers within an automatic differentation framework, these dependencies are kept track of and are included in the computational graph.</p>
@@ -948,7 +948,7 @@ The factor $1/\sqrt{N}$ can be explained from spin-glass mean-field theory<sup i
 <p>\begin{align}
 \langle \boldsymbol{\sigma}_{i} \rangle = \frac{\mathrm{d} \log Z \left( \boldsymbol{t}, \boldsymbol{H} \right)}{\mathrm{d} \boldsymbol{h}_{i}} = \frac{\partial \varphi}{\partial \boldsymbol{t}} \frac{\partial \boldsymbol{t}}{\partial \boldsymbol{h}_{i}} + \frac{\partial \varphi}{\partial \boldsymbol{h}_{i}} \label{eq:spinevgeneral}
 \end{align}</p>
-<p>If we evaluate the partition function approximation at the stationary point $\boldsymbol{t^{*}}$, the first term drops out because $\partial_{\boldsymbol{t}} \varphi \rvert_{\boldsymbol{t}=\boldsymbol{t^{*}}} = 0$. Assuming that the matrix $\boldsymbol{V}$ (and hence the couplings $\boldsymbol{J}$) do not depend on the inputs $\boldsymbol{H}$, the spin expectation value boils down to</p>
+<p>If we evaluate the partition function approximation at the stationary point $\boldsymbol{t^{<em>}}$, the first term drops out because $\partial_{\boldsymbol{t}} \varphi \rvert_{\boldsymbol{t}=\boldsymbol{t^{</em>}}} = 0$. Assuming that the matrix $\boldsymbol{V}$ (and hence the couplings $\boldsymbol{J}$) do not depend on the inputs $\boldsymbol{H}$, the spin expectation value boils down to</p>
 <p>\begin{align}
 \langle \boldsymbol{\sigma}_{i} \rangle = \frac{\partial \varphi}{\partial \boldsymbol{h}_{i}} = \frac{\beta}{2} \sum_{ij} \boldsymbol{V}^{-1}_{ij} \boldsymbol{h}_{j} \label{eq:spinev}
 \end{align}</p>
@@ -1001,29 +1001,29 @@ where $\boldsymbol{Q}$ and $\boldsymbol{K}$ are linear transformations acting on
 <hr>
 <ol>
 <li id="fn:1" role="doc-endnote">
-<p>We could have turned to the mean-field free energies associated with the adaptive TAP equations discussed in <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention</a>, but we decided on attacking the problem from the steepest-descent angle on the full partition function. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>We could have turned to the mean-field free energies associated with the adaptive TAP equations discussed in <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention</a>, but we decided on attacking the problem from the steepest-descent angle on the full partition function.&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:2" role="doc-endnote">
-<p>The original 1968 paper has a small typo here: the $\nu$ in the paper&rsquo;s Eq. (23) should be $\nu^{1/2}$ for the surface area of a $\nu-1$-dimensional sphere with radius $R=\nu^{1/2}$ embedded in $\nu$ dimensions. Using the paper&rsquo;s formula, an annoying $\ln \nu$ term won&rsquo;t cancel out in the limiting free energy calculation. <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>The original 1968 paper has a small typo here: the $\nu$ in the paper&rsquo;s Eq. (23) should be $\nu^{1/2}$ for the surface area of a $\nu-1$-dimensional sphere with radius $R=\nu^{1/2}$ embedded in $\nu$ dimensions. Using the paper&rsquo;s formula, an annoying $\ln \nu$ term won&rsquo;t cancel out in the limiting free energy calculation.&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:3" role="doc-endnote">
-<p>In contrast to spin glasses however, we do not (yet want to go full Bayesian and) treat the couplings as drawn from some kind of probability distribution. For now, we settle for obtaining point estimates of model parameters. <a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>In contrast to spin glasses however, we do not (yet want to go full Bayesian and) treat the couplings as drawn from some kind of probability distribution. For now, we settle for obtaining point estimates of model parameters.&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:4" role="doc-endnote">
-<p>By promoting sparseness in the couplings, a model might become less mean-field-y, which might be one of the reasons behind the sucess of scaled <code>softmax</code> attention in vanilla transformers. <a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>By promoting sparseness in the couplings, a model might become less mean-field-y, which might be one of the reasons behind the sucess of scaled <code>softmax</code> attention in vanilla transformers.&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:5" role="doc-endnote">
-<p>From <a href="https://arxiv.org/abs/1506.07128" target="_blank" rel="noopener">Janiš (2015)</a>: <em>The mean-field limit to infinite dimensions or long-range interaction introduces a new large scale. To make the thermodynamic limit meaningful the dependence of the energy on this new large scale must be compensated by rescaling the non-local spin exchange so that the energy remains linearly proportional to the volume or the number of lattice sites (spins).</em> <a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>From <a href="https://arxiv.org/abs/1506.07128" target="_blank" rel="noopener">Janiš (2015)</a>: <em>The mean-field limit to infinite dimensions or long-range interaction introduces a new large scale. To make the thermodynamic limit meaningful the dependence of the energy on this new large scale must be compensated by rescaling the non-local spin exchange so that the energy remains linearly proportional to the volume or the number of lattice sites (spins).</em>&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:6" role="doc-endnote">
 <p>We can expand the right-hand side using a <a href="https://en.wikipedia.org/wiki/Woodbury_matrix_identity#Inverse_of_a_sum" target="_blank" rel="noopener">special case of the Woodbury matrix identity</a> to find
 \begin{align}
 \boldsymbol{V}^{-1} &amp;= \left( \mathrm{diag} ( \boldsymbol{t} ) - \boldsymbol{J} \right)^{-1} = \sum_{k=0}^{\infty} \left( \mathrm{diag} \left( \boldsymbol{t}^{-1} \right) \boldsymbol{J} \right)^{k} \mathrm{diag} \left( \boldsymbol{t}^{-1} \right) \nonumber
 \end{align}
-which converges if the largest absolute value of the eigenvalues of the matrix inside the power-brackets is less than 1. So the spin expectation value looks like a sum of contributions that mix and weigh inputs of different sites. <a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+which converges if the largest absolute value of the eigenvalues of the matrix inside the power-brackets is less than 1. So the spin expectation value looks like a sum of contributions that mix and weigh inputs of different sites.&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:7" role="doc-endnote">
-<p>As discussed previously in <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a>. In that setting, calculating inverses was sidestepped by approximating part of the solution with a feed-forward neural network. <a href="#fnref:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>As discussed previously in <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a>. In that setting, calculating inverses was sidestepped by approximating part of the solution with a feed-forward neural network.&#160;<a href="#fnref:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>
@@ -1202,21 +1202,6 @@ which converges if the largest absolute value of the eigenvalues of the matrix i
     
     
     
-    <li>
-      <a href="mailto:matthiascbal@gmail.com" >
-        <i class="fas fa-envelope"></i>
-      </a>
-    </li>
-  
-    
-    
-    
-      
-    
-    
-    
-    
-    
       
     
     <li>
@@ -1296,7 +1281,7 @@ which converges if the largest absolute value of the eigenvalues of the matrix i
   
   <div class="post-nav-item">
     <div class="meta-nav">Next</div>
-    <a href="/post/transformers-are-secretly-collectives-of-spin-systems/" rel="next">Transformers Are Secretly Collectives of Spin Systems</a>
+    <a href="/post/transformers-as-collectives-of-spin-systems/" rel="next">Transformers as Collectives of Spin Systems</a>
   </div>
   
   
@@ -1320,7 +1305,7 @@ which converges if the largest absolute value of the eigenvalues of the matrix i
     <h3>Related</h3>
     <ul>
       
-      <li><a href="/post/transformers-are-secretly-collectives-of-spin-systems/">Transformers Are Secretly Collectives of Spin Systems</a></li>
+      <li><a href="/post/transformers-as-collectives-of-spin-systems/">Transformers as Collectives of Spin Systems</a></li>
       
       <li><a href="/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a></li>
       
@@ -1445,7 +1430,7 @@ which converges if the largest absolute value of the eigenvalues of the matrix i
     
     
     
-    <script src="/js/wowchemy.min.4c2bca31150ce93c5a5e43b8a50f22fd.js"></script>
+    <script src="/js/wowchemy.min.434af0ebce9e15b273b954d65feb39c7.js"></script>
 
     
 

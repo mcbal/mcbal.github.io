@@ -7,16 +7,16 @@
     <description>Artificial Intelligence</description>
     <generator>Wowchemy (https://wowchemy.com)</generator><language>en-gb</language><copyright>Matthias Bal © 2021</copyright><lastBuildDate>Tue, 23 Nov 2021 12:17:17 +0100</lastBuildDate>
     <image>
-      <url>https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png</url>
+      <url>https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_3.png</url>
       <title>Artificial Intelligence</title>
       <link>https://mcbal.github.io/tag/artificial-intelligence/</link>
     </image>
     
     <item>
-      <title>Transformers Are Secretly Collectives of Spin Systems</title>
-      <link>https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/</link>
+      <title>Transformers as Collectives of Spin Systems</title>
+      <link>https://mcbal.github.io/post/transformers-as-collectives-of-spin-systems/</link>
       <pubDate>Tue, 23 Nov 2021 12:17:17 +0100</pubDate>
-      <guid>https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/</guid>
+      <guid>https://mcbal.github.io/post/transformers-as-collectives-of-spin-systems/</guid>
       <description>&lt;hr&gt;
 &lt;ol&gt;
 &lt;li&gt;&lt;a href=&#34;#1-introduction&#34;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
@@ -38,7 +38,7 @@
 &lt;li&gt;&lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers from Spin Models: Approximate Free Energy Minimization&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;We argue that the neural-network architecture of the archetypical transformer module can be derived from the structure of physical spin systems familiar from classical statistical mechanics. More specifically, we claim that the forward pass of transformer modules maps onto computing magnetizations in vector-spin models in response to incoming data. We imagine transformers as collectives of differentiable spin systems whose behavior can be shaped through training.&lt;/p&gt;
+&lt;p&gt;We argue that the neural-network architecture of the archetypical transformer module can be derived from the structure of physical spin systems familiar from classical statistical mechanics. More specifically, we claim that the forward pass of transformer modules maps onto computing magnetizations in vector-spin models in response to incoming data. We imagine transformers secretly being collectives of differentiable spin systems whose behavior can be shaped through training.&lt;/p&gt;
 &lt;h3 id=&#34;2-where-does-the-transformer-module-architecture-come-from&#34;&gt;2. Where does the transformer module architecture come from?&lt;/h3&gt;
 &lt;p&gt;Taking a bird&amp;rsquo;s eye view of the evergrowing zoo of transformer architectures in natural language processing and computer vision suggests that the high-level design pattern introduced in &lt;em&gt;&lt;a href=&#34;https://arxiv.org/abs/1706.03762&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Attention is All You Need (Vaswani et al., 2017)&lt;/a&gt;&lt;/em&gt;&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; is still dominant. Almost all architectural variations of transformer modules published in the last four years have stuck to a successful combination of residual connections, an attention-like operation (token-mixing), normalization layers, and a feed-forward-like operation (channel-mixing).&lt;/p&gt;
 &lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/2111.11418&#34; target=_blank&gt;&lt;img src=&#34;metaformer.png&#34; alt=&#34;MetaFormer architecture comparison&#34; width=&#34;400px&#34;/&gt;&lt;/a&gt;&lt;/p&gt;
@@ -67,9 +67,9 @@ E = - \sum_{i,j=1}^{N} J_{ij} \sigma_{i} \sigma_{j} - \sum_{i=1}^{N} h_{i} \sigm
 &lt;img src=&#34;binary_ising.png&#34; alt=&#34;Random Ising model configuration with binary spins&#34; width=&#34;200px&#34;/&gt;
 &lt;p&gt;At thermal equilibrium, the system&amp;rsquo;s energy function determines what spin configurations (patterns of up/down spins) are preferred according to the Boltzmann probability distribution $p(\sigma) = e^{-\beta E\left( \sigma \right)} / Z$, where $Z = \sum_{\sigma} e^{-\beta E\left( \sigma \right)}$ denotes the partition function of the system and $\beta$ the inverse temperature. The partition function of a physical system is a magical object which relates the microscopic world to observable thermodynamic quantities via the free energy $F = - \beta^{-1} \log Z$. It is also shockingly hard to compute in most scenarios, but let&amp;rsquo;s ignore that for now.&lt;/p&gt;
 &lt;p&gt;Even though binary spin models are nice, they rarely excite machine learning practitioners anymore nowadays. Since modern neural networks like transformers act on sets or sequences of vector data, it seems much more natural to consider &lt;em&gt;vector-spin models&lt;/em&gt;. After replacing binary degrees of freedom with $d$-dimensional vector degrees of freedom, we can define an energy function&lt;/p&gt;
-&lt;p&gt;\begin{equation}
+&lt;p&gt;\begin{align}
 E = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\sigma}_{j} - \sum_{i=1}^{N} \boldsymbol{h}_{i} \cdot \boldsymbol{\sigma}_{i} \label{eq:vectorrandomising}
-\end{equation}&lt;/p&gt;
+\end{align}&lt;/p&gt;
 &lt;p&gt;where the scalar products have turned into dot products.&lt;/p&gt;
 &lt;img src=&#34;vector_ising.png&#34; alt=&#34;Random Ising model configuration with vector spins&#34; width=&#34;200px&#34;/&gt;
 &lt;p&gt;Now how can we relate vector-spin systems like Eq. \eqref{eq:vectorrandomising} to neural networks?&lt;/p&gt;
@@ -121,40 +121,40 @@ E(t) = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\s
 &lt;p&gt;We can think about this training process as gradually shaping the collective behavior of a differentiable vector-spin system that is driven by data. If the couplings depend on the inputs, like in Eq. \eqref{eq:softmaxcouplings}, we should make the couplings time-dependent as well in Eq. \eqref{eq:sloppyenergy}. In that case, the external magnetic fields as well as the parametrized couplings change instantaneously at every training step.&lt;/p&gt;
 &lt;h3 id=&#34;10-training-deep-transformers-orchestrates-spin-system-collectives&#34;&gt;10. Training deep transformers orchestrates spin-system collectives&lt;/h3&gt;
 &lt;p&gt;Training a deep transformer model corresponds to orchestrating a stack of transformer modules by building up a differentiable structure of correlations where the magnetizations of one spin system drive the next one. Wiggling billions of parameters during training then nudges the cascading response behavior of the collective of spin systems to better adapt to the collective&amp;rsquo;s (meta-)tasks as specified by the data and the loss function.&lt;/p&gt;
-&lt;img src=&#34;transformertraining_new.png&#34; alt=&#34;Training a transformer&#34; width=&#34;400px&#34;/&gt;
+&lt;img src=&#34;transformertraining_new.png&#34; alt=&#34;Training a transformer&#34; width=&#34;500px&#34;/&gt;
 &lt;h3 id=&#34;11-conclusion&#34;&gt;11. Conclusion&lt;/h3&gt;
-&lt;p&gt;In this post, we have argued that the forward pass of a transformer module maps onto computing magnetizations in a vector-spin model responding to data. Generalizing previous work on understanding softmax attention modules in terms of modern continuous Hopfield networks by taking derivatives of a judiciously chosen &lt;em&gt;energy&lt;/em&gt; function, we propose to take derivatives of the &lt;em&gt;free energy&lt;/em&gt; of a general vector-spin system to elucidate the architecture of a full transformer module.&lt;/p&gt;
-&lt;p&gt;By zooming out and approaching transformers from a tangential, statistical-mechanical point of view, we were able to develop a physical intuition of transformers that seems hard to arrive at when restricting oneself to perturbing explicit neural network architectures. Recognizing transformer modules as spin models in disguise might not only unify architectural variations but also elucidate the high-level architectural convergence and empirical success of transformers in deep learning.&lt;/p&gt;
+&lt;p&gt;In this post, we have argued that the forward pass of a transformer module maps onto computing magnetizations in a vector-spin model responding to data. Generalizing previous work on understanding softmax attention modules in terms of modern continuous Hopfield networks by taking derivatives of a judiciously chosen &lt;em&gt;energy&lt;/em&gt; function, we propose to take derivatives of the &lt;em&gt;free energy&lt;/em&gt; of a general vector-spin system to get to the architecture of a full transformer module.&lt;/p&gt;
+&lt;p&gt;By zooming out and approaching transformers from a tangential, statistical-mechanical point of view, we arrived at a physical intuition of transformers that seems hard to obtain when restricting oneself to perturbing explicit neural network architectures. Recognizing transformer modules as spin models in disguise might not only unify architectural variations but also elucidate the high-level architectural convergence and empirical success of transformers in deep learning.&lt;/p&gt;
 &lt;h2 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h2&gt;
 &lt;p&gt;If you happen to find this work useful, please consider citing it as:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;@article{bal2021isingmodelisallyouneed,
-  title   = {Transformers Are Secretly Collectives of Spin Systems},
+&lt;pre&gt;&lt;code&gt;@article{bal2021isingisallyouneed,
+  title   = {Transformers as Collectives of Spin Systems},
   author  = {Bal, Matthias},
   year    = {2021},
   month   = {November},
-  url     = {https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/}
+  url     = {https://mcbal.github.io/post/transformers-as-collectives-of-spin-systems/}
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
 &lt;hr&gt;
 &lt;ol&gt;
 &lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, &lt;a href=&#34;https://arxiv.org/abs/1706.03762&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Attention Is All You Need&lt;/a&gt; (2017)&lt;/em&gt; &lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, &lt;a href=&#34;https://arxiv.org/abs/1706.03762&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Attention Is All You Need&lt;/a&gt; (2017)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Weihao Yu, Mi Luo, Pan Zhou, Chenyang Si, Yichen Zhou, Xinchao Wang, Jiashi Feng, and Shuicheng Yan, &lt;a href=&#34;https://arxiv.org/abs/2111.11418&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;MetaFormer is Actually What You Need for Vision&lt;/a&gt; (2021)&lt;/em&gt; &lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Weihao Yu, Mi Luo, Pan Zhou, Chenyang Si, Yichen Zhou, Xinchao Wang, Jiashi Feng, and Shuicheng Yan, &lt;a href=&#34;https://arxiv.org/abs/2111.11418&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;MetaFormer is Actually What You Need for Vision&lt;/a&gt; (2021)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Hubert Ramsauer, Bernhard Schäfl, Johannes Lehner, Philipp Seidl, Michael Widrich, Lukas Gruber, Markus Holzleitner, Milena Pavlović, Geir Kjetil Sandve, Victor Greiff, David Kreil, Michael Kopp, Günter Klambauer, Johannes Brandstetter, and Sepp Hochreiter, &lt;a href=&#34;https://arxiv.org/abs/2008.02217&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield Networks is All You Need&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Hubert Ramsauer, Bernhard Schäfl, Johannes Lehner, Philipp Seidl, Michael Widrich, Lukas Gruber, Markus Holzleitner, Milena Pavlović, Geir Kjetil Sandve, Victor Greiff, David Kreil, Michael Kopp, Günter Klambauer, Johannes Brandstetter, and Sepp Hochreiter, &lt;a href=&#34;https://arxiv.org/abs/2008.02217&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield Networks is All You Need&lt;/a&gt; (2020)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:4&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/2008.06996&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Associative Memory Problem in Neurobiology and Machine Learning&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/2008.06996&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Associative Memory Problem in Neurobiology and Machine Learning&lt;/a&gt; (2020)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:5&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;For example, see the content of Chapter 2 in the &lt;a href=&#34;https://giamarchi.unige.ch/local/people/thierry.giamarchi/pdf/cours_sft.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;lecture notes on statistical field theory&lt;/a&gt; by Thierry Giamarchi. &lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;For example, see the content of Chapter 2 in the &lt;a href=&#34;https://giamarchi.unige.ch/local/people/thierry.giamarchi/pdf/cours_sft.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;lecture notes on statistical field theory&lt;/a&gt; by Thierry Giamarchi.&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:6&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;The time-dependence in Eq. \eqref{eq:sloppyenergy} smells of non-equilibrium statistical mechanics. Incoming data might be considered as time-dependent &amp;ldquo;probes&amp;rdquo; which inject energy (and useful information if its content is low-entropy enough) into a non-equilibrium system. By nudging its dynamical response behavior across spatiotemporal scales, the system could potentially learn how to deal with being driven by all kinds of patterns in incoming data. For an interesting toy example of such behavior, see &lt;a href=&#34;https://youtu.be/vSgHuErXuqk?t=2188&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;this talk&lt;/a&gt; by Jeremy England on &lt;em&gt;Low rattling: a principle for understanding driven many-body self-organization&lt;/em&gt;. &lt;a href=&#34;#fnref:6&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;The time-dependence in Eq. \eqref{eq:sloppyenergy} smells of non-equilibrium statistical mechanics. Incoming data might be considered as time-dependent &amp;ldquo;probes&amp;rdquo; which inject energy (and useful information if its content is low-entropy enough) into a non-equilibrium system. By nudging its dynamical response behavior across spatiotemporal scales, the system could potentially learn how to deal with being driven by all kinds of patterns in incoming data. For an interesting toy example of such behavior, see &lt;a href=&#34;https://youtu.be/vSgHuErXuqk?t=2188&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;this talk&lt;/a&gt; by Jeremy England on &lt;em&gt;Low rattling: a principle for understanding driven many-body self-organization&lt;/em&gt;.&amp;#160;&lt;a href=&#34;#fnref:6&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;
@@ -229,9 +229,9 @@ E = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\sigm
 &lt;p&gt;In statistical mechanics, the model Eq. \eqref{eq:vectrandomising} is known as a &lt;a href=&#34;https://en.wikipedia.org/wiki/N-vector_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;vector model&lt;/a&gt; whose familiar small-$D$ cases include the &lt;a href=&#34;https://en.wikipedia.org/wiki/Ising_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Ising model&lt;/a&gt; ($D=1$), the &lt;a href=&#34;https://en.wikipedia.org/wiki/Classical_XY_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;XY model&lt;/a&gt; ($D=2$), and the &lt;a href=&#34;https://en.wikipedia.org/wiki/Classical_Heisenberg_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Heisenberg model&lt;/a&gt; ($D=3$). For infinite-dimensional spins $D \to \infty$, one can show that the system approaches the &lt;a href=&#34;https://en.wikipedia.org/wiki/Spherical_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;spherical model&lt;/a&gt;. The model defined by \eqref{eq:vectrandomising} can also be regarded as a vector generalization of &lt;a href=&#34;https://en.wikipedia.org/wiki/Boltzmann_machine&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Boltzmann machines&lt;/a&gt; or &lt;a href=&#34;https://en.wikipedia.org/wiki/Hopfield_network&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield networks&lt;/a&gt; or disordered &lt;a href=&#34;https://en.wikipedia.org/wiki/Spin_glass#The_model_of_Sherrington_and_Kirkpatrick&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Sherrington-Kirkpatrick spin-glass models&lt;/a&gt; (but with just a single sample of non-local couplings instead of an underlying probability distribution).&lt;/p&gt;
 &lt;p&gt;The partition function for our spin system looks like:&lt;/p&gt;
 &lt;p&gt;\begin{align}
-Z_{N}^{(D)} &amp;amp;\left( \beta, J_{ij}, \{ \boldsymbol{h}_{i} \} \right) \nonumber \\&lt;br&gt;
-&amp;amp;= \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty} \ \mathrm{d}\sigma_{1}(1) \cdots \mathrm{d}\sigma_{D}(N) \nonumber \\&lt;br&gt;
-&amp;amp; \qquad \times \ \prod_{j=1}^{N} \delta \left( D - \lVert \boldsymbol{\sigma}_{j} \rVert _{2}^{2} \right) \nonumber \\&lt;br&gt;
+Z_{N}^{(D)} &amp;amp;\left( \beta, J_{ij}, \{ \boldsymbol{h}_{i} \} \right) \nonumber \\
+&amp;amp;= \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty} \ \mathrm{d}\sigma_{1}(1) \cdots \mathrm{d}\sigma_{D}(N) \nonumber \\
+&amp;amp; \qquad \times \ \prod_{j=1}^{N} \delta \left( D - \lVert \boldsymbol{\sigma}_{j} \rVert _{2}^{2} \right) \nonumber \\
 &amp;amp; \qquad \times \exp \left[ \beta \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\sigma}_{j} + \beta \sum_{i=1}^{N} \boldsymbol{h}_{i} \cdot \boldsymbol{\sigma}_{i} \right] \label{eq:fullpartfun}
 \end{align}&lt;/p&gt;
 &lt;p&gt;where we have made all dependencies explicit. This looks absolutely mental. We somehow need to find a way to do $N \times D$ integrals while taking into account all the constraints and interactions.&lt;/p&gt;
@@ -242,8 +242,8 @@ Z_{N}^{(D)} &amp;amp;\left( \beta, J_{ij}, \{ \boldsymbol{h}_{i} \} \right) \non
 \end{align}&lt;/p&gt;
 &lt;p&gt;so that&lt;/p&gt;
 &lt;p&gt;\begin{align}
-Z_{N}^{(D)} &amp;amp;= \left(\frac{\beta}{2 \pi i}\right)^{N} \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty} \ \mathrm{d}\sigma_{1}(1) \cdots \mathrm{d}\sigma_{D}(N) \nonumber \\&lt;br&gt;
-&amp;amp; \times \int_{-i\infty}^{i\infty} \cdots \int_{-i\infty}^{i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \ \exp \left( \beta D \sum_{j=1}^{N} t_{j} \right)\nonumber \\&lt;br&gt;
+Z_{N}^{(D)} &amp;amp;= \left(\frac{\beta}{2 \pi i}\right)^{N} \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty} \ \mathrm{d}\sigma_{1}(1) \cdots \mathrm{d}\sigma_{D}(N) \nonumber \\
+&amp;amp; \times \int_{-i\infty}^{i\infty} \cdots \int_{-i\infty}^{i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \ \exp \left( \beta D \sum_{j=1}^{N} t_{j} \right)\nonumber \\
 &amp;amp; \times \prod_{\alpha=1}^{D} \exp \left[ -\beta \sum_{i,j=1}^{N} \left(t_{j}\delta_{ij}-J_{ij}\right) \; \sigma_{\alpha}(i) \sigma_{\alpha}(j) + \beta \sum_{i=1}^{N} h_{\alpha}(i) \sigma_{\alpha}(i) \right] \nonumber
 \end{align}&lt;/p&gt;
 &lt;p&gt;Great, even more integrals. The next frustrating trick involves writing the number 1 as a judiciously chosen exponential,&lt;/p&gt;
@@ -252,30 +252,30 @@ Z_{N}^{(D)} &amp;amp;= \left(\frac{\beta}{2 \pi i}\right)^{N} \int_{-\infty}^{\i
 \end{align}&lt;/p&gt;
 &lt;p&gt;for some arbitrary constant $a$, which, inside the integral, indeed evaluates to $\exp (0) = 1$ because of the constraints. Inserting this expression gives&lt;/p&gt;
 &lt;p&gt;\begin{align}
-&amp;amp;Z_{N}^{(D)} = \left(\frac{\beta}{2 \pi i}\right)^{N} \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty} \ \mathrm{d}\sigma_{1}(1) \cdots \mathrm{d}\sigma_{D}(N) \nonumber \\&lt;br&gt;
-&amp;amp; \times \int_{-i\infty}^{i\infty} \cdots \int_{-i\infty}^{i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \ \exp \left( \beta D \sum_{j=1}^{N} \left( t_{j} + a\right) \right)\nonumber \\&lt;br&gt;
+&amp;amp;Z_{N}^{(D)} = \left(\frac{\beta}{2 \pi i}\right)^{N} \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty} \ \mathrm{d}\sigma_{1}(1) \cdots \mathrm{d}\sigma_{D}(N) \nonumber \\
+&amp;amp; \times \int_{-i\infty}^{i\infty} \cdots \int_{-i\infty}^{i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \ \exp \left( \beta D \sum_{j=1}^{N} \left( t_{j} + a\right) \right)\nonumber \\
 &amp;amp; \times \prod_{\alpha=1}^{D} \exp \left[ -\beta \sum_{i,j=1}^{N} \left( \left( t_{j} + a \right) \delta_{ij}-J_{ij}\right) \; \sigma_{\alpha}(i) \sigma_{\alpha}(j) + \beta \sum_{i=1}^{N} h_{\alpha}(i) \sigma_{\alpha}(i) \right] \nonumber
 \end{align}&lt;/p&gt;
 &lt;p&gt;Next, we&amp;rsquo;d like to swap the order of the $\mathrm{d}\sigma_{a}(j)$ and $\mathrm{d}t_{j}$ integrations to start integrating. But we are only allowed to do this if we assume $a$ to be a sufficiently large positive real number. Why? Essentially, we are deforming the contours of the complex integrals sufficiently far to the right such that the real part the quadratic form appearing in the exponential is positive definite, see e.g. &lt;a href=&#34;https://doi.org/10.1103/PhysRev.160.437&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Helfand &amp;amp; Langer (1967)&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;Let&amp;rsquo;s go ahead and assume that everything is fine. We swap integrals and do a change of variables $t_j \to t_j + a$ so that&lt;/p&gt;
 &lt;p&gt;\begin{align}
 Z_{N}^{(D)} &amp;amp;= \left(\frac{\beta}{2 \pi i}\right)^{N} \int_{a-i\infty}^{a+i\infty} \cdots \int_{a-i\infty}^{a+
-i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \\&lt;br&gt;
+i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \\
 &amp;amp; \times \exp \left( \beta D \sum_{j=1}^{N} t_{j} \right)\nonumber \prod_{\alpha=1}^{D} I_{\alpha} \left( \beta, \{ t_{j} \}, \{ h_{\alpha}(i) \} \right)\nonumber
 \end{align}&lt;/p&gt;
 &lt;p&gt;where&lt;/p&gt;
 &lt;p&gt;\begin{align}
-I_{\alpha} &amp;amp;\left( \beta, \{ t_{j} \}, \{ h_{\alpha}(i) \} \right) = \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty} \ \mathrm{d}\sigma_{\alpha}(1) \cdots \mathrm{d}\sigma_{\alpha}(N) \nonumber \\&lt;br&gt;
-&amp;amp; \times \exp \left[ -\beta \sum_{i,j=1}^{N} \left( t_{j} \delta_{ij}-J_{ij}\right) \; \sigma_{\alpha}(i) \sigma_{\alpha}(j) + \beta \sum_{i=1}^{N} h_{\alpha}(i) \sigma_{\alpha}(i) \right]\nonumber \\&lt;br&gt;
+I_{\alpha} &amp;amp;\left( \beta, \{ t_{j} \}, \{ h_{\alpha}(i) \} \right) = \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty} \ \mathrm{d}\sigma_{\alpha}(1) \cdots \mathrm{d}\sigma_{\alpha}(N) \nonumber \\
+&amp;amp; \times \exp \left[ -\beta \sum_{i,j=1}^{N} \left( t_{j} \delta_{ij}-J_{ij}\right) \; \sigma_{\alpha}(i) \sigma_{\alpha}(j) + \beta \sum_{i=1}^{N} h_{\alpha}(i) \sigma_{\alpha}(i) \right]\nonumber \\
 \end{align}&lt;/p&gt;
 &lt;p&gt;Notice how the integrals have kind of factorized over the vector dimension: for every $\alpha$-component we can evaluate an $N$-dimensional Gaussian integral with a linear term. The $I_{\alpha}$ functions depend on the sources $\{ \boldsymbol{h}_{i} \}$ indexed along local dimension instead of spin. Introducing the symmetric $N \times N$ matrix $V_{ij} = t_{j} \delta_{ij}-J_{ij}$, we can evaluate the Gaussian integrals and find&lt;/p&gt;
 &lt;p&gt;\begin{align}
-I_{\alpha} &amp;amp;\left( \beta, \{ t_{j} \}, \{ h_{\alpha}(i) \} \right) = \left( \frac{\pi}{\beta} \right)^{N/2} \left[ \det \left( \boldsymbol{V} \right) \right]^{-1/2} \exp \left(\frac{\beta}{4} \boldsymbol{h}_{\alpha}^{T} \boldsymbol{V}^{-1} \boldsymbol{h}_{\alpha} \right) \nonumber \\&lt;br&gt;
+I_{\alpha} &amp;amp;\left( \beta, \{ t_{j} \}, \{ h_{\alpha}(i) \} \right) = \left( \frac{\pi}{\beta} \right)^{N/2} \left[ \det \left( \boldsymbol{V} \right) \right]^{-1/2} \exp \left(\frac{\beta}{4} \boldsymbol{h}_{\alpha}^{T} \boldsymbol{V}^{-1} \boldsymbol{h}_{\alpha} \right) \nonumber \\
 \end{align}&lt;/p&gt;
 &lt;p&gt;where $\boldsymbol{h}_{\alpha} = \left[ h_{\alpha}(1), h_{\alpha}(2), \ldots, h_{\alpha}(N) \right]$ denote $N$-dimensional vectors. The expression for the partition function becomes&lt;/p&gt;
 &lt;p&gt;\begin{align}
 &amp;amp;Z_{N}^{(D)} = \left(\frac{\beta}{2 \pi i}\right)^{N} \left( \frac{\pi}{\beta} \right)^{DN/2} \int_{a-i\infty}^{a+i\infty} \cdots \int_{a-i\infty}^{a
-+i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \nonumber \\&lt;br&gt;
++i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \nonumber \\
 &amp;amp; \times \exp \left( D \left( \beta \sum_{j=1}^{N} t_{j} - \frac{1}{2} \log \det \left( \boldsymbol{V} \right) \right) \right) \exp \left( \frac{\beta}{4} \mathrm{Tr} \left( \boldsymbol{H}^{T} \boldsymbol{V}^{-1} \boldsymbol{H} \right) \right) \nonumber
 \end{align}&lt;/p&gt;
 &lt;p&gt;where we have introduced the matrix notation $\boldsymbol{H} \in \mathbb{R}^{N \times D}$ to group the vectors $\{ \boldsymbol{h}_{i} \}$.&lt;/p&gt;
@@ -283,7 +283,7 @@ I_{\alpha} &amp;amp;\left( \beta, \{ t_{j} \}, \{ h_{\alpha}(i) \} \right) = \le
 &lt;p&gt;But there&amp;rsquo;s still $N$ complex integrals over the auxiliary variables $\{ t_{j} \}$ left to do. Can we avoid doing them? Maybe. Let&amp;rsquo;s rewrite our partition function as&lt;/p&gt;
 &lt;p&gt;\begin{align}
 Z_{N}^{(D)} = \left(\frac{\beta}{2 \pi i}\right)^{N} &amp;amp;\left( \frac{\pi}{\beta} \right)^{DN/2} \int_{a-i\infty}^{a+i\infty} \cdots \int_{a-i\infty}^{a
-+i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \ \mathrm{e}^{D \varphi \left(\boldsymbol{t} \right) } \label{eq:partfunsteep} \\&lt;br&gt;
++i\infty} \ \mathrm{d}t_{1} \cdots \mathrm{d}t_{N} \ \mathrm{e}^{D \varphi \left(\boldsymbol{t} \right) } \label{eq:partfunsteep} \\
 \end{align}&lt;/p&gt;
 &lt;p&gt;with&lt;/p&gt;
 &lt;p&gt;\begin{align}
@@ -332,11 +332,11 @@ p_{\theta} \left( h \right) = \frac{\int \mathrm{d} \sigma \  \mathrm{e}^{-E_{\t
 \end{align}&lt;/p&gt;
 &lt;p&gt;where the applied magnetic fields act as observables and the spins as latent variables. The effective energy $E_{\theta}\left( h \right)$ equals
 $
-E_{\theta}\left( h \right) = - \log \int \mathrm{d} \sigma \ \mathrm{e}^{-E_{\theta}\left( \sigma, h \right)} \approx - \log Z^{*}_{\theta} \left( h \right),
+E_{\theta}\left( h \right) = - \log \int \mathrm{d} \sigma \ \mathrm{e}^{-E_{\theta}\left( \sigma, h \right)} \approx - \log Z^{&lt;em&gt;}_{\theta} \left( h \right),
 $
 where we have used the steepest-descent approximation for the integral. Taking the logarithm of Eq. \eqref{eq:ph}, we find that
 $
-\log p_{\theta} \left( h \right) \approx \log Z^{*}_{\theta} \left( h \right) - \log \int \mathrm{d} h \ Z^{*}_{\theta} \left( h \right)
+\log p_{\theta} \left( h \right) \approx \log Z^{&lt;/em&gt;}_{\theta} \left( h \right) - \log \int \mathrm{d} h \ Z^{*}_{\theta} \left( h \right)
 $.&lt;/p&gt;
 &lt;h4 id=&#34;243-spin-glasses-and-mean-field-approximation&#34;&gt;2.4.3. Spin glasses and mean-field approximation&lt;/h4&gt;
 &lt;p&gt;Ordered systems have a long history in statistical mechanics. Couplings in these models often encode a translation-invariant lattice geometry, e.g. nearest-neighbour interactions between spins living on a $d$-dimensional hypercubic lattice. One reason for this focus is practical: the regularity in these systems enables mathematical physicists to deploy all kinds of tricks and make progress towards some kind of understanding. In contrast, disordered systems, like spin glasses, are a mess and studying them is all about &lt;a href=&#34;https://www.nobelprize.org/prizes/physics/2021/summary/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;finding order where there seems to be none&lt;/a&gt;. From the perspective of spin glasses, we can summarize our approach as follows: we want to arrive at an approximate yet tractable mean-field spin-glass model where its couplings are treated as parameters learned from data&lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
@@ -382,8 +382,8 @@ The factor $1/\sqrt{N}$ can be explained from spin-glass mean-field theory&lt;su
 &lt;li&gt;when we wiggle around both $t_{i}$ and $t_{j}$ (the symmetric Hessian matrix at $\boldsymbol{t}$)&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;\begin{align}
-\left[ \boldsymbol{J}(\nabla \varphi \left( \boldsymbol{t} \right)) \right]_{ij} = \frac{1}{2} &amp;amp;\left[ \boldsymbol{V}^{-1} \odot \boldsymbol{V}^{-T} \right]_{ij} \nonumber \\&lt;br&gt;
-&amp;amp;+ \frac{\beta}{4} \left[ \boldsymbol{V}^{-T} \boldsymbol{H} \boldsymbol{H}^{T} \boldsymbol{V}^{-T} \boldsymbol{V}^{-T} \odot \boldsymbol{I} \right]_{ij} \nonumber \\&lt;br&gt;
+\left[ \boldsymbol{J}(\nabla \varphi \left( \boldsymbol{t} \right)) \right]_{ij} = \frac{1}{2} &amp;amp;\left[ \boldsymbol{V}^{-1} \odot \boldsymbol{V}^{-T} \right]_{ij} \nonumber \\
+&amp;amp;+ \frac{\beta}{4} \left[ \boldsymbol{V}^{-T} \boldsymbol{H} \boldsymbol{H}^{T} \boldsymbol{V}^{-T} \boldsymbol{V}^{-T} \odot \boldsymbol{I} \right]_{ij} \nonumber \\
 &amp;amp;+ \frac{\beta}{4} \left[ \boldsymbol{V}^{-T} \boldsymbol{V}^{-T} \boldsymbol{H} \boldsymbol{H}^{T} \boldsymbol{V}^{-T} \odot \boldsymbol{I} \right]_{ij} \nonumber
 \end{align}&lt;/p&gt;
 &lt;p&gt;Given an initial guess $\boldsymbol{t_{0}} \in \mathbb{R}^{N}_{&amp;gt;0}$ and input data $\boldsymbol{H} \in \mathbb{R}^{N \times D}$, we can now construct a differentiable root-solver which returns $\boldsymbol{t^{*}}$. It is important to keep in mind that the stationary value $\boldsymbol{t^{*}}$ actually depends on $\left(\beta, \boldsymbol{J}, \boldsymbol{H} \right)$ implicitly. Since we make use of implicit layers within an automatic differentation framework, these dependencies are kept track of and are included in the computational graph.&lt;/p&gt;
@@ -413,7 +413,7 @@ The factor $1/\sqrt{N}$ can be explained from spin-glass mean-field theory&lt;su
 &lt;p&gt;\begin{align}
 \langle \boldsymbol{\sigma}_{i} \rangle = \frac{\mathrm{d} \log Z \left( \boldsymbol{t}, \boldsymbol{H} \right)}{\mathrm{d} \boldsymbol{h}_{i}} = \frac{\partial \varphi}{\partial \boldsymbol{t}} \frac{\partial \boldsymbol{t}}{\partial \boldsymbol{h}_{i}} + \frac{\partial \varphi}{\partial \boldsymbol{h}_{i}} \label{eq:spinevgeneral}
 \end{align}&lt;/p&gt;
-&lt;p&gt;If we evaluate the partition function approximation at the stationary point $\boldsymbol{t^{*}}$, the first term drops out because $\partial_{\boldsymbol{t}} \varphi \rvert_{\boldsymbol{t}=\boldsymbol{t^{*}}} = 0$. Assuming that the matrix $\boldsymbol{V}$ (and hence the couplings $\boldsymbol{J}$) do not depend on the inputs $\boldsymbol{H}$, the spin expectation value boils down to&lt;/p&gt;
+&lt;p&gt;If we evaluate the partition function approximation at the stationary point $\boldsymbol{t^{&lt;em&gt;}}$, the first term drops out because $\partial_{\boldsymbol{t}} \varphi \rvert_{\boldsymbol{t}=\boldsymbol{t^{&lt;/em&gt;}}} = 0$. Assuming that the matrix $\boldsymbol{V}$ (and hence the couplings $\boldsymbol{J}$) do not depend on the inputs $\boldsymbol{H}$, the spin expectation value boils down to&lt;/p&gt;
 &lt;p&gt;\begin{align}
 \langle \boldsymbol{\sigma}_{i} \rangle = \frac{\partial \varphi}{\partial \boldsymbol{h}_{i}} = \frac{\beta}{2} \sum_{ij} \boldsymbol{V}^{-1}_{ij} \boldsymbol{h}_{j} \label{eq:spinev}
 \end{align}&lt;/p&gt;
@@ -466,29 +466,29 @@ where $\boldsymbol{Q}$ and $\boldsymbol{K}$ are linear transformations acting on
 &lt;hr&gt;
 &lt;ol&gt;
 &lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;We could have turned to the mean-field free energies associated with the adaptive TAP equations discussed in &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention&lt;/a&gt;, but we decided on attacking the problem from the steepest-descent angle on the full partition function. &lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;We could have turned to the mean-field free energies associated with the adaptive TAP equations discussed in &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention&lt;/a&gt;, but we decided on attacking the problem from the steepest-descent angle on the full partition function.&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;The original 1968 paper has a small typo here: the $\nu$ in the paper&amp;rsquo;s Eq. (23) should be $\nu^{1/2}$ for the surface area of a $\nu-1$-dimensional sphere with radius $R=\nu^{1/2}$ embedded in $\nu$ dimensions. Using the paper&amp;rsquo;s formula, an annoying $\ln \nu$ term won&amp;rsquo;t cancel out in the limiting free energy calculation. &lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;The original 1968 paper has a small typo here: the $\nu$ in the paper&amp;rsquo;s Eq. (23) should be $\nu^{1/2}$ for the surface area of a $\nu-1$-dimensional sphere with radius $R=\nu^{1/2}$ embedded in $\nu$ dimensions. Using the paper&amp;rsquo;s formula, an annoying $\ln \nu$ term won&amp;rsquo;t cancel out in the limiting free energy calculation.&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;In contrast to spin glasses however, we do not (yet want to go full Bayesian and) treat the couplings as drawn from some kind of probability distribution. For now, we settle for obtaining point estimates of model parameters. &lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;In contrast to spin glasses however, we do not (yet want to go full Bayesian and) treat the couplings as drawn from some kind of probability distribution. For now, we settle for obtaining point estimates of model parameters.&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:4&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;By promoting sparseness in the couplings, a model might become less mean-field-y, which might be one of the reasons behind the sucess of scaled &lt;code&gt;softmax&lt;/code&gt; attention in vanilla transformers. &lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;By promoting sparseness in the couplings, a model might become less mean-field-y, which might be one of the reasons behind the sucess of scaled &lt;code&gt;softmax&lt;/code&gt; attention in vanilla transformers.&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:5&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;From &lt;a href=&#34;https://arxiv.org/abs/1506.07128&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Janiš (2015)&lt;/a&gt;: &lt;em&gt;The mean-field limit to infinite dimensions or long-range interaction introduces a new large scale. To make the thermodynamic limit meaningful the dependence of the energy on this new large scale must be compensated by rescaling the non-local spin exchange so that the energy remains linearly proportional to the volume or the number of lattice sites (spins).&lt;/em&gt; &lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;From &lt;a href=&#34;https://arxiv.org/abs/1506.07128&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Janiš (2015)&lt;/a&gt;: &lt;em&gt;The mean-field limit to infinite dimensions or long-range interaction introduces a new large scale. To make the thermodynamic limit meaningful the dependence of the energy on this new large scale must be compensated by rescaling the non-local spin exchange so that the energy remains linearly proportional to the volume or the number of lattice sites (spins).&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:6&#34; role=&#34;doc-endnote&#34;&gt;
 &lt;p&gt;We can expand the right-hand side using a &lt;a href=&#34;https://en.wikipedia.org/wiki/Woodbury_matrix_identity#Inverse_of_a_sum&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;special case of the Woodbury matrix identity&lt;/a&gt; to find
 \begin{align}
 \boldsymbol{V}^{-1} &amp;amp;= \left( \mathrm{diag} ( \boldsymbol{t} ) - \boldsymbol{J} \right)^{-1} = \sum_{k=0}^{\infty} \left( \mathrm{diag} \left( \boldsymbol{t}^{-1} \right) \boldsymbol{J} \right)^{k} \mathrm{diag} \left( \boldsymbol{t}^{-1} \right) \nonumber
 \end{align}
-which converges if the largest absolute value of the eigenvalues of the matrix inside the power-brackets is less than 1. So the spin expectation value looks like a sum of contributions that mix and weigh inputs of different sites. &lt;a href=&#34;#fnref:6&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+which converges if the largest absolute value of the eigenvalues of the matrix inside the power-brackets is less than 1. So the spin expectation value looks like a sum of contributions that mix and weigh inputs of different sites.&amp;#160;&lt;a href=&#34;#fnref:6&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:7&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;As discussed previously in &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms&lt;/a&gt;. In that setting, calculating inverses was sidestepped by approximating part of the solution with a feed-forward neural network. &lt;a href=&#34;#fnref:7&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;As discussed previously in &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms&lt;/a&gt;. In that setting, calculating inverses was sidestepped by approximating part of the solution with a feed-forward neural network.&amp;#160;&lt;a href=&#34;#fnref:7&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;
@@ -595,11 +595,11 @@ a_{i} = \sum_{j} J_{ij} \langle S_{j} \rangle - V_{i} \langle S_{i} \rangle. \la
 \end{align}&lt;/p&gt;
 &lt;p&gt;which can be solved for $\chi_{ij}$ to yield
 \begin{equation}
-\chi_{ij} =  \left[ \left( \boldsymbol{\Lambda} - \boldsymbol{J} \right)^{-1} \right]_{ij} \label{eq:chiijlinresp}
+\chi_{ij} =  \left[ \left( \boldsymbol{\Lambda} - \boldsymbol{J} \right)^{-1} \right]&lt;em&gt;{ij} \label{eq:chiijlinresp}
 \end{equation}
 where
 \begin{align}
-\boldsymbol{\Lambda} = \mathrm{diag} \left( \Lambda_1, \ldots, \Lambda_{N} \right),\\&lt;br&gt;
+\boldsymbol{\Lambda} = \mathrm{diag} \left( \Lambda_1, \ldots, \Lambda&lt;/em&gt;{N} \right),\\
 \Lambda_i = V_i + \left( \frac{\partial \langle S_{i} \rangle}{\partial x_{i}} \right)^{-1}.
 \end{align}&lt;/p&gt;
 &lt;p&gt;The cavity variances $V_i$ are then determined by equating \eqref{eq:chiii} to the diagonal elements of \eqref{eq:chiijlinresp} and solving the following consistency condition for $V_i$
@@ -608,7 +608,7 @@ where
 \end{equation}&lt;/p&gt;
 &lt;p&gt;Given updated values for the cavity means $a_i$ and the cavity variances $V_i$, spin means and spin variances can then be updated as follows:&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\langle S_{i} \rangle &amp;amp;= \frac{\partial}{\partial x_{i}} \log Z_{0}^{(i)} (x_{i}, a_{i}, V_{i}),\\&lt;br&gt;
+\langle S_{i} \rangle &amp;amp;= \frac{\partial}{\partial x_{i}} \log Z_{0}^{(i)} (x_{i}, a_{i}, V_{i}),\\
 \langle S_{i}^2 \rangle - \langle S_{i} \rangle^2 &amp;amp;= \frac{\partial^2}{\partial x_{i}^2} \log Z_{0}^{(i)} (x_{i}, a_{i}, V_{i}),
 \end{align}&lt;/p&gt;
 &lt;p&gt;These equations reduce to explicit expressions given an explicit expression for $Z_{0}^{(i)}$. For the binary-spin partition function \eqref{eq:partfunbinaryspins} where $S=\pm 1$, we get a set of fixed-point equations for the spin means that look like&lt;/p&gt;
@@ -789,7 +789,7 @@ F. B. Rodríguez and &lt;a href=&#34;https://link.aps.org/doi/10.1103/PhysRevE.5
 &lt;hr&gt;
 &lt;ol&gt;
 &lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;Whatever &amp;ldquo;better&amp;rdquo; means depends on the system&amp;rsquo;s (meta-)loss function, e.g. predicting corrupted tokens BERT-style or aligning representations to a teacher BYOL/DINO-style. &lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Whatever &amp;ldquo;better&amp;rdquo; means depends on the system&amp;rsquo;s (meta-)loss function, e.g. predicting corrupted tokens BERT-style or aligning representations to a teacher BYOL/DINO-style.&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;
@@ -1347,13 +1347,13 @@ transformer_default_scale = ax.axhline(y=1.0, color=&amp;quot;r&amp;quot;)
 &lt;hr&gt;
 &lt;ol&gt;
 &lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Hubert Ramsauer, Bernhard Schäfl, Johannes Lehner, Philipp Seidl, Michael Widrich, Lukas Gruber, Markus Holzleitner, Milena Pavlović, Geir Kjetil Sandve, Victor Greiff, David Kreil, Michael Kopp, Günter Klambauer, Johannes Brandstetter, and Sepp Hochreiter, &lt;a href=&#34;https://arxiv.org/abs/2008.02217&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield Networks is All You Need&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Hubert Ramsauer, Bernhard Schäfl, Johannes Lehner, Philipp Seidl, Michael Widrich, Lukas Gruber, Markus Holzleitner, Milena Pavlović, Geir Kjetil Sandve, Victor Greiff, David Kreil, Michael Kopp, Günter Klambauer, Johannes Brandstetter, and Sepp Hochreiter, &lt;a href=&#34;https://arxiv.org/abs/2008.02217&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield Networks is All You Need&lt;/a&gt; (2020)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/2008.06996&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Associative Memory Problem in Neurobiology and Machine Learning&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/2008.06996&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Associative Memory Problem in Neurobiology and Machine Learning&lt;/a&gt; (2020)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;strong&gt;Caveat:&lt;/strong&gt; For the special case of bare energy-based self-attention, state patterns actually appear quadratically in the argument of the &lt;code&gt;logsumexp&lt;/code&gt; part of the energy function. Taking the derivative using &lt;code&gt;minimize_energy(..)&lt;/code&gt; however assumes the context is a different node in the computational graph, which, in this case, where we &lt;em&gt;should&lt;/em&gt; be taking the derivative of &lt;code&gt;energy(x, x)&lt;/code&gt; instead of &lt;code&gt;energy(x, context)&lt;/code&gt;, yields a gradient that misses a factor of 2. But ensuring the gradient is &amp;ldquo;correct&amp;rdquo; for this special case would of course screw up the cancellation of the state pattern with itself for &lt;code&gt;step_size=1.0&lt;/code&gt; and &lt;code&gt;num_steps=1&lt;/code&gt; so that the updated query would no longer match the output of bare vanilla softmax attention. Proper treatment of doing multiple steps of bare energy-based self-attention should also include manually setting the context to the updated queries (since the queries themselves change every update step). Luckily no one would seriously consider using bare energy-based self-attention. &lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Caveat:&lt;/strong&gt; For the special case of bare energy-based self-attention, state patterns actually appear quadratically in the argument of the &lt;code&gt;logsumexp&lt;/code&gt; part of the energy function. Taking the derivative using &lt;code&gt;minimize_energy(..)&lt;/code&gt; however assumes the context is a different node in the computational graph, which, in this case, where we &lt;em&gt;should&lt;/em&gt; be taking the derivative of &lt;code&gt;energy(x, x)&lt;/code&gt; instead of &lt;code&gt;energy(x, context)&lt;/code&gt;, yields a gradient that misses a factor of 2. But ensuring the gradient is &amp;ldquo;correct&amp;rdquo; for this special case would of course screw up the cancellation of the state pattern with itself for &lt;code&gt;step_size=1.0&lt;/code&gt; and &lt;code&gt;num_steps=1&lt;/code&gt; so that the updated query would no longer match the output of bare vanilla softmax attention. Proper treatment of doing multiple steps of bare energy-based self-attention should also include manually setting the context to the updated queries (since the queries themselves change every update step). Luckily no one would seriously consider using bare energy-based self-attention.&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;
@@ -1417,8 +1417,8 @@ E \left( \boldsymbol{v}, \boldsymbol{h} \right) = - \sum_{i} a_{i} (v_{i}) - \su
 &lt;p&gt;\begin{align}
 a_{i} (\cdot) =
 \begin{cases}
-a_{i} v_{i} &amp;amp; \text{if $v_{i} \in {0,1}$ is binary (Bernouilli)}\\&lt;br&gt;
-\frac{v_{i}^2}{2\sigma_{i}^{2}} &amp;amp; \text{if $v_{i} \in \mathbb{R}$ is continuous (Gaussian)}\&lt;br&gt;
+a_{i} v_{i} &amp;amp; \text{if $v_{i} \in {0,1}$ is binary (Bernouilli)}\\
+\frac{v_{i}^2}{2\sigma_{i}^{2}} &amp;amp; \text{if $v_{i} \in \mathbb{R}$ is continuous (Gaussian)}\
 \end{cases} &lt;br&gt;
 \end{align}&lt;/p&gt;
 &lt;p&gt;and similar for $b_{\mu} (\cdot)$.&lt;/p&gt;
@@ -1440,7 +1440,7 @@ p \left( \boldsymbol{v} \right) = \frac{\mathrm{e}^{- E (\boldsymbol{v})}}{Z}
 \end{equation}&lt;/p&gt;
 &lt;p&gt;so that we can identify&lt;/p&gt;
 &lt;p&gt;\begin{align}
-E \left( \boldsymbol{v} \right) &amp;amp;= - \mathrm{log} \int \mathrm{d} \boldsymbol{h} \  \mathrm{e}^{- E \left( \boldsymbol{v}, \boldsymbol{h} \right)} \\&lt;br&gt;
+E \left( \boldsymbol{v} \right) &amp;amp;= - \mathrm{log} \int \mathrm{d} \boldsymbol{h} \  \mathrm{e}^{- E \left( \boldsymbol{v}, \boldsymbol{h} \right)} \\
 &amp;amp;= - \sum_{i} a_{i} (v_{i}) - \sum_{\mu} \log \int \mathrm{d} h_{\mu}\ \mathrm{e}^{b_{\mu}(h_{\mu}) + \sum_{i} W_{i\mu} v_{i} h_{\mu}} \label{eq:effvisenergy}
 \end{align}&lt;/p&gt;
 &lt;p&gt;Following &lt;a href=&#34;https://arxiv.org/abs/1803.08823&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Mehda et al.&lt;/a&gt;, we can try to better understand the correlations in $p(\boldsymbol{v})$ by introducing the (prior) distribution&lt;/p&gt;
@@ -1449,16 +1449,16 @@ q_{\mu} \left( h_{\mu} \right) = \frac{\mathrm{e}^{b_{\mu} (h_{\mu})}}{Z}
 \end{equation}&lt;/p&gt;
 &lt;p&gt;for the hidden units $h_{\mu}$, ignoring the interactions between $\boldsymbol{v}$ and $\boldsymbol{h}$. Additionally, we can introduce the hidden unit&amp;rsquo;s distribution&amp;rsquo;s &lt;a href=&#34;https://en.wikipedia.org/wiki/Cumulant&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;cumulant generating function&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;\begin{align}
-K_{\mu} (t) &amp;amp;= \mathrm{log}\ \mathbb{E} \left[ \mathrm{e}^{t h_{\mu}} \right] \\&lt;br&gt;
-&amp;amp;= \mathrm{log} \int \mathrm{d} h_{\mu} \  q_{\mu} \left( h_{\mu} \right) \mathrm{e}^{t h_{\mu}}\\&lt;br&gt;
+K_{\mu} (t) &amp;amp;= \mathrm{log}\ \mathbb{E} \left[ \mathrm{e}^{t h_{\mu}} \right] \\
+&amp;amp;= \mathrm{log} \int \mathrm{d} h_{\mu} \  q_{\mu} \left( h_{\mu} \right) \mathrm{e}^{t h_{\mu}}\\
 &amp;amp;= \sum_{n=1}^{\infty} \kappa_{\mu}^{(n)} \frac{t^{n}}{n!},
 \end{align}&lt;/p&gt;
 &lt;p&gt;which is defined such that the $n^{\mathrm{th}}$ cumulant $\kappa_{\mu}^{(n)}$ of $q_{\mu} \left( h_{\mu} \right)$ can be obtained by taking derivatives $\kappa_{\mu}^{(n)} = \partial_{t}^{n} K_{\mu} \rvert_{t=0}$.&lt;/p&gt;
 &lt;p&gt;Looking back at the effective energy function \eqref{eq:effvisenergy} for the visible units, we find that the effective energy can be expressed in terms of cumulants:&lt;/p&gt;
 &lt;p&gt;\begin{align}
-E \left( \boldsymbol{v} \right) &amp;amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{\mu} K_{\mu} \left( \sum_{i} W_{i\mu} v_{i} \right) \\&lt;br&gt;
-&amp;amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{\mu} \sum_{n=1}^{\infty} \kappa_{\mu}^{(n)} \frac{\left( \sum_{i} W_{i\mu} v_{i} \right)^{n}}{n!} \\&lt;br&gt;
-&amp;amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{i} \left( \sum_{\mu} \kappa_{\mu}^{(1)} W_{i\mu} \right) v_{i} \\&lt;br&gt;
+E \left( \boldsymbol{v} \right) &amp;amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{\mu} K_{\mu} \left( \sum_{i} W_{i\mu} v_{i} \right) \\
+&amp;amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{\mu} \sum_{n=1}^{\infty} \kappa_{\mu}^{(n)} \frac{\left( \sum_{i} W_{i\mu} v_{i} \right)^{n}}{n!} \\
+&amp;amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{i} \left( \sum_{\mu} \kappa_{\mu}^{(1)} W_{i\mu} \right) v_{i} \\
 &amp;amp;\ \ \ \ \ - \frac{1}{2} \sum_{ij} \left( \sum_{\mu} \kappa_{\mu}^{(2)} W_{i\mu} W_{j\mu} \right) v_{i} v_{j} + \ldots \label{eq:effectivenergy}
 \end{align}&lt;/p&gt;
 &lt;p&gt;We see that the auxiliary, hidden degrees of freedom induce effective pairwise and higher-order correlations among visible degrees of freedom. Each hidden unit $h_{\mu}$ can encode interactions of arbitrarily high order, with the $n$-th order cumulants of $q_{\mu} \left( h_{\mu} \right)$ weighting the $n$-th order interactions. By combining many hidden units and/or stacking layers, RBMs can in principle encode complex interactions at all orders and learn them from data.&lt;/p&gt;
@@ -1540,19 +1540,19 @@ These linear transformations slightly generalize the &amp;ldquo;naked&amp;rdquo;
 &lt;hr&gt;
 &lt;ol&gt;
 &lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Pankaj Mehta, Marin Bukov, Ching-Hao Wang, Alexandre G.R. Day, Clint Richardson, Charles K. Fisher, David J. Schwab, &lt;a href=&#34;https://arxiv.org/abs/1803.08823&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A high-bias, low-variance introduction to Machine Learning for physicists&lt;/a&gt; (2019)&lt;/em&gt; &lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Pankaj Mehta, Marin Bukov, Ching-Hao Wang, Alexandre G.R. Day, Clint Richardson, Charles K. Fisher, David J. Schwab, &lt;a href=&#34;https://arxiv.org/abs/1803.08823&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A high-bias, low-variance introduction to Machine Learning for physicists&lt;/a&gt; (2019)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;Proof by Marcinkiewicz (1935) according to &lt;a href=&#34;http://www.stat.uchicago.edu/~pmcc/courses/stat306/2013/cumulants.pdf&#34;&gt;http://www.stat.uchicago.edu/~pmcc/courses/stat306/2013/cumulants.pdf&lt;/a&gt;. &lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Proof by Marcinkiewicz (1935) according to &lt;a href=&#34;http://www.stat.uchicago.edu/~pmcc/courses/stat306/2013/cumulants.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;http://www.stat.uchicago.edu/~pmcc/courses/stat306/2013/cumulants.pdf&lt;/a&gt;.&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;We are aware that this identification might be tremendously trivial when considering prior work on &lt;a href=&#34;https://papers.nips.cc/paper/2008/hash/e820a45f1dfc7b95282d10b6087e11c0-Abstract.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Implicit Mixtures of Restricted Boltzmann Machines&lt;/a&gt; or, more generally, mixture models in the context of &lt;a href=&#34;https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;expectation-minimization optimization&lt;/a&gt;. &lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;We are aware that this identification might be tremendously trivial when considering prior work on &lt;a href=&#34;https://papers.nips.cc/paper/2008/hash/e820a45f1dfc7b95282d10b6087e11c0-Abstract.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Implicit Mixtures of Restricted Boltzmann Machines&lt;/a&gt; or, more generally, mixture models in the context of &lt;a href=&#34;https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;expectation-minimization optimization&lt;/a&gt;.&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:4&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/2008.06996&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Associative Memory Problem in Neurobiology and Machine Learning&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/2008.06996&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Associative Memory Problem in Neurobiology and Machine Learning&lt;/a&gt; (2020)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:5&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, &lt;a href=&#34;https://arxiv.org/abs/1706.03762&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Attention Is All You Need&lt;/a&gt; (2017)&lt;/em&gt; &lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, &lt;a href=&#34;https://arxiv.org/abs/1706.03762&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Attention Is All You Need&lt;/a&gt; (2017)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;
@@ -1746,17 +1746,17 @@ Z = (2\pi)^{n/2} \sum_{i=1}^{N} \mathrm{e}^{ \frac{1}{2} \boldsymbol{x}_{i}^{T} 
 \end{equation}&lt;/p&gt;
 &lt;p&gt;where the $\mathrm{diag}$ operator is understood to turn the diagonal of its matrix argument into a vector. Plugging this expression into \eqref{eq:nll} leads to the following loss function for the matrix of stored patterns&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\mathcal{L}_{\mathrm{ML}} (\mathbf{X}) = &amp;amp; \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right) \right] \nonumber \\&lt;br&gt;
+\mathcal{L}_{\mathrm{ML}} (\mathbf{X}) = &amp;amp; \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right) \right] \nonumber \\
 &amp;amp; + \mathrm{logsumexp} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T} \boldsymbol{X} \right) \right) + \frac{n}{2} \log \left( 2\pi \right)
 \end{align}&lt;/p&gt;
 &lt;p&gt;and a gradient&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\nabla_{\mathbf{X}} \mathcal{L}_{\mathrm{ML}} (\mathbf{X}) = &amp;amp; - \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \boldsymbol{\xi} \otimes \mathrm{softmax} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right) \right] \nonumber \\&lt;br&gt;
+\nabla_{\mathbf{X}} \mathcal{L}_{\mathrm{ML}} (\mathbf{X}) = &amp;amp; - \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \boldsymbol{\xi} \otimes \mathrm{softmax} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right) \right] \nonumber \\
 &amp;amp; + \boldsymbol{X} \ \mathrm{softmax} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T} \boldsymbol{X} \right) \right)
 \end{align}&lt;/p&gt;
 &lt;p&gt;and an update with step size $\gamma$&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\mathbf{X}_{n+1} = \ \mathbf{X}_{n} &amp;amp;+ \gamma \ \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \boldsymbol{\xi} \otimes \mathrm{softmax} \left( \boldsymbol{X}^T_{n} \boldsymbol{\xi} \right) \right] \nonumber \\&lt;br&gt;
+\mathbf{X}_{n+1} = \ \mathbf{X}_{n} &amp;amp;+ \gamma \ \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \boldsymbol{\xi} \otimes \mathrm{softmax} \left( \boldsymbol{X}^T_{n} \boldsymbol{\xi} \right) \right] \nonumber \\
 &amp;amp; - \gamma \ \mathbf{X}_{n} \ \mathrm{softmax} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T}_{n} \boldsymbol{X}_{n} \right) \right)
 \end{align}&lt;/p&gt;
 &lt;p&gt;Let&amp;rsquo;s try to guess what this means for a single input state pattern. The first gradient term pushes all stored patterns towards the sample but weighted by a dot-product attention vector quantifying their overlap with the input pattern, similar to \eqref{eq:conthopfupdate} but in the other direction. The second gradient term comes from the partition function and acts as a regularizer by keeping the norms of the stored patterns in check. Regularization keeps pattern values within a reasonable range and pushes the system towards regions in parameter space with non-trivial small dot-product values.&lt;/p&gt;
@@ -1839,52 +1839,52 @@ Checking whether this transformed energy function still leads to a tractable Gau
 &lt;hr&gt;
 &lt;ol&gt;
 &lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, &lt;a href=&#34;https://arxiv.org/abs/1706.03762&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Attention Is All You Need&lt;/a&gt; (2017)&lt;/em&gt; &lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, &lt;a href=&#34;https://arxiv.org/abs/1706.03762&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Attention Is All You Need&lt;/a&gt; (2017)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Hubert Ramsauer, Bernhard Schäfl, Johannes Lehner, Philipp Seidl, Michael Widrich, Lukas Gruber, Markus Holzleitner, Milena Pavlović, Geir Kjetil Sandve, Victor Greiff, David Kreil, Michael Kopp, Günter Klambauer, Johannes Brandstetter, and Sepp Hochreiter, &lt;a href=&#34;https://arxiv.org/abs/2008.02217&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield Networks is All You Need&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Hubert Ramsauer, Bernhard Schäfl, Johannes Lehner, Philipp Seidl, Michael Widrich, Lukas Gruber, Markus Holzleitner, Milena Pavlović, Geir Kjetil Sandve, Victor Greiff, David Kreil, Michael Kopp, Günter Klambauer, Johannes Brandstetter, and Sepp Hochreiter, &lt;a href=&#34;https://arxiv.org/abs/2008.02217&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Hopfield Networks is All You Need&lt;/a&gt; (2020)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Johannes Brandstetter, &lt;a href=&#34;https://ml-jku.github.io/hopfield-layers/&#34;&gt;https://ml-jku.github.io/hopfield-layers/&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Johannes Brandstetter, &lt;a href=&#34;https://ml-jku.github.io/hopfield-layers/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://ml-jku.github.io/hopfield-layers/&lt;/a&gt; (2020)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:4&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Johannes Brandstetter and Hubert Ramsauer, &lt;a href=&#34;https://ml-jku.github.io/blog-post-performer/&#34;&gt;https://ml-jku.github.io/blog-post-performer/&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Johannes Brandstetter and Hubert Ramsauer, &lt;a href=&#34;https://ml-jku.github.io/blog-post-performer/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://ml-jku.github.io/blog-post-performer/&lt;/a&gt; (2020)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:5&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/2008.06996&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Associative Memory Problem in Neurobiology and Machine Learning&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/2008.06996&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Associative Memory Problem in Neurobiology and Machine Learning&lt;/a&gt; (2020)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:6&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;If you have only just joined the attention revolution, there are a lot of great resources out there to get you started. Yannic Kilcher provides a great introduction in his &lt;a href=&#34;https://www.youtube.com/watch?v=iDulhoQ2pro&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;video on Attention is All You Need&lt;/a&gt;. The &lt;a href=&#34;http://gabrielilharco.com/publications/EMNLP_2020_Tutorial__High_Performance_NLP.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;High Performance NLP tutorial slides&lt;/a&gt; presented at &lt;a href=&#34;https://2020.emnlp.org/tutorials&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;EMNLP 2020&lt;/a&gt; contain a thorough and visually appealing introduction to attention-based models. Because code is usually more to the point than papers that need to sell themselves, I highly recommend Phil Wang&amp;rsquo;s &lt;a href=&#34;https://github.com/lucidrains?tab=repositories&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;excellent collection of self-contained repositories&lt;/a&gt; showcasing some of the latest models and techniques. &lt;a href=&#34;#fnref:6&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;If you have only just joined the attention revolution, there are a lot of great resources out there to get you started. Yannic Kilcher provides a great introduction in his &lt;a href=&#34;https://www.youtube.com/watch?v=iDulhoQ2pro&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;video on Attention is All You Need&lt;/a&gt;. The &lt;a href=&#34;http://gabrielilharco.com/publications/EMNLP_2020_Tutorial__High_Performance_NLP.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;High Performance NLP tutorial slides&lt;/a&gt; presented at &lt;a href=&#34;https://2020.emnlp.org/tutorials&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;EMNLP 2020&lt;/a&gt; contain a thorough and visually appealing introduction to attention-based models. Because code is usually more to the point than papers that need to sell themselves, I highly recommend Phil Wang&amp;rsquo;s &lt;a href=&#34;https://github.com/lucidrains?tab=repositories&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;excellent collection of self-contained repositories&lt;/a&gt; showcasing some of the latest models and techniques.&amp;#160;&lt;a href=&#34;#fnref:6&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:7&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;John Hopfield, &lt;a href=&#34;https://www.pnas.org/content/pnas/79/8/2554.full.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Neural Networks and Physical Systems with Emergent Collective Computational Abilities&lt;/a&gt; (1982)&lt;/em&gt; &lt;a href=&#34;#fnref:7&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;John Hopfield, &lt;a href=&#34;https://www.pnas.org/content/pnas/79/8/2554.full.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Neural Networks and Physical Systems with Emergent Collective Computational Abilities&lt;/a&gt; (1982)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:7&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:8&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Alejandro Pozas-Kerstjens, Gorka Muñoz-Gil, Miguel Ángel García-March, Antonio Acín, Maciej Lewenstein, Przemysław R. Grzybowski, &lt;a href=&#34;https://arxiv.org/abs/1910.01592&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Efficient training of energy-based models via spin-glass control&lt;/a&gt; (2019)&lt;/em&gt; &lt;a href=&#34;#fnref:8&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Alejandro Pozas-Kerstjens, Gorka Muñoz-Gil, Miguel Ángel García-March, Antonio Acín, Maciej Lewenstein, Przemysław R. Grzybowski, &lt;a href=&#34;https://arxiv.org/abs/1910.01592&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Efficient training of energy-based models via spin-glass control&lt;/a&gt; (2019)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:8&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:9&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/1606.01164&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Dense Associative Memory for Pattern Recognition&lt;/a&gt; (2016)&lt;/em&gt; &lt;a href=&#34;#fnref:9&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/1606.01164&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Dense Associative Memory for Pattern Recognition&lt;/a&gt; (2016)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:9&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:10&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Mete Demircigil, Judith Heusel, Matthias Löwe, Sven Upgang, and Franck Vermet, &lt;a href=&#34;https://arxiv.org/abs/1702.01929&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;On a Model of Associative Memory with Huge Storage Capacity&lt;/a&gt; (2017)&lt;/em&gt; &lt;a href=&#34;#fnref:10&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Mete Demircigil, Judith Heusel, Matthias Löwe, Sven Upgang, and Franck Vermet, &lt;a href=&#34;https://arxiv.org/abs/1702.01929&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;On a Model of Associative Memory with Huge Storage Capacity&lt;/a&gt; (2017)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:10&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:11&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;A physicist might consider these continuous patterns spin configurations of the degrees of freedom in a vector spin model where the internal dimension $D \sim 10^2-10^4$ is much bigger than familiar small-$D$ cases like the &lt;a href=&#34;https://en.wikipedia.org/wiki/Classical_XY_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;XY model&lt;/a&gt; or the &lt;a href=&#34;https://en.wikipedia.org/wiki/Classical_Heisenberg_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Heisenberg model&lt;/a&gt; but much smaller than infinity. &lt;a href=&#34;#fnref:11&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;A physicist might consider these continuous patterns spin configurations of the degrees of freedom in a vector spin model where the internal dimension $D \sim 10^2-10^4$ is much bigger than familiar small-$D$ cases like the &lt;a href=&#34;https://en.wikipedia.org/wiki/Classical_XY_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;XY model&lt;/a&gt; or the &lt;a href=&#34;https://en.wikipedia.org/wiki/Classical_Heisenberg_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Heisenberg model&lt;/a&gt; but much smaller than infinity.&amp;#160;&lt;a href=&#34;#fnref:11&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:12&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Yann LeCun, Sumit Chopra, Raia Hadsell, Marc&amp;rsquo;Aurelio Ranzato, and Fu Jie Huang, &lt;a href=&#34;http://yann.lecun.com/exdb/publis/pdf/lecun-06.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A Tutorial on Energy-Based Learning&lt;/a&gt; (2006)&lt;/em&gt; and &lt;em&gt;Yann LeCun and Alfredo Canziani, &lt;a href=&#34;https://atcold.github.io/pytorch-Deep-Learning/en/week07/07-1/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Learning DS-GA 1008 course&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:12&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Yann LeCun, Sumit Chopra, Raia Hadsell, Marc&amp;rsquo;Aurelio Ranzato, and Fu Jie Huang, &lt;a href=&#34;http://yann.lecun.com/exdb/publis/pdf/lecun-06.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A Tutorial on Energy-Based Learning&lt;/a&gt; (2006)&lt;/em&gt; and &lt;em&gt;Yann LeCun and Alfredo Canziani, &lt;a href=&#34;https://atcold.github.io/pytorch-Deep-Learning/en/week07/07-1/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Learning DS-GA 1008 course&lt;/a&gt; (2020)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:12&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:13&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Pankaj Mehta, Marin Bukov, Ching-Hao Wang, Alexandre G.R. Day, Clint Richardson, Charles K. Fisher, and David J. Schwab, &lt;a href=&#34;https://arxiv.org/abs/1803.08823&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A high-bias, low-variance introduction to Machine Learning for physicists&lt;/a&gt; (2019)&lt;/em&gt; &lt;a href=&#34;#fnref:13&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Pankaj Mehta, Marin Bukov, Ching-Hao Wang, Alexandre G.R. Day, Clint Richardson, Charles K. Fisher, and David J. Schwab, &lt;a href=&#34;https://arxiv.org/abs/1803.08823&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A high-bias, low-variance introduction to Machine Learning for physicists&lt;/a&gt; (2019)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:13&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:14&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;The generator in a Generative Adverserial Network (GAN) setup can be considered a clever way to generate negative samples for the implicit energy function optimization taking place in the discriminator. &lt;a href=&#34;#fnref:14&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;The generator in a Generative Adverserial Network (GAN) setup can be considered a clever way to generate negative samples for the implicit energy function optimization taking place in the discriminator.&amp;#160;&lt;a href=&#34;#fnref:14&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:15&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;As we have seen in &lt;a href=&#34;#2-a-growing-zoo-of-transformers&#34;&gt;Section 2&lt;/a&gt;, the naive interpretation of $\beta$ as &lt;em&gt;the&lt;/em&gt; effective inverse temperature is tenuous in practice given the influence of the surrounding layer normalisation modules. &lt;a href=&#34;#fnref:15&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;As we have seen in &lt;a href=&#34;#2-a-growing-zoo-of-transformers&#34;&gt;Section 2&lt;/a&gt;, the naive interpretation of $\beta$ as &lt;em&gt;the&lt;/em&gt; effective inverse temperature is tenuous in practice given the influence of the surrounding layer normalisation modules.&amp;#160;&lt;a href=&#34;#fnref:15&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:16&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;The implicitly defined energy functions in Tranformer layers are not optimized directly because they arguably do not provide a meaningful training signal on their own. Verifying whether this is true or not could make for an interesting experiment. &lt;a href=&#34;#fnref:16&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;The implicitly defined energy functions in Tranformer layers are not optimized directly because they arguably do not provide a meaningful training signal on their own. Verifying whether this is true or not could make for an interesting experiment.&amp;#160;&lt;a href=&#34;#fnref:16&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;

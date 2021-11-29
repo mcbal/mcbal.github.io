@@ -7,7 +7,7 @@
     <description>Restricted Boltzmann Machine</description>
     <generator>Wowchemy (https://wowchemy.com)</generator><language>en-gb</language><copyright>Matthias Bal © 2021</copyright><lastBuildDate>Tue, 22 Dec 2020 10:03:17 +0100</lastBuildDate>
     <image>
-      <url>https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png</url>
+      <url>https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_3.png</url>
       <title>Restricted Boltzmann Machine</title>
       <link>https://mcbal.github.io/tag/restricted-boltzmann-machine/</link>
     </image>
@@ -69,8 +69,8 @@ E \left( \boldsymbol{v}, \boldsymbol{h} \right) = - \sum_{i} a_{i} (v_{i}) - \su
 &lt;p&gt;\begin{align}
 a_{i} (\cdot) =
 \begin{cases}
-a_{i} v_{i} &amp;amp; \text{if $v_{i} \in {0,1}$ is binary (Bernouilli)}\\&lt;br&gt;
-\frac{v_{i}^2}{2\sigma_{i}^{2}} &amp;amp; \text{if $v_{i} \in \mathbb{R}$ is continuous (Gaussian)}\&lt;br&gt;
+a_{i} v_{i} &amp;amp; \text{if $v_{i} \in {0,1}$ is binary (Bernouilli)}\\
+\frac{v_{i}^2}{2\sigma_{i}^{2}} &amp;amp; \text{if $v_{i} \in \mathbb{R}$ is continuous (Gaussian)}\
 \end{cases} &lt;br&gt;
 \end{align}&lt;/p&gt;
 &lt;p&gt;and similar for $b_{\mu} (\cdot)$.&lt;/p&gt;
@@ -92,7 +92,7 @@ p \left( \boldsymbol{v} \right) = \frac{\mathrm{e}^{- E (\boldsymbol{v})}}{Z}
 \end{equation}&lt;/p&gt;
 &lt;p&gt;so that we can identify&lt;/p&gt;
 &lt;p&gt;\begin{align}
-E \left( \boldsymbol{v} \right) &amp;amp;= - \mathrm{log} \int \mathrm{d} \boldsymbol{h} \  \mathrm{e}^{- E \left( \boldsymbol{v}, \boldsymbol{h} \right)} \\&lt;br&gt;
+E \left( \boldsymbol{v} \right) &amp;amp;= - \mathrm{log} \int \mathrm{d} \boldsymbol{h} \  \mathrm{e}^{- E \left( \boldsymbol{v}, \boldsymbol{h} \right)} \\
 &amp;amp;= - \sum_{i} a_{i} (v_{i}) - \sum_{\mu} \log \int \mathrm{d} h_{\mu}\ \mathrm{e}^{b_{\mu}(h_{\mu}) + \sum_{i} W_{i\mu} v_{i} h_{\mu}} \label{eq:effvisenergy}
 \end{align}&lt;/p&gt;
 &lt;p&gt;Following &lt;a href=&#34;https://arxiv.org/abs/1803.08823&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Mehda et al.&lt;/a&gt;, we can try to better understand the correlations in $p(\boldsymbol{v})$ by introducing the (prior) distribution&lt;/p&gt;
@@ -101,16 +101,16 @@ q_{\mu} \left( h_{\mu} \right) = \frac{\mathrm{e}^{b_{\mu} (h_{\mu})}}{Z}
 \end{equation}&lt;/p&gt;
 &lt;p&gt;for the hidden units $h_{\mu}$, ignoring the interactions between $\boldsymbol{v}$ and $\boldsymbol{h}$. Additionally, we can introduce the hidden unit&amp;rsquo;s distribution&amp;rsquo;s &lt;a href=&#34;https://en.wikipedia.org/wiki/Cumulant&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;cumulant generating function&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;\begin{align}
-K_{\mu} (t) &amp;amp;= \mathrm{log}\ \mathbb{E} \left[ \mathrm{e}^{t h_{\mu}} \right] \\&lt;br&gt;
-&amp;amp;= \mathrm{log} \int \mathrm{d} h_{\mu} \  q_{\mu} \left( h_{\mu} \right) \mathrm{e}^{t h_{\mu}}\\&lt;br&gt;
+K_{\mu} (t) &amp;amp;= \mathrm{log}\ \mathbb{E} \left[ \mathrm{e}^{t h_{\mu}} \right] \\
+&amp;amp;= \mathrm{log} \int \mathrm{d} h_{\mu} \  q_{\mu} \left( h_{\mu} \right) \mathrm{e}^{t h_{\mu}}\\
 &amp;amp;= \sum_{n=1}^{\infty} \kappa_{\mu}^{(n)} \frac{t^{n}}{n!},
 \end{align}&lt;/p&gt;
 &lt;p&gt;which is defined such that the $n^{\mathrm{th}}$ cumulant $\kappa_{\mu}^{(n)}$ of $q_{\mu} \left( h_{\mu} \right)$ can be obtained by taking derivatives $\kappa_{\mu}^{(n)} = \partial_{t}^{n} K_{\mu} \rvert_{t=0}$.&lt;/p&gt;
 &lt;p&gt;Looking back at the effective energy function \eqref{eq:effvisenergy} for the visible units, we find that the effective energy can be expressed in terms of cumulants:&lt;/p&gt;
 &lt;p&gt;\begin{align}
-E \left( \boldsymbol{v} \right) &amp;amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{\mu} K_{\mu} \left( \sum_{i} W_{i\mu} v_{i} \right) \\&lt;br&gt;
-&amp;amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{\mu} \sum_{n=1}^{\infty} \kappa_{\mu}^{(n)} \frac{\left( \sum_{i} W_{i\mu} v_{i} \right)^{n}}{n!} \\&lt;br&gt;
-&amp;amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{i} \left( \sum_{\mu} \kappa_{\mu}^{(1)} W_{i\mu} \right) v_{i} \\&lt;br&gt;
+E \left( \boldsymbol{v} \right) &amp;amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{\mu} K_{\mu} \left( \sum_{i} W_{i\mu} v_{i} \right) \\
+&amp;amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{\mu} \sum_{n=1}^{\infty} \kappa_{\mu}^{(n)} \frac{\left( \sum_{i} W_{i\mu} v_{i} \right)^{n}}{n!} \\
+&amp;amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{i} \left( \sum_{\mu} \kappa_{\mu}^{(1)} W_{i\mu} \right) v_{i} \\
 &amp;amp;\ \ \ \ \ - \frac{1}{2} \sum_{ij} \left( \sum_{\mu} \kappa_{\mu}^{(2)} W_{i\mu} W_{j\mu} \right) v_{i} v_{j} + \ldots \label{eq:effectivenergy}
 \end{align}&lt;/p&gt;
 &lt;p&gt;We see that the auxiliary, hidden degrees of freedom induce effective pairwise and higher-order correlations among visible degrees of freedom. Each hidden unit $h_{\mu}$ can encode interactions of arbitrarily high order, with the $n$-th order cumulants of $q_{\mu} \left( h_{\mu} \right)$ weighting the $n$-th order interactions. By combining many hidden units and/or stacking layers, RBMs can in principle encode complex interactions at all orders and learn them from data.&lt;/p&gt;
@@ -192,19 +192,19 @@ These linear transformations slightly generalize the &amp;ldquo;naked&amp;rdquo;
 &lt;hr&gt;
 &lt;ol&gt;
 &lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Pankaj Mehta, Marin Bukov, Ching-Hao Wang, Alexandre G.R. Day, Clint Richardson, Charles K. Fisher, David J. Schwab, &lt;a href=&#34;https://arxiv.org/abs/1803.08823&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A high-bias, low-variance introduction to Machine Learning for physicists&lt;/a&gt; (2019)&lt;/em&gt; &lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Pankaj Mehta, Marin Bukov, Ching-Hao Wang, Alexandre G.R. Day, Clint Richardson, Charles K. Fisher, David J. Schwab, &lt;a href=&#34;https://arxiv.org/abs/1803.08823&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A high-bias, low-variance introduction to Machine Learning for physicists&lt;/a&gt; (2019)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;Proof by Marcinkiewicz (1935) according to &lt;a href=&#34;http://www.stat.uchicago.edu/~pmcc/courses/stat306/2013/cumulants.pdf&#34;&gt;http://www.stat.uchicago.edu/~pmcc/courses/stat306/2013/cumulants.pdf&lt;/a&gt;. &lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Proof by Marcinkiewicz (1935) according to &lt;a href=&#34;http://www.stat.uchicago.edu/~pmcc/courses/stat306/2013/cumulants.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;http://www.stat.uchicago.edu/~pmcc/courses/stat306/2013/cumulants.pdf&lt;/a&gt;.&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;We are aware that this identification might be tremendously trivial when considering prior work on &lt;a href=&#34;https://papers.nips.cc/paper/2008/hash/e820a45f1dfc7b95282d10b6087e11c0-Abstract.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Implicit Mixtures of Restricted Boltzmann Machines&lt;/a&gt; or, more generally, mixture models in the context of &lt;a href=&#34;https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;expectation-minimization optimization&lt;/a&gt;. &lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;We are aware that this identification might be tremendously trivial when considering prior work on &lt;a href=&#34;https://papers.nips.cc/paper/2008/hash/e820a45f1dfc7b95282d10b6087e11c0-Abstract.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Implicit Mixtures of Restricted Boltzmann Machines&lt;/a&gt; or, more generally, mixture models in the context of &lt;a href=&#34;https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;expectation-minimization optimization&lt;/a&gt;.&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:4&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/2008.06996&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Associative Memory Problem in Neurobiology and Machine Learning&lt;/a&gt; (2020)&lt;/em&gt; &lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Dmitry Krotov and John Hopfield, &lt;a href=&#34;https://arxiv.org/abs/2008.06996&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Associative Memory Problem in Neurobiology and Machine Learning&lt;/a&gt; (2020)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:5&#34; role=&#34;doc-endnote&#34;&gt;
-&lt;p&gt;&lt;em&gt;Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, &lt;a href=&#34;https://arxiv.org/abs/1706.03762&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Attention Is All You Need&lt;/a&gt; (2017)&lt;/em&gt; &lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, &lt;a href=&#34;https://arxiv.org/abs/1706.03762&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Attention Is All You Need&lt;/a&gt; (2017)&lt;/em&gt;&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;

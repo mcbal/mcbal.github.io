@@ -297,8 +297,8 @@
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/">
 
@@ -368,7 +368,7 @@
     "name": "mcbal",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png"
+      "url": "https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "Can we swap softmax attention for energy-based attention?"
@@ -1247,13 +1247,13 @@ transformer_default_scale = ax.axhline(y=1.0, color=&quot;r&quot;)
 <hr>
 <ol>
 <li id="fn:1" role="doc-endnote">
-<p><em>Hubert Ramsauer, Bernhard Schäfl, Johannes Lehner, Philipp Seidl, Michael Widrich, Lukas Gruber, Markus Holzleitner, Milena Pavlović, Geir Kjetil Sandve, Victor Greiff, David Kreil, Michael Kopp, Günter Klambauer, Johannes Brandstetter, and Sepp Hochreiter, <a href="https://arxiv.org/abs/2008.02217" target="_blank" rel="noopener">Hopfield Networks is All You Need</a> (2020)</em> <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Hubert Ramsauer, Bernhard Schäfl, Johannes Lehner, Philipp Seidl, Michael Widrich, Lukas Gruber, Markus Holzleitner, Milena Pavlović, Geir Kjetil Sandve, Victor Greiff, David Kreil, Michael Kopp, Günter Klambauer, Johannes Brandstetter, and Sepp Hochreiter, <a href="https://arxiv.org/abs/2008.02217" target="_blank" rel="noopener">Hopfield Networks is All You Need</a> (2020)</em>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:2" role="doc-endnote">
-<p><em>Dmitry Krotov and John Hopfield, <a href="https://arxiv.org/abs/2008.06996" target="_blank" rel="noopener">Large Associative Memory Problem in Neurobiology and Machine Learning</a> (2020)</em> <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Dmitry Krotov and John Hopfield, <a href="https://arxiv.org/abs/2008.06996" target="_blank" rel="noopener">Large Associative Memory Problem in Neurobiology and Machine Learning</a> (2020)</em>&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:3" role="doc-endnote">
-<p><strong>Caveat:</strong> For the special case of bare energy-based self-attention, state patterns actually appear quadratically in the argument of the <code>logsumexp</code> part of the energy function. Taking the derivative using <code>minimize_energy(..)</code> however assumes the context is a different node in the computational graph, which, in this case, where we <em>should</em> be taking the derivative of <code>energy(x, x)</code> instead of <code>energy(x, context)</code>, yields a gradient that misses a factor of 2. But ensuring the gradient is &ldquo;correct&rdquo; for this special case would of course screw up the cancellation of the state pattern with itself for <code>step_size=1.0</code> and <code>num_steps=1</code> so that the updated query would no longer match the output of bare vanilla softmax attention. Proper treatment of doing multiple steps of bare energy-based self-attention should also include manually setting the context to the updated queries (since the queries themselves change every update step). Luckily no one would seriously consider using bare energy-based self-attention. <a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><strong>Caveat:</strong> For the special case of bare energy-based self-attention, state patterns actually appear quadratically in the argument of the <code>logsumexp</code> part of the energy function. Taking the derivative using <code>minimize_energy(..)</code> however assumes the context is a different node in the computational graph, which, in this case, where we <em>should</em> be taking the derivative of <code>energy(x, x)</code> instead of <code>energy(x, context)</code>, yields a gradient that misses a factor of 2. But ensuring the gradient is &ldquo;correct&rdquo; for this special case would of course screw up the cancellation of the state pattern with itself for <code>step_size=1.0</code> and <code>num_steps=1</code> so that the updated query would no longer match the output of bare vanilla softmax attention. Proper treatment of doing multiple steps of bare energy-based self-attention should also include manually setting the context to the updated queries (since the queries themselves change every update step). Luckily no one would seriously consider using bare energy-based self-attention.&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>
@@ -1416,21 +1416,6 @@ transformer_default_scale = ax.axhline(y=1.0, color=&quot;r&quot;)
     
     
     
-    <li>
-      <a href="mailto:matthiascbal@gmail.com" >
-        <i class="fas fa-envelope"></i>
-      </a>
-    </li>
-  
-    
-    
-    
-      
-    
-    
-    
-    
-    
       
     
     <li>
@@ -1540,7 +1525,7 @@ transformer_default_scale = ax.axhline(y=1.0, color=&quot;r&quot;)
       
       <li><a href="/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/">An Energy-Based Perspective on Attention Mechanisms in Transformers</a></li>
       
-      <li><a href="/post/transformers-are-secretly-collectives-of-spin-systems/">Transformers Are Secretly Collectives of Spin Systems</a></li>
+      <li><a href="/post/transformers-as-collectives-of-spin-systems/">Transformers as Collectives of Spin Systems</a></li>
       
       <li><a href="/post/transformers-from-spin-models-approximate-free-energy-minimization/">Transformers from Spin Models: Approximate Free Energy Minimization</a></li>
       
@@ -1659,7 +1644,7 @@ transformer_default_scale = ax.axhline(y=1.0, color=&quot;r&quot;)
     
     
     
-    <script src="/js/wowchemy.min.4c2bca31150ce93c5a5e43b8a50f22fd.js"></script>
+    <script src="/js/wowchemy.min.434af0ebce9e15b273b954d65feb39c7.js"></script>
 
     
 

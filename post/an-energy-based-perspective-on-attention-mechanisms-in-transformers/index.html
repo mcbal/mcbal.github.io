@@ -297,8 +297,8 @@
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/">
 
@@ -368,7 +368,7 @@
     "name": "mcbal",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png"
+      "url": "https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "Can an energy-based perspective shed light on training and improving Transformer models?"
@@ -883,17 +883,17 @@ Z = (2\pi)^{n/2} \sum_{i=1}^{N} \mathrm{e}^{ \frac{1}{2} \boldsymbol{x}_{i}^{T} 
 \end{equation}</p>
 <p>where the $\mathrm{diag}$ operator is understood to turn the diagonal of its matrix argument into a vector. Plugging this expression into \eqref{eq:nll} leads to the following loss function for the matrix of stored patterns</p>
 <p>\begin{align}
-\mathcal{L}_{\mathrm{ML}} (\mathbf{X}) = &amp; \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right) \right] \nonumber \\<br>
+\mathcal{L}_{\mathrm{ML}} (\mathbf{X}) = &amp; \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \frac{1}{2} \boldsymbol{\xi}^T \boldsymbol{\xi} -\mathrm{logsumexp} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right) \right] \nonumber \\
 &amp; + \mathrm{logsumexp} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T} \boldsymbol{X} \right) \right) + \frac{n}{2} \log \left( 2\pi \right)
 \end{align}</p>
 <p>and a gradient</p>
 <p>\begin{align}
-\nabla_{\mathbf{X}} \mathcal{L}_{\mathrm{ML}} (\mathbf{X}) = &amp; - \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \boldsymbol{\xi} \otimes \mathrm{softmax} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right) \right] \nonumber \\<br>
+\nabla_{\mathbf{X}} \mathcal{L}_{\mathrm{ML}} (\mathbf{X}) = &amp; - \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \boldsymbol{\xi} \otimes \mathrm{softmax} \left( \boldsymbol{X}^T \boldsymbol{\xi} \right) \right] \nonumber \\
 &amp; + \boldsymbol{X} \ \mathrm{softmax} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T} \boldsymbol{X} \right) \right)
 \end{align}</p>
 <p>and an update with step size $\gamma$</p>
 <p>\begin{align}
-\mathbf{X}_{n+1} = \ \mathbf{X}_{n} &amp;+ \gamma \ \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \boldsymbol{\xi} \otimes \mathrm{softmax} \left( \boldsymbol{X}^T_{n} \boldsymbol{\xi} \right) \right] \nonumber \\<br>
+\mathbf{X}_{n+1} = \ \mathbf{X}_{n} &amp;+ \gamma \ \mathbb{E}_{\boldsymbol{\xi} \sim p_{\mathrm{data}}} \left[ \boldsymbol{\xi} \otimes \mathrm{softmax} \left( \boldsymbol{X}^T_{n} \boldsymbol{\xi} \right) \right] \nonumber \\
 &amp; - \gamma \ \mathbf{X}_{n} \ \mathrm{softmax} \left( \frac{1}{2} \mathrm{diag} \left( \boldsymbol{X}^{T}_{n} \boldsymbol{X}_{n} \right) \right)
 \end{align}</p>
 <p>Let&rsquo;s try to guess what this means for a single input state pattern. The first gradient term pushes all stored patterns towards the sample but weighted by a dot-product attention vector quantifying their overlap with the input pattern, similar to \eqref{eq:conthopfupdate} but in the other direction. The second gradient term comes from the partition function and acts as a regularizer by keeping the norms of the stored patterns in check. Regularization keeps pattern values within a reasonable range and pushes the system towards regions in parameter space with non-trivial small dot-product values.</p>
@@ -976,52 +976,52 @@ Checking whether this transformed energy function still leads to a tractable Gau
 <hr>
 <ol>
 <li id="fn:1" role="doc-endnote">
-<p><em>Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need</a> (2017)</em> <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need</a> (2017)</em>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:2" role="doc-endnote">
-<p><em>Hubert Ramsauer, Bernhard Schäfl, Johannes Lehner, Philipp Seidl, Michael Widrich, Lukas Gruber, Markus Holzleitner, Milena Pavlović, Geir Kjetil Sandve, Victor Greiff, David Kreil, Michael Kopp, Günter Klambauer, Johannes Brandstetter, and Sepp Hochreiter, <a href="https://arxiv.org/abs/2008.02217" target="_blank" rel="noopener">Hopfield Networks is All You Need</a> (2020)</em> <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Hubert Ramsauer, Bernhard Schäfl, Johannes Lehner, Philipp Seidl, Michael Widrich, Lukas Gruber, Markus Holzleitner, Milena Pavlović, Geir Kjetil Sandve, Victor Greiff, David Kreil, Michael Kopp, Günter Klambauer, Johannes Brandstetter, and Sepp Hochreiter, <a href="https://arxiv.org/abs/2008.02217" target="_blank" rel="noopener">Hopfield Networks is All You Need</a> (2020)</em>&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:3" role="doc-endnote">
-<p><em>Johannes Brandstetter, <a href="https://ml-jku.github.io/hopfield-layers/">https://ml-jku.github.io/hopfield-layers/</a> (2020)</em> <a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Johannes Brandstetter, <a href="https://ml-jku.github.io/hopfield-layers/" target="_blank" rel="noopener">https://ml-jku.github.io/hopfield-layers/</a> (2020)</em>&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:4" role="doc-endnote">
-<p><em>Johannes Brandstetter and Hubert Ramsauer, <a href="https://ml-jku.github.io/blog-post-performer/">https://ml-jku.github.io/blog-post-performer/</a> (2020)</em> <a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Johannes Brandstetter and Hubert Ramsauer, <a href="https://ml-jku.github.io/blog-post-performer/" target="_blank" rel="noopener">https://ml-jku.github.io/blog-post-performer/</a> (2020)</em>&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:5" role="doc-endnote">
-<p><em>Dmitry Krotov and John Hopfield, <a href="https://arxiv.org/abs/2008.06996" target="_blank" rel="noopener">Large Associative Memory Problem in Neurobiology and Machine Learning</a> (2020)</em> <a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Dmitry Krotov and John Hopfield, <a href="https://arxiv.org/abs/2008.06996" target="_blank" rel="noopener">Large Associative Memory Problem in Neurobiology and Machine Learning</a> (2020)</em>&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:6" role="doc-endnote">
-<p>If you have only just joined the attention revolution, there are a lot of great resources out there to get you started. Yannic Kilcher provides a great introduction in his <a href="https://www.youtube.com/watch?v=iDulhoQ2pro" target="_blank" rel="noopener">video on Attention is All You Need</a>. The <a href="http://gabrielilharco.com/publications/EMNLP_2020_Tutorial__High_Performance_NLP.pdf" target="_blank" rel="noopener">High Performance NLP tutorial slides</a> presented at <a href="https://2020.emnlp.org/tutorials" target="_blank" rel="noopener">EMNLP 2020</a> contain a thorough and visually appealing introduction to attention-based models. Because code is usually more to the point than papers that need to sell themselves, I highly recommend Phil Wang&rsquo;s <a href="https://github.com/lucidrains?tab=repositories" target="_blank" rel="noopener">excellent collection of self-contained repositories</a> showcasing some of the latest models and techniques. <a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>If you have only just joined the attention revolution, there are a lot of great resources out there to get you started. Yannic Kilcher provides a great introduction in his <a href="https://www.youtube.com/watch?v=iDulhoQ2pro" target="_blank" rel="noopener">video on Attention is All You Need</a>. The <a href="http://gabrielilharco.com/publications/EMNLP_2020_Tutorial__High_Performance_NLP.pdf" target="_blank" rel="noopener">High Performance NLP tutorial slides</a> presented at <a href="https://2020.emnlp.org/tutorials" target="_blank" rel="noopener">EMNLP 2020</a> contain a thorough and visually appealing introduction to attention-based models. Because code is usually more to the point than papers that need to sell themselves, I highly recommend Phil Wang&rsquo;s <a href="https://github.com/lucidrains?tab=repositories" target="_blank" rel="noopener">excellent collection of self-contained repositories</a> showcasing some of the latest models and techniques.&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:7" role="doc-endnote">
-<p><em>John Hopfield, <a href="https://www.pnas.org/content/pnas/79/8/2554.full.pdf" target="_blank" rel="noopener">Neural Networks and Physical Systems with Emergent Collective Computational Abilities</a> (1982)</em> <a href="#fnref:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>John Hopfield, <a href="https://www.pnas.org/content/pnas/79/8/2554.full.pdf" target="_blank" rel="noopener">Neural Networks and Physical Systems with Emergent Collective Computational Abilities</a> (1982)</em>&#160;<a href="#fnref:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:8" role="doc-endnote">
-<p><em>Alejandro Pozas-Kerstjens, Gorka Muñoz-Gil, Miguel Ángel García-March, Antonio Acín, Maciej Lewenstein, Przemysław R. Grzybowski, <a href="https://arxiv.org/abs/1910.01592" target="_blank" rel="noopener">Efficient training of energy-based models via spin-glass control</a> (2019)</em> <a href="#fnref:8" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Alejandro Pozas-Kerstjens, Gorka Muñoz-Gil, Miguel Ángel García-March, Antonio Acín, Maciej Lewenstein, Przemysław R. Grzybowski, <a href="https://arxiv.org/abs/1910.01592" target="_blank" rel="noopener">Efficient training of energy-based models via spin-glass control</a> (2019)</em>&#160;<a href="#fnref:8" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:9" role="doc-endnote">
-<p><em>Dmitry Krotov and John Hopfield, <a href="https://arxiv.org/abs/1606.01164" target="_blank" rel="noopener">Dense Associative Memory for Pattern Recognition</a> (2016)</em> <a href="#fnref:9" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Dmitry Krotov and John Hopfield, <a href="https://arxiv.org/abs/1606.01164" target="_blank" rel="noopener">Dense Associative Memory for Pattern Recognition</a> (2016)</em>&#160;<a href="#fnref:9" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:10" role="doc-endnote">
-<p><em>Mete Demircigil, Judith Heusel, Matthias Löwe, Sven Upgang, and Franck Vermet, <a href="https://arxiv.org/abs/1702.01929" target="_blank" rel="noopener">On a Model of Associative Memory with Huge Storage Capacity</a> (2017)</em> <a href="#fnref:10" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Mete Demircigil, Judith Heusel, Matthias Löwe, Sven Upgang, and Franck Vermet, <a href="https://arxiv.org/abs/1702.01929" target="_blank" rel="noopener">On a Model of Associative Memory with Huge Storage Capacity</a> (2017)</em>&#160;<a href="#fnref:10" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:11" role="doc-endnote">
-<p>A physicist might consider these continuous patterns spin configurations of the degrees of freedom in a vector spin model where the internal dimension $D \sim 10^2-10^4$ is much bigger than familiar small-$D$ cases like the <a href="https://en.wikipedia.org/wiki/Classical_XY_model" target="_blank" rel="noopener">XY model</a> or the <a href="https://en.wikipedia.org/wiki/Classical_Heisenberg_model" target="_blank" rel="noopener">Heisenberg model</a> but much smaller than infinity. <a href="#fnref:11" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>A physicist might consider these continuous patterns spin configurations of the degrees of freedom in a vector spin model where the internal dimension $D \sim 10^2-10^4$ is much bigger than familiar small-$D$ cases like the <a href="https://en.wikipedia.org/wiki/Classical_XY_model" target="_blank" rel="noopener">XY model</a> or the <a href="https://en.wikipedia.org/wiki/Classical_Heisenberg_model" target="_blank" rel="noopener">Heisenberg model</a> but much smaller than infinity.&#160;<a href="#fnref:11" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:12" role="doc-endnote">
-<p><em>Yann LeCun, Sumit Chopra, Raia Hadsell, Marc&rsquo;Aurelio Ranzato, and Fu Jie Huang, <a href="http://yann.lecun.com/exdb/publis/pdf/lecun-06.pdf" target="_blank" rel="noopener">A Tutorial on Energy-Based Learning</a> (2006)</em> and <em>Yann LeCun and Alfredo Canziani, <a href="https://atcold.github.io/pytorch-Deep-Learning/en/week07/07-1/" target="_blank" rel="noopener">Deep Learning DS-GA 1008 course</a> (2020)</em> <a href="#fnref:12" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Yann LeCun, Sumit Chopra, Raia Hadsell, Marc&rsquo;Aurelio Ranzato, and Fu Jie Huang, <a href="http://yann.lecun.com/exdb/publis/pdf/lecun-06.pdf" target="_blank" rel="noopener">A Tutorial on Energy-Based Learning</a> (2006)</em> and <em>Yann LeCun and Alfredo Canziani, <a href="https://atcold.github.io/pytorch-Deep-Learning/en/week07/07-1/" target="_blank" rel="noopener">Deep Learning DS-GA 1008 course</a> (2020)</em>&#160;<a href="#fnref:12" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:13" role="doc-endnote">
-<p><em>Pankaj Mehta, Marin Bukov, Ching-Hao Wang, Alexandre G.R. Day, Clint Richardson, Charles K. Fisher, and David J. Schwab, <a href="https://arxiv.org/abs/1803.08823" target="_blank" rel="noopener">A high-bias, low-variance introduction to Machine Learning for physicists</a> (2019)</em> <a href="#fnref:13" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Pankaj Mehta, Marin Bukov, Ching-Hao Wang, Alexandre G.R. Day, Clint Richardson, Charles K. Fisher, and David J. Schwab, <a href="https://arxiv.org/abs/1803.08823" target="_blank" rel="noopener">A high-bias, low-variance introduction to Machine Learning for physicists</a> (2019)</em>&#160;<a href="#fnref:13" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:14" role="doc-endnote">
-<p>The generator in a Generative Adverserial Network (GAN) setup can be considered a clever way to generate negative samples for the implicit energy function optimization taking place in the discriminator. <a href="#fnref:14" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>The generator in a Generative Adverserial Network (GAN) setup can be considered a clever way to generate negative samples for the implicit energy function optimization taking place in the discriminator.&#160;<a href="#fnref:14" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:15" role="doc-endnote">
-<p>As we have seen in <a href="#2-a-growing-zoo-of-transformers">Section 2</a>, the naive interpretation of $\beta$ as <em>the</em> effective inverse temperature is tenuous in practice given the influence of the surrounding layer normalisation modules. <a href="#fnref:15" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>As we have seen in <a href="#2-a-growing-zoo-of-transformers">Section 2</a>, the naive interpretation of $\beta$ as <em>the</em> effective inverse temperature is tenuous in practice given the influence of the surrounding layer normalisation modules.&#160;<a href="#fnref:15" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:16" role="doc-endnote">
-<p>The implicitly defined energy functions in Tranformer layers are not optimized directly because they arguably do not provide a meaningful training signal on their own. Verifying whether this is true or not could make for an interesting experiment. <a href="#fnref:16" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>The implicitly defined energy functions in Tranformer layers are not optimized directly because they arguably do not provide a meaningful training signal on their own. Verifying whether this is true or not could make for an interesting experiment.&#160;<a href="#fnref:16" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>
@@ -1186,21 +1186,6 @@ Checking whether this transformed energy function still leads to a tractable Gau
     
     
     
-    <li>
-      <a href="mailto:matthiascbal@gmail.com" >
-        <i class="fas fa-envelope"></i>
-      </a>
-    </li>
-  
-    
-    
-    
-      
-    
-    
-    
-    
-    
       
     
     <li>
@@ -1300,7 +1285,7 @@ Checking whether this transformed energy function still leads to a tractable Gau
       
       <li><a href="/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a></li>
       
-      <li><a href="/post/transformers-are-secretly-collectives-of-spin-systems/">Transformers Are Secretly Collectives of Spin Systems</a></li>
+      <li><a href="/post/transformers-as-collectives-of-spin-systems/">Transformers as Collectives of Spin Systems</a></li>
       
       <li><a href="/post/transformers-from-spin-models-approximate-free-energy-minimization/">Transformers from Spin Models: Approximate Free Energy Minimization</a></li>
       
@@ -1423,7 +1408,7 @@ Checking whether this transformed energy function still leads to a tractable Gau
     
     
     
-    <script src="/js/wowchemy.min.4c2bca31150ce93c5a5e43b8a50f22fd.js"></script>
+    <script src="/js/wowchemy.min.434af0ebce9e15b273b954d65feb39c7.js"></script>
 
     
 

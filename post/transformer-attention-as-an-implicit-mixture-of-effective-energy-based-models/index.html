@@ -297,8 +297,8 @@
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/">
 
@@ -368,7 +368,7 @@
     "name": "mcbal",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_2.png"
+      "url": "https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "Where does the energy function behind Transformers' attention mechanism come from?"
@@ -693,7 +693,7 @@
 
 <div class="article-header article-container featured-image-wrapper mt-4 mb-4" style="max-width: 720px; max-height: 281px;">
   <div style="position: relative">
-    <img src="/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/featured_huaaa168beff6fd5d8ef27ef7289e1c122_209662_720x0_resize_lanczos_2.png" alt="" class="featured-image">
+    <img src="/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/featured_huaaa168beff6fd5d8ef27ef7289e1c122_209662_720x0_resize_lanczos_3.png" alt="" class="featured-image">
     
   </div>
 </div>
@@ -755,8 +755,8 @@ E \left( \boldsymbol{v}, \boldsymbol{h} \right) = - \sum_{i} a_{i} (v_{i}) - \su
 <p>\begin{align}
 a_{i} (\cdot) =
 \begin{cases}
-a_{i} v_{i} &amp; \text{if $v_{i} \in {0,1}$ is binary (Bernouilli)}\\<br>
-\frac{v_{i}^2}{2\sigma_{i}^{2}} &amp; \text{if $v_{i} \in \mathbb{R}$ is continuous (Gaussian)}\<br>
+a_{i} v_{i} &amp; \text{if $v_{i} \in {0,1}$ is binary (Bernouilli)}\\
+\frac{v_{i}^2}{2\sigma_{i}^{2}} &amp; \text{if $v_{i} \in \mathbb{R}$ is continuous (Gaussian)}\
 \end{cases} <br>
 \end{align}</p>
 <p>and similar for $b_{\mu} (\cdot)$.</p>
@@ -778,7 +778,7 @@ p \left( \boldsymbol{v} \right) = \frac{\mathrm{e}^{- E (\boldsymbol{v})}}{Z}
 \end{equation}</p>
 <p>so that we can identify</p>
 <p>\begin{align}
-E \left( \boldsymbol{v} \right) &amp;= - \mathrm{log} \int \mathrm{d} \boldsymbol{h} \  \mathrm{e}^{- E \left( \boldsymbol{v}, \boldsymbol{h} \right)} \\<br>
+E \left( \boldsymbol{v} \right) &amp;= - \mathrm{log} \int \mathrm{d} \boldsymbol{h} \  \mathrm{e}^{- E \left( \boldsymbol{v}, \boldsymbol{h} \right)} \\
 &amp;= - \sum_{i} a_{i} (v_{i}) - \sum_{\mu} \log \int \mathrm{d} h_{\mu}\ \mathrm{e}^{b_{\mu}(h_{\mu}) + \sum_{i} W_{i\mu} v_{i} h_{\mu}} \label{eq:effvisenergy}
 \end{align}</p>
 <p>Following <a href="https://arxiv.org/abs/1803.08823" target="_blank" rel="noopener">Mehda et al.</a>, we can try to better understand the correlations in $p(\boldsymbol{v})$ by introducing the (prior) distribution</p>
@@ -787,16 +787,16 @@ q_{\mu} \left( h_{\mu} \right) = \frac{\mathrm{e}^{b_{\mu} (h_{\mu})}}{Z}
 \end{equation}</p>
 <p>for the hidden units $h_{\mu}$, ignoring the interactions between $\boldsymbol{v}$ and $\boldsymbol{h}$. Additionally, we can introduce the hidden unit&rsquo;s distribution&rsquo;s <a href="https://en.wikipedia.org/wiki/Cumulant" target="_blank" rel="noopener">cumulant generating function</a></p>
 <p>\begin{align}
-K_{\mu} (t) &amp;= \mathrm{log}\ \mathbb{E} \left[ \mathrm{e}^{t h_{\mu}} \right] \\<br>
-&amp;= \mathrm{log} \int \mathrm{d} h_{\mu} \  q_{\mu} \left( h_{\mu} \right) \mathrm{e}^{t h_{\mu}}\\<br>
+K_{\mu} (t) &amp;= \mathrm{log}\ \mathbb{E} \left[ \mathrm{e}^{t h_{\mu}} \right] \\
+&amp;= \mathrm{log} \int \mathrm{d} h_{\mu} \  q_{\mu} \left( h_{\mu} \right) \mathrm{e}^{t h_{\mu}}\\
 &amp;= \sum_{n=1}^{\infty} \kappa_{\mu}^{(n)} \frac{t^{n}}{n!},
 \end{align}</p>
 <p>which is defined such that the $n^{\mathrm{th}}$ cumulant $\kappa_{\mu}^{(n)}$ of $q_{\mu} \left( h_{\mu} \right)$ can be obtained by taking derivatives $\kappa_{\mu}^{(n)} = \partial_{t}^{n} K_{\mu} \rvert_{t=0}$.</p>
 <p>Looking back at the effective energy function \eqref{eq:effvisenergy} for the visible units, we find that the effective energy can be expressed in terms of cumulants:</p>
 <p>\begin{align}
-E \left( \boldsymbol{v} \right) &amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{\mu} K_{\mu} \left( \sum_{i} W_{i\mu} v_{i} \right) \\<br>
-&amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{\mu} \sum_{n=1}^{\infty} \kappa_{\mu}^{(n)} \frac{\left( \sum_{i} W_{i\mu} v_{i} \right)^{n}}{n!} \\<br>
-&amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{i} \left( \sum_{\mu} \kappa_{\mu}^{(1)} W_{i\mu} \right) v_{i} \\<br>
+E \left( \boldsymbol{v} \right) &amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{\mu} K_{\mu} \left( \sum_{i} W_{i\mu} v_{i} \right) \\
+&amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{\mu} \sum_{n=1}^{\infty} \kappa_{\mu}^{(n)} \frac{\left( \sum_{i} W_{i\mu} v_{i} \right)^{n}}{n!} \\
+&amp;= - \sum_{i} a_{i} \left(v_{i}\right) - \sum_{i} \left( \sum_{\mu} \kappa_{\mu}^{(1)} W_{i\mu} \right) v_{i} \\
 &amp;\ \ \ \ \ - \frac{1}{2} \sum_{ij} \left( \sum_{\mu} \kappa_{\mu}^{(2)} W_{i\mu} W_{j\mu} \right) v_{i} v_{j} + \ldots \label{eq:effectivenergy}
 \end{align}</p>
 <p>We see that the auxiliary, hidden degrees of freedom induce effective pairwise and higher-order correlations among visible degrees of freedom. Each hidden unit $h_{\mu}$ can encode interactions of arbitrarily high order, with the $n$-th order cumulants of $q_{\mu} \left( h_{\mu} \right)$ weighting the $n$-th order interactions. By combining many hidden units and/or stacking layers, RBMs can in principle encode complex interactions at all orders and learn them from data.</p>
@@ -878,19 +878,19 @@ These linear transformations slightly generalize the &ldquo;naked&rdquo; explici
 <hr>
 <ol>
 <li id="fn:1" role="doc-endnote">
-<p><em>Pankaj Mehta, Marin Bukov, Ching-Hao Wang, Alexandre G.R. Day, Clint Richardson, Charles K. Fisher, David J. Schwab, <a href="https://arxiv.org/abs/1803.08823" target="_blank" rel="noopener">A high-bias, low-variance introduction to Machine Learning for physicists</a> (2019)</em> <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Pankaj Mehta, Marin Bukov, Ching-Hao Wang, Alexandre G.R. Day, Clint Richardson, Charles K. Fisher, David J. Schwab, <a href="https://arxiv.org/abs/1803.08823" target="_blank" rel="noopener">A high-bias, low-variance introduction to Machine Learning for physicists</a> (2019)</em>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:2" role="doc-endnote">
-<p>Proof by Marcinkiewicz (1935) according to <a href="http://www.stat.uchicago.edu/~pmcc/courses/stat306/2013/cumulants.pdf">http://www.stat.uchicago.edu/~pmcc/courses/stat306/2013/cumulants.pdf</a>. <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>Proof by Marcinkiewicz (1935) according to <a href="http://www.stat.uchicago.edu/~pmcc/courses/stat306/2013/cumulants.pdf" target="_blank" rel="noopener">http://www.stat.uchicago.edu/~pmcc/courses/stat306/2013/cumulants.pdf</a>.&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:3" role="doc-endnote">
-<p>We are aware that this identification might be tremendously trivial when considering prior work on <a href="https://papers.nips.cc/paper/2008/hash/e820a45f1dfc7b95282d10b6087e11c0-Abstract.html" target="_blank" rel="noopener">Implicit Mixtures of Restricted Boltzmann Machines</a> or, more generally, mixture models in the context of <a href="https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm" target="_blank" rel="noopener">expectation-minimization optimization</a>. <a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>We are aware that this identification might be tremendously trivial when considering prior work on <a href="https://papers.nips.cc/paper/2008/hash/e820a45f1dfc7b95282d10b6087e11c0-Abstract.html" target="_blank" rel="noopener">Implicit Mixtures of Restricted Boltzmann Machines</a> or, more generally, mixture models in the context of <a href="https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm" target="_blank" rel="noopener">expectation-minimization optimization</a>.&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:4" role="doc-endnote">
-<p><em>Dmitry Krotov and John Hopfield, <a href="https://arxiv.org/abs/2008.06996" target="_blank" rel="noopener">Large Associative Memory Problem in Neurobiology and Machine Learning</a> (2020)</em> <a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Dmitry Krotov and John Hopfield, <a href="https://arxiv.org/abs/2008.06996" target="_blank" rel="noopener">Large Associative Memory Problem in Neurobiology and Machine Learning</a> (2020)</em>&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:5" role="doc-endnote">
-<p><em>Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need</a> (2017)</em> <a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><em>Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin, <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need</a> (2017)</em>&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>
@@ -1057,21 +1057,6 @@ These linear transformations slightly generalize the &ldquo;naked&rdquo; explici
     
     
     
-    <li>
-      <a href="mailto:matthiascbal@gmail.com" >
-        <i class="fas fa-envelope"></i>
-      </a>
-    </li>
-  
-    
-    
-    
-      
-    
-    
-    
-    
-    
       
     
     <li>
@@ -1179,7 +1164,7 @@ These linear transformations slightly generalize the &ldquo;naked&rdquo; explici
       
       <li><a href="/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/">An Energy-Based Perspective on Attention Mechanisms in Transformers</a></li>
       
-      <li><a href="/post/transformers-are-secretly-collectives-of-spin-systems/">Transformers Are Secretly Collectives of Spin Systems</a></li>
+      <li><a href="/post/transformers-as-collectives-of-spin-systems/">Transformers as Collectives of Spin Systems</a></li>
       
       <li><a href="/post/transformers-from-spin-models-approximate-free-energy-minimization/">Transformers from Spin Models: Approximate Free Energy Minimization</a></li>
       
@@ -1300,7 +1285,7 @@ These linear transformations slightly generalize the &ldquo;naked&rdquo; explici
     
     
     
-    <script src="/js/wowchemy.min.4c2bca31150ce93c5a5e43b8a50f22fd.js"></script>
+    <script src="/js/wowchemy.min.434af0ebce9e15b273b954d65feb39c7.js"></script>
 
     
 

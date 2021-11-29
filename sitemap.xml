@@ -1,189 +1,113 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  
   <url>
     <loc>https://mcbal.github.io/tag/artificial-intelligence/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/associative-memories/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/attention/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/boltzmann-machine/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/deep-learning/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/emergent-collective-computational-capabilities/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/free-energy/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/hopfield-networks/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/ising-models/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/neural-networks/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/partition-function/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/post/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/statistical-physics/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tags/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/transformers/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/</loc>
+  </url><url>
+    <loc>https://mcbal.github.io/post/transformers-as-collectives-of-spin-systems/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/vector-spin-models/</loc>
     <lastmod>2021-11-28T20:02:18+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/saddle-point/</loc>
     <lastmod>2021-10-12T19:40:17+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/steepest-descent/</loc>
     <lastmod>2021-10-12T19:40:17+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/</loc>
     <lastmod>2021-10-12T19:40:17+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/belief-propagation/</loc>
     <lastmod>2021-05-11T17:30:17+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/</loc>
     <lastmod>2021-05-11T17:30:17+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/energy-based-models/</loc>
     <lastmod>2021-05-11T17:30:17+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/expectation-propagation/</loc>
     <lastmod>2021-05-11T17:30:17+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/mean-field-theory/</loc>
     <lastmod>2021-05-11T17:30:17+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/post/attention-as-energy-minimization-visualizing-energy-landscapes/</loc>
     <lastmod>2021-03-18T22:36:17+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/dynamical-systems/</loc>
     <lastmod>2021-03-18T22:36:17+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/renormalization-group/</loc>
     <lastmod>2020-12-30T10:34:17+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/tag/restricted-boltzmann-machine/</loc>
     <lastmod>2020-12-30T10:34:17+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/post/transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models/</loc>
     <lastmod>2020-12-30T10:34:17+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/post/an-energy-based-perspective-on-attention-mechanisms-in-transformers/</loc>
     <lastmod>2020-12-03T12:30:21+01:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/authors/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/categories/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/author/matthias-bal/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/publication_types/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/publication/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://mcbal.github.io/talk/</loc>
   </url>
-  
 </urlset>
