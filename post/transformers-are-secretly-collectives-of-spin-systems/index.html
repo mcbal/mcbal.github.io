@@ -658,7 +658,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    13 min read
+    14 min read
   </span>
   
 
@@ -723,6 +723,9 @@
 <li><a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Transformers from Spin Models: Approximate Free Energy Minimization</a></li>
 </ul>
 <p>We argue that the neural-network architecture of the archetypical transformer module can be derived from the structure of physical spin systems familiar from classical statistical mechanics. More specifically, we claim that the forward pass of transformer modules maps onto computing magnetizations in vector-spin models in response to incoming data. We imagine transformers as collectives of differentiable spin systems whose behavior can be shaped through training.</p>
+<blockquote>
+<p><strong>✨ Code: PyTorch implementations of some of the ideas outlined in this blog post are available in the GitHub repositories <a href="https://github.com/mcbal/deep-implicit-attention" target="_blank" rel="noopener"><code>mcbal/deep-implicit-attention</code></a> and <a href="https://github.com/mcbal/afem" target="_blank" rel="noopener"><code>mcbal/afem</code></a>.</strong></p>
+</blockquote>
 <h3 id="2-where-does-the-transformer-module-architecture-come-from">2. Where does the transformer module architecture come from?</h3>
 <p>Taking a bird&rsquo;s eye view of the evergrowing zoo of transformer architectures in natural language processing and computer vision indicates that the high-level design pattern introduced in <em><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention is All You Need (Vaswani et al., 2017)</a></em><sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> is still dominant. Almost all architectural variations of transformer modules published in the last four years have stuck to a successful combination of residual connections, an attention-like operation (token-mixing), normalization layers, and a feed-forward-like operation (channel-mixing).</p>
 <p><a href="https://arxiv.org/abs/2111.11418" target=_blank><img src="metaformer.png" alt="MetaFormer architecture comparison" width="400px"/></a></p>

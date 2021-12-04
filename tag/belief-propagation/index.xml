@@ -49,7 +49,7 @@
 &lt;hr&gt;
 &lt;h1 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h1&gt;
 &lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;✨ Code: A reference PyTorch implementation of the ideas outlined in this blog post is available in the repository &lt;a href=&#34;https://github.com/mcbal/deep-implicit-attention&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;deep-implicit-attention&lt;/code&gt;&lt;/a&gt;. Comments welcome.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;✨ Code: A reference PyTorch implementation of the ideas outlined in this blog post is available in the repository &lt;a href=&#34;https://github.com/mcbal/deep-implicit-attention&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;mcbal/deep-implicit-attention&lt;/code&gt;&lt;/a&gt;. Comments welcome.&lt;/strong&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;To explore progress beyond the cage of softmax attention, we have previously looked at energy-based perspectives on attention mechanisms:&lt;/p&gt;
 &lt;ul&gt;
