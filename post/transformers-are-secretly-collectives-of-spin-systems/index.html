@@ -757,7 +757,7 @@ E = - \sum_{i,j=1}^{N} J_{ij} \sigma_{i} \sigma_{j} - \sum_{i=1}^{N} h_{i} \sigm
 <p>\begin{align}
 E = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\sigma}_{j} - \sum_{i=1}^{N} \boldsymbol{h}_{i} \cdot \boldsymbol{\sigma}_{i}, \label{eq:vectorrandomising}
 \end{align}</p>
-<p>where the scalar products have turned into dot products.</p>
+<p>where the scalar products have turned into dot products. Models of this form appear in recent studies on higher-dimensional generalizations of spin glass models<sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup>.</p>
 <img src="vector_ising.png" alt="Random Ising model configuration with vector spins" width="200px"/>
 <p>Nice. Now how can we relate vector-spin systems like Eq. \eqref{eq:vectorrandomising} to neural networks?</p>
 <h3 id="5-why-dont-we-just-probe-a-vector-spin-system-with-data">5. Why don’t we just probe a vector-spin system with data?</h3>
@@ -772,7 +772,7 @@ E = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\sigm
 Z_{\theta} \left( h \right) = \int \mathrm{d} \sigma \ \mathrm{e}^{ - \beta E_{\theta}\left( \sigma, h \right) } \label{eq:partfun}
 \end{align}</p>
 <p>and the corresponding free energy as $F_{\theta} \left( h \right) = - \beta^{-1} \log Z_{\theta} \left( h \right)$.</p>
-<p>Magnetizations are responses of our spin system to the external magnetic field imposed by $(\boldsymbol{h}_{1}, \boldsymbol{h}_{2}, \ldots, \boldsymbol{h}_{N})$. From standard thermodynamics, we know that we can calculate magnetizations from the free energy by differentiating with respect to the external field<sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup></p>
+<p>Magnetizations are responses of our spin system to the external magnetic field imposed by $(\boldsymbol{h}_{1}, \boldsymbol{h}_{2}, \ldots, \boldsymbol{h}_{N})$. From standard thermodynamics, we know that we can calculate magnetizations from the free energy by differentiating with respect to the external field<sup id="fnref:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup></p>
 <p>\begin{align}
 \boldsymbol{m}_{i} = - \frac{\mathrm{d} F_{\theta} \left( \boldsymbol{h}_{1}, \boldsymbol{h}_{2}, \ldots, \boldsymbol{h}_{N} \right)}{\mathrm{d} \boldsymbol{h}_{i}} = \langle \boldsymbol{\sigma}_{i} \rangle , \label{eq:sigma}
 \end{align}</p>
@@ -786,7 +786,7 @@ J_{ij} \left( \boldsymbol{h}_{1}, \boldsymbol{h}_{2}, \ldots, \boldsymbol{h}_{N}
 <p>\begin{align}
 \boldsymbol{m}_{i} &amp;= - \frac{\mathrm{d} F_{\theta} \left( \boldsymbol{h}_{1}, \boldsymbol{h}_{2}, \ldots, \boldsymbol{h}_{N} \right)}{\mathrm{d} \boldsymbol{h}_{i}} \nonumber \\ &amp;= \langle \boldsymbol{\sigma}_{i} \rangle + \sum_{m,n} \langle \boldsymbol{\sigma}_{m} \cdot \boldsymbol{\sigma}_{n} \rangle \frac{\partial J_{mn} \left( \boldsymbol{h}_{1}, \boldsymbol{h}_{2}, \ldots, \boldsymbol{h}_{N} \right) }{ \partial \boldsymbol{h}_{i} } , \label{eq:sigmaweird}
 \end{align}</p>
-<p>which looks rather annoying<sup id="fnref:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup>. In practice, we should let an automatic differentiation framework keep track of dependencies so that we can get away with computing</p>
+<p>which looks rather annoying<sup id="fnref:8"><a href="#fn:8" class="footnote-ref" role="doc-noteref">8</a></sup>. In practice, we should let an automatic differentiation framework keep track of dependencies so that we can get away with computing</p>
 <p>\begin{align}
 \boldsymbol{m}_{i} = - \frac{\mathrm{d} F_{\theta} \left( \boldsymbol{h}_{1}, \boldsymbol{h}_{2}, \ldots, \boldsymbol{h}_{N} \right)}{\mathrm{d} \boldsymbol{h}_{i}}, \label{eq:magnetization}
 \end{align}</p>
@@ -804,7 +804,7 @@ J_{ij} \left( \boldsymbol{h}_{1}, \boldsymbol{h}_{2}, \ldots, \boldsymbol{h}_{N}
 <p>These observations suggest that we can picture the forward pass of a transformer module as a wrapper around a vector-spin system: module inputs are routed to the external magnetic field (and, optionally, to a parametrized couplings function) and magnetizations are returned as outputs. The transformer module bears an uncanny resemblance to a differentiable physical system whose collective behavior we can control through training.</p>
 <h3 id="9-training-transformer-modules-shapes-collective-behavior">9. Training transformer modules shapes collective behavior</h3>
 <p>Now that we can picture transformer modules as physical spin systems responding to getting probed with data, let&rsquo;s imagine what training them looks like.</p>
-<p>On the level of the energy function of our spin system Eq. \eqref{eq:vectorrandomising}, we can model the training process of a transformer module by introducing a (discrete) time dimension and making the external magnetic field time-dependent, leading to<sup id="fnref:8"><a href="#fn:8" class="footnote-ref" role="doc-noteref">8</a></sup></p>
+<p>On the level of the energy function of our spin system Eq. \eqref{eq:vectorrandomising}, we can model the training process of a transformer module by introducing a (discrete) time dimension and making the external magnetic field time-dependent, leading to<sup id="fnref:9"><a href="#fn:9" class="footnote-ref" role="doc-noteref">9</a></sup></p>
 <p>\begin{equation}
 E(t) = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\sigma}_{j} - \sum_{i=1}^{N} \boldsymbol{h}_{i}(t) \cdot \boldsymbol{\sigma}_{i} \label{eq:sloppyenergy}
 \end{equation}</p>
@@ -848,13 +848,16 @@ E(t) = - \sum_{i,j=1}^{N} J_{ij} \; \boldsymbol{\sigma}_{i} \cdot \boldsymbol{\s
 <p>We plot spin sites at random positions to emphasize that there is no spatial notion of &ldquo;closeness&rdquo; in a fully-connected system: every site is just a hop away. To not overload the graph, we only draw connections strongest in absolute value.&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:6" role="doc-endnote">
-<p>For example, see the content of Chapter 2 in the <a href="https://giamarchi.unige.ch/local/people/thierry.giamarchi/pdf/cours_sft.pdf" target="_blank" rel="noopener">lecture notes on statistical field theory</a> by Thierry Giamarchi.&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>For example, see <em><a href="http://blog.math.toronto.edu/GraduateBlog/files/2020/07/ut-thesis-Ko-updated.pdf" target="_blank" rel="noopener">The Free Energy of Spherical Vector Spin Glasses (Ko, 2018)</a></em> and <em><a href="https://arxiv.org/abs/1512.04441" target="_blank" rel="noopener">Free Energy in the Mixed p-spin Models With Vector Spins (Panchenko, 2015)</a></em>.&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:7" role="doc-endnote">
-<p>The spin-system approach here seems to predict that the coupling parameters are the only &ldquo;real&rdquo; learnable parameters in a vanilla transformer module. In the absence of a free energy expression, the feed-forward network&rsquo;s parameters role might be to try to approximate the awfully complicated dependencies in the second term of the magnetization Eq. \eqref{eq:sigmaweird}. It would be interesting to check this numerically at scale, since it&rsquo;s hard to believe that such a drastic reduction of parameters should <em>not</em> lead to a severe drop in performance.&#160;<a href="#fnref:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>For example, see the content of Chapter 2 in the <a href="https://giamarchi.unige.ch/local/people/thierry.giamarchi/pdf/cours_sft.pdf" target="_blank" rel="noopener">lecture notes on statistical field theory</a> by Thierry Giamarchi.&#160;<a href="#fnref:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 <li id="fn:8" role="doc-endnote">
-<p>The time-dependence in Eq. \eqref{eq:sloppyenergy} smells of non-equilibrium statistical mechanics. Incoming data might be considered as time-dependent &ldquo;probes&rdquo; which inject energy (and useful information if its content is low-entropy enough) into a non-equilibrium system. By nudging its dynamical response behavior across spatiotemporal scales, the system could potentially learn how to deal with being driven by all kinds of patterns in incoming data. For an interesting toy example of such behavior, see <a href="https://youtu.be/vSgHuErXuqk?t=2188" target="_blank" rel="noopener">this talk</a> by Jeremy England on <em>Low rattling: a principle for understanding driven many-body self-organization</em>.&#160;<a href="#fnref:8" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p>The spin-system approach here seems to predict that the coupling parameters are the only &ldquo;real&rdquo; learnable parameters in a vanilla transformer module. In the absence of a free energy expression, the feed-forward network&rsquo;s parameters role might be to try to approximate the awfully complicated dependencies in the second term of the magnetization Eq. \eqref{eq:sigmaweird}. It would be interesting to check this numerically at scale, since it&rsquo;s hard to believe that such a drastic reduction of parameters should <em>not</em> lead to a severe drop in performance.&#160;<a href="#fnref:8" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:9" role="doc-endnote">
+<p>The time-dependence in Eq. \eqref{eq:sloppyenergy} smells of non-equilibrium statistical mechanics. Incoming data might be considered as time-dependent &ldquo;probes&rdquo; which inject energy (and useful information if its content is low-entropy enough) into a non-equilibrium system. By nudging its dynamical response behavior across spatiotemporal scales, the system could potentially learn how to deal with being driven by all kinds of patterns in incoming data. For an interesting toy example of such behavior, see <a href="https://youtu.be/vSgHuErXuqk?t=2188" target="_blank" rel="noopener">this talk</a> by Jeremy England on <em>Low rattling: a principle for understanding driven many-body self-organization</em>.&#160;<a href="#fnref:9" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>
