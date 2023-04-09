@@ -5,12 +5,62 @@
     <link>https://mcbal.github.io/</link>
       <atom:link href="https://mcbal.github.io/index.xml" rel="self" type="application/rss+xml" />
     <description>mcbal</description>
-    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-gb</language><copyright>Matthias Bal © 2023</copyright><lastBuildDate>Tue, 23 Nov 2021 12:17:17 +0100</lastBuildDate>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-gb</language><copyright>Matthias Bal © 2023</copyright><lastBuildDate>Sun, 19 Jun 2022 09:28:17 +0100</lastBuildDate>
     <image>
       <url>https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_3.png</url>
       <title>mcbal</title>
       <link>https://mcbal.github.io/</link>
     </image>
+    
+    <item>
+      <title>Spin-Model Transformers: A Physics-Inspired Class of Transformer Modules</title>
+      <link>https://mcbal.github.io/post/spin-model-transformers/</link>
+      <pubDate>Sun, 19 Jun 2022 09:28:17 +0100</pubDate>
+      <guid>https://mcbal.github.io/post/spin-model-transformers/</guid>
+      <description>&lt;h1 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;✨ Code: JAX implementations of the ideas outlined in this post will become available at &lt;a href=&#34;https://github.com/mcbal/spin-model-transformers&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;mcbal/spin-model-transformers&lt;/code&gt;&lt;/a&gt;. Come join the fun.&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;In a series of previous &lt;a href=&#34;https://mcbal.github.io/post/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;blog posts&lt;/a&gt;, we have tried to connect the forward pass of a transformer neural-network module to computing mean magnetizations in Ising-like vector-spin models with parametrized couplings and magnetic fields. In this picture, the forward pass of a transformer module computes statistical observables given the couplings and magnetic fields and the backward pass nudges the parametrized couplings and magnetic fields to better respond to the demands of the training loss. However, both the TAP-style mean-field message-passing approach of &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms&lt;/a&gt; and the saddle-point free-energy approach of &lt;a href=&#34;https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers from Spin Models: Approximate Free Energy Minimization&lt;/a&gt; are only well-defined for models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution.&lt;/p&gt;
+&lt;p&gt;To capture models with asymmetric coupling matrices (like softmax attention in transformer modules), we need to consider non-equilibrium systems, whose non-equilibrium steady state lacks detailed balance and is not described by a Boltzmann distribution. These conditions induce a time-reversal asymmetry in dynamical trajectories, leading to positive entropy production and energy dissipation. Several mean-field approaches have been developed for the binary kinetic Ising model based on expansions around a non-interacting ansatz. It would be interesting to generalize these results for binary spins to vector spins and compare the resulting magnetization equations to the forward pass of a transformer module. Intuitively, we expect to find explicit terms corresponding to whatever it is the feed-forward network is trying to approximate.&lt;/p&gt;
+&lt;h1 id=&#34;2-equilibrium-systems&#34;&gt;2. Equilibrium systems&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The realm of symmetric couplings, free energies, TAP equations, belief propagation, &amp;hellip;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h1 id=&#34;3-non-equilibrium-systems&#34;&gt;3. Non-equilibrium systems&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The realm of asymmetric couplings, theoretical despair, and nearly all systems found in nature.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h1 id=&#34;related-work&#34;&gt;Related work&lt;/h1&gt;
+&lt;p&gt;A non-exhaustive list of references and inspiration includes:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;On mean-field theories of asymmetric (non-equilibrium) kinetic Ising systems&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;M. Aguilera, S.A. Moosavi, and H. Shimazaki, A unifying framework for mean-field theories of asymmetric kinetic Ising systems, &lt;em&gt;Nat Commun&lt;/em&gt; &lt;strong&gt;12&lt;/strong&gt;, 1197 (2021). &lt;a href=&#34;https://arxiv.org/abs/2002.04309&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://arxiv.org/abs/2002.04309&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;H.C. Nguyen, R. Zecchina, and J. Berg, Inverse statistical problems: from the inverse Ising problem to data science, &lt;em&gt;Advances in Physics&lt;/em&gt;, 66:3, 197-261 (2017). &lt;a href=&#34;https://arxiv.org/abs/1702.01522&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://arxiv.org/abs/1702.01522&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;H.J. Kappen and J.J. Spanjers, Mean field theory for asymmetric neural networks, &lt;em&gt;Phys. Rev. E&lt;/em&gt; &lt;strong&gt;61&lt;/strong&gt;, 5658 (2000)&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h1&gt;
+&lt;p&gt;If you happen to find this work useful, please consider citing it as:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;@article{bal2023spinmodeltransformers,
+  title   = {Spin-Model Transformers: A Physics-Inspired Class of Transformer Modules},
+  author  = {Bal, Matthias},
+  year    = {2023},
+  month   = {?},
+  url     = {https://mcbal.github.io/post/spin-model-transformers}
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Transformers Are Secretly Collectives of Spin Systems</title>
