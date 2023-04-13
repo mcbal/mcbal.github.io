@@ -34,7 +34,7 @@
   
     
   
-  <meta name="description" content="Open research experiment: Exploring connections between transformer neural networks, spin models, and (non-)equilibrium statistical mechanics">
+  <meta name="description" content="Exploring connections between transformer neural networks, spin models, and (non-)equilibrium statistical mechanics">
 
   
   <link rel="alternate" hreflang="en-gb" href="https://mcbal.github.io/post/spin-model-transformers/">
@@ -317,7 +317,7 @@
   <meta property="og:site_name" content="mcbal">
   <meta property="og:url" content="https://mcbal.github.io/post/spin-model-transformers/">
   <meta property="og:title" content="Spin-Model Transformers: A Physics-Inspired Class of Transformer Modules | mcbal">
-  <meta property="og:description" content="Open research experiment: Exploring connections between transformer neural networks, spin models, and (non-)equilibrium statistical mechanics"><meta property="og:image" content="https://mcbal.github.io/post/spin-model-transformers/featured.jpg">
+  <meta property="og:description" content="Exploring connections between transformer neural networks, spin models, and (non-)equilibrium statistical mechanics"><meta property="og:image" content="https://mcbal.github.io/post/spin-model-transformers/featured.jpg">
   <meta property="twitter:image" content="https://mcbal.github.io/post/spin-model-transformers/featured.jpg"><meta property="og:locale" content="en-gb">
   
     
@@ -371,7 +371,7 @@
       "url": "https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_3.png"
     }
   },
-  "description": "Open research experiment: Exploring connections between transformer neural networks, spin models, and (non-)equilibrium statistical mechanics"
+  "description": "Exploring connections between transformer neural networks, spin models, and (non-)equilibrium statistical mechanics"
 }
 </script>
 
@@ -611,7 +611,7 @@
   <h1>Spin-Model Transformers: A Physics-Inspired Class of Transformer Modules</h1>
 
   
-  <p class="page-subtitle">Open research experiment: Exploring connections between transformer neural networks, spin models, and (non-)equilibrium statistical mechanics</p>
+  <p class="page-subtitle">Exploring connections between transformer neural networks, spin models, and (non-)equilibrium statistical mechanics</p>
   
 
   
@@ -639,7 +639,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    3 min read
+    2 min read
   </span>
   
 
@@ -684,18 +684,10 @@
     <div class="article-style">
       <h1 id="1-introduction">1. Introduction</h1>
 <blockquote>
-<p><strong>✨ Code: JAX implementations of the ideas outlined in this post will become available at <a href="https://github.com/mcbal/spin-model-transformers" target="_blank" rel="noopener"><code>mcbal/spin-model-transformers</code></a>. Come join the fun.</strong></p>
+<p><strong>✨ This is a work in progress. Implementations in JAX of the content outlined in this post should become available at <a href="https://github.com/mcbal/spin-model-transformers" target="_blank" rel="noopener"><code>mcbal/spin-model-transformers</code></a>. Come join the fun if you&rsquo;d like to see things moving.</strong></p>
 </blockquote>
 <p>In a series of previous <a href="https://mcbal.github.io/post/" target="_blank" rel="noopener">blog posts</a>, we have tried to connect the forward pass of a transformer neural-network module to computing mean magnetizations in Ising-like vector-spin models with parametrized couplings and magnetic fields. In this picture, the forward pass of a transformer module computes statistical observables given the couplings and magnetic fields and the backward pass nudges the parametrized couplings and magnetic fields to better respond to the demands of the training loss. However, both the TAP-style mean-field message-passing approach of <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a> and the saddle-point free-energy approach of <a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Transformers from Spin Models: Approximate Free Energy Minimization</a> are only well-defined for models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution.</p>
-<p>To capture models with asymmetric coupling matrices (like softmax attention in transformer modules), we need to consider non-equilibrium systems, whose non-equilibrium steady state lacks detailed balance and is not described by a Boltzmann distribution. These conditions induce a time-reversal asymmetry in dynamical trajectories, leading to positive entropy production and energy dissipation. Several mean-field approaches have been developed for the binary kinetic Ising model based on expansions around a non-interacting ansatz. It would be interesting to generalize these results for binary spins to vector spins and compare the resulting magnetization equations to the forward pass of a transformer module. Intuitively, we expect to find explicit terms corresponding to whatever it is the feed-forward network is trying to approximate.</p>
-<h1 id="2-equilibrium-systems">2. Equilibrium systems</h1>
-<blockquote>
-<p>The realm of symmetric couplings, free energies, TAP equations, belief propagation, &hellip;</p>
-</blockquote>
-<h1 id="3-non-equilibrium-systems">3. Non-equilibrium systems</h1>
-<blockquote>
-<p>The realm of asymmetric couplings, theoretical despair, and nearly all systems found in nature.</p>
-</blockquote>
+<p>To capture models with asymmetric coupling matrices (like softmax attention in transformer modules), we need to consider non-equilibrium systems, whose non-equilibrium steady state lacks detailed balance and is not described by a Boltzmann distribution. These conditions induce a time-reversal asymmetry in dynamical trajectories, leading to positive entropy production and energy dissipation. Several mean-field approaches have been developed for the binary kinetic Ising model based on expansions around a non-interacting ansatz. It could be interesting to generalize these results from binary spins to vector spins and compare the resulting magnetization equations to the forward pass of a transformer module. Intuitively, we expect to find explicit terms corresponding to whatever it is the feed-forward network is trying to approximate.</p>
 <h1 id="related-work">Related work</h1>
 <p>A non-exhaustive list of references and inspiration includes:</p>
 <ul>
