@@ -323,7 +323,7 @@
     
       <meta property="article:published_time" content="2022-06-19T09:28:17&#43;01:00">
     
-    <meta property="article:modified_time" content="2023-04-09T09:28:18&#43;01:00">
+    <meta property="article:modified_time" content="2023-04-17T19:10:18&#43;01:00">
   
 
   
@@ -356,7 +356,7 @@
   ],
   
   "datePublished": "2022-06-19T09:28:17+01:00",
-  "dateModified": "2023-04-09T09:28:18+01:00",
+  "dateModified": "2023-04-17T19:10:18+01:00",
   
   "author": {
     "@type": "Person",
@@ -630,7 +630,7 @@
           Last updated on
       
     
-    Apr 9, 2023
+    Apr 17, 2023
   </span>
   
 
@@ -639,7 +639,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    2 min read
+    3 min read
   </span>
   
 
@@ -686,8 +686,18 @@
 <blockquote>
 <p><strong>✨ This is a work in progress. Implementations in JAX of the content outlined in this post should become available at <a href="https://github.com/mcbal/spin-model-transformers" target="_blank" rel="noopener"><code>mcbal/spin-model-transformers</code></a>. Come join the fun if you&rsquo;d like to see things moving.</strong></p>
 </blockquote>
-<p>In a series of previous <a href="https://mcbal.github.io/post/" target="_blank" rel="noopener">blog posts</a>, we have tried to connect the forward pass of a transformer neural-network module to computing mean magnetizations in Ising-like vector-spin models with parametrized couplings and magnetic fields. In this picture, the forward pass of a transformer module computes statistical observables given the couplings and magnetic fields and the backward pass nudges the parametrized couplings and magnetic fields to better respond to the demands of the training loss. However, both the TAP-style mean-field message-passing approach of <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a> and the saddle-point free-energy approach of <a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Transformers from Spin Models: Approximate Free Energy Minimization</a> are only well-defined for models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution.</p>
-<p>To capture models with asymmetric coupling matrices (like softmax attention in transformer modules), we need to consider non-equilibrium systems, whose non-equilibrium steady state lacks detailed balance and is not described by a Boltzmann distribution. These conditions induce a time-reversal asymmetry in dynamical trajectories, leading to positive entropy production and energy dissipation. Several mean-field approaches have been developed for the binary kinetic Ising model based on expansions around a non-interacting ansatz. It could be interesting to generalize these results from binary spins to vector spins and compare the resulting magnetization equations to the forward pass of a transformer module. Intuitively, we expect to find explicit terms corresponding to whatever it is the feed-forward network is trying to approximate.</p>
+<p>In a series of previous <a href="https://mcbal.github.io/post/" target="_blank" rel="noopener">blog posts</a>, we have tried to connect the forward pass of a transformer neural-network module to computing average magnetizations in Ising-like vector-spin models with parametrized couplings and magnetic fields. In this picture, the forward pass of a transformer module computes statistical observables given the couplings and magnetic fields and the backward pass nudges the parametrized couplings and magnetic fields to better respond to the demands of the training loss. However, both the TAP-style mean-field message-passing approach of <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a> and the saddle-point free-energy approach of <a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Transformers from Spin Models: Approximate Free Energy Minimization</a> are only well-defined for models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution.</p>
+<p>To capture models with asymmetric coupling matrices (like softmax attention in transformer modules), we need to consider non-equilibrium systems, whose dynamics lead to a non-equilibrium steady state (NESS) that defies detailed balance and differs from a Boltzmann distribution. Non-equilibrium conditions induce a time-reversal asymmetry in dynamical trajectories, leading to positive entropy production and energy dissipation. Several mean-field approaches have been developed for the binary kinetic Ising model based on expansions around a non-interacting ansatz. In this post, we try to generalize these mean-field approaches from binary spins to vector spins and compare the resulting magnetization equations to the forward pass of a transformer module.</p>
+<h1 id="2-mean-field-theory-of-asymmetric-ising-models-for-binary-spins">2. Mean-field theory of asymmetric Ising models for binary spins</h1>
+<h2 id="21-setting-the-scene-the-kinetic-ising-model">2.1. Setting the scene: the kinetic Ising model</h2>
+<h2 id="22-mean-field-theory-kullback-leibler-divergence-and-the-plefka-expansion">2.2. Mean-field theory, Kullback-Leibler divergence, and the Plefka expansion</h2>
+<h2 id="23-recovering-naive-mean-field-and-thouless-anderson-palmer-approximations">2.3. Recovering naive mean-field and Thouless-Anderson-Palmer approximations</h2>
+<h2 id="24-a-simple-jax-implementation">2.4. A simple JAX implementation</h2>
+<h1 id="3-mean-field-theory-of-asymmetric-ising-models-for-vector-spins">3. Mean-field theory of asymmetric Ising models for vector spins</h1>
+<p>Let&rsquo;s now transpose the results of the previous section from binary spins to vector spins restricted to $n$-dimensional spheres.</p>
+<h2 id="31-">3.1. &hellip;</h2>
+<h1 id="4-a-family-of-transformer-like-modules">4. A family of transformer-like modules</h1>
+<h1 id="5-conclusion">5. Conclusion</h1>
 <h1 id="related-work">Related work</h1>
 <p>A non-exhaustive list of references and inspiration includes:</p>
 <ul>
