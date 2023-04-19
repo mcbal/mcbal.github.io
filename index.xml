@@ -52,11 +52,18 @@ D_{il,t} = \sum_{\mathbf{s}_{t},\mathbf{s}_{t-1}} s_{i,t} s_{l,t-1} P( \mathbf{s
 \end{equation}&lt;/p&gt;
 &lt;p&gt;Since the above expressions involve summing over an enormous amount of possible spin configurations, they are not very useful in practice. So we will try to approximate the tricky marginal distribution Eq. \eqref{eq:marginal} using a mean-field theory approach.&lt;/p&gt;
 &lt;h2 id=&#34;22-the-plefka-expansion&#34;&gt;2.2. The Plefka expansion&lt;/h2&gt;
+&lt;p&gt;\begin{equation}
+D_{\mathrm{KL}} ({\color{green}Q}\vert\vert{\color{red}P})
+\end{equation}&lt;/p&gt;
+&lt;p&gt;Mean-field theory boils down to , Kullback-Leibler divergence, and t&lt;/p&gt;
+&lt;p&gt;Risking annoying mathematicians by calling everything a manifold, we can picture what&amp;rsquo;s going on geometrically as projecting submanifold&amp;hellip;&lt;/p&gt;
 &lt;h2 id=&#34;23-recovering-naive-mean-field-and-thouless-anderson-palmer-approximations&#34;&gt;2.3. Recovering naive mean-field and Thouless-Anderson-Palmer approximations&lt;/h2&gt;
+&lt;p&gt;If we remember that tanh2(x) + sech2(x) = 1, we find derivativeexpr equals 1-mt2&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;✨ See also previous discussions on mean-field theory for disordered systems in &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/#2-mean-field-theory-for-disordered-systems&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms&lt;/a&gt;, where similar equations were derived using a cavity-method approach for equilibrium models.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h2 id=&#34;24-a-simple-jax-implementation&#34;&gt;2.4. A simple JAX implementation&lt;/h2&gt;
+&lt;p&gt;All of the above feels quite vague without code.&lt;/p&gt;
 &lt;h1 id=&#34;3-mean-field-theory-of-asymmetric-ising-models-with-vector-spins&#34;&gt;3. Mean-field theory of asymmetric Ising models with vector spins&lt;/h1&gt;
 &lt;p&gt;Let&amp;rsquo;s now transpose the results of the previous section to a setting where the local degrees of freedom are no longer binary spins but vector spins restricted to wiggle around on $n-1$-dimensional spheres.&lt;/p&gt;
 &lt;h2 id=&#34;31-&#34;&gt;3.1. &amp;hellip;&lt;/h2&gt;
