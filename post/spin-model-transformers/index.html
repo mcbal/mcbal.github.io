@@ -736,18 +736,11 @@ D_{il,t} = \sum_{\mathbf{s}_{t},\mathbf{s}_{t-1}} s_{i,t} s_{l,t-1} P( \mathbf{s
 \end{equation}</p>
 <p>Since the above expressions involve summing over an enormous amount of possible spin configurations, they are not very useful in practice. So we will try to approximate the tricky marginal distribution Eq. \eqref{eq:marginal} using a mean-field theory approach.</p>
 <h2 id="22-the-plefka-expansion">2.2. The Plefka expansion</h2>
-<p>\begin{equation}
-D_{\mathrm{KL}} ({\color{green}Q}\vert\vert{\color{red}P})
-\end{equation}</p>
-<p>Mean-field theory boils down to , Kullback-Leibler divergence, and t</p>
-<p>Risking annoying mathematicians by calling everything a manifold, we can picture what&rsquo;s going on geometrically as projecting submanifold&hellip;</p>
 <h2 id="23-recovering-naive-mean-field-and-thouless-anderson-palmer-approximations">2.3. Recovering naive mean-field and Thouless-Anderson-Palmer approximations</h2>
-<p>If we remember that tanh2(x) + sech2(x) = 1, we find derivativeexpr equals 1-mt2</p>
 <blockquote>
 <p>✨ See also previous discussions on mean-field theory for disordered systems in <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/#2-mean-field-theory-for-disordered-systems" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a>, where similar equations were derived using a cavity-method approach for equilibrium models.</p>
 </blockquote>
 <h2 id="24-a-simple-jax-implementation">2.4. A simple JAX implementation</h2>
-<p>All of the above feels quite vague without code.</p>
 <h1 id="3-mean-field-theory-of-asymmetric-ising-models-with-vector-spins">3. Mean-field theory of asymmetric Ising models with vector spins</h1>
 <p>Let&rsquo;s now transpose the results of the previous section to a setting where the local degrees of freedom are no longer binary spins but vector spins restricted to wiggle around on $n-1$-dimensional spheres.</p>
 <h2 id="31-">3.1. &hellip;</h2>
