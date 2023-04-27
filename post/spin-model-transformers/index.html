@@ -705,13 +705,14 @@
 <blockquote>
 <p><strong>✨ This is a work in progress. Implementations in JAX of the content outlined in this post should become available at <a href="https://github.com/mcbal/spin-model-transformers" target="_blank" rel="noopener"><code>mcbal/spin-model-transformers</code></a>. Come join the fun if you&rsquo;d like to see things moving.</strong></p>
 </blockquote>
-<p>In a series of previous <a href="https://mcbal.github.io/post/" target="_blank" rel="noopener">blog posts</a>, we have tried to connect the forward pass of a transformer neural-network module to computing average magnetizations in disordered Ising-like vector-spin models with parametrized couplings and magnetic fields. In this picture, the forward pass of a transformer module computes statistical observables given a specific realization of quenched couplings and magnetic fields and the backward pass nudges the parametrized couplings and magnetic fields to better respond to the demands of the training loss.</p>
-<p>However, both the TAP-style mean-field message-passing approach of <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a> and the saddle-point free-energy approach of <a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Transformers from Spin Models: Approximate Free Energy Minimization</a> are only well-defined for models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution.</p>
-<p>To capture models with asymmetric coupling matrices (like softmax attention in transformer modules), we need to consider non-equilibrium systems with dynamics leading to a non-equilibrium steady state (NESS) that defies detailed balance and deviates from a Boltzmann distribution. Several mean-field approaches have been developed for the binary kinetic Ising model based on expansions around a non-interacting ansatz. In this post, we try to generalize these approaches from binary spins to vector spins and compare the resulting magnetization equations to the forward pass of a transformer module.</p>
+<p>In a series of previous <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">blog posts</a>, we have tried to connect the forward pass of a transformer neural-network module to computing average magnetizations in disordered Ising-like vector-spin models with parametrized couplings and external magnetic fields. According to this picture, the forward pass of a transformer module computes statistical observables given a specific realization of quenched couplings and external magnetic fields while the backward pass nudges the parametrized couplings and external magnetic fields to better respond to the demands of the training loss.</p>
+<p>Both the mean-field message-passing approach of <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a> and the saddle-point free-energy approach of <a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Transformers from Spin Models: Approximate Free Energy Minimization</a> rely on methods that are only well-defined for spin models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution. The softmax attention operation in transformer modules is however famously asymmetric.</p>
+<p>To capture spin models with asymmetric coupling matrices, we had better consider non-equilibrium systems evolving in time, whose dynamics might lead to a non-equilibrium steady state surely deviating from a Boltzmann distribution. In the last few decades, mean-field approaches have been developed for the binary kinetic Ising model, which exhibits non-equilibrium behavior when couplings are asymmetric or when model parameters are subject to rapid changes. In this post, we try to generalize these approaches from binary spins to vector spins with the aim of comparing the resulting equations for the average magnetizations to the forward pass of a transformer module.</p>
 <h1 id="2-mean-field-theory-of-asymmetric-ising-models-with-binary-spins">2. Mean-field theory of asymmetric Ising models with binary spins</h1>
-<p>In this section, we review known results on mean-field theory approaches to capturing the stochastic dynamics of binary kinetic Ising models. We mainly follow the discussion outlined in <a href="https://arxiv.org/abs/2002.04309" target="_blank" rel="noopener"><em>A unifying framework for mean-field theories of asymmetric kinetic Ising systems (2021)</em></a>.</p>
+<p>In this section, we review known results on mean-field theory approaches to capturing the stochastic dynamics of binary kinetic Ising models. We primarily follow the discussion outlined in <a href="https://arxiv.org/abs/2002.04309" target="_blank" rel="noopener"><em>A unifying framework for mean-field theories of asymmetric kinetic Ising systems (2021)</em></a>.</p>
 <h2 id="21-setting-the-scene-the-kinetic-ising-model">2.1. Setting the scene: the kinetic Ising model</h2>
-<p>We consider a kinetic Ising model describing a system made up of $N$ interacting binary spins $s_{i,t} \in \{-1, 1\}$ that evolve in discrete time steps $t$ according to synchronous dynamics, i.e. all spins get updated at the same time in parallel. Given a spin configuration $\mathbf{s}_{t-1} = \{ s_{1,t-1}, s_{2,t-1}, \ldots, s_{N,t-1} \}$ at time $t-1$, we consider the spins $\mathbf{s}_{t}$ at time $t$ to be conditionally independent random variables represented by a discrete-time Markov chain transition probability</p>
+<img src="binary_ising.png" alt="Random Ising model configuration with binary spins" width="250px"/>
+<p>We consider a kinetic Ising model describing a system made up of $N$ interacting binary spins $s_{i,t} \in \{-1, 1\}$ that evolve in discrete time steps $t$ according to synchronous dynamics, i.e. all spins get updated at the same time in parallel. Given a spin configuration $\mathbf{s}_{t-1} = \{ s_{1,t-1}, s_{2,t-1}, \ldots, s_{N,t-1} \}$ at time $t-1$, we consider the spins $\mathbf{s}_{t}$ at time $t$ to be conditionally independent random variables captured by a discrete-time Markov chain transition probability</p>
 <p>\begin{equation}
 P( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{s_{i,t} h_{i,t}}}{\sum_{s_{i,t}} \mathrm{e}^{s_{i,t} h_{i,t}}} = \prod_{i=1}^{N} \frac{\mathrm{e}^{s_{i,t} h_{i,t}}}{2 \cosh h_{i,t}}, \label{eq:pcond}
 \end{equation}</p>
@@ -719,7 +720,7 @@ P( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{s
 <p>\begin{equation}
 h_{i,t} = x_{i} + \sum_{j=1}^{N} J_{ij} s_{j,t-1}.
 \end{equation}</p>
-<p>The parameters $\mathbf{x}$ represent the local external fields at each site. The coupling parameters $\mathbf{J}$ encode the interactions between pairs of spins and represent a specific realization of quenched disorder. Using the probability mass function of the previous state $P( \mathbf{s}_{t-1} )$, we can write the distribution of the current state as</p>
+<p>Here, the parameters $\mathbf{x}$ represent the local external fields at each site while the coupling parameters $\mathbf{J}$ are a specific realization of quenched disorder encoding the interactions between pairs of spins. Using the probability mass function of the previous state $P( \mathbf{s}_{t-1} )$ we can write the distribution of the current state as</p>
 <p>\begin{equation}
 P( \mathbf{s}_{t} ) = \sum_{\mathbf{s}_{t-1}} P( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) P( \mathbf{s}_{t-1} ), \label{eq:marginal}
 \end{equation}</p>
@@ -737,47 +738,47 @@ D_{il,t} = \sum_{\mathbf{s}_{t},\mathbf{s}_{t-1}} s_{i,t} s_{l,t-1} P( \mathbf{s
 \end{equation}</p>
 <p>Since the above expressions involve summing over a large amount of possible spin configurations, they are not very useful in practice. So we will try to approximate the tricky marginal distribution $P( \mathbf{s}_{t} )$ defined in Eq. \eqref{eq:marginal} using a mean-field theory approach.</p>
 <h2 id="22-mean-field-approximation">2.2. Mean-field approximation</h2>
-<p>Mean-field theory tries to approximate a complicated object ${\color{red}P}$ by wiggling around the parameters of a simple, analytically tractable parametrized ansatz ${\color{green}Q_{\theta}}$ to get as close as possible to ${\color{red}P}$. At risk of inducing headaches in mathematicians by calling everything a manifold, we can picture what&rsquo;s going on geometrically as trying to approximate a target probability distribution $P( \mathbf{s}_{t} \vert \mathbf{x}, \mathbf{J})$ and its statistical properties $\mathbf{m}_{t}$, $\mathbf{C}_{t}$, and $\mathbf{D}_{t}$ by restricting ourselves to a submanifold of tractable probability distributions. A particularly convenient submanifold is that of independent models, where each point on the submanifold correponds to a distribution parametrized by a vector $\boldsymbol{\theta}_{t}$,</p>
+<p>Mean-field theory tries to approximate a complicated object ${\color{red}P}$ by wiggling around the parameters of a simple, analytically tractable parametrized ansatz ${\color{green}Q_{\theta}}$ to get as close as possible to ${\color{red}P}$. At risk of inducing headaches in mathematicians by calling everything a manifold, we can picture what&rsquo;s going on geometrically as trying to approximate a target probability distribution $P( \mathbf{s}_{t} \vert \mathbf{x}, \mathbf{J})$ and its statistical properties $\mathbf{m}_{t}$, $\mathbf{C}_{t}$, and $\mathbf{D}_{t}$ by restricting ourselves to a submanifold of tractable probability distributions. A particularly convenient submanifold is that of factorized models, where each point on the submanifold corresponds to a distribution parametrized by a vector $\boldsymbol{\theta}_{t}$,</p>
 <p>\begin{equation}
-Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{s_{i,t} \theta_{i,t}}}{2 \cosh \theta_{i,t}}. \label{eq:q}
+Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{s_{i,t} \theta_{i,t}}}{2 \cosh \theta_{i,t}}, \label{eq:q}
 \end{equation}</p>
 <p>so that the average magnetizations are simply given by</p>
 <p>\begin{equation}
-m_{i,t} = \tanh \theta_{i,t},
+m_{i,t} = \tanh \theta_{i,t}
 \end{equation}</p>
-<p>since there are no couplings between spins. The independent model $Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}^{*}_{t} )$ that minimizes the Kullback-Leibler (KL) divergence</p>
+<p>as there are no couplings between spins. The factorized model $Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}^{*}_{t} )$ that minimizes the Kullback-Leibler (KL) divergence</p>
 <p>\begin{equation}
-D_{\mathrm{KL}} ({\color{red}P}\vert\vert{\color{green}Q_{\theta}}) = \sum_{\mathbf{s}_{t}} P( \mathbf{s}_{t}) \log \frac{P( \mathbf{s}_{t})}{Q_{\theta}( \mathbf{s}_{t})}, \label{eq:kl}
+D_{\mathrm{KL}} ({\color{red}P}\vert\vert{\color{green}Q_{\theta}}) = \sum_{\mathbf{s}_{t}} P( \mathbf{s}_{t}) \log \frac{P( \mathbf{s}_{t})}{Q_{\theta}( \mathbf{s}_{t})} \label{eq:kl}
 \end{equation}</p>
-<p>has average magnetizations $\mathbf{m}_{t}$ identical to those of the target distribution $P( \mathbf{s}_{t})$. For all spins $i=1,2,\ldots,N$, we find that</p>
+<p>has average magnetizations $\mathbf{m}_{t}$ identical to those of the target distribution $P( \mathbf{s}_{t})$ since, for all spins $i=1,2,\ldots,N$, we find that</p>
 <p>\begin{align}
 \frac{\partial D_{\mathrm{KL}} ({\color{red}P}\vert\vert{\color{green}Q_{\theta}}) }{\partial \theta_{i, t}} \Biggr\rvert_{\boldsymbol{\theta}_{t}=\boldsymbol{\theta}^{*}_{t}} &amp;= - \sum_{\mathbf{s}_{t}} P( \mathbf{s}_{t}) \frac{\partial \log Q_{\theta}( \mathbf{s}_{t}) }{\partial \theta_{i, t}} \Biggr\rvert_{\boldsymbol{\theta}_{t}=\boldsymbol{\theta}^{*}_{t}}  \\
 &amp;= - \sum_{\mathbf{s}_{t}} s_{i,t} P( \mathbf{s}_{t}) + \tanh \theta^{*}_{i,t} \\
-&amp;= -m^{{\color{red}P}}_{i,t} + m^{{\color{green}Q_{\theta}^{*}}}_{i,t} = 0, \label{eq:klm}
+&amp;= -m^{{\color{red}P}}_{i,t} + m^{{\color{green}Q_{\theta^{*}}}}_{i,t} = 0, \label{eq:klm}
 \end{align}</p>
-<p>where $m^{{\color{red}P}}_{i,t}$ and $m^{{\color{green}Q_{\theta}^{*}}}_{i,t}$ respectively denote the expectation values of $s_{i,t}$ with respect to ${\color{red}P}$ and ${\color{green}Q_{\theta}^{*}}$. Indeed, minimizing $D_{\mathrm{KL}} ({\color{red}P}\vert\vert{\color{green}Q_{\theta}})$ tries to cover the modes of ${\color{red}P}$ by moment matching since the expectation value in Eq. \eqref{eq:kl} is calculated with respect to ${\color{red}P}$.</p>
+<p>where $m^{{\color{red}P}}_{i,t}$ and $m^{{\color{green}Q_{\theta^{*}}}}_{i,t}$ respectively denote the expectation values of $s_{i,t}$ with respect to ${\color{red}P}$ and ${\color{green}Q_{\theta^{*}}}$. Indeed, minimizing $D_{\mathrm{KL}} ({\color{red}P}\vert\vert{\color{green}Q_{\theta}})$ tries to cover the modes of ${\color{red}P}$ by moment matching since the expectation value in Eq. \eqref{eq:kl} is calculated with respect to ${\color{red}P}$.</p>
 <h2 id="23-the-plefka-expansion">2.3. The Plefka expansion</h2>
-<p>But can we ever find the optimal parameters</p>
+<p>Great, but is it even possible to find the parameters</p>
 <p>\begin{equation}
 \DeclareMathOperator*{\argmin}{arg\,min}
 \boldsymbol{\theta}^{*}_{t} = \argmin_{\boldsymbol{\theta}_{t}} \left( - \sum_{\mathbf{s}_{t}} P( \mathbf{s}_{t}) \log Q( \mathbf{s}_{t}) \right)
 \end{equation}</p>
-<p>that minimize the KL divergence? That will be hard, since it requires knowing the target distribution $P( \mathbf{s}_{t})$. So let&rsquo;s introduce some more distributions to get around this issue. The Plefka expansion introduces a conditional distribution</p>
+<p>that minimize the KL divergence? Well, that&rsquo;s going to be hard, unless you already know the target distribution $P( \mathbf{s}_{t})$, or you have a clever way of approximately evaluating the expectation value of $\log {\color{green}Q_{\theta}}$ with respect to ${\color{red}P}$. So let&rsquo;s introduce some more distributions to get around this issue. To apply the Plefka expansion to our problem, we introduce a conditional distribution</p>
 <p>\begin{equation}
-P_{\alpha}( s_{i,t} \vert \mathbf{s}_{t-1} ) = \frac{\mathrm{e}^{s_{i,t} h_{i,t}(\alpha) }}{2 \cosh h_{i,t}(\alpha)}, \label{eq:pcondalt}
+P_{\alpha}( \mathbf{s}_{t}\vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N}  \frac{\mathrm{e}^{s_{i,t} h_{i,t}(\alpha) }}{2 \cosh h_{i,t}(\alpha)}, \label{eq:pcondalt}
 \end{equation}</p>
 <p>\begin{equation}
 h_{i,t}(\alpha) = (1-\alpha) \theta_{i,t} + \alpha \left( x_{i} + \sum_{j=1}^{N} J_{ij} s_{j,t-1} \right), \label{eq:pcondalth}
 \end{equation}</p>
-<p>parametrized by a scalar $\alpha$ interpolating between $P_{\alpha=0}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} )$ (Eq. \eqref{eq:q}) and $P_{\alpha=1}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = P( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} )$ (Eq. \eqref{eq:pcond}) by controlling the magnitude of the couplings. Using Eq. \eqref{eq:pcondalt}, we can construct an approximate marginal distribution $P_{\alpha}( \mathbf{s}_{t})$, leading to $\alpha$-dependent statistical properties $\mathbf{m}_{t}(\alpha)$, $\mathbf{C}_{t}(\alpha)$, and $\mathbf{D}_{t}(\alpha)$ for the approximate system. The Plefka expansion then boils down to writing these properties as Taylor series expansions around $\alpha=0$. For the average magnetizations, the expansion up to $n$-th order looks like</p>
+<p>parametrized by a scalar $\alpha$ interpolating between $P_{\alpha=0}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} )$ (Eq. \eqref{eq:q}) and $P_{\alpha=1}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = P( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} )$ (Eq. \eqref{eq:pcond}). Using Eq. \eqref{eq:pcondalt}, we can construct an approximate marginal distribution $P_{\alpha}( \mathbf{s}_{t})$, leading to $\alpha$-dependent statistical properties $\mathbf{m}_{t}(\alpha)$, $\mathbf{C}_{t}(\alpha)$, and $\mathbf{D}_{t}(\alpha)$ for the approximate system. The Plefka expansion then boils down to writing these properties as Taylor series expansions around the factorized model $\alpha=0$. For the average magnetizations, the expansion up to $n$-th order looks like</p>
 <p>\begin{equation}
 \mathbf{m}_{t}(\alpha) = \mathbf{m}_{t}(\alpha=0) + \sum_{k=1}^{n} \frac{\alpha^k}{k!} \frac{\partial^{k} \mathbf{m}_{t}(\alpha=0)}{\partial \alpha^{k}} + \mathcal{O}(\alpha^{n+1}), \label{eq:mtaylor}
 \end{equation}</p>
-<p>where all coefficients in the expansion are functions of $\boldsymbol{\theta}_{t}$ via Eq. \eqref{eq:pcondalth}. The mean-field approximation is computed by setting $\alpha=1$ so that</p>
+<p>where all coefficients in the expansion are functions of $\boldsymbol{\theta}_{t}$ via Eq. \eqref{eq:pcondalth}. The mean-field approximation is computed by setting $\alpha=1$ so that the original marginal distribution is recovered and Eq. \eqref{eq:klm} holds, which implies that $\mathbf{m}_{t}(\alpha=1) = \mathbf{m}_{t}(\alpha=0)$ and thus</p>
 <p>\begin{equation}
-\sum_{k=1}^{n} \frac{1}{k!} \frac{\partial^{k} \mathbf{m}_{t}(\alpha=0)}{\partial \alpha^{k}} + \mathcal{O}(\alpha^{n+1}) = 0, \label{eq:mftheta}
+\sum_{k=1}^{n} \frac{1}{k!} \frac{\partial^{k} \mathbf{m}_{t}(\alpha=0)}{\partial \alpha^{k}} + \mathcal{O}(\alpha^{n+1}) = 0. \label{eq:mftheta}
 \end{equation}</p>
-<p>since at $\alpha=1$ the original marginal distribution is recovered and thus Eq. \eqref{eq:klm} holds, which implies that $\mathbf{m}_{t}(\alpha=1) = \mathbf{m}_{t}(\alpha=0)$. We solve Eq. \eqref{eq:mftheta} with respect to $\boldsymbol{\theta}_{t}$ to find the mean-field values $\boldsymbol{\theta}^{*}_{t}$ of the parameters of the distribution Eq. \eqref{eq:q}.</p>
+<p>Finally, we solve Eq. \eqref{eq:mftheta} up to $n$-th order for $\boldsymbol{\theta}_{t}$ to find the mean-field values $\boldsymbol{\theta}^{*}_{t}$ of the parameters of the distribution Eq. \eqref{eq:q}. Physically, we are tuning the effective external magnetic fields of the factorized ansatz to $\boldsymbol{\theta}^{*}_{t}$ so that its approximate average magnetizations get as close as possible to the real ones.</p>
 <h2 id="24-recovering-naive-mean-field-and-thouless-anderson-palmer-approximations">2.4. Recovering naive mean-field and Thouless-Anderson-Palmer approximations</h2>
 <p>We now consider first and second order approximations of the average magnetizations.</p>
 <p>$\ldots$</p>
@@ -787,9 +788,13 @@ h_{i,t}(\alpha) = (1-\alpha) \theta_{i,t} + \alpha \left( x_{i} + \sum_{j=1}^{N}
 </blockquote>
 <h2 id="25-a-simple-jax-implementation">2.5. A simple JAX implementation</h2>
 <p>$\ldots$</p>
+<pre><code class="language-python">import jax
+</code></pre>
+<p>$\ldots$</p>
 <h1 id="3-mean-field-theory-of-asymmetric-ising-models-with-vector-spins">3. Mean-field theory of asymmetric Ising models with vector spins</h1>
 <p>Let&rsquo;s now transpose the results of the previous section to a setting where the local degrees of freedom are no longer binary spins but $D$-dimensional vector spins restricted to wiggle around on $(D-1)$-dimensional spheres.</p>
 <h2 id="31-">3.1. &hellip;</h2>
+<img src="vector_spins.png" alt="Random Ising model configuration with vector spins" width="250px"/>
 <p>$\ldots$</p>
 <h1 id="4-a-family-of-transformer-like-modules">4. A family of transformer-like modules</h1>
 <p>$\ldots$</p>
