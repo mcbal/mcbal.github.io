@@ -129,7 +129,7 @@ m_{i,t} \approx \tanh \theta^{*}_{i,t} = \tanh \left( x_{i} + \sum_{j} J_{ij} m_
 &lt;p&gt;\begin{equation}
 m_{i,t} \approx \tanh \left( x_{i} + \sum_{j} J_{ij} m_{j,t-1} - m_{i,t} \sum_{j} J^{2}_{ij} \left( 1-m^{2}_{j,t-1} \right) \right). \label{eq:tapm}
 \end{equation}&lt;/p&gt;
-&lt;p&gt;The mean-field equations obtained above can also be elegantly derived using a Legendre transformation of the generating functional of the set of trajectories of the model, as outlined in e.g. &lt;a href=&#34;https://arxiv.org/abs/1103.1044&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;em&gt;Dynamical TAP equations for non-equilibrium Ising spin glasses (2011)&lt;/em&gt;&lt;/a&gt;. UIt is possible to derive second-order TAP approximations of the correlations&lt;/p&gt;
+&lt;p&gt;The mean-field equations obtained above can also be elegantly derived using a Legendre transformation of the generating functional of the set of trajectories of the model, as outlined in e.g. &lt;a href=&#34;https://arxiv.org/abs/1103.1044&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;em&gt;Dynamical TAP equations for non-equilibrium Ising spin glasses (2011)&lt;/em&gt;&lt;/a&gt;. It is also possible to derive second-order TAP approximations of the correlations&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 C_{ik,t} \approx \begin{cases}
 1 - m^{2}_{i,t}  &amp;amp; i = k \\
@@ -175,6 +175,7 @@ D_{il,t} \approx J_{il} \left( 1-m^{2}_{i,t} \right) \left( 1-m^{2}_{l,t-1} \rig
 &lt;p&gt;H.J. Kappen and J.J. Spanjers, Mean field theory for asymmetric neural networks, &lt;em&gt;Phys. Rev. E&lt;/em&gt; &lt;strong&gt;61&lt;/strong&gt;, 5658 (2000) &lt;a href=&#34;https://repository.ubn.ru.nl/handle/2066/112702&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://repository.ubn.ru.nl/handle/2066/112702&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
+&lt;h1 id=&#34;appendices&#34;&gt;Appendices&lt;/h1&gt;
 &lt;h1 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h1&gt;
 &lt;p&gt;If you happen to find this work useful, please consider citing it as:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;@article{bal2023spinmodeltransformers,
