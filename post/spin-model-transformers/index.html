@@ -323,7 +323,7 @@
     
       <meta property="article:published_time" content="2022-06-19T09:28:17&#43;01:00">
     
-    <meta property="article:modified_time" content="2023-04-28T21:52:18&#43;01:00">
+    <meta property="article:modified_time" content="2023-05-01T22:27:18&#43;01:00">
   
 
   
@@ -356,7 +356,7 @@
   ],
   
   "datePublished": "2022-06-19T09:28:17+01:00",
-  "dateModified": "2023-04-28T21:52:18+01:00",
+  "dateModified": "2023-05-01T22:27:18+01:00",
   
   "author": {
     "@type": "Person",
@@ -649,7 +649,7 @@
           Last updated on
       
     
-    Apr 28, 2023
+    May 1, 2023
   </span>
   
 
@@ -658,7 +658,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    10 min read
+    14 min read
   </span>
   
 
@@ -705,11 +705,11 @@
 <blockquote>
 <p><strong>✨ This is a work in progress. Implementations in JAX of the content outlined in this post should become available at <a href="https://github.com/mcbal/spin-model-transformers" target="_blank" rel="noopener"><code>mcbal/spin-model-transformers</code></a>. Come join the fun if you&rsquo;d like to see things moving.</strong></p>
 </blockquote>
-<p>In a series of previous <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">blog posts</a>, we have tried to connect the forward pass of a transformer neural-network module to computing average magnetizations in disordered Ising-like vector-spin models with parametrized couplings and external magnetic fields. In this picture, the forward pass of a transformer module computes statistical observables given a specific realization of quenched couplings and external magnetic fields while the backward pass nudges the parametrized couplings and external magnetic fields to better respond to the demands of the training loss.</p>
+<p>In a series of previous <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">blog posts</a>, we have tried to connect the forward pass of a transformer neural-network module to computing mean magnetizations in disordered Ising-like vector-spin models with parametrized couplings and external magnetic fields. In this picture, the forward pass of a transformer module computes statistical observables given a specific realization of quenched couplings and external magnetic fields while the backward pass nudges the parametrized couplings and external magnetic fields to better respond to the demands of the training loss.</p>
 <p>Both the mean-field message-passing approach of <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a> and the saddle-point free-energy approach of <a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Transformers from Spin Models: Approximate Free Energy Minimization</a> rely on methods that are only well-defined for spin models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution. The softmax attention operation in transformer modules is however famously asymmetric.</p>
-<p>To capture spin models with asymmetric coupling matrices, we had better consider non-equilibrium systems, whose dynamics can be pretty wild yet sometimes lead to a relaxation to a non-equilibrium steady state. In the last few decades, dynamical mean-field approaches have been developed for the binary kinetic Ising model, which exhibits non-equilibrium behavior when couplings are asymmetric or when model parameters are subject to rapid changes. In this post, we try to generalize one of these approaches from binary spins to vector spins with the aim of comparing the resulting equations for the average magnetizations to the forward pass of a transformer module.</p>
+<p>To capture spin models with asymmetric coupling matrices, we had better consider non-equilibrium systems, whose dynamics can be pretty wild yet sometimes lead to a relaxation to a non-equilibrium steady state. In the last few decades, dynamical mean-field approaches have been developed for the binary kinetic Ising model, which exhibits non-equilibrium behavior when couplings are asymmetric or when model parameters are subject to rapid changes. In this post, we try to generalize one of these approaches from binary spins to vector spins with the aim of comparing the resulting equations for the mean magnetizations to the forward pass of a transformer module.</p>
 <h1 id="2-mean-field-theory-of-asymmetric-ising-models-with-binary-spins">2. Mean-field theory of asymmetric Ising models with binary spins</h1>
-<p>In this section, we review known results on mean-field theory approaches to capturing the stochastic dynamics of binary kinetic Ising models. We primarily follow the discussion outlined in <a href="https://arxiv.org/abs/2002.04309" target="_blank" rel="noopener"><em>A unifying framework for mean-field theories of asymmetric kinetic Ising systems (2021)</em></a>.</p>
+<p>In this section, we review known results on mean-field theory approaches to capturing the stochastic dynamics of binary kinetic Ising models. We primarily follow the discussion outlined in <a href="https://arxiv.org/abs/2002.04309" target="_blank" rel="noopener"><em>A unifying framework for mean-field theories of asymmetric kinetic Ising systems</em> (Aguilera et al., 2021)</a>.</p>
 <h2 id="21-setting-the-scene-the-kinetic-ising-model">2.1. Setting the scene: the kinetic Ising model</h2>
 <img src="binary_spins.png" alt="Random Ising model configuration with binary spins" width="250px"/>
 <p>We consider a kinetic Ising model describing a system made up of $N$ interacting binary spins $s_{i,t} \in \{-1, 1\}$ that evolve in discrete time steps $t$ according to synchronous dynamics, i.e. all spins get updated at the same time in parallel. Given a spin configuration $\mathbf{s}_{t-1} = \{ s_{1,t-1}, s_{2,t-1}, \ldots, s_{N,t-1} \}$ at time $t-1$, we consider the spins $\mathbf{s}_{t}$ at time $t$ to be conditionally independent random variables captured by a discrete-time Markov chain transition probability</p>
@@ -718,13 +718,13 @@ P( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{s
 \end{equation}</p>
 <p>where the effective external field is given by</p>
 <p>\begin{equation}
-h_{i,t} = x_{i} + \sum_{j=1}^{N} J_{ij} s_{j,t-1}.
+h_{i,t} = x_{i,t} + \sum_{j=1}^{N} J_{ij} s_{j,t-1}.
 \end{equation}</p>
-<p>Here, the parameters $\mathbf{x}$ represent the local external fields at each site while the coupling parameters $\mathbf{J}$ are a specific realization of quenched disorder encoding the interactions between pairs of spins. Using the probability mass function of the previous state $P( \mathbf{s}_{t-1} )$ we can write the distribution of the current state as</p>
+<p>Here, the parameters $\mathbf{x}$ represent the (possibly time-dependent) local external fields at each site while the coupling parameters $\mathbf{J}$ are a specific realization of quenched disorder encoding the interactions between pairs of spins. Using the probability mass function of the previous state $P( \mathbf{s}_{t-1} )$ we can write the distribution of the current state as</p>
 <p>\begin{equation}
 P( \mathbf{s}_{t} ) = \sum_{\mathbf{s}_{t-1}} P( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) P( \mathbf{s}_{t-1} ), \label{eq:marginal}
 \end{equation}</p>
-<p>which, when applied recursively, traces the evolution of the system starting from some initial distribution $P( \mathbf{s}_{0} )$. Unless we turn off the couplings by setting $\mathbf{J} = \mathbf{0}$, the marginal distribution $P( \mathbf{s}_{t} )$ is not factorized and tends to be quite complicated. Our goal is to compute statistical properties of the system, such as the average magnetizations</p>
+<p>which, when applied recursively, traces the evolution of the system starting from some initial distribution $P( \mathbf{s}_{0} )$. Unless we turn off the couplings by setting $\mathbf{J} = \mathbf{0}$, the marginal distribution $P( \mathbf{s}_{t} )$ is not factorized and tends to be quite complicated. Our goal is to compute statistical properties of the system, such as the mean magnetizations</p>
 <p>\begin{equation}
 m_{i,t} = \sum_{\mathbf{s}_{t}} s_{i,t} P( \mathbf{s}_{t} ),
 \end{equation}</p>
@@ -742,7 +742,7 @@ D_{il,t} = \sum_{\mathbf{s}_{t},\mathbf{s}_{t-1}} s_{i,t} s_{l,t-1} P( \mathbf{s
 <p>\begin{equation}
 Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{s_{i,t} \theta_{i,t}}}{2 \cosh \theta_{i,t}}, \label{eq:q}
 \end{equation}</p>
-<p>so that the average magnetizations are simply given by</p>
+<p>so that the mean magnetizations are simply given by</p>
 <p>\begin{equation}
 m_{i,t} = \tanh \theta_{i,t}
 \end{equation}</p>
@@ -750,7 +750,7 @@ m_{i,t} = \tanh \theta_{i,t}
 <p>\begin{equation}
 D_{\mathrm{KL}} ({\color{red}P}\vert\vert{\color{green}Q_{\theta}}) = \sum_{\mathbf{s}_{t}} P( \mathbf{s}_{t}) \log \frac{P( \mathbf{s}_{t})}{Q_{\theta}( \mathbf{s}_{t})} \label{eq:kl}
 \end{equation}</p>
-<p>has average magnetizations $\mathbf{m}_{t}$ identical to those of the target distribution $P( \mathbf{s}_{t})$ since, for all spins $i=1,2,\ldots,N$, we find that</p>
+<p>has mean magnetizations $\mathbf{m}_{t}$ identical to those of the target distribution $P( \mathbf{s}_{t})$ since, for all spins $i=1,2,\ldots,N$, we find that</p>
 <p>\begin{align}
 \frac{\partial D_{\mathrm{KL}} ({\color{red}P}\vert\vert{\color{green}Q_{\theta}}) }{\partial \theta_{i, t}} \Biggr\rvert_{\boldsymbol{\theta}_{t}=\boldsymbol{\theta}^{*}_{t}} &amp;= - \sum_{\mathbf{s}_{t}} P( \mathbf{s}_{t}) \frac{\partial \log Q_{\theta}( \mathbf{s}_{t}) }{\partial \theta_{i, t}} \Biggr\rvert_{\boldsymbol{\theta}_{t}=\boldsymbol{\theta}^{*}_{t}}  \\
 &amp;= - \sum_{\mathbf{s}_{t}} s_{i,t} P( \mathbf{s}_{t}) + \tanh \theta^{*}_{i,t} \\
@@ -768,9 +768,9 @@ D_{\mathrm{KL}} ({\color{red}P}\vert\vert{\color{green}Q_{\theta}}) = \sum_{\mat
 P_{\alpha}( \mathbf{s}_{t}\vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N}  \frac{\mathrm{e}^{s_{i,t} h_{i,t}(\alpha) }}{2 \cosh h_{i,t}(\alpha)}, \label{eq:pcondalt}
 \end{equation}</p>
 <p>\begin{equation}
-h_{i,t}(\alpha) = (1-\alpha) \theta_{i,t} + \alpha \left( x_{i} + \sum_{j=1}^{N} J_{ij} s_{j,t-1} \right), \label{eq:pcondalth}
+h_{i,t}(\alpha) = (1-\alpha) \theta_{i,t} + \alpha \left( x_{i,t} + \sum_{j=1}^{N} J_{ij} s_{j,t-1} \right), \label{eq:pcondalth}
 \end{equation}</p>
-<p>parametrized by a scalar $\alpha$ interpolating between $P_{\alpha=0}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} )$ (Eq. \eqref{eq:q}) and $P_{\alpha=1}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = P( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} )$ (Eq. \eqref{eq:pcond}). Using Eq. \eqref{eq:pcondalt}, we can construct an approximate marginal distribution $P_{\alpha}( \mathbf{s}_{t})$, leading to $\alpha$-dependent statistical properties $\mathbf{m}_{t}(\alpha)$, $\mathbf{C}_{t}(\alpha)$, and $\mathbf{D}_{t}(\alpha)$ for the approximate system. The Plefka expansion then boils down to writing these properties as Taylor series expansions around the factorized model $\alpha=0$. For the average magnetizations, the expansion up to $n$-th order looks like</p>
+<p>parametrized by a scalar $\alpha$ interpolating between $P_{\alpha=0}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} )$ (Eq. \eqref{eq:q}) and $P_{\alpha=1}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = P( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} )$ (Eq. \eqref{eq:pcond}). Using Eq. \eqref{eq:pcondalt}, we can construct an approximate marginal distribution $P_{\alpha}( \mathbf{s}_{t})$, leading to $\alpha$-dependent statistical properties $\mathbf{m}_{t}(\alpha)$, $\mathbf{C}_{t}(\alpha)$, and $\mathbf{D}_{t}(\alpha)$ for the approximate system. The Plefka expansion then boils down to writing these properties as Taylor series expansions around the factorized model $\alpha=0$. For the mean magnetizations, the expansion up to $n$-th order looks like</p>
 <p>\begin{equation}
 \mathbf{m}_{t}(\alpha) = \mathbf{m}_{t}(\alpha=0) + \sum_{k=1}^{n} \frac{\alpha^k}{k!} \frac{\partial^{k} \mathbf{m}_{t}(\alpha=0)}{\partial \alpha^{k}} + \mathcal{O}(\alpha^{n+1}), \label{eq:mtaylor}
 \end{equation}</p>
@@ -778,24 +778,24 @@ h_{i,t}(\alpha) = (1-\alpha) \theta_{i,t} + \alpha \left( x_{i} + \sum_{j=1}^{N}
 <p>\begin{equation}
 \sum_{k=1}^{n} \frac{1}{k!} \frac{\partial^{k} \mathbf{m}_{t}(\alpha=0)}{\partial \alpha^{k}} + \mathcal{O}(\alpha^{n+1}) = 0. \label{eq:mftheta}
 \end{equation}</p>
-<p>Finally, we solve Eq. \eqref{eq:mftheta} for $\boldsymbol{\theta}_{t}$ to find the mean-field values $\boldsymbol{\theta}^{*}_{t}$ of the parameters of the distribution Eq. \eqref{eq:q}. Physically, we are tuning the effective external magnetic fields of the factorized ansatz to $\boldsymbol{\theta}^{*}_{t}$ so that its approximate average magnetizations get as close as possible to the real ones.</p>
+<p>Finally, we solve Eq. \eqref{eq:mftheta} for $\boldsymbol{\theta}_{t}$ to find the mean-field values $\boldsymbol{\theta}^{*}_{t}$ of the parameters of the distribution Eq. \eqref{eq:q}. Physically, we are tuning the effective external magnetic fields of the factorized ansatz to $\boldsymbol{\theta}^{*}_{t}$ so that its approximate mean magnetizations get as close as possible to the real ones.</p>
 <h2 id="24-recovering-naive-mean-field-and-thouless-anderson-palmer-approximations">2.4. Recovering naive mean-field and Thouless-Anderson-Palmer approximations</h2>
-<p>We now consider first and second order approximations of the average magnetizations Eq. \eqref{eq:mtaylor} to recover respectively the naive mean-field and Thouless-Anderson-Palmer approximations for the binary kinetic Ising model. The starting point is a Plefka expansion around factorized models at times $t-1$ and $t$. From Eq. \eqref{eq:marginal} and Eq. \eqref{eq:pcondalt}, we construct a marginal probability distribution</p>
+<p>We now consider first and second order approximations of the mean magnetizations Eq. \eqref{eq:mtaylor} to recover respectively the naive mean-field and Thouless-Anderson-Palmer (TAP) approximations for the binary kinetic Ising model. The starting point is a Plefka expansion around factorized models at times $t-1$ and $t$. From Eq. \eqref{eq:marginal} and Eq. \eqref{eq:pcondalt}, we construct a marginal probability distribution</p>
 <p>\begin{equation}
 P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \sum_{\mathbf{s}_{t-1},\mathbf{s}_{t-2}} P_{\alpha}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} ) P( \mathbf{s}_{t-2} ),
 \end{equation}</p>
-<p>interpolating between $P^{[t-1:t]}_{\alpha=0}( \mathbf{s}_{t} ) = Q( \mathbf{s}_{t} )$ and $P^{[t-1:t]}_{\alpha=1}( \mathbf{s}_{t} ) = P( \mathbf{s}_{t} )$. The corresponding average magnetizations are</p>
+<p>interpolating between $P^{[t-1:t]}_{\alpha=0}( \mathbf{s}_{t} ) = Q( \mathbf{s}_{t} )$ and $P^{[t-1:t]}_{\alpha=1}( \mathbf{s}_{t} ) = P( \mathbf{s}_{t} )$. The corresponding mean magnetizations are</p>
 <p>\begin{align}
 m_{i,t}(\alpha) &amp;= \sum_{\mathbf{s}_{t},\mathbf{s}_{t-1},\mathbf{s}_{t-2}} s_{i,t} \, P_{\alpha}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} ) P( \mathbf{s}_{t-2} ) \\
 &amp;= \sum_{\mathbf{s}_{t-1},\mathbf{s}_{t-2}} \tanh h_{i,t}(\alpha) \, P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} ) P( \mathbf{s}_{t-2} )
 \end{align}</p>
 <p>Following Eq. \eqref{eq:mftheta}, the first-order approximation should satisfy</p>
 <p>\begin{equation}
-\frac{\partial m_{i,t}(\alpha=0)}{\partial\alpha} = \left( 1-m^{2}_{i,t} \right) \left( -\theta_{i,t} + x_{i} + \sum_{j} J_{ij} m_{j,t-1} \right) = 0,
+\frac{\partial m_{i,t}(\alpha=0)}{\partial\alpha} = \left( 1-m^{2}_{i,t} \right) \left( -\theta_{i,t} + x_{i,t} + \sum_{j} J_{ij} m_{j,t-1} \right) = 0,
 \end{equation}</p>
-<p>so that $\theta^{*}_{i,t} = x_{i} + \sum_{j} J_{ij} m_{j,t-1}$ and we end up with the naive mean-field equations</p>
+<p>so that $\theta^{*}_{i,t} = x_{i,t} + \sum_{j} J_{ij} m_{j,t-1}$ and we end up with the naive mean-field equations</p>
 <p>\begin{equation}
-m_{i,t} \approx \tanh \theta^{*}_{i,t} = \tanh \left( x_{i} + \sum_{j} J_{ij} m_{j,t-1} \right).
+m_{i,t} \approx \tanh \theta^{*}_{i,t} = \tanh \left( x_{i,t} + \sum_{j} J_{ij} m_{j,t-1} \right). \label{eq:naivem}
 \end{equation}</p>
 <p>Again following Eq. \eqref{eq:mftheta}, the second-order approximation should satisfy</p>
 <p>\begin{equation}
@@ -807,13 +807,13 @@ m_{i,t} \approx \tanh \theta^{*}_{i,t} = \tanh \left( x_{i} + \sum_{j} J_{ij} m_
 \end{equation}</p>
 <p>so that</p>
 <p>\begin{equation}
-\theta^{*}_{i,t} = x_{i} + \sum_{j} J_{ij} m_{j,t-1} - m_{i,t} \sum_{j} J^{2}_{ij} \left( 1-m^{2}_{j,t-1} \right)
+\theta^{*}_{i,t} = x_{i,t} + \sum_{j} J_{ij} m_{j,t-1} - m_{i,t} \sum_{j} J^{2}_{ij} \left( 1-m^{2}_{j,t-1} \right)
 \end{equation}</p>
 <p>and we end up with the TAP mean-field equations</p>
 <p>\begin{equation}
-m_{i,t} \approx \tanh \left( x_{i} + \sum_{j} J_{ij} m_{j,t-1} - m_{i,t} \sum_{j} J^{2}_{ij} \left( 1-m^{2}_{j,t-1} \right) \right). \label{eq:tapm}
+m_{i,t} \approx \tanh \left( x_{i,t} + \sum_{j} J_{ij} m_{j,t-1} - m_{i,t} \sum_{j} J^{2}_{ij} \left( 1-m^{2}_{j,t-1} \right) \right). \label{eq:tapm}
 \end{equation}</p>
-<p>The mean-field equations obtained above can also be elegantly derived using a Legendre transformation of the generating functional of the set of trajectories of the model, as outlined in e.g. <a href="https://arxiv.org/abs/1103.1044" target="_blank" rel="noopener"><em>Dynamical TAP equations for non-equilibrium Ising spin glasses (2011)</em></a>. It is also possible to derive second-order TAP approximations of the correlations</p>
+<p>We refer to <a href="https://arxiv.org/abs/2002.04309" target="_blank" rel="noopener">(Aguilera et al., 2020)</a> for full derivations and variations of the above mean-field results as well as variations based on different approximations of the marginal distribution $P( \mathbf{s}_{t} )$. The mean-field equations obtained above can also be elegantly derived using a Legendre transformation of the generating functional of the set of trajectories of the model, as outlined in e.g. <a href="https://arxiv.org/abs/1103.1044" target="_blank" rel="noopener"><em>Dynamical TAP equations for non-equilibrium Ising spin glasses (2011)</em></a>. It is also possible to derive second-order TAP approximations of the correlations</p>
 <p>\begin{equation}
 C_{ik,t} \approx \begin{cases}
 1 - m^{2}_{i,t}  &amp; i = k \\
@@ -824,19 +824,89 @@ C_{ik,t} \approx \begin{cases}
 <p>\begin{equation}
 D_{il,t} \approx J_{il} \left( 1-m^{2}_{i,t} \right) \left( 1-m^{2}_{l,t-1} \right) \left( 1 + 2 J_{il} m_{i,t} m_{l,t-1} \right). \label{eq:tapd}
 \end{equation}</p>
-<p>We refer to <a href="https://arxiv.org/abs/2002.04309" target="_blank" rel="noopener"><em>A unifying framework for mean-field theories of asymmetric kinetic Ising systems (2021)</em></a> for full derivations and variations of the above mean-field results as well as variations based on different approximations of the marginal distribution $P( \mathbf{s}_{t} )$.</p>
-<p>Given the average magnetizations $\mathbf{m}_{t-1}$ of the system at time $t-1$, we can use equations \eqref{eq:tapm} \eqref{eq:tapc} \eqref{eq:tapd} to compute the approximate statistical properties $(\mathbf{m}_{t},\mathbf{C}_{t},\mathbf{D}_{t})$ of the system at time $t$. The time evolution of the system at the mean-field level can thus be approximately described by recursively computing $\mathbf{m}_{t}$ starting from an initial state $\mathbf{m}_{0}$, although approximation errors accumulate over the iterations.</p>
+<p>In summary, given the mean magnetizations $\mathbf{m}_{t-1}$ of the system at time $t-1$, we can use equations \eqref{eq:tapm} \eqref{eq:tapc} \eqref{eq:tapd} to compute a tuple $(\mathbf{m}_{t},\mathbf{C}_{t},\mathbf{D}_{t})$ of approximate statistical properties  of the system at time $t$. The time evolution of the system can thus be captured at the mean-field level by recursively computing $\mathbf{m}_{t}$ starting from an initial state $\mathbf{m}_{0}$, although approximation errors accumulate over the iterations.</p>
 <h2 id="25-a-simple-jax-implementation">2.5. A simple JAX implementation</h2>
-<p>Let us now turn some of the equations introduced in the previous section into code.</p>
-<pre><code class="language-python">import jax
+<p>To get more insight into what&rsquo;s going on, let&rsquo;s translate the mean-field update equations \eqref{eq:naivem} and \eqref{eq:tapm} for the mean magnetizations into code. But before we show a few examples, we need to know a bit more about what model we are actually simulating here. In <a href="https://arxiv.org/abs/2002.04309" target="_blank" rel="noopener">(Aguilera et al., 2020)</a>, the authors derive a solution of the asymmetric version of the kinetic <a href="https://en.wikipedia.org/wiki/Spin_glass#Sherrington%E2%80%93Kirkpatrick_model" target="_blank" rel="noopener">Sherrington-Kirkpatrick mean-field spin-glass model</a> using a generating functional or dynamical partition function approach capturing the distribution of the trajectories. They consider the same kinetic Ising model as in Eq. \eqref{eq:pcond} but with an inverse temperature parameter $\beta$ in the exponentials:</p>
+<p>\begin{equation}
+P( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{\beta s_{i,t} h_{i,t}}}{2 \cosh \beta h_{i,t}}.
+\end{equation}</p>
+<p>For Gaussian couplings $J_{ij} \sim \mathcal{N}\left( J_{\mu} / N, J^{2}_{\sigma} / N\right)$ and uniformly distributed external magnetic fields $x_{i} \sim \mathcal{U}(-X_{0}, X_{0})$, they show the existence of a ferromagnetic phase transition. In particular for $X_{0}=0.5$, $J_{\mu}=1.0$, and $J_{\sigma}=0.1$, the phase transition happens when tuning $\beta$ to a critical $\beta_{c} \approx 1.1108$.</p>
+<h3 id="simulating-mean-field-dynamics">Simulating mean-field dynamics</h3>
+<p>We now turn to a JAX implementation of the mean-field time evolution of the magnetizations according to the model described above. We use <code>lax.scan</code> to implement the update steps and <code>vmap</code> to parallelize trajectories starting from a batch of initial magnetization configurations $\mathbf{m}_{0}$.</p>
+<pre><code class="language-python">from functools import partial
+
+import jax
+import jax.lax as lax
+import jax.numpy as jnp
+
+from jaxopt import AndersonAcceleration
+
+
+def update_naive_mf(m0, _, x, J):
+    m1 = jnp.tanh(x + jnp.einsum(&quot;... i j, ... j -&gt; ... i&quot;, J, m0))
+    return m1, m0
+
+
+def update_tap_mf(m0, _, x, J):
+    def tap(m):
+        return jnp.tanh(
+            x
+            + jnp.einsum(&quot;... i j, ... j -&gt; ... i&quot;, J, m0)
+            - m * jnp.einsum(&quot;... i j, ... j -&gt; ... i&quot;, J**2, (1.0 - m0**2))
+        )
+
+    m1 = AndersonAcceleration(fixed_point_fun=tap, tol=1e-3, maxiter=10).run(m0).params
+    return m1, m0
+
+
+def time_evolution(m0, steps, update_fun):
+    final_carry, stacked_outputs = lax.scan(update_fun, init=m0, xs=steps)
+    return final_carry, stacked_outputs
+
+
+def init_params(key, N, beta, X0, J_mu, J_sigma):
+    x_key, J_key = jax.random.split(key)
+    x = jax.random.uniform(x_key, shape=(N,), minval=-beta * X0, maxval=beta * X0)
+    J = beta * J_mu * N**-1 + beta * J_sigma * N**-0.5 * jax.random.normal(
+        J_key, shape=(N, N)
+    )
+    return x, J
+
+
+def simulate(
+    key, m0, steps, beta, X0=0.5, J_mu=1.0, J_sigma=0.1, update_fun=update_tap_mf
+):
+    x, J = init_params(key, m0.shape[-1], beta, X0, J_mu, J_sigma)
+    wrapped_time_evolution = partial(
+        time_evolution,
+        steps=steps,
+        update_fun=partial(update_fun, x=x, J=J),
+    )
+    final_carry, stacked_outputs = jax.vmap(wrapped_time_evolution)(m0)
+    return final_carry, stacked_outputs
 </code></pre>
+<h3 id="naive-mean-field-update-vs-thouless-anderson-palmer-tap">Naive mean-field update vs. Thouless-Anderson-Palmer (TAP)</h3>
+<p>We fix the seed for the randomly initialized model parameters $\mathbf{x}$ and $\mathbf{J}$ and simulate $N=512$ spins at the critical temperature $\beta_{c}$ for $t=128$ time steps starting from an all-ones intial state. We first consider the naive mean-field update step.</p>
+<p><img src="binary_plot_1.png" alt=""></p>
+<p>The left axis shows the individual magnetization trajectories for each spin plotted horizontally while the red line associated to the right axis describes the average of the magnetizations across all spins for each time step. We observe convergence to what looks like a steady state. Comparing the naive first-order mean-field update equations to the second-order Thouless-Anderson-Palmer (TAP) ones, we observe lower values for the mean magnetization across all spins, which <a href="https://arxiv.org/abs/2002.04309" target="_blank" rel="noopener">(Aguilera et al., 2020)</a> showed to be closer to ground truth values obtained via sampling and averaging spin configurations.</p>
+<p><img src="binary_plot_2.png" alt=""></p>
+<h3 id="sampling-trajectories">Sampling trajectories</h3>
+<p>Let us now consider 100 randomly-initialized initial states with their associated trajectories in three different model regimes: below ($\beta=\beta_c / 2 $), near ($\beta=\beta_c$), and above ($\beta=2 \beta_c$) the critical point.</p>
+<p><img src="binary_plot_3.png" alt=""></p>
+<p>We observe that the trajectories of randomly-initialized initial states converge to identical final states in each regime. These states map to a simple Ising phase diagram, where a high-temperature disordered phase $\langle m_{i,t} \rangle \to 0$ is separated from a low-temperature locally-ordered phase $\langle m_{i,t} \rangle \to \pm 1$ by a critical point. The behavior around $\beta=\beta_{c}$ is pretty interesting though: the non-equilibrium steady state looks like a non-trivial configuration implicitly encoded in the dynamics of the model.</p>
+<h3 id="sampling-model-parameters">Sampling model parameters</h3>
+<p>Let&rsquo;s go back to considering just a single trajectory since we just saw that all trajectories seem to converge to the same states for fixed model parameters. To get a feel for the variation of the steady-state values across different realizations of model parameters, it would be interesting to plot the absolute value<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> $| \langle m_{i} \rangle |$ of the final steady-state magnetizations across say 100 samples of model parameters and a range of inverse temperatures. We&rsquo;re using JAX, so we can easily sample model parameters by <code>vmap</code>&lsquo;ing the random key fed into the <code>simulate</code> function followed by another <code>vmap</code> to sweep across $\beta$.</p>
+<p><img src="binary_plot_4.png" alt=""></p>
 <p>$\ldots$</p>
 <h1 id="3-mean-field-theory-of-asymmetric-ising-models-with-vector-spins">3. Mean-field theory of asymmetric Ising models with vector spins</h1>
-<p>Let&rsquo;s now transpose the results of the previous section to a setting where the local degrees of freedom are no longer binary spins but $D$-dimensional vector spins restricted to wiggle around on $(D-1)$-dimensional spheres.</p>
-<h2 id="31-">3.1. &hellip;</h2>
+<p>Let us now transpose the binary-spin results to a setting where the local spin degrees of freedom are $D$-dimensional vector spins restricted to wiggle around on $(D-1)$-dimensional spheres.</p>
 <img src="vector_spins.png" alt="Random Ising model configuration with vector spins" width="250px"/>
+<h2 id="31-">3.1. &hellip;</h2>
+<p>We can think of the denominator as a single site partition function of a local energy function measuring dot-product alignment to an external magnetic field. The integral over the vector-spin degree of freedom smells of Bessel functions but let&rsquo;s see what pops out.</p>
 <p>$\ldots$</p>
 <h1 id="4-a-family-of-transformer-like-modules">4. A family of transformer-like modules</h1>
+<p>$\ldots$</p>
+<h2 id="41-fast--and-slow-moving-parameters">4.1. Fast- and slow-moving parameters</h2>
 <p>$\ldots$</p>
 <h1 id="5-conclusion">5. Conclusion</h1>
 <p>$\ldots$</p>
@@ -870,6 +940,14 @@ D_{il,t} \approx J_{il} \left( 1-m^{2}_{i,t} \right) \left( 1-m^{2}_{l,t-1} \rig
   url     = {https://mcbal.github.io/post/spin-model-transformers}
 }
 </code></pre>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>We plot the absolute value to get rid of artificial &ldquo;jumps&rdquo; between the two branches. These occur because all models are simulated independently when sweeping across $\beta$ and the some combinations of initial state and model parameters might just happen to bounce to the other branch when $\beta$ changes in the $\beta &gt; \beta_c$ regime.&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
 
     </div>
 
