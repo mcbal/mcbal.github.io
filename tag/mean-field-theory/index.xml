@@ -32,7 +32,7 @@
 &lt;li&gt;&lt;a href=&#34;#3-mean-field-theory-of-asymmetric-ising-models-with-vector-spins&#34;&gt;Mean-field theory of asymmetric Ising models with vector spins&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#4-a-family-of-transformer-like-modules&#34;&gt;A family of transformer-like modules&lt;/a&gt;
 &lt;ol&gt;
-&lt;li&gt;&lt;a href=&#34;#41-fast--and-slow-moving-parameters-sculpting-a-spin-glass-with-data&#34;&gt;Fast- and slow-moving parameters: sculpting a spin glass with data&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#41-fast--and-slow-moving-parameters&#34;&gt;Fast- and slow-moving parameters&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#5-conclusion&#34;&gt;Conclusion&lt;/a&gt;&lt;/li&gt;
@@ -247,9 +247,9 @@ def simulate(
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h1 id=&#34;4-a-family-of-transformer-like-modules&#34;&gt;4. A family of transformer-like modules&lt;/h1&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
-&lt;h2 id=&#34;41-fast--and-slow-moving-parameters-sculpting-a-spin-glass-with-data&#34;&gt;4.1. Fast- and slow-moving parameters: sculpting a spin glass with data&lt;/h2&gt;
+&lt;h2 id=&#34;41-fast--and-slow-moving-parameters&#34;&gt;4.1. Fast- and slow-moving parameters&lt;/h2&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
-&lt;p&gt;As mentioned previously in &lt;a href=&#34;https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers Are Secretly Collectives of Spin Systems&lt;/a&gt;, each training example in a batch of sequential data can be thought of as probing the spin system in a particular way. Physically, the &lt;em&gt;fast-moving&lt;/em&gt; parameterized couplings $\mathbf{J}_{\theta}(\mathbf{X})$ are determined by the &lt;em&gt;fast-moving&lt;/em&gt; parameterized external fields $\mathbf{X}$, which in turn depend on the magnetizations of the previous layer and eventually on the input data. The external fields act as an environment of patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing a state of quenched disorder. The &lt;em&gt;slow-moving&lt;/em&gt; parameters are those receiving gradient updates during training, e.g. the query-key matrices in the softmax couplings. Training seems to be shaping the $\mathbf{X}$-dependent &lt;em&gt;distribution of coupling parameters&lt;/em&gt; by amassing information from a huge amount of sampled quenched disorder realizations.&lt;/p&gt;
+&lt;p&gt;As mentioned previously in &lt;a href=&#34;https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers Are Secretly Collectives of Spin Systems&lt;/a&gt;, each training example in a batch of sequential data can be thought of as probing the spin system in a particular way. Physically, the &lt;em&gt;fast-moving&lt;/em&gt; parameterized couplings $\mathbf{J}_{\theta}(\mathbf{X})$ are determined by the &lt;em&gt;fast-moving&lt;/em&gt; parameterized external fields $\mathbf{X}$, which in turn depend on the magnetizations of the previous layer and eventually on the input data. The external fields act as an environment of patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing a state of quenched disorder. The &lt;em&gt;slow-moving&lt;/em&gt; parameters are those receiving gradient updates during training, e.g. the query-key matrices in the softmax couplings. Training seems to be shaping the $\mathbf{X}$-dependent &lt;em&gt;distribution of coupling parameters&lt;/em&gt; by amassing information from a huge amount of sampled quenched disorder realizations, sculpting a spin glass with data.&lt;/p&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h1 id=&#34;5-conclusion&#34;&gt;5. Conclusion&lt;/h1&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
