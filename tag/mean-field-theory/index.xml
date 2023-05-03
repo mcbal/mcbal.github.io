@@ -17,7 +17,28 @@
       <link>https://mcbal.github.io/post/spin-model-transformers/</link>
       <pubDate>Sun, 19 Jun 2022 09:28:17 +0100</pubDate>
       <guid>https://mcbal.github.io/post/spin-model-transformers/</guid>
-      <description>&lt;h1 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h1&gt;
+      <description>&lt;hr&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#1-introduction&#34;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#2-mean-field-theory-of-asymmetric-ising-models-with-binary-spins&#34;&gt;Mean-field theory of asymmetric Ising models with binary spins&lt;/a&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#21-setting-the-scene-the-kinetic-ising-model&#34;&gt;Setting the scene: the kinetic Ising model&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#22-mean-field-theory-and-kullback-leibler-divergence&#34;&gt;Mean-field theory and Kullback-Leibler divergence&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#23-the-plefka-expansion-interpolating-distributions&#34;&gt;The Plefka expansion: interpolating distributions&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#24-recovering-naive-mean-field-and-thouless-anderson-palmer-approximations&#34;&gt;Recovering naive mean-field and Thouless-Anderson-Palmer approximations&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#25-a-simple-jax-implementation-simulating-magnetization-trajectories&#34;&gt;A simple JAX implementation: simulating magnetization trajectories&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#3-mean-field-theory-of-asymmetric-ising-models-with-vector-spins&#34;&gt;Mean-field theory of asymmetric Ising models with vector spins&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#4-a-family-of-transformer-like-modules&#34;&gt;A family of transformer-like modules&lt;/a&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#41-fast--and-slow-moving-parameters-sculpting-a-spin-glass-with-data&#34;&gt;Fast- and slow-moving parameters: sculpting a spin glass with data&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#5-conclusion&#34;&gt;Conclusion&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h1&gt;
 &lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;✨ This is a work in progress exploring connections between transformer neural networks, spin models, and (non-)equilibrium statistical mechanics. Implementations in JAX of the content outlined in this post should become available at &lt;a href=&#34;https://github.com/mcbal/spin-model-transformers&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;mcbal/spin-model-transformers&lt;/code&gt;&lt;/a&gt;.&lt;/strong&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -53,7 +74,7 @@ C_{ik,t} = \sum_{\mathbf{s}_{t}} s_{i,t} s_{k,t} P( \mathbf{s}_{t} ) - m_{i,t} m
 D_{il,t} = \sum_{\mathbf{s}_{t},\mathbf{s}_{t-1}} s_{i,t} s_{l,t-1} P( \mathbf{s}_{t}, \mathbf{s}_{t-1} ) - m_{i,t} m_{l,t-1}.
 \end{equation}&lt;/p&gt;
 &lt;p&gt;Since the above expressions involve summing over a large amount of possible spin configurations, they are not very useful in practice. So we will try to approximate the tricky marginal distribution $P( \mathbf{s}_{t} )$ defined in Eq. \eqref{eq:marginal} using a mean-field theory approach.&lt;/p&gt;
-&lt;h2 id=&#34;22-mean-field-approximation&#34;&gt;2.2. Mean-field approximation&lt;/h2&gt;
+&lt;h2 id=&#34;22-mean-field-theory-and-kullback-leibler-divergence&#34;&gt;2.2. Mean-field theory and Kullback-Leibler divergence&lt;/h2&gt;
 &lt;p&gt;Mean-field theory tries to approximate a complicated object ${\color{red}P}$ by wiggling around the parameters of a simple, analytically tractable parametrized ansatz ${\color{green}Q_{\theta}}$ to get as close as possible to ${\color{red}P}$. At risk of inducing headaches in mathematicians by calling everything a manifold, we can picture what is going on geometrically as trying to approximate a target probability distribution $P( \mathbf{s}_{t} \vert \mathbf{x}, \mathbf{J})$ and its statistical properties $\mathbf{m}_{t}$, $\mathbf{C}_{t}$, and $\mathbf{D}_{t}$ by restricting ourselves to a submanifold of tractable probability distributions. A particularly convenient submanifold is that of factorized models, where each point on the submanifold corresponds to a distribution parametrized by a vector $\boldsymbol{\theta}_{t}$,&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{s_{i,t} \theta_{i,t}}}{2 \cosh \theta_{i,t}}, \label{eq:q}
@@ -73,7 +94,7 @@ D_{\mathrm{KL}} ({\color{red}P}\vert\vert{\color{green}Q_{\theta}}) = \sum_{\mat
 &amp;amp;= -m^{{\color{red}P}}_{i,t} + m^{{\color{green}Q_{\theta^{*}}}}_{i,t} = 0, \label{eq:klm}
 \end{align}&lt;/p&gt;
 &lt;p&gt;where $m^{{\color{red}P}}_{i,t}$ and $m^{{\color{green}Q_{\theta^{*}}}}_{i,t}$ respectively denote the expectation values of $s_{i,t}$ with respect to ${\color{red}P}$ and ${\color{green}Q_{\theta^{*}}}$. Indeed, minimizing $D_{\mathrm{KL}} ({\color{red}P}\vert\vert{\color{green}Q_{\theta}})$ tries to cover the modes of ${\color{red}P}$ by moment matching since the expectation value in Eq. \eqref{eq:kl} is calculated with respect to ${\color{red}P}$.&lt;/p&gt;
-&lt;h2 id=&#34;23-the-plefka-expansion&#34;&gt;2.3. The Plefka expansion&lt;/h2&gt;
+&lt;h2 id=&#34;23-the-plefka-expansion-interpolating-distributions&#34;&gt;2.3. The Plefka expansion: interpolating distributions&lt;/h2&gt;
 &lt;p&gt;Great, but is it even possible to find the parameters&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 \DeclareMathOperator*{\argmin}{arg\,min}
@@ -142,7 +163,7 @@ D_{il,t} \approx J_{il} \left( 1-m^{2}_{i,t} \right) \left( 1-m^{2}_{l,t-1} \rig
 \end{equation}&lt;/p&gt;
 &lt;p&gt;We refer to &lt;a href=&#34;https://arxiv.org/abs/2002.04309&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;(Aguilera et al., 2020)&lt;/a&gt; for full derivations of the above mean-field results as well as variations based on different approximations of the marginal distribution $P( \mathbf{s}_{t} )$.&lt;/p&gt;
 &lt;p&gt;In summary, given the mean magnetizations $\mathbf{m}_{t-1}$ of the system at time $t-1$, we can use equations \eqref{eq:tapm} \eqref{eq:tapc} \eqref{eq:tapd} to compute a tuple $(\mathbf{m}_{t},\mathbf{C}_{t},\mathbf{D}_{t})$ of approximate statistical properties  of the system at time $t$. The time evolution of the system can thus be captured at the mean-field level by recursively computing $\mathbf{m}_{t}$ starting from an initial state $\mathbf{m}_{0}$, although approximation errors accumulate over the iterations.&lt;/p&gt;
-&lt;h2 id=&#34;25-a-simple-jax-implementation&#34;&gt;2.5. A simple JAX implementation&lt;/h2&gt;
+&lt;h2 id=&#34;25-a-simple-jax-implementation-simulating-magnetization-trajectories&#34;&gt;2.5. A simple JAX implementation: simulating magnetization trajectories&lt;/h2&gt;
 &lt;p&gt;To get more insight into what is going on, let us turn the mean-field update equations \eqref{eq:naivem} and \eqref{eq:tapm} for the mean magnetizations into code. But before we show a few examples, we need to know a bit more about what model we are actually simulating here.&lt;/p&gt;
 &lt;p&gt;In &lt;a href=&#34;https://arxiv.org/abs/2002.04309&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;(Aguilera et al., 2020)&lt;/a&gt;, the authors derive a solution of the asymmetric version of the kinetic &lt;a href=&#34;https://en.wikipedia.org/wiki/Spin_glass#Sherrington%E2%80%93Kirkpatrick_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Sherrington-Kirkpatrick mean-field spin-glass model&lt;/a&gt; using a generating functional or dynamical partition function approach capturing the distribution of the trajectories. They consider the same kinetic Ising model as in Eq. \eqref{eq:pcond} but with an inverse temperature parameter $\beta$ in the exponentials:&lt;/p&gt;
 &lt;p&gt;\begin{equation}
@@ -226,7 +247,9 @@ def simulate(
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h1 id=&#34;4-a-family-of-transformer-like-modules&#34;&gt;4. A family of transformer-like modules&lt;/h1&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
-&lt;h2 id=&#34;41-fast--and-slow-moving-parameters&#34;&gt;4.1. Fast- and slow-moving parameters&lt;/h2&gt;
+&lt;h2 id=&#34;41-fast--and-slow-moving-parameters-sculpting-a-spin-glass-with-data&#34;&gt;4.1. Fast- and slow-moving parameters: sculpting a spin glass with data&lt;/h2&gt;
+&lt;p&gt;$\ldots$&lt;/p&gt;
+&lt;p&gt;As mentioned previously in &lt;a href=&#34;https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers Are Secretly Collectives of Spin Systems&lt;/a&gt;, each training example in a batch of sequential data can be thought of as probing the spin system in a particular way. Physically, the &lt;em&gt;fast-moving&lt;/em&gt; parameterized couplings $\mathbf{J}_{\theta}(\mathbf{X})$ are determined by the &lt;em&gt;fast-moving&lt;/em&gt; parameterized external fields $\mathbf{X}$, which in turn depend on the magnetizations of the previous layer and eventually on the input data. The external fields act as an environment of patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing a state of quenched disorder. The &lt;em&gt;slow-moving&lt;/em&gt; parameters are those receiving gradient updates during training, e.g. the query-key matrices in the softmax couplings. Training seems to be shaping the $\mathbf{X}$-dependent &lt;em&gt;distribution of coupling parameters&lt;/em&gt; by amassing information from a huge amount of sampled quenched disorder realizations.&lt;/p&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h1 id=&#34;5-conclusion&#34;&gt;5. Conclusion&lt;/h1&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
