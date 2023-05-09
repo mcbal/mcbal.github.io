@@ -658,7 +658,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    18 min read
+    19 min read
   </span>
   
 
@@ -921,7 +921,7 @@ def simulate(
 <p><img src="binary_plot_2.png" alt=""></p>
 <p>Comparing the naive first-order mean-field update equations to the second-order Thouless-Anderson-Palmer (TAP) ones, we observe lower values for the mean magnetization across all spins, which <a href="https://arxiv.org/abs/2002.04309" target="_blank" rel="noopener">(Aguilera et al., 2020)</a> showed to be closer to ground truth values (not shown) obtained via sampling and averaging spin configurations.</p>
 <h3 id="sampling-trajectories">Sampling trajectories</h3>
-<p>Let us now consider 100 randomly-initialized initial states and simulate their associated trajectories in three different model regimes: far below the critical point ($\beta=\beta_c / 2 $), at the critical point ($\beta=\beta_c$), and far above the critical point ($\beta=2 \beta_c$).</p>
+<p>Let&rsquo;s now consider 100 randomly-initialized initial states and simulate their associated trajectories in three different model regimes: far below the critical point ($\beta=\beta_c / 2 $), at the critical point ($\beta=\beta_c$), and far above the critical point ($\beta=2 \beta_c$).</p>
 <p><img src="binary_plot_3.png" alt=""></p>
 <p>We observe that the trajectories of randomly-initialized initial states converge to identical final states in each regime. These final states map to a simple ferromagnetic Ising phase diagram, where a high-temperature disordered phase $\langle m_{i,t} \rangle \to 0$ (left) is separated from a low-temperature locally-ordered phase $\langle m_{i,t} \rangle \to \pm 1$ (right) by a critical point (center). The behavior around $\beta=\beta_{c}$ is pretty interesting: <em>the non-trivial non-equilibrium steady state looks like an attractor implicitly encoded in the dynamics of the model</em>.</p>
 <h3 id="sampling-model-parameters">Sampling model parameters</h3>
@@ -929,32 +929,37 @@ def simulate(
 <p><img src="binary_plot_4.png" alt=""></p>
 <p>Every curve in the above plot describes the final steady-state value of the &ldquo;order parameter&rdquo; $| \langle m_{i} \rangle |$ for a fixed set of model parameters sweeping across $\beta$. We observe a greater spread of values near the critical point. If we were to let the number of spins $N \to \infty$ and average over a large number of model parameter samples, the finite-size results above would probably transform into a sharp curve with zero magnetization below the critical point and a sudden non-zero magnetization emerging at the critical point.</p>
 <h1 id="3-mean-field-theory-of-asymmetric-ising-models-with-vector-spins">3. Mean-field theory of asymmetric Ising models with vector spins</h1>
-<p>Let us now transpose the binary-spin results to a setting where the local spin degrees of freedom are $D$-dimensional vector spins restricted to wiggle around on $(D-1)$-dimensional spheres. We start by generalizing the conditional distribution Eq. \eqref{eq:pcondalt} to vector spins and come across a known distribution. Next, we derive mean-field equations for the mean magnetizations. We finish this section with a JAX implementation of the mean-field update equations and compare numerical results to the binary-spin case.</p>
+<p>We now transpose the binary-spin results of the previous section to a setting where the local spin degrees of freedom are $D$-dimensional vector spins restricted to wiggle around on $(D-1)$-dimensional spheres. We start by generalizing the conditional distribution Eq. \eqref{eq:pcondalt} to vector spins. Next, we derive mean-field equations for the mean magnetizations. We finish this section with a JAX implementation of the update equations and compare numerical results to the binary-spin case.</p>
 <img src="vector_spins.png" alt="Random Ising model configuration with vector spins" width="250px"/>
 <h2 id="31-distributions-on-hyperspheres">3.1. Distributions on hyperspheres</h2>
-<p>Let&rsquo;s start by writing down vector-spin equivalent of Eq. \eqref{eq:pcondalt},</p>
+<p>A vector-spin equivalent of Eq. \eqref{eq:pcondalt} looks like</p>
 <p>\begin{equation}
 P_{\alpha}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{\beta \, \mathbf{s}_{i,t} \cdot \mathbf{h}_{i,t}(\alpha)}}{\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s}_{i,t} \; \mathrm{e}^{\beta \, \mathbf{s}_{i,t} \cdot \mathbf{h}_{i,t}(\alpha)} }, \label{eq:pcondaltvector}
 \end{equation}</p>
-<p>where we immediately included an inverse temperature scaling $\beta$ like in Eq. \eqref{eq:pcondwithbeta}. The vector-spin equivalent of Eq. \eqref{eq:pcondalth} is</p>
+<p>where we immediately included an inverse temperature scaling $\beta$ like in Eq. \eqref{eq:pcondwithbeta}. A vector-spin equivalent of Eq. \eqref{eq:pcondalth} is</p>
 <p>\begin{equation}
-\mathbf{h}_{i,t}(\alpha) = (1-\alpha) \mathbf{\theta}_{i,t} + \alpha \left( \mathbf{x}_{i,t} + \sum_{j=1}^{N} J_{ij} \mathbf{s}_{j,t-1} \right),  \label{eq:pcondalthvector}
+\mathbf{h}_{i,t}(\alpha) = (1-\alpha) \mathbf{\theta}_{i,t} + \alpha \left( \mathbf{x}_{i,t} + \sum_{j=1}^{N} J_{ij} \mathbf{s}_{j,t-1} \right) = \mathbf{\theta}_{i,t} + \alpha \Delta \mathbf{h}_{i,t}(\alpha) ,  \label{eq:pcondalthvector}
 \end{equation}</p>
-<p>where $S_{D-1}(R) = \{ x \in \mathbb{R}^{D} : \lVert x \rVert = R \}$ denotes the $(D-1)$-dimensional sphere with radius $R$ embedded in $D$ dimensions. Let&rsquo;s first focus on the distribution for a single site and drop all subscripts and dependencies for clarity,</p>
+<p>where $S_{D-1}(R) = \{ x \in \mathbb{R}^{D} : \lVert x \rVert = R \}$ denotes the $(D-1)$-dimensional sphere with radius $R$ embedded in $D$ dimensions. Let us focus on the distribution for a single site and drop all subscripts and dependencies for clarity:</p>
 <p>\begin{equation}
-\frac{\mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}}}{\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} } \label{eq:pcondsinglesitevector}
+\frac{\mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}}}{\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} }. \label{eq:pcondsinglesitevector}
 \end{equation}</p>
 <p>The normalization constant in the denominator can be shown to be (see <a href="#a1-normalization-constant">Appendix A.1</a>)</p>
 <p>\begin{equation}
-\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} = \frac{ \left( 2 \pi R \right)^{D/2} I_{D/2 - 1}(\beta R \lVert \mathbf{h}\rVert) }{ \left(\beta \lVert \mathbf{h}\rVert\right)^{D/2-1} } = Z(\beta, \lVert \mathbf{h}\rVert)
+\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} = \frac{ \left( 2 \pi R \right)^{D/2} I_{D/2 - 1}(\beta R \lVert \mathbf{h}\rVert) }{ \left(\beta \lVert \mathbf{h}\rVert\right)^{D/2-1} } \equiv Z(\beta, R, \lVert \mathbf{h}\rVert)
 \end{equation}</p>
-<p>Physically, we can think of this single-site distribution as measuring dot-product alignment to an effective external magnetic field $\mathbf{h}$ at inverse temperature $\beta$. If we normalize $\lVert \mathbf{h}\rVert = 1$ as well as set $R=1$, it looks like a <a href="https://en.wikipedia.org/wiki/Von_Mises%E2%80%93Fisher_distribution" target="_blank" rel="noopener">von Mises–Fisher distribution</a> with mean direction $\boldsymbol{\mu} \equiv \mathbf{h}$ and <a href="https://en.wikipedia.org/wiki/Concentration_parameter" target="_blank" rel="noopener">concentration parameter</a> $\kappa \equiv \beta$. This distribution is unimodal for $\kappa &gt; 0$ and can be derived from restricting an isotropic multivariate Gaussian density to the unit hypersphere. The greater the value of $\kappa$ (i.e. the inverse temperature $\beta$), the higher the concentration of the distribution around the mean direction $\boldsymbol{\mu}$ (i.e. the more the spin tends to align to the effective external field $\mathbf{h}$). Instead of a fixed parameter $\boldsymbol{\mu}$, we have a very funky parameter Eq. \eqref{eq:pcondalthvector} that secretly depends on all other spins to spice things up. Since we will be mostly interested in large values of $D$ for our purposes, we might have to consider asymptotic forms.</p>
+<p>where $I_{\nu}(z)$ denotes the modified Bessel function of the first kind. Physically, we can think of this single-site distribution as measuring dot-product alignment to an effective external magnetic field $\mathbf{h}$ at inverse temperature $\beta$.</p>
+<p>If we set $R=1$ and also normalize $\lVert \mathbf{h}\rVert = 1$, the distribution looks like a <a href="https://en.wikipedia.org/wiki/Von_Mises%E2%80%93Fisher_distribution" target="_blank" rel="noopener">von Mises–Fisher distribution</a> with mean direction $\boldsymbol{\mu} \equiv \mathbf{h}$ and <a href="https://en.wikipedia.org/wiki/Concentration_parameter" target="_blank" rel="noopener">concentration parameter</a> $\kappa \equiv \beta$. This distribution is unimodal for $\kappa &gt; 0$ and can be derived from restricting an isotropic multivariate Gaussian density to the unit hypersphere. The greater the value of $\kappa$ (the inverse temperature $\beta$), the higher the concentration of the distribution around the mean direction $\boldsymbol{\mu}$ (the more the spin tends to align to the effective external field $\mathbf{h}$). Instead of a fixed parameter $\boldsymbol{\mu}$, we have a very funky parameter Eq. \eqref{eq:pcondalthvector} that depends on all other spins to spice things up. Since we will be mostly interested in large values of $D$ for our purposes, we might have to consider asymptotic forms later on.</p>
 <h2 id="32-naive-mean-field-and-thouless-anderson-palmer-approximations">3.2. Naive mean-field and Thouless-Anderson-Palmer approximations</h2>
 <p>Before we can derive the mean-field approximations for the mean magnetizations like we did in the binary case, we have to consider the decoupled $\alpha \to 0$ distribution of Eq. \eqref{eq:pcondaltvector},</p>
 <p>\begin{equation}
-Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{\beta \, \mathbf{s}_{i,t} \cdot \boldsymbol{\theta}_{i,t}}}{Z_{i,t}\left(\beta, \lVert \boldsymbol{\theta}_{i,t} \rVert\right)},
+Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{\beta \, \mathbf{s}_{i,t} \cdot \boldsymbol{\theta}_{i,t}}}{Z_{i,t}\left(\beta, R, \lVert \boldsymbol{\theta}_{i,t} \rVert\right)},
 \end{equation}</p>
-<p>and find an expression for its mean magnetizations.</p>
+<p>and find an expression for its mean magnetizations. For each site, the expected value can be shown to be (see <a href="#a2-expected-value">Appendix A.2</a>)</p>
+<p>\begin{equation}
+\mathbf{m}_{i,t} = \frac{I_{D/2}(\beta R \lVert \boldsymbol{\theta} \rVert)}{I_{D/2 - 1}(\beta R \lVert \boldsymbol{\theta} \rVert)} \frac{\boldsymbol{\theta}_{i,t}}{\lVert \boldsymbol{\theta}_{i,t} \rVert}.
+\end{equation}</p>
+<p>We now have all ingredients to compute derivatives of $\mathbf{m}_{i,t}(\alpha)$ with respect to $\alpha$.</p>
 <p>$\ldots$</p>
 <h2 id="33-a-simple-jax-implementation">3.3. A simple JAX implementation</h2>
 <p>$\ldots$</p>
@@ -962,7 +967,7 @@ Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathr
 <p>$\ldots$</p>
 <h2 id="41-fast--and-slow-moving-parameters">4.1. Fast- and slow-moving parameters</h2>
 <p>$\ldots$</p>
-<p>As mentioned previously in <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">Transformers Are Secretly Collectives of Spin Systems</a>, each training example in a batch of sequential data can be thought of as probing the spin system in a particular way. Physically, the <em>fast-moving</em> parameterized couplings $\mathbf{J}(\mathbf{X})$ are determined by the <em>fast-moving</em> parameterized external fields $\mathbf{X}$, which in turn depend on the magnetizations of the previous layer and eventually on the input data. The external fields act as an environment of patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing a state of quenched disorder. The <em>slow-moving</em> parameters are those receiving gradient updates during training, e.g. the query-key matrices in the softmax couplings. Training seems to be shaping the $\mathbf{X}$-dependent <em>distribution of coupling parameters</em> by amassing information from a huge amount of sampled quenched disorder realizations, sculpting a spin glass with data.</p>
+<p>As mentioned previously in <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">Transformers Are Secretly Collectives of Spin Systems</a>, each training example in a batch of sequential data can be thought of as probing the spin system in a particular way. Physically, the <em>fast-moving</em> parameterized couplings $\mathbf{J}(\mathbf{X})$ are determined by the <em>fast-moving</em> parameterized external fields $\mathbf{X}$, which in turn depend on the magnetizations of the previous layer and eventually on the input data. The external fields act as an environment of patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing a state of quenched disorder. The <em>slow-moving</em> parameters are those receiving gradient updates during training, e.g. the query-key matrices in the softmax couplings. Training seems to be shaping the input-dependent <em>distribution of coupling parameters</em> by amassing information from a huge amount of sampled quenched disorder realizations, sculpting a spin glass with data.</p>
 <p>$\ldots$</p>
 <h1 id="5-conclusion">5. Conclusion</h1>
 <p>$\ldots$</p>
@@ -1011,6 +1016,8 @@ I_{\nu}(z) = \frac{2^{-\nu}}{\sqrt{\pi}\, \Gamma\left(\nu+\frac{1}{2}\right)} z^
 <p>\begin{equation}
 Z(\beta, h) = \frac{ \left( 2 \pi R \right)^{D/2} I_{D/2 - 1}(\beta R h) }{ \left(\beta h\right)^{D/2-1} }
 \end{equation}</p>
+<h2 id="a2-expected-value">A.2. Expected value</h2>
+<p>$\ldots$</p>
 <h1 id="references--footnotes">References &amp; footnotes</h1>
 <p>If you happen to find this work useful, please consider citing it as:</p>
 <pre><code>@article{bal2023spinmodeltransformers,
