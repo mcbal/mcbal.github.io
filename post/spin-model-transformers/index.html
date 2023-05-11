@@ -323,7 +323,7 @@
     
       <meta property="article:published_time" content="2022-06-19T09:28:17&#43;01:00">
     
-    <meta property="article:modified_time" content="2023-05-10T21:21:18&#43;01:00">
+    <meta property="article:modified_time" content="2023-05-11T20:48:18&#43;01:00">
   
 
   
@@ -356,7 +356,7 @@
   ],
   
   "datePublished": "2022-06-19T09:28:17+01:00",
-  "dateModified": "2023-05-10T21:21:18+01:00",
+  "dateModified": "2023-05-11T20:48:18+01:00",
   
   "author": {
     "@type": "Person",
@@ -649,7 +649,7 @@
           Last updated on
       
     
-    May 10, 2023
+    May 11, 2023
   </span>
   
 
@@ -937,7 +937,7 @@ P_{\alpha}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N} \frac{\mat
 \end{equation}</p>
 <p>where we immediately included an inverse temperature scaling $\beta$ like in Eq. \eqref{eq:pcondwithbeta}. A vector-spin equivalent of Eq. \eqref{eq:pcondalth} is</p>
 <p>\begin{equation}
-\mathbf{h}_{i,t}(\alpha) = (1-\alpha) \mathbf{\theta}_{i,t} + \alpha \left( \mathbf{x}_{i,t} + \sum_{j=1}^{N} J_{ij} \mathbf{s}_{j,t-1} \right) = \mathbf{\theta}_{i,t} + \alpha \Delta \mathbf{h}_{i,t}(\alpha) ,  \label{eq:pcondalthvector}
+\mathbf{h}_{i,t}(\alpha) = (1-\alpha) \mathbf{\theta}_{i,t} + \alpha \left( \mathbf{x}_{i,t} + \sum_{j=1}^{N} J_{ij} \mathbf{s}_{j,t-1} \right) = \mathbf{\theta}_{i,t} + \alpha \Delta \mathbf{h}_{i,t},  \label{eq:pcondalthvector}
 \end{equation}</p>
 <p>where $S_{D-1}(R) = \{ x \in \mathbb{R}^{D} : \lVert x \rVert = R \}$ denotes the $(D-1)$-dimensional sphere with radius $R$ embedded in $D$ dimensions. Let us focus on the distribution for a single site and drop all subscripts and dependencies for clarity:</p>
 <p>\begin{equation}
@@ -954,9 +954,18 @@ Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathr
 \end{equation}</p>
 <p>and find an expression for its mean magnetizations. For each decoupled site, the mean magnetization can be shown to be (see <a href="#a2-expected-value">Appendix A.2</a>)</p>
 <p>\begin{equation}
-\mathbf{m}_{i,t} = \frac{I_{D/2}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)}{I_{D/2 - 1}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)} \frac{R \boldsymbol{\theta}_{i,t}}{\lVert \boldsymbol{\theta}_{i,t} \rVert}.
+\mathbf{m}_{i,t} = \frac{I_{D/2}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)}{I_{D/2 - 1}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)} \frac{R \boldsymbol{\theta}_{i,t}}{\lVert \boldsymbol{\theta}_{i,t} \rVert} \equiv \mathbf{m}(\boldsymbol{\theta}).
 \end{equation}</p>
-<p>Looking ahead at turning these equations into code, we note that there exist <a href="https://www.jstor.org/stable/2005830" target="_blank" rel="noopener">efficient algorithms</a> to compute the ratio of modified Bessel functions of the first kind. Depending on the normalization conventions we settle on, we could also make use of <a href="https://link.springer.com/article/10.1007/BF02764812" target="_blank" rel="noopener">known asymptotic expansions</a> for the ratios Bessel functions. We now have all the required ingredients to start computing derivatives of $\mathbf{m}_{i,t}(\alpha)$ with respect to $\alpha$.</p>
+<p>Looking ahead at turning these equations into code, we note that there exist <a href="https://www.jstor.org/stable/2005830" target="_blank" rel="noopener">efficient algorithms</a> to compute the ratio of modified Bessel functions of the first kind. Depending on the normalization conventions we settle on, we could also make use of <a href="https://link.springer.com/article/10.1007/BF02764812" target="_blank" rel="noopener">known asymptotic expansions</a> for the ratios Bessel functions. Finally, we will also need the first-order and second-order derivatives of</p>
+<p>\begin{equation}
+\mathbf{m}(\mathbf{h}_{i,t}(\alpha)) = \frac{I_{D/2}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)} \frac{R \mathbf{h}_{i,t}(\alpha)}{\lVert \mathbf{h}_{i,t}(\alpha) \rVert}
+\end{equation}</p>
+<p>with respect to $\alpha$. The first-order derivative looks like</p>
+<p>\begin{equation}
+\frac{\partial \mathbf{m}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha} = \ldots
+\end{equation}</p>
+<p>$\ldots$</p>
+<p>We now have all the required ingredients to start computing derivatives of $\mathbf{m}_{i,t}(\alpha)$ with respect to $\alpha$.</p>
 <h2 id="32-naive-mean-field-and-thouless-anderson-palmer-approximations">3.2. Naive mean-field and Thouless-Anderson-Palmer approximations</h2>
 <p>$\ldots$</p>
 <h2 id="33-a-simple-jax-implementation">3.3. A simple JAX implementation</h2>
@@ -1038,8 +1047,12 @@ I_{\nu-1}(z) + I_{\nu+1}(z) &amp;= 2 I'_{\nu}(z),
 \end{align}</p>
 <p>we end up with</p>
 <p>\begin{align}
-\mathbf{m} = \frac{I_{D/2}(\beta R \lVert \mathbf{h}\rVert)}{I_{D/2 - 1}(\beta R \lVert\mathbf{h}\rVert)} \frac{R \mathbf{h}}{\lVert\mathbf{h}\rVert}.
+\mathbf{m} = \frac{I_{D/2}(\beta R \lVert \mathbf{h}\rVert)}{I_{D/2 - 1}(\beta R \lVert\mathbf{h}\rVert)} \frac{R \mathbf{h}}{\lVert\mathbf{h}\rVert} \equiv \mathbf{m}(\mathbf{h}).
 \end{align}</p>
+<h2 id="a3-naive-mean-field-approximation">A.3. Naive mean-field approximation</h2>
+<p>$\ldots$</p>
+<h2 id="a4-thouless-anderson-palmer-approximation">A.4. Thouless-Anderson-Palmer approximation</h2>
+<p>$\ldots$</p>
 <h1 id="references--footnotes">References &amp; footnotes</h1>
 <p>If you happen to find this work useful, please consider citing it as:</p>
 <pre><code>@article{bal2023spinmodeltransformers,

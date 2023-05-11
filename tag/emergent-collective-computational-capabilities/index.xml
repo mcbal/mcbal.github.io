@@ -253,7 +253,7 @@ P_{\alpha}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N} \frac{\mat
 \end{equation}&lt;/p&gt;
 &lt;p&gt;where we immediately included an inverse temperature scaling $\beta$ like in Eq. \eqref{eq:pcondwithbeta}. A vector-spin equivalent of Eq. \eqref{eq:pcondalth} is&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\mathbf{h}_{i,t}(\alpha) = (1-\alpha) \mathbf{\theta}_{i,t} + \alpha \left( \mathbf{x}_{i,t} + \sum_{j=1}^{N} J_{ij} \mathbf{s}_{j,t-1} \right) = \mathbf{\theta}_{i,t} + \alpha \Delta \mathbf{h}_{i,t}(\alpha) ,  \label{eq:pcondalthvector}
+\mathbf{h}_{i,t}(\alpha) = (1-\alpha) \mathbf{\theta}_{i,t} + \alpha \left( \mathbf{x}_{i,t} + \sum_{j=1}^{N} J_{ij} \mathbf{s}_{j,t-1} \right) = \mathbf{\theta}_{i,t} + \alpha \Delta \mathbf{h}_{i,t},  \label{eq:pcondalthvector}
 \end{equation}&lt;/p&gt;
 &lt;p&gt;where $S_{D-1}(R) = \{ x \in \mathbb{R}^{D} : \lVert x \rVert = R \}$ denotes the $(D-1)$-dimensional sphere with radius $R$ embedded in $D$ dimensions. Let us focus on the distribution for a single site and drop all subscripts and dependencies for clarity:&lt;/p&gt;
 &lt;p&gt;\begin{equation}
@@ -270,9 +270,18 @@ Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathr
 \end{equation}&lt;/p&gt;
 &lt;p&gt;and find an expression for its mean magnetizations. For each decoupled site, the mean magnetization can be shown to be (see &lt;a href=&#34;#a2-expected-value&#34;&gt;Appendix A.2&lt;/a&gt;)&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\mathbf{m}_{i,t} = \frac{I_{D/2}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)}{I_{D/2 - 1}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)} \frac{R \boldsymbol{\theta}_{i,t}}{\lVert \boldsymbol{\theta}_{i,t} \rVert}.
+\mathbf{m}_{i,t} = \frac{I_{D/2}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)}{I_{D/2 - 1}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)} \frac{R \boldsymbol{\theta}_{i,t}}{\lVert \boldsymbol{\theta}_{i,t} \rVert} \equiv \mathbf{m}(\boldsymbol{\theta}).
 \end{equation}&lt;/p&gt;
-&lt;p&gt;Looking ahead at turning these equations into code, we note that there exist &lt;a href=&#34;https://www.jstor.org/stable/2005830&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;efficient algorithms&lt;/a&gt; to compute the ratio of modified Bessel functions of the first kind. Depending on the normalization conventions we settle on, we could also make use of &lt;a href=&#34;https://link.springer.com/article/10.1007/BF02764812&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;known asymptotic expansions&lt;/a&gt; for the ratios Bessel functions. We now have all the required ingredients to start computing derivatives of $\mathbf{m}_{i,t}(\alpha)$ with respect to $\alpha$.&lt;/p&gt;
+&lt;p&gt;Looking ahead at turning these equations into code, we note that there exist &lt;a href=&#34;https://www.jstor.org/stable/2005830&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;efficient algorithms&lt;/a&gt; to compute the ratio of modified Bessel functions of the first kind. Depending on the normalization conventions we settle on, we could also make use of &lt;a href=&#34;https://link.springer.com/article/10.1007/BF02764812&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;known asymptotic expansions&lt;/a&gt; for the ratios Bessel functions. Finally, we will also need the first-order and second-order derivatives of&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\mathbf{m}(\mathbf{h}_{i,t}(\alpha)) = \frac{I_{D/2}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)} \frac{R \mathbf{h}_{i,t}(\alpha)}{\lVert \mathbf{h}_{i,t}(\alpha) \rVert}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;with respect to $\alpha$. The first-order derivative looks like&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\frac{\partial \mathbf{m}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha} = \ldots
+\end{equation}&lt;/p&gt;
+&lt;p&gt;$\ldots$&lt;/p&gt;
+&lt;p&gt;We now have all the required ingredients to start computing derivatives of $\mathbf{m}_{i,t}(\alpha)$ with respect to $\alpha$.&lt;/p&gt;
 &lt;h2 id=&#34;32-naive-mean-field-and-thouless-anderson-palmer-approximations&#34;&gt;3.2. Naive mean-field and Thouless-Anderson-Palmer approximations&lt;/h2&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h2 id=&#34;33-a-simple-jax-implementation&#34;&gt;3.3. A simple JAX implementation&lt;/h2&gt;
@@ -354,8 +363,12 @@ I_{\nu-1}(z) + I_{\nu+1}(z) &amp;amp;= 2 I&#39;_{\nu}(z),
 \end{align}&lt;/p&gt;
 &lt;p&gt;we end up with&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\mathbf{m} = \frac{I_{D/2}(\beta R \lVert \mathbf{h}\rVert)}{I_{D/2 - 1}(\beta R \lVert\mathbf{h}\rVert)} \frac{R \mathbf{h}}{\lVert\mathbf{h}\rVert}.
+\mathbf{m} = \frac{I_{D/2}(\beta R \lVert \mathbf{h}\rVert)}{I_{D/2 - 1}(\beta R \lVert\mathbf{h}\rVert)} \frac{R \mathbf{h}}{\lVert\mathbf{h}\rVert} \equiv \mathbf{m}(\mathbf{h}).
 \end{align}&lt;/p&gt;
+&lt;h2 id=&#34;a3-naive-mean-field-approximation&#34;&gt;A.3. Naive mean-field approximation&lt;/h2&gt;
+&lt;p&gt;$\ldots$&lt;/p&gt;
+&lt;h2 id=&#34;a4-thouless-anderson-palmer-approximation&#34;&gt;A.4. Thouless-Anderson-Palmer approximation&lt;/h2&gt;
+&lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h1 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h1&gt;
 &lt;p&gt;If you happen to find this work useful, please consider citing it as:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;@article{bal2023spinmodeltransformers,
