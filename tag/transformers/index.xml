@@ -138,7 +138,7 @@ m_{i,t}(\alpha) &amp;amp;= \sum_{\mathbf{s}_{t},\mathbf{s}_{t-1},\mathbf{s}_{t-2
 \end{equation}&lt;/p&gt;
 &lt;p&gt;so that $\theta^{*}_{i,t} = x_{i,t} + \sum_{j} J_{ij} m_{j,t-1}$ and we end up with the naive mean-field equations:&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\boxed{m_{i,t} = \tanh \theta^{*}_{i,t} \approx \tanh \left( x_{i,t} + \sum_{j} J_{ij} m_{j,t-1} \right)} \label{eq:naivem}
+\boxed{m_{i,t} \approx \tanh \left( x_{i,t} + \sum_{j} J_{ij} m_{j,t-1} \right)} \label{eq:naivem}
 \end{equation}&lt;/p&gt;
 &lt;p&gt;Again following Eq. \eqref{eq:mftheta}, the second-order approximation should satisfy&lt;/p&gt;
 &lt;p&gt;\begin{equation}
@@ -253,7 +253,7 @@ P_{\alpha}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N} \frac{\mat
 \end{equation}&lt;/p&gt;
 &lt;p&gt;where we immediately included an inverse temperature scaling $\beta$ like in Eq. \eqref{eq:pcondwithbeta}. A vector-spin equivalent of Eq. \eqref{eq:pcondalth} is&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\mathbf{h}_{i,t}(\alpha) = (1-\alpha) \mathbf{\theta}_{i,t} + \alpha \left( \mathbf{x}_{i,t} + \sum_{j=1}^{N} J_{ij} \mathbf{s}_{j,t-1} \right) = \mathbf{\theta}_{i,t} + \alpha \Delta \mathbf{h}_{i,t},  \label{eq:pcondalthvector}
+\mathbf{h}_{i,t}(\alpha) = (1-\alpha) \boldsymbol{\theta}_{i,t} + \alpha \left( \mathbf{x}_{i,t} + \sum_{j=1}^{N} J_{ij} \mathbf{s}_{j,t-1} \right) = \boldsymbol{\theta}_{i,t} + \alpha \Delta \mathbf{h}_{i,t},  \label{eq:pcondalthvector}
 \end{equation}&lt;/p&gt;
 &lt;p&gt;where $S_{D-1}(R) = \{ x \in \mathbb{R}^{D} : \lVert x \rVert = R \}$ denotes the $(D-1)$-dimensional sphere with radius $R$ embedded in $D$ dimensions. Let us focus on the distribution for a single site and drop all subscripts and dependencies for clarity:&lt;/p&gt;
 &lt;p&gt;\begin{equation}
@@ -263,26 +263,22 @@ P_{\alpha}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N} \frac{\mat
 &lt;p&gt;\begin{equation}
 \int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} = \frac{ \left( 2 \pi R \right)^{D/2} I_{D/2 - 1}(\beta R \lVert \mathbf{h}\rVert) }{ \left(\beta \lVert \mathbf{h}\rVert\right)^{D/2-1} } \equiv Z(\beta, R, \lVert \mathbf{h}\rVert) \label{eq:partfun}
 \end{equation}&lt;/p&gt;
-&lt;p&gt;where $I_{\nu}(z)$ denotes the modified Bessel function of the first kind. Physically, we can think of this single-site distribution as measuring dot-product alignment to an effective external magnetic field $\mathbf{h}$ at inverse temperature $\beta$. If we consider the unit sphere $R=1$ and unit vectors $\mathbf{h}$, the distribution looks like a &lt;a href=&#34;https://en.wikipedia.org/wiki/Von_Mises%E2%80%93Fisher_distribution&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;von Mises–Fisher distribution&lt;/a&gt; with mean direction $\boldsymbol{\mu} \equiv \mathbf{h}$ and &lt;a href=&#34;https://en.wikipedia.org/wiki/Concentration_parameter&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;concentration parameter&lt;/a&gt; $\kappa \equiv \beta$. This distribution is unimodal for $\kappa &amp;gt; 0$ and can be derived from restricting an isotropic multivariate Gaussian to the unit hypersphere. The greater the value of $\kappa$ (the inverse temperature $\beta$), the higher the concentration of the distribution around the mean direction $\boldsymbol{\mu}$ (the more the spin tends to align to the effective external field $\mathbf{h}$). Instead of a fixed parameter $\boldsymbol{\mu}$, we have a very funky parameter Eq. \eqref{eq:pcondalthvector} that depends on all other spins to spice things up.&lt;/p&gt;
+&lt;p&gt;where $I_{\nu}(z)$ denotes the modified Bessel function of the first kind and $\lVert \mathbf{h}\rVert = \sqrt{\mathbf{h} \cdot \mathbf{h}}$. Physically, we can think of this single-site distribution as measuring dot-product alignment to an effective external magnetic field $\mathbf{h}$ at inverse temperature $\beta$. If we consider spins living on the unit sphere $R=1$ as well as unit vectors $\mathbf{h}$, the distribution looks like a &lt;a href=&#34;https://en.wikipedia.org/wiki/Von_Mises%E2%80%93Fisher_distribution&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;von Mises–Fisher distribution&lt;/a&gt; with mean direction $\boldsymbol{\mu} \equiv \mathbf{h}$ and &lt;a href=&#34;https://en.wikipedia.org/wiki/Concentration_parameter&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;concentration parameter&lt;/a&gt; $\kappa \equiv \beta$. This distribution is unimodal for $\kappa &amp;gt; 0$ and can be derived from restricting an isotropic multivariate Gaussian to the unit hypersphere. The greater the value of $\kappa$ (the inverse temperature $\beta$), the higher the concentration of the distribution around the mean direction $\boldsymbol{\mu}$ (the more the spin tends to align to the effective external field $\mathbf{h}$). Instead of a fixed parameter $\boldsymbol{\mu}$, we have a very funky parameter Eq. \eqref{eq:pcondalthvector} that depends on all other spins to spice things up.&lt;/p&gt;
 &lt;p&gt;Before we can derive the mean-field approximations for the mean magnetizations, we have to consider the decoupled $\alpha \to 0$ distribution of Eq. \eqref{eq:pcondaltvector},&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{\beta \, \mathbf{s}_{i,t} \cdot \boldsymbol{\theta}_{i,t}}}{Z_{i,t}\left(\beta, R, \lVert \boldsymbol{\theta}_{i,t} \rVert\right)},
 \end{equation}&lt;/p&gt;
 &lt;p&gt;and find an expression for its mean magnetizations. For each decoupled site, the mean magnetization can be shown to be (see &lt;a href=&#34;#a2-expected-value&#34;&gt;Appendix A.2&lt;/a&gt;)&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\mathbf{m}_{i,t} = \frac{I_{D/2}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)}{I_{D/2 - 1}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)} \frac{R \boldsymbol{\theta}_{i,t}}{\lVert \boldsymbol{\theta}_{i,t} \rVert} \equiv \mathbf{m}(\boldsymbol{\theta}).
+\mathbf{m}_{i,t} = \frac{I_{D/2}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)}{I_{D/2 - 1}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)} \frac{R \boldsymbol{\theta}_{i,t}}{\lVert \boldsymbol{\theta}_{i,t} \rVert} \equiv \boldsymbol{\varphi} \left(\boldsymbol{\theta}_{i,t}\right), \label{eq:meanmagsbessels}
 \end{equation}&lt;/p&gt;
-&lt;p&gt;Looking ahead at turning these equations into code, we note that there exist &lt;a href=&#34;https://www.jstor.org/stable/2005830&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;efficient algorithms&lt;/a&gt; to compute the ratio of modified Bessel functions of the first kind. Depending on the normalization conventions we settle on, we could also make use of &lt;a href=&#34;https://link.springer.com/article/10.1007/BF02764812&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;known asymptotic expansions&lt;/a&gt; for the ratios Bessel functions. Finally, we will also need the first-order and second-order derivatives of&lt;/p&gt;
-&lt;p&gt;\begin{equation}
-\mathbf{m}(\mathbf{h}_{i,t}(\alpha)) = \frac{I_{D/2}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)} \frac{R \mathbf{h}_{i,t}(\alpha)}{\lVert \mathbf{h}_{i,t}(\alpha) \rVert}
-\end{equation}&lt;/p&gt;
-&lt;p&gt;with respect to $\alpha$. The first-order derivative looks like&lt;/p&gt;
-&lt;p&gt;\begin{equation}
-\frac{\partial \mathbf{m}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha} = \ldots
-\end{equation}&lt;/p&gt;
-&lt;p&gt;$\ldots$&lt;/p&gt;
-&lt;p&gt;We now have all the required ingredients to start computing derivatives of $\mathbf{m}_{i,t}(\alpha)$ with respect to $\alpha$.&lt;/p&gt;
+&lt;p&gt;which plays the role of $m_{i,t} = \tanh \theta_{i,t}$ in the binary case, see Eq. \eqref{eq:meanmagstanh}. Looking ahead at turning these equations into code, we note that there exist &lt;a href=&#34;https://www.jstor.org/stable/2005830&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;efficient algorithms&lt;/a&gt; to compute the ratio of modified Bessel functions of the first kind. Depending on the normalization conventions we settle on, we could also make use of &lt;a href=&#34;https://link.springer.com/article/10.1007/BF02764812&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;known asymptotic expansions&lt;/a&gt; for the ratios Bessel functions.&lt;/p&gt;
 &lt;h2 id=&#34;32-naive-mean-field-and-thouless-anderson-palmer-approximations&#34;&gt;3.2. Naive mean-field and Thouless-Anderson-Palmer approximations&lt;/h2&gt;
+&lt;p&gt;$\ldots$&lt;/p&gt;
+&lt;p&gt;so that $\boldsymbol{\theta}^{*}_{i,t} = \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1}$ and we end up with the naive mean-field equations:&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\boxed{ \mathbf{m}_{i,t} \approx \boldsymbol{\varphi} \left(\boldsymbol{\theta}^{*}_{i,t}\right) = \frac{I_{D/2}(\beta R \lVert \boldsymbol{\theta}^{*}_{i,t} \rVert)}{I_{D/2 - 1}(\beta R \lVert \boldsymbol{\theta}^{*}_{i,t} \rVert)} \frac{R \boldsymbol{\theta}^{*}_{i,t}}{\lVert \boldsymbol{\theta}^{*}_{i,t} \rVert} } \label{eq:naivemvector}
+\end{equation}&lt;/p&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h2 id=&#34;33-a-simple-jax-implementation&#34;&gt;3.3. A simple JAX implementation&lt;/h2&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
@@ -290,7 +286,7 @@ Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathr
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h2 id=&#34;41-fast--and-slow-moving-parameters&#34;&gt;4.1. Fast- and slow-moving parameters&lt;/h2&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
-&lt;p&gt;As argued previously in &lt;a href=&#34;https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers Are Secretly Collectives of Spin Systems&lt;/a&gt;, each training example in a batch of sequential data can be thought of as probing the spin system in a particular way. Physically, the &lt;em&gt;fast-moving&lt;/em&gt; parameterized couplings $\mathbf{J}(\mathbf{X})$ are determined by the &lt;em&gt;fast-moving&lt;/em&gt; parameterized external fields $\mathbf{X}$, which in turn depend on the magnetizations of the previous layer and eventually on the input data. The external fields act as an environment of patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing a state of quenched disorder. The &lt;em&gt;slow-moving&lt;/em&gt; parameters are those receiving gradient updates during training, e.g. the query-key matrices in the softmax couplings. Training shapes the input-dependent &lt;em&gt;distribution of coupling parameters&lt;/em&gt; by amassing information from a huge amount of sampled quenched disorder realizations to sculpt a spin glass with data.&lt;/p&gt;
+&lt;p&gt;As argued previously in &lt;a href=&#34;https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers Are Secretly Collectives of Spin Systems&lt;/a&gt;, each training example in a batch of sequential data can be thought of as probing the spin system in a particular way. Physically, the &lt;em&gt;fast-moving&lt;/em&gt; parameterized couplings $\mathbf{J}(\mathbf{X})$ are determined by the &lt;em&gt;fast-moving&lt;/em&gt; parameterized external fields $\mathbf{X}$, which in turn depend on the magnetizations of the previous layer and eventually on the input data. The external fields act as an environment of patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing a state of quenched disorder. The &lt;em&gt;slow-moving&lt;/em&gt; parameters are those receiving gradient updates during training, e.g. the query-key matrices in the softmax couplings. Training shapes the input-dependent &lt;em&gt;distribution of coupling parameters&lt;/em&gt; by amassing information from a huge amount of sampled quenched disorder realizations, sculpting a spin glass with data.&lt;/p&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h1 id=&#34;5-conclusion&#34;&gt;5. Conclusion&lt;/h1&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
@@ -358,16 +354,40 @@ Z(\beta, R, h) = \frac{ \left( 2 \pi R \right)^{D/2} I_{D/2 - 1}(\beta R h) }{ \
 \end{align}&lt;/p&gt;
 &lt;p&gt;Using the &lt;a href=&#34;https://dlmf.nist.gov/10.29&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;modified Bessel function recurrence relations&lt;/a&gt;,&lt;/p&gt;
 &lt;p&gt;\begin{align}
-I_{\nu-1}(z) - I_{\nu+1}(z) &amp;amp;= \frac{2\nu}{z} I_{\nu}(z), \\
-I_{\nu-1}(z) + I_{\nu+1}(z) &amp;amp;= 2 I&#39;_{\nu}(z),
+I_{\nu-1}(z) - I_{\nu+1}(z) &amp;amp;= \frac{2\nu}{z} I_{\nu}(z), \label{eq:irecurr}\\
+I_{\nu-1}(z) + I_{\nu+1}(z) &amp;amp;= 2 I&#39;_{\nu}(z), \label{eq:irecurrderiv}
 \end{align}&lt;/p&gt;
 &lt;p&gt;we end up with&lt;/p&gt;
 &lt;p&gt;\begin{align}
 \mathbf{m} = \frac{I_{D/2}(\beta R \lVert \mathbf{h}\rVert)}{I_{D/2 - 1}(\beta R \lVert\mathbf{h}\rVert)} \frac{R \mathbf{h}}{\lVert\mathbf{h}\rVert} \equiv \mathbf{m}(\mathbf{h}).
 \end{align}&lt;/p&gt;
-&lt;h2 id=&#34;a3-naive-mean-field-approximation&#34;&gt;A.3. Naive mean-field approximation&lt;/h2&gt;
+&lt;h2 id=&#34;a3-derivatives&#34;&gt;A.3. Derivatives&lt;/h2&gt;
+&lt;p&gt;We are interested in computing the first-order and second-order derivative with respect to $\alpha$ of the mean magnetizations&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) = \frac{I_{D/2}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)} \frac{R \mathbf{h}_{i,t}(\alpha)}{\lVert \mathbf{h}_{i,t}(\alpha) \rVert},
+\end{equation}&lt;/p&gt;
+&lt;p&gt;where $\mathbf{h}_{i,t}(\alpha) = \boldsymbol{\theta}_{i,t} + \alpha \Delta \mathbf{h}_{i,t}$. Using&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\frac{\partial \lVert \mathbf{h}_{i,t}(\alpha) \rVert}{\partial\alpha} = \frac{\mathbf{h}_{i,t}(\alpha) \cdot \Delta \mathbf{h}_{i,t}}{\lVert \mathbf{h}_{i,t}(\alpha) \rVert}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;and Eqs. \eqref{eq:irecurr}-\eqref{eq:irecurrderiv}, we find&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\frac{\partial \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha} = \beta &amp;amp;\lambda \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \cdot \Delta \mathbf{h}_{i,t} \right) \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
+&amp;amp;+ \frac{I_{D/2}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)} \frac{R \Delta \mathbf{h}_{i,t}}{\lVert \mathbf{h}_{i,t}(\alpha) \rVert}
+\end{align}&lt;/p&gt;
+&lt;p&gt;where&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\lambda = \frac{I^2_{D/2-1}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)}{I^2_{D/2}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)} - \frac{D}{\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert} \frac{I_{D/2-1}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)}{I_{D/2}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)} - 1
+\end{equation}&lt;/p&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
-&lt;h2 id=&#34;a4-thouless-anderson-palmer-approximation&#34;&gt;A.4. Thouless-Anderson-Palmer approximation&lt;/h2&gt;
+&lt;p&gt;For the second-order derivative, we find&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\frac{\partial^2 \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial^2\alpha} = \ldots
+\end{equation}&lt;/p&gt;
+&lt;p&gt;$\ldots$&lt;/p&gt;
+&lt;h2 id=&#34;a4-naive-mean-field-approximation&#34;&gt;A.4. Naive mean-field approximation&lt;/h2&gt;
+&lt;p&gt;$\ldots$&lt;/p&gt;
+&lt;h2 id=&#34;a5-thouless-anderson-palmer-approximation&#34;&gt;A.5. Thouless-Anderson-Palmer approximation&lt;/h2&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h1 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h1&gt;
 &lt;p&gt;If you happen to find this work useful, please consider citing it as:&lt;/p&gt;
