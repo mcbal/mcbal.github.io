@@ -46,10 +46,10 @@
 &lt;hr&gt;
 &lt;h1 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h1&gt;
 &lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;✨ This is a work in progress exploring connections between transformer neural networks, spin models, and (non-)equilibrium statistical mechanics. Implementations in JAX of the content outlined in this post should become available at &lt;a href=&#34;https://github.com/mcbal/spin-model-transformers&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;mcbal/spin-model-transformers&lt;/code&gt;&lt;/a&gt;.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;✨ This is a work in progress exploring connections between transformer neural networks, spin models, and (non-)equilibrium statistical mechanics. JAX implementations of the content outlined in this post will eventually become available at &lt;a href=&#34;https://github.com/mcbal/spin-model-transformers&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;mcbal/spin-model-transformers&lt;/code&gt;&lt;/a&gt;.&lt;/strong&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;In a series of previous &lt;a href=&#34;https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;blog posts&lt;/a&gt;, we have tried to connect the forward pass of a transformer neural-network module to computing mean magnetizations in disordered Ising-like vector-spin models with parameterized couplings and external magnetic fields. In this picture, the forward pass of a transformer module computes statistical observables given a specific realization of quenched couplings and external magnetic fields while the backward pass nudges the parameterized couplings and external magnetic fields to better respond to the demands of the training loss.&lt;/p&gt;
-&lt;p&gt;Both the mean-field message-passing approach of &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms&lt;/a&gt; and the saddle-point free-energy approach of &lt;a href=&#34;https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers from Spin Models: Approximate Free Energy Minimization&lt;/a&gt; inherently rely on methods that are only well-defined for spin models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution. The softmax attention operation in transformer modules is however famously asymmetric.&lt;/p&gt;
+&lt;p&gt;In a series of previous &lt;a href=&#34;https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;blog posts&lt;/a&gt;, we have tried to connect the forward pass of a transformer neural-network module to computing mean magnetizations in disordered Ising-like vector-spin models with parameterized couplings and external magnetic fields. In this framework, the forward pass of a transformer module computes statistical observables given a specific realization of quenched couplings and external magnetic fields while the backward pass nudges the parameterized couplings and external magnetic fields. Physically, the module represents an interacting many-body system modulating its behavior by learning to respond to being driven in all kinds of funny ways.&lt;/p&gt;
+&lt;p&gt;Both the mean-field message-passing approach of &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms&lt;/a&gt; and the saddle-point free-energy approach of &lt;a href=&#34;https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers from Spin Models: Approximate Free Energy Minimization&lt;/a&gt; inherently rely on methods that are only well-defined for spin models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution. Yet the softmax attention operation in transformer modules is famously asymmetric.&lt;/p&gt;
 &lt;p&gt;To capture spin models with asymmetric coupling matrices, we had better consider non-equilibrium systems, whose dynamics can be pretty wild yet sometimes relax to a non-equilibrium steady state. In the last few decades, dynamical mean-field approaches have been developed for the binary kinetic Ising toy model, which exhibits non-equilibrium behavior when couplings are asymmetric or when model parameters are subject to rapid changes. In this post, we try to generalize one of these approaches from binary spins to vector spins with the aim of comparing the mean-field equations for the magnetizations to the forward pass of a transformer module.&lt;/p&gt;
 &lt;h1 id=&#34;2-mean-field-theory-of-asymmetric-ising-models-with-binary-spins&#34;&gt;2. Mean-field theory of asymmetric Ising models with binary spins&lt;/h1&gt;
 &lt;p&gt;In this section, we review known results on mean-field theory approaches to capturing the stochastic dynamics of binary kinetic Ising models. We primarily follow the discussion outlined in &lt;a href=&#34;https://arxiv.org/abs/2002.04309&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;em&gt;A unifying framework for mean-field theories of asymmetric kinetic Ising systems&lt;/em&gt; (Aguilera et al., 2021)&lt;/a&gt;.&lt;/p&gt;
@@ -170,7 +170,7 @@ D_{il,t} \approx J_{il} \left( 1-m^{2}_{i,t} \right) \left( 1-m^{2}_{l,t-1} \rig
 &lt;p&gt;We refer to &lt;a href=&#34;https://arxiv.org/abs/2002.04309&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;(Aguilera et al., 2020)&lt;/a&gt; for full derivations of the above mean-field results as well as variations based on different approximations of the marginal distribution $P( \mathbf{s}_{t} )$.&lt;/p&gt;
 &lt;p&gt;In summary, given the mean magnetizations $\mathbf{m}_{t-1}$ of the system at time $t-1$, we can use equations \eqref{eq:tapm} \eqref{eq:tapc} \eqref{eq:tapd} to compute a tuple $(\mathbf{m}_{t},\mathbf{C}_{t},\mathbf{D}_{t})$ of approximate statistical properties  of the system at time $t$. The time evolution of the system can thus be captured at the mean-field level by recursively computing $\mathbf{m}_{t}$ starting from an initial state $\mathbf{m}_{0}$, although approximation errors accumulate over the iterations.&lt;/p&gt;
 &lt;h2 id=&#34;25-a-simple-jax-implementation&#34;&gt;2.5. A simple JAX implementation&lt;/h2&gt;
-&lt;p&gt;To get more insight into what is going on, let us turn the mean-field update equations \eqref{eq:naivem} and \eqref{eq:tapm} for the mean magnetizations into code. But before we show a few examples, we need to know a bit more about what model we&amp;rsquo;re actually simulating here. In &lt;a href=&#34;https://arxiv.org/abs/2002.04309&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;(Aguilera et al., 2020)&lt;/a&gt;, the authors derive a solution of the asymmetric version of the kinetic &lt;a href=&#34;https://en.wikipedia.org/wiki/Spin_glass#Sherrington%E2%80%93Kirkpatrick_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Sherrington-Kirkpatrick mean-field spin-glass model&lt;/a&gt; using a generating functional or dynamical partition function approach capturing the distribution of the trajectories. They consider the same kinetic Ising model as in Eq. \eqref{eq:pcond} but with an inverse temperature parameter $\beta$ in the exponentials:&lt;/p&gt;
+&lt;p&gt;To get more insight into what is going on, let us turn the mean-field update equations \eqref{eq:naivem} and \eqref{eq:tapm} for the mean magnetizations into code. But before we show a few plots, we need to know a bit more background about the model we are simulating. In &lt;a href=&#34;https://arxiv.org/abs/2002.04309&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;(Aguilera et al., 2020)&lt;/a&gt;, the authors derive a solution of the asymmetric version of the kinetic &lt;a href=&#34;https://en.wikipedia.org/wiki/Spin_glass#Sherrington%E2%80%93Kirkpatrick_model&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Sherrington-Kirkpatrick mean-field spin-glass model&lt;/a&gt; using a generating functional or dynamical partition function approach to capture the distribution of trajectories. They consider the same kinetic Ising model as in Eq. \eqref{eq:pcond} but with an inverse temperature parameter $\beta$ in the exponentials:&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 P( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{\beta s_{i,t} h_{i,t}}}{2 \cosh \beta h_{i,t}}. \label{eq:pcondwithbeta}
 \end{equation}&lt;/p&gt;
@@ -180,7 +180,6 @@ P( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{\
 &lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from functools import partial
 
 import jax
-import jax.lax as lax
 import jax.numpy as jnp
 
 from jaxopt import AndersonAcceleration
@@ -204,7 +203,7 @@ def update_tap_mf(m0, _, x, J):
 
 
 def time_evolution(m0, steps, update_fun):
-    final_carry, stacked_outputs = lax.scan(update_fun, init=m0, xs=steps)
+    final_carry, stacked_outputs = jax.lax.scan(update_fun, init=m0, xs=steps)
     return final_carry, stacked_outputs
 
 
@@ -240,7 +239,7 @@ def simulate(
 &lt;p&gt;&lt;img src=&#34;binary_plot_3.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
 &lt;p&gt;We observe that the trajectories of randomly-initialized initial states converge to identical final states in each regime. These final states map to a simple ferromagnetic Ising phase diagram, where a high-temperature disordered phase $\langle m_{i,t} \rangle \to 0$ (left) is separated from a low-temperature locally-ordered phase $\langle m_{i,t} \rangle \to \pm 1$ (right) by a critical point (center). The behavior around $\beta=\beta_{c}$ is pretty interesting: &lt;em&gt;the non-trivial non-equilibrium steady state looks like an attractor implicitly encoded in the dynamics of the model&lt;/em&gt;.&lt;/p&gt;
 &lt;h3 id=&#34;sampling-model-parameters&#34;&gt;Sampling model parameters&lt;/h3&gt;
-&lt;p&gt;Let&amp;rsquo;s go back to considering just a single trajectory since we just saw that trajectories seem to converge to the same states for fixed model parameters. To get a feel for the variation of the steady-state values across different realizations of model parameters, we plot the absolute value&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; $| \langle m_{i} \rangle |$ of the final steady-state magnetizations across 100 samples of model parameters and a range of inverse temperatures. We&amp;rsquo;re using JAX, so we can easily sample model parameters by &lt;code&gt;vmap&lt;/code&gt;&amp;lsquo;ing the random key fed into the &lt;code&gt;simulate&lt;/code&gt; function followed by another &lt;code&gt;vmap&lt;/code&gt; to sweep across $\beta$.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s go back to considering just a single trajectory since we just saw that trajectories seem to converge to the same final steady-state magnetizations for fixed model parameters. To get a feel for the variation of these values across different realizations of model parameters, we plot the absolute value&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; $| \langle m_{i} \rangle |$ of the final steady-state magnetizations across 100 samples of model parameters and a range of inverse temperatures. We&amp;rsquo;re using JAX, so we can easily sample model parameters by &lt;code&gt;vmap&lt;/code&gt;&amp;lsquo;ing the random key fed into the &lt;code&gt;simulate&lt;/code&gt; function followed by another &lt;code&gt;vmap&lt;/code&gt; to sweep across $\beta$.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;binary_plot_4.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
 &lt;p&gt;Every curve in the above plot describes the final steady-state value of the &amp;ldquo;order parameter&amp;rdquo; $| \langle m_{i} \rangle |$ for a fixed set of model parameters sweeping across $\beta$. We observe a greater spread of values near the critical point. If we were to let the number of spins $N \to \infty$ and average over a large number of model parameter samples, the finite-size results above would probably transform into a sharp curve with zero magnetization below the critical point and a sudden non-zero magnetization emerging at the critical point.&lt;/p&gt;
 &lt;h1 id=&#34;3-mean-field-theory-of-asymmetric-ising-models-with-vector-spins&#34;&gt;3. Mean-field theory of asymmetric Ising models with vector spins&lt;/h1&gt;
@@ -253,7 +252,7 @@ P_{\alpha}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N} \frac{\mat
 \end{equation}&lt;/p&gt;
 &lt;p&gt;where we immediately included an inverse temperature scaling $\beta$ like in Eq. \eqref{eq:pcondwithbeta}. A vector-spin equivalent of Eq. \eqref{eq:pcondalth} is&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\mathbf{h}_{i,t}(\alpha) = (1-\alpha) \boldsymbol{\theta}_{i,t} + \alpha \left( \mathbf{x}_{i,t} + \sum_{j=1}^{N} J_{ij} \mathbf{s}_{j,t-1} \right) = \boldsymbol{\theta}_{i,t} + \alpha \Delta \mathbf{h}_{i,t},  \label{eq:pcondalthvector}
+\mathbf{h}_{i,t}(\alpha) = (1-\alpha) \boldsymbol{\theta}_{i,t} + \alpha \left( \mathbf{x}_{i,t} + \sum_{j=1}^{N} J_{ij} \mathbf{s}_{j,t-1} \right) \equiv \boldsymbol{\theta}_{i,t} + \alpha \Delta \mathbf{h}_{i,t},  \label{eq:pcondalthvector}
 \end{equation}&lt;/p&gt;
 &lt;p&gt;where $S_{D-1}(R) = \{ x \in \mathbb{R}^{D} : \lVert x \rVert = R \}$ denotes the $(D-1)$-dimensional sphere with radius $R$ embedded in $D$ dimensions. Let us focus on the distribution for a single site and drop all subscripts and dependencies for clarity:&lt;/p&gt;
 &lt;p&gt;\begin{equation}
@@ -264,7 +263,7 @@ P_{\alpha}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N} \frac{\mat
 \int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} = \frac{ \left( 2 \pi R \right)^{D/2} I_{D/2 - 1}(\beta R \lVert \mathbf{h}\rVert) }{ \left(\beta \lVert \mathbf{h}\rVert\right)^{D/2-1} } \equiv Z(\beta, R, \lVert \mathbf{h}\rVert) \label{eq:partfun}
 \end{equation}&lt;/p&gt;
 &lt;p&gt;where $I_{\nu}(z)$ denotes the modified Bessel function of the first kind and $\lVert \mathbf{h}\rVert = \sqrt{\mathbf{h} \cdot \mathbf{h}}$. Physically, we can think of this single-site distribution as measuring dot-product alignment to an effective external magnetic field $\mathbf{h}$ at inverse temperature $\beta$. If we consider spins living on the unit sphere $R=1$ as well as unit vectors $\mathbf{h}$, the distribution looks like a &lt;a href=&#34;https://en.wikipedia.org/wiki/Von_Mises%E2%80%93Fisher_distribution&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;von Mises–Fisher distribution&lt;/a&gt; with mean direction $\boldsymbol{\mu} \equiv \mathbf{h}$ and &lt;a href=&#34;https://en.wikipedia.org/wiki/Concentration_parameter&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;concentration parameter&lt;/a&gt; $\kappa \equiv \beta$. This distribution is unimodal for $\kappa &amp;gt; 0$ and can be derived from restricting an isotropic multivariate Gaussian to the unit hypersphere. The greater the value of $\kappa$ (the inverse temperature $\beta$), the higher the concentration of the distribution around the mean direction $\boldsymbol{\mu}$ (the more the spin tends to align to the effective external field $\mathbf{h}$). Instead of a fixed parameter $\boldsymbol{\mu}$, we have a very funky parameter Eq. \eqref{eq:pcondalthvector} that depends on all other spins to spice things up.&lt;/p&gt;
-&lt;p&gt;Before we can derive the mean-field approximations for the mean magnetizations, we have to consider the decoupled $\alpha \to 0$ distribution of Eq. \eqref{eq:pcondaltvector},&lt;/p&gt;
+&lt;p&gt;Before we derive the mean-field approximations for the mean magnetizations, we consider the decoupled $\alpha \to 0$ distribution of Eq. \eqref{eq:pcondaltvector},&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{\beta \, \mathbf{s}_{i,t} \cdot \boldsymbol{\theta}_{i,t}}}{Z_{i,t}\left(\beta, R, \lVert \boldsymbol{\theta}_{i,t} \rVert\right)},
 \end{equation}&lt;/p&gt;
@@ -272,12 +271,63 @@ Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathr
 &lt;p&gt;\begin{equation}
 \mathbf{m}_{i,t} = \frac{I_{D/2}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)}{I_{D/2 - 1}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)} \frac{R \boldsymbol{\theta}_{i,t}}{\lVert \boldsymbol{\theta}_{i,t} \rVert} \equiv \boldsymbol{\varphi} \left(\boldsymbol{\theta}_{i,t}\right), \label{eq:meanmagsbessels}
 \end{equation}&lt;/p&gt;
-&lt;p&gt;which plays the role of $m_{i,t} = \tanh \theta_{i,t}$ in the binary case, see Eq. \eqref{eq:meanmagstanh}. Looking ahead at turning these equations into code, we note that there exist &lt;a href=&#34;https://www.jstor.org/stable/2005830&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;efficient algorithms&lt;/a&gt; to compute the ratio of modified Bessel functions of the first kind. Depending on the normalization conventions we settle on, we could also make use of &lt;a href=&#34;https://link.springer.com/article/10.1007/BF02764812&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;known asymptotic expansions&lt;/a&gt; for the ratios Bessel functions.&lt;/p&gt;
+&lt;p&gt;which plays the role of $m_{i,t} = \tanh \theta_{i,t}$ in the binary case, see Eq. \eqref{eq:meanmagstanh}. Looking ahead at turning these equations into code, we note that there exist &lt;a href=&#34;https://www.jstor.org/stable/2005830&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;efficient algorithms&lt;/a&gt; to compute the ratio of modified Bessel functions of the first kind. We implement a fast JAX version in &lt;a href=&#34;#a3-ratio-of-modified-bessel-functions&#34;&gt;Appendix A.3&lt;/a&gt; for later use. Depending on the normalization conventions we settle on, we could also make use of &lt;a href=&#34;https://link.springer.com/article/10.1007/BF02764812&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;known asymptotic expansions&lt;/a&gt;.&lt;/p&gt;
 &lt;h2 id=&#34;32-naive-mean-field-and-thouless-anderson-palmer-approximations&#34;&gt;3.2. Naive mean-field and Thouless-Anderson-Palmer approximations&lt;/h2&gt;
-&lt;p&gt;$\ldots$&lt;/p&gt;
+&lt;p&gt;Closely mimicking the binary case, we start from the following approximated marginal probability distribution&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \mathrm{d} \mathbf{s}_{t-2} \; P_{\alpha}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} ) P( \mathbf{s}_{t-2} ),
+\end{equation}&lt;/p&gt;
+&lt;p&gt;interpolating between $P^{[t-1:t]}_{\alpha=0}( \mathbf{s}_{t} ) = Q( \mathbf{s}_{t} )$ and $P^{[t-1:t]}_{\alpha=1}( \mathbf{s}_{t} ) = P( \mathbf{s}_{t} )$. Our lazy integral notation $\int \mathrm{d} \mathbf{s}_{t}$ should be understood as $\int \prod_{i=1}^{N} \mathrm{d}^{D} \mathbf{s}_{i, t}$, i.e. integrating over all the little spins at a fixed time $t$. The estimated mean magnetizations are&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\mathbf{m}_{i,t}(\alpha) &amp;amp;= \int \mathrm{d} \mathbf{s}_{t} \int \mathrm{d} \mathbf{s}_{t-1} \int \mathrm{d} \mathbf{s}_{t-2} \; \mathbf{s}_{i,t} P_{\alpha}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} ) P( \mathbf{s}_{t-2} ) \nonumber\\
+&amp;amp;= \int \mathrm{d} \mathbf{s}_{t-1} \int \mathrm{d} \mathbf{s}_{t-2} \; \boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right) \, P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} ) P( \mathbf{s}_{t-2} )
+\end{align}&lt;/p&gt;
+&lt;p&gt;The first-order derivative with respect to $\alpha$ is given by&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\frac{\partial \mathbf{m}_{i,t}(\alpha)}{\partial\alpha} = \int &amp;amp;\mathrm{d} \mathbf{s}_{t-1} \int \mathrm{d} \mathbf{s}_{t-2} \Biggl( \frac{\partial\boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right)}{\partial\alpha} \, P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} ) \nonumber\\
+&amp;amp;+ \boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right) \, \frac{\partial P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )}{\partial\alpha} \Biggr) P( \mathbf{s}_{t-2} ),
+\end{align}&lt;/p&gt;
+&lt;p&gt;which is given by (see &lt;a href=&#34;#a5-naive-mean-field-approximation&#34;&gt;Appendix A.5&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\frac{\partial \mathbf{m}_{i,t}(\alpha)}{\partial\alpha} &amp;amp;= \ldots .
+\end{align}&lt;/p&gt;
+&lt;p&gt;We evaluate at $\alpha=0$ to find&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} &amp;amp;= \ldots,
+\end{align}&lt;/p&gt;
+&lt;p&gt;Following Eq. \eqref{eq:mftheta}, the first-order approximation should satisfy&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} = \ldots = 0,
+\end{equation}&lt;/p&gt;
 &lt;p&gt;so that $\boldsymbol{\theta}^{*}_{i,t} = \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1}$ and we end up with the naive mean-field equations:&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\boxed{ \mathbf{m}_{i,t} \approx \boldsymbol{\varphi} \left(\boldsymbol{\theta}^{*}_{i,t}\right) = \frac{I_{D/2}(\beta R \lVert \boldsymbol{\theta}^{*}_{i,t} \rVert)}{I_{D/2 - 1}(\beta R \lVert \boldsymbol{\theta}^{*}_{i,t} \rVert)} \frac{R \boldsymbol{\theta}^{*}_{i,t}}{\lVert \boldsymbol{\theta}^{*}_{i,t} \rVert} } \label{eq:naivemvector}
+\boxed{ \mathbf{m}_{i,t} \approx \frac{I_{D/2}(\beta R \lVert \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \rVert)} \frac{R \left(\mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1}\right)}{\lVert \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \rVert} } \label{eq:naivemvector}
+\end{equation}&lt;/p&gt;
+&lt;p&gt;Again following Eq. \eqref{eq:mftheta}, the second-order approximation should satisfy&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} + \frac{1}{2} \frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha} = 0,
+\end{equation}&lt;/p&gt;
+&lt;p&gt;where the second-order derivative is&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\frac{\partial^{2} \mathbf{m}_{i,t}(\alpha)}{\partial^{2}\alpha} = \int &amp;amp;\mathrm{d} \mathbf{s}_{t-1} \int \mathrm{d} \mathbf{s}_{t-2} \Biggl( \frac{\partial^{2}\boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right)}{\partial^{2}\alpha} \, P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} ) \nonumber\\
+&amp;amp;+ 2\frac{\partial\boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right)}{\partial\alpha} \, \frac{\partial P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )}{\partial\alpha} \\
+&amp;amp;+ \boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right) \, \frac{\partial^{2} P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )}{\partial^{2}\alpha} \Biggr) P( \mathbf{s}_{t-2} ),
+\end{align}&lt;/p&gt;
+&lt;p&gt;Neglecting terms higher than $\mathcal{O}(\alpha^2)$, we find (see &lt;a href=&#34;#a6-thouless-anderson-palmer-approximation&#34;&gt;Appendix A.6&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\frac{\partial^{2} \mathbf{m}_{i,t}(\alpha)}{\partial^{2}\alpha} \approx \ldots
+\end{equation}&lt;/p&gt;
+&lt;p&gt;leading to&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha} \approx \ldots
+\end{equation}&lt;/p&gt;
+&lt;p&gt;so that&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\boldsymbol{\theta}^{*}_{i,t} = \ldots
+\end{equation}&lt;/p&gt;
+&lt;p&gt;and we end up with the TAP mean-field equations:&lt;/p&gt;
+&lt;p&gt;\begin{equation}
+\boxed{\mathbf{m}_{i,t} \approx \boldsymbol{\varphi} \left(\boldsymbol{\theta}^{*}_{i,t}\right) =  \ldots } \label{eq:tapmvector}
 \end{equation}&lt;/p&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h2 id=&#34;33-a-simple-jax-implementation&#34;&gt;3.3. A simple JAX implementation&lt;/h2&gt;
@@ -286,7 +336,7 @@ Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathr
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h2 id=&#34;41-fast--and-slow-moving-parameters&#34;&gt;4.1. Fast- and slow-moving parameters&lt;/h2&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
-&lt;p&gt;As argued previously in &lt;a href=&#34;https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers Are Secretly Collectives of Spin Systems&lt;/a&gt;, each training example in a batch of sequential data can be thought of as probing the spin system in a particular way. Physically, the &lt;em&gt;fast-moving&lt;/em&gt; parameterized couplings $\mathbf{J}(\mathbf{X})$ are determined by the &lt;em&gt;fast-moving&lt;/em&gt; parameterized external fields $\mathbf{X}$, which in turn depend on the magnetizations of the previous layer and eventually on the input data. The external fields act as an environment of patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing a state of quenched disorder. The &lt;em&gt;slow-moving&lt;/em&gt; parameters are those receiving gradient updates during training, e.g. the query-key matrices in the softmax couplings. Training shapes the input-dependent &lt;em&gt;distribution of coupling parameters&lt;/em&gt; by amassing information from a huge amount of sampled quenched disorder realizations, sculpting a spin glass with data.&lt;/p&gt;
+&lt;p&gt;As suggested in &lt;a href=&#34;https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers Are Secretly Collectives of Spin Systems&lt;/a&gt;, each training example in a batch of sequential data can be thought of as probing the spin system in a particular way. Physically, the &lt;em&gt;fast-moving&lt;/em&gt; parameterized couplings $\mathbf{J}(\mathbf{X})$ are determined by the &lt;em&gt;fast-moving&lt;/em&gt; parameterized external fields $\mathbf{X}$, which in turn depend on the magnetizations of the previous layer and eventually on the input data. The external fields act as an environment of patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing a state of quenched disorder. The &lt;em&gt;slow-moving&lt;/em&gt; parameters are those receiving gradient updates during training, e.g. the query-key matrices in the softmax couplings. Training shapes the input-dependent &lt;em&gt;distribution of coupling parameters&lt;/em&gt; by amassing information from a huge amount of sampled quenched disorder realizations, sculpting a spin glass with data.&lt;/p&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h1 id=&#34;5-conclusion&#34;&gt;5. Conclusion&lt;/h1&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
@@ -359,35 +409,42 @@ I_{\nu-1}(z) + I_{\nu+1}(z) &amp;amp;= 2 I&#39;_{\nu}(z), \label{eq:irecurrderiv
 \end{align}&lt;/p&gt;
 &lt;p&gt;we end up with&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\mathbf{m} = \frac{I_{D/2}(\beta R \lVert \mathbf{h}\rVert)}{I_{D/2 - 1}(\beta R \lVert\mathbf{h}\rVert)} \frac{R \mathbf{h}}{\lVert\mathbf{h}\rVert} \equiv \mathbf{m}(\mathbf{h}).
+\mathbf{m} = \frac{I_{D/2}(\beta R \lVert \mathbf{h}\rVert)}{I_{D/2 - 1}(\beta R \lVert\mathbf{h}\rVert)} \frac{R \mathbf{h}}{\lVert\mathbf{h}\rVert}\equiv \boldsymbol{\varphi} (\mathbf{h}).
 \end{align}&lt;/p&gt;
-&lt;h2 id=&#34;a3-derivatives&#34;&gt;A.3. Derivatives&lt;/h2&gt;
-&lt;p&gt;We are interested in computing the first-order and second-order derivative with respect to $\alpha$ of the mean magnetizations&lt;/p&gt;
+&lt;h2 id=&#34;a3-ratio-of-modified-bessel-functions&#34;&gt;A.3. Ratio of modified Bessel functions&lt;/h2&gt;
+&lt;p&gt;To compute the ratio&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\frac{I_{\nu+1}(x)}{I_{\nu}(x)}
+\end{align}&lt;/p&gt;
+&lt;p&gt;of modified Bessel functions of the first kind for $\nu \geq 0$ and $x \geq 0$, we implement a &lt;a href=&#34;https://github.com/mcbal/spin-model-transformers/blob/main/spin_model_transformers/bessel.py&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;JIT-compatible JAX version&lt;/a&gt; of an algorithm described in &lt;a href=&#34;https://www.jstor.org/stable/2005830&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;(Amos, 1974)&lt;/a&gt;. A pseudocode implementation can be found in &lt;a href=&#34;https://isas.iar.kit.edu/pdf/ACC13_Kurz.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;(Kurz et al., 2013)&lt;/a&gt;. We compare our implementation against explicitly calculating the ratio using &lt;a href=&#34;https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.ive.html#scipy.special.ive&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;scipy.special.ive&lt;/code&gt;&lt;/a&gt; across a range of orders $\nu$ for several different values of $x$ to get a feel for its behavior.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;bessel_plot_1.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;We observe a satisfying agreement between the two approaches. For $x=\sqrt{\nu}$, the ratio takes on very small values for large orders. For $x=\nu^2$, the oppositive happens and we see saturation. The case $x=\nu$ seems to sit in between, which suggests it might be opportune to fix the radius of our little spins to $R=\sqrt{D/2}$ so that with $\lVert\mathbf{h}\rVert \sim \mathcal{O}(\sqrt{D})$ we could maximize the &amp;ldquo;sensitivity&amp;rdquo; of the expected value.&lt;/p&gt;
+&lt;h2 id=&#34;a4-mean-magnetization-derivatives&#34;&gt;A.4. Mean-magnetization derivatives&lt;/h2&gt;
+&lt;p&gt;We are interested in computing the first-order and second-order derivative with respect to $\alpha$ of the function&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) = \frac{I_{D/2}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)} \frac{R \mathbf{h}_{i,t}(\alpha)}{\lVert \mathbf{h}_{i,t}(\alpha) \rVert},
+\boldsymbol{\varphi}(\mathbf{h}(\alpha)) = \frac{I_{D/2}(\beta R \lVert \mathbf{h}(\alpha) \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{h}(\alpha) \rVert)} \frac{R \mathbf{h}(\alpha)}{\lVert \mathbf{h}(\alpha) \rVert},
 \end{equation}&lt;/p&gt;
-&lt;p&gt;where $\mathbf{h}_{i,t}(\alpha) = \boldsymbol{\theta}_{i,t} + \alpha \Delta \mathbf{h}_{i,t}$. Using&lt;/p&gt;
+&lt;p&gt;where $\mathbf{h}(\alpha) = \boldsymbol{\theta} + \alpha \Delta \mathbf{h}$. Using&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\frac{\partial \lVert \mathbf{h}_{i,t}(\alpha) \rVert}{\partial\alpha} = \frac{\mathbf{h}_{i,t}(\alpha) \cdot \Delta \mathbf{h}_{i,t}}{\lVert \mathbf{h}_{i,t}(\alpha) \rVert}
+\frac{\partial \lVert \mathbf{h}(\alpha) \rVert}{\partial\alpha} = \frac{\mathbf{h}(\alpha) \cdot \Delta \mathbf{h}}{\lVert \mathbf{h}(\alpha) \rVert}
 \end{equation}&lt;/p&gt;
 &lt;p&gt;and Eqs. \eqref{eq:irecurr}-\eqref{eq:irecurrderiv}, we find&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\frac{\partial \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha} = \beta &amp;amp;\lambda \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \cdot \Delta \mathbf{h}_{i,t} \right) \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
-&amp;amp;+ \frac{I_{D/2}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)} \frac{R \Delta \mathbf{h}_{i,t}}{\lVert \mathbf{h}_{i,t}(\alpha) \rVert}
+\frac{\partial \boldsymbol{\varphi}(\mathbf{h}(\alpha))}{\partial\alpha} = \beta &amp;amp;\lambda (\lVert \mathbf{h}(\alpha) \rVert) \left( \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \cdot \Delta \mathbf{h} \right) \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \nonumber \\
+&amp;amp;+ \frac{I_{D/2}(\beta R \lVert \mathbf{h}(\alpha) \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{h}(\alpha) \rVert)} \frac{R \Delta \mathbf{h}}{\lVert \mathbf{h}(\alpha) \rVert}
 \end{align}&lt;/p&gt;
 &lt;p&gt;where&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\lambda = \frac{I^2_{D/2-1}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)}{I^2_{D/2}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)} - \frac{D}{\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert} \frac{I_{D/2-1}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)}{I_{D/2}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)} - 1
+\lambda (x) = \frac{I^2_{D/2-1}(\beta R x)}{I^2_{D/2}(\beta R x)} - \frac{D}{\beta R x} \frac{I_{D/2-1}(\beta R x)}{I_{D/2}(\beta R x)} - 1.
 \end{equation}&lt;/p&gt;
-&lt;p&gt;$\ldots$&lt;/p&gt;
-&lt;p&gt;For the second-order derivative, we find&lt;/p&gt;
+&lt;p&gt;For the second-order derivative, we need to slog through even more tedious algebra,&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\frac{\partial^2 \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial^2\alpha} = \ldots
+\frac{\partial^2 \boldsymbol{\varphi}(\mathbf{h}(\alpha))}{\partial^2\alpha} = \ldots
 \end{equation}&lt;/p&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
-&lt;h2 id=&#34;a4-naive-mean-field-approximation&#34;&gt;A.4. Naive mean-field approximation&lt;/h2&gt;
+&lt;h2 id=&#34;a5-naive-mean-field-approximation&#34;&gt;A.5. Naive mean-field approximation&lt;/h2&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
-&lt;h2 id=&#34;a5-thouless-anderson-palmer-approximation&#34;&gt;A.5. Thouless-Anderson-Palmer approximation&lt;/h2&gt;
+&lt;h2 id=&#34;a6-thouless-anderson-palmer-approximation&#34;&gt;A.6. Thouless-Anderson-Palmer approximation&lt;/h2&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h1 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h1&gt;
 &lt;p&gt;If you happen to find this work useful, please consider citing it as:&lt;/p&gt;
