@@ -34,7 +34,7 @@
   
     
   
-  <meta name="description" content="Mean-field dynamics of spin models with asymmetric couplings">
+  <meta name="description" content="A non-equilibrium statistical mechanics perspective on transformers">
 
   
   <link rel="alternate" hreflang="en-gb" href="https://mcbal.github.io/post/spin-model-transformers/">
@@ -317,7 +317,7 @@
   <meta property="og:site_name" content="mcbal">
   <meta property="og:url" content="https://mcbal.github.io/post/spin-model-transformers/">
   <meta property="og:title" content="Spin-Model Transformers: A Physics-Inspired Class of Transformer Modules | mcbal">
-  <meta property="og:description" content="Mean-field dynamics of spin models with asymmetric couplings"><meta property="og:image" content="https://mcbal.github.io/post/spin-model-transformers/featured.jpg">
+  <meta property="og:description" content="A non-equilibrium statistical mechanics perspective on transformers"><meta property="og:image" content="https://mcbal.github.io/post/spin-model-transformers/featured.jpg">
   <meta property="twitter:image" content="https://mcbal.github.io/post/spin-model-transformers/featured.jpg"><meta property="og:locale" content="en-gb">
   
     
@@ -371,7 +371,7 @@
       "url": "https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_192x192_fill_lanczos_center_3.png"
     }
   },
-  "description": "Mean-field dynamics of spin models with asymmetric couplings"
+  "description": "A non-equilibrium statistical mechanics perspective on transformers"
 }
 </script>
 
@@ -630,7 +630,7 @@
   <h1>Spin-Model Transformers: A Physics-Inspired Class of Transformer Modules</h1>
 
   
-  <p class="page-subtitle">Mean-field dynamics of spin models with asymmetric couplings</p>
+  <p class="page-subtitle">A non-equilibrium statistical mechanics perspective on transformers</p>
   
 
   
@@ -715,7 +715,7 @@
 </li>
 <li><a href="#3-mean-field-theory-of-asymmetric-ising-models-with-vector-spins">Mean-field theory of asymmetric Ising models with vector spins</a>
 <ol>
-<li><a href="#31-distributions-on-hyperspheres">Distributions on hyperspheres</a></li>
+<li><a href="#31-vector-spins-distributions-on-hyperspheres">Vector spins: distributions on hyperspheres</a></li>
 <li><a href="#32-naive-mean-field-and-thouless-anderson-palmer-approximations">Naive mean-field and Thouless-Anderson-Palmer approximations</a></li>
 <li><a href="#33-a-simple-jax-implementation">A simple JAX implementation</a></li>
 </ol>
@@ -726,17 +726,18 @@
 </ol>
 </li>
 <li><a href="#5-conclusion">Conclusion</a></li>
+<li><a href="#appendices">Appendices</a></li>
 </ol>
 <hr>
 <h1 id="1-introduction">1. Introduction</h1>
 <blockquote>
-<p><strong>✨ This is a work in progress exploring connections between transformer neural networks, spin models, and (non-)equilibrium statistical mechanics. JAX implementations of the content outlined in this post will eventually become available at <a href="https://github.com/mcbal/spin-model-transformers" target="_blank" rel="noopener"><code>mcbal/spin-model-transformers</code></a>.</strong></p>
+<p><strong>✨ This is a work in progress exploring connections between transformer neural networks and mean-field dynamics of asymmetric vector-spin models. JAX implementations of the content outlined in this post should eventually become available at <a href="https://github.com/mcbal/spin-model-transformers" target="_blank" rel="noopener"><code>mcbal/spin-model-transformers</code></a>.</strong></p>
 </blockquote>
-<p>In a series of previous <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">blog posts</a>, we have tried to connect the forward pass of a transformer neural-network module to computing mean magnetizations in disordered Ising-like vector-spin models with parameterized couplings and external magnetic fields. In this framework, the forward pass of a transformer module computes statistical observables given a specific realization of quenched couplings and external magnetic fields while the backward pass nudges the parameterized couplings and external magnetic fields. Physically, the module represents an interacting many-body system modulating its behavior by learning to respond to being driven in all kinds of funny ways.</p>
-<p>Both the mean-field message-passing approach of <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a> and the saddle-point free-energy approach of <a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Transformers from Spin Models: Approximate Free Energy Minimization</a> inherently rely on methods that are only well-defined for spin models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution. Yet the softmax attention operation in transformer modules is famously asymmetric.</p>
-<p>To capture spin models with asymmetric coupling matrices, we had better consider non-equilibrium systems, whose dynamics can be pretty wild yet sometimes relax to a non-equilibrium steady state. In the last few decades, dynamical mean-field approaches have been developed for the binary kinetic Ising toy model, which exhibits non-equilibrium behavior when couplings are asymmetric or when model parameters are subject to rapid changes. In this post, we try to generalize one of these approaches from binary spins to vector spins with the aim of comparing the mean-field equations for the magnetizations to the forward pass of a transformer module.</p>
+<p>In a series of previous <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">blog posts</a>, we have tried to connect the forward pass of a transformer neural-network module to computing mean magnetizations in disordered Ising-like vector-spin models with parameterized couplings and external magnetic fields. In this framework, the forward pass of a transformer module computes statistical observables given a specific realization of quenched couplings and external magnetic fields while the backward pass nudges the parameterized couplings and external magnetic fields. Physically, the transformer module represents an interacting many-body system modulating its behavior by learning to respond to being driven in all kinds of funny ways.</p>
+<p>However, both the mean-field message-passing approach of <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a> and the saddle-point free-energy approach of <a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Transformers from Spin Models: Approximate Free Energy Minimization</a> inherently rely on methods that are only well-defined for spin models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution. Since the softmax attention operation in transformer modules is annoyingly and famously asymmetric, we need to come up with something better to establish a correspondence.</p>
+<p>To capture spin models with asymmetric coupling matrices, we consider non-equilibrium kinetic Ising systems, whose dynamics can be pretty wild yet sometimes relax to a non-equilibrium steady state. In the last few decades, dynamical mean-field approaches have been developed for the binary kinetic Ising toy model, which exhibits non-equilibrium behavior when couplings are asymmetric or when model parameters are subject to rapid changes. In this post, we generalize one of these approaches from binary spins to vector spins with the aim of comparing the mean-field update equations for the magnetizations to the forward pass of a transformer module.</p>
 <h1 id="2-mean-field-theory-of-asymmetric-ising-models-with-binary-spins">2. Mean-field theory of asymmetric Ising models with binary spins</h1>
-<p>In this section, we review known results on mean-field theory approaches to capturing the stochastic dynamics of binary kinetic Ising models. We primarily follow the discussion outlined in <a href="https://arxiv.org/abs/2002.04309" target="_blank" rel="noopener"><em>A unifying framework for mean-field theories of asymmetric kinetic Ising systems</em> (Aguilera et al., 2021)</a>.</p>
+<p>In this section, we review known results on mean-field theory approaches to capturing the stochastic dynamics of binary kinetic Ising models. We primarily follow the discussion outlined in <a href="https://arxiv.org/abs/2002.04309" target="_blank" rel="noopener"><em>A unifying framework for mean-field theories of asymmetric kinetic Ising systems</em> (Aguilera et al., 2021)</a>. We implement the mean-field update equations for the mean magnetizations in JAX and run a few numerical experiments.</p>
 <h2 id="21-setting-the-scene-the-kinetic-ising-model">2.1. Setting the scene: the kinetic Ising model</h2>
 <img src="binary_spins.png" alt="Random Ising model configuration with binary spins" width="250px"/>
 <p>We consider a kinetic Ising model describing a system made up of $N$ interacting binary spins $s_{i,t} \in \{-1, 1\}$ that evolve in discrete time steps $t$ according to synchronous dynamics, i.e. all spins get updated at the same time in parallel. Given a spin configuration $\mathbf{s}_{t-1} = \{ s_{1,t-1}, s_{2,t-1}, \ldots, s_{N,t-1} \}$ at time $t-1$, we consider the spins $\mathbf{s}_{t}$ at time $t$ to be conditionally independent random variables captured by a discrete-time Markov chain transition probability</p>
@@ -929,7 +930,7 @@ def simulate(
 <h1 id="3-mean-field-theory-of-asymmetric-ising-models-with-vector-spins">3. Mean-field theory of asymmetric Ising models with vector spins</h1>
 <p>We now transpose the binary-spin results of the previous section to a setting where the local spin degrees of freedom are $D$-dimensional vector spins restricted to wiggle around on $(D-1)$-dimensional spheres. We start by generalizing the conditional distribution Eq. \eqref{eq:pcondalt} to vector spins. Next, we derive mean-field equations for the mean magnetizations. We finish this section with a JAX implementation of the update equations and compare numerical results to the binary-spin case.</p>
 <img src="vector_spins.png" alt="Random Ising model configuration with vector spins" width="250px"/>
-<h2 id="31-distributions-on-hyperspheres">3.1. Distributions on hyperspheres</h2>
+<h2 id="31-vector-spins-distributions-on-hyperspheres">3.1. Vector spins: distributions on hyperspheres</h2>
 <p>A vector-spin equivalent of Eq. \eqref{eq:pcondalt} looks like</p>
 <p>\begin{equation}
 P_{\alpha}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{\beta \, \mathbf{s}_{i,t} \cdot \mathbf{h}_{i,t}(\alpha)}}{\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s}_{i,t} \; \mathrm{e}^{\beta \, \mathbf{s}_{i,t} \cdot \mathbf{h}_{i,t}(\alpha)} }, \label{eq:pcondaltvector}
@@ -1020,29 +1021,10 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 <p>$\ldots$</p>
 <h2 id="41-fast--and-slow-moving-parameters">4.1. Fast- and slow-moving parameters</h2>
 <p>$\ldots$</p>
-<p>As suggested in <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">Transformers Are Secretly Collectives of Spin Systems</a>, each training example in a batch of sequential data can be thought of as probing the spin system in a particular way. Physically, the <em>fast-moving</em> parameterized couplings $\mathbf{J}(\mathbf{X})$ are determined by the <em>fast-moving</em> parameterized external fields $\mathbf{X}$, which in turn depend on the magnetizations of the previous layer and eventually on the input data. The external fields act as an environment of patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing a state of quenched disorder. The <em>slow-moving</em> parameters are those receiving gradient updates during training, e.g. the query-key matrices in the softmax couplings. Training shapes the input-dependent <em>distribution of coupling parameters</em> by amassing information from a huge amount of sampled quenched disorder realizations, sculpting a spin glass with data.</p>
+<p>As proposed earlier in <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">Transformers Are Secretly Collectives of Spin Systems</a>, each example in a batch of sequential data can be thought of as probing the spin system in a particular way. Physically, the <em>fast-moving</em> parameterized couplings $\mathbf{J}(\mathbf{X})$ are determined by the <em>fast-moving</em> parameterized external fields $\mathbf{X}$, which in turn depend on the magnetizations of the previous layer and ultimately on the input data. The external fields act as an environment of patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing something like a state of quenched disorder. The <em>slow-moving</em> parameters are those receiving gradient updates during training, e.g. the query-key matrices in the softmax couplings. Training can then be understood as <em>shaping the input-dependent distribution of coupling parameters</em> by amassing information from a huge amount of quenched disorder realizations, sculpting a spin glass with data.</p>
 <p>$\ldots$</p>
 <h1 id="5-conclusion">5. Conclusion</h1>
 <p>$\ldots$</p>
-<h1 id="related-work">Related work</h1>
-<p>A non-exhaustive list of references and inspiration includes:</p>
-<ul>
-<li>
-<p>M. Aguilera, S.A. Moosavi, and H. Shimazaki, A unifying framework for mean-field theories of asymmetric kinetic Ising systems, <em>Nat Commun</em> <strong>12</strong>, 1197 (2021). <a href="https://arxiv.org/abs/2002.04309" target="_blank" rel="noopener">https://arxiv.org/abs/2002.04309</a></p>
-</li>
-<li>
-<p>H.C. Nguyen, R. Zecchina, and J. Berg, Inverse statistical problems: from the inverse Ising problem to data science, <em>Advances in Physics</em>, 66:3, 197-261 (2017). <a href="https://arxiv.org/abs/1702.01522" target="_blank" rel="noopener">https://arxiv.org/abs/1702.01522</a></p>
-</li>
-<li>
-<p>B. Bravi, P. Sollich, and M. Opper, Extended Plefka Expansion for Stochastic Dynamics, <em>J. Phys. A: Math. Theor.</em> <strong>49</strong>, 194003 (2016). <a href="https://arxiv.org/abs/1509.07066" target="_blank" rel="noopener">https://arxiv.org/abs/1509.07066</a></p>
-</li>
-<li>
-<p>Y. Roudi and J. Hertz, Dynamical TAP equations for non-equilibrium Ising spin glasses, <em>J. Stat. Mech.</em>, P03031 (2011) <a href="https://arxiv.org/abs/1103.1044" target="_blank" rel="noopener">https://arxiv.org/abs/1103.1044</a></p>
-</li>
-<li>
-<p>H.J. Kappen and J.J. Spanjers, Mean field theory for asymmetric neural networks, <em>Phys. Rev. E</em> <strong>61</strong>, 5658 (2000) <a href="https://repository.ubn.ru.nl/handle/2066/112702" target="_blank" rel="noopener">https://repository.ubn.ru.nl/handle/2066/112702</a></p>
-</li>
-</ul>
 <h1 id="appendices">Appendices</h1>
 <h2 id="a1-normalization-constant">A.1. Normalization constant</h2>
 <p>Let $Z(\beta, R, \mathbf{h})=\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}}$ and switch to $D$-dimensional spherical coordinates to make our life easier. We use rotational symmetry to choose the polar axis parallel to $\mathbf{h}$,</p>
@@ -1102,7 +1084,7 @@ I_{\nu-1}(z) + I_{\nu+1}(z) &amp;= 2 I'_{\nu}(z), \label{eq:irecurrderiv}
 \end{align}</p>
 <p>of modified Bessel functions of the first kind for $\nu \geq 0$ and $x \geq 0$, we implement a <a href="https://github.com/mcbal/spin-model-transformers/blob/main/spin_model_transformers/bessel.py" target="_blank" rel="noopener">JIT-compatible JAX version</a> of an algorithm described in <a href="https://www.jstor.org/stable/2005830" target="_blank" rel="noopener">(Amos, 1974)</a>. A pseudocode implementation can be found in <a href="https://isas.iar.kit.edu/pdf/ACC13_Kurz.pdf" target="_blank" rel="noopener">(Kurz et al., 2013)</a>. We compare our implementation against explicitly calculating the ratio using <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.ive.html#scipy.special.ive" target="_blank" rel="noopener"><code>scipy.special.ive</code></a> across a range of orders $\nu$ for several different values of $x$ to get a feel for its behavior.</p>
 <p><img src="bessel_plot_1.png" alt=""></p>
-<p>We observe a satisfying agreement between the two approaches. For $x=\sqrt{\nu}$, the ratio takes on very small values for large orders. For $x=\nu^2$, the oppositive happens and we see saturation. The case $x=\nu$ seems to sit in between, which suggests it might be opportune to fix the radius of our little spins to $R=\sqrt{D/2}$ so that with $\lVert\mathbf{h}\rVert \sim \mathcal{O}(\sqrt{D})$ we could maximize the &ldquo;sensitivity&rdquo; of the expected value.</p>
+<p>We observe a satisfying agreement between the two approaches. For $x=\sqrt{\nu}$, the ratio takes on very small values for large orders. For $x=\nu^2$, the oppositive happens and we see saturation. The case $x=\nu$ seems to sit in between, which suggests it might be opportune to fix the radius of our little spins to $R=\sqrt{D}$ so that with $\lVert\mathbf{h}\rVert \sim \mathcal{O}(\sqrt{D})$ we might maximize the &ldquo;sensitivity&rdquo; of the expected value.</p>
 <h2 id="a4-mean-magnetization-derivatives">A.4. Mean-magnetization derivatives</h2>
 <p>We are interested in computing the first-order and second-order derivative with respect to $\alpha$ of the function</p>
 <p>\begin{equation}
@@ -1130,7 +1112,23 @@ I_{\nu-1}(z) + I_{\nu+1}(z) &amp;= 2 I'_{\nu}(z), \label{eq:irecurrderiv}
 <p>$\ldots$</p>
 <h2 id="a6-thouless-anderson-palmer-approximation">A.6. Thouless-Anderson-Palmer approximation</h2>
 <p>$\ldots$</p>
-<h1 id="references--footnotes">References &amp; footnotes</h1>
+<h2 id="references--footnotes">References &amp; footnotes</h2>
+<p>A non-exhaustive list of references and inspiration includes:</p>
+<ul>
+<li>
+<p>M. Aguilera, S.A. Moosavi, and H. Shimazaki, A unifying framework for mean-field theories of asymmetric kinetic Ising systems, <em>Nat Commun</em> <strong>12</strong>, 1197 (2021) <a href="https://arxiv.org/abs/2002.04309" target="_blank" rel="noopener">https://arxiv.org/abs/2002.04309</a></p>
+</li>
+<li>
+<p>Y. Roudi and J. Hertz, Dynamical TAP equations for non-equilibrium Ising spin glasses, <em>J. Stat. Mech.</em>, P03031 (2011) <a href="https://arxiv.org/abs/1103.1044" target="_blank" rel="noopener">https://arxiv.org/abs/1103.1044</a></p>
+</li>
+<li>
+<p>H.J. Kappen and J.J. Spanjers, Mean field theory for asymmetric neural networks, <em>Phys. Rev. E</em> <strong>61</strong>, 5658 (2000)</p>
+</li>
+<li>
+<p>G. Parisi, Asymmetric neural networks and the process of learning, <em>J. Phys. A: Math. Gen.</em> <strong>19</strong> L675 (1986)</p>
+</li>
+</ul>
+<hr>
 <p>If you happen to find this work useful, please consider citing it as:</p>
 <pre><code>@article{bal2023spinmodeltransformers,
   title   = {Spin-Model Transformers: A Physics-Inspired Class of Transformer Modules},
