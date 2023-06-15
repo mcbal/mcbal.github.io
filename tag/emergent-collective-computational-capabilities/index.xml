@@ -298,7 +298,7 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 \end{align}&lt;/p&gt;
 &lt;p&gt;Following Eq. \eqref{eq:mftheta}, the first-order approximation should satisfy&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} = \ldots = 0,
+\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} = \ldots = \mathbf{0},
 \end{equation}&lt;/p&gt;
 &lt;p&gt;so that $\boldsymbol{\theta}^{*}_{i,t} = \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1}$ and we end up with the naive mean-field equations:&lt;/p&gt;
 &lt;p&gt;\begin{equation}
@@ -307,7 +307,7 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 &lt;p&gt;Looking ahead at the transformer-module correspondence in &lt;a href=&#34;#4-a-family-of-transformer-like-modules&#34;&gt;Section 4&lt;/a&gt;, we recognize a normalized, scaled sum of a residual connection and an attention term.&lt;/p&gt;
 &lt;p&gt;Again following Eq. \eqref{eq:mftheta}, the second-order approximation should satisfy&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} + \frac{1}{2} \frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha} = 0,
+\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} + \frac{1}{2} \frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha} = \mathbf{0},
 \end{equation}&lt;/p&gt;
 &lt;p&gt;where the second-order derivative is&lt;/p&gt;
 &lt;p&gt;\begin{align}
@@ -331,7 +331,7 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 &lt;p&gt;\begin{equation}
 \boxed{\mathbf{m}_{i,t} \approx \boldsymbol{\varphi} \left(\boldsymbol{\theta}^{*}_{i,t}\right) =  \ldots } \label{eq:tapmvector}
 \end{equation}&lt;/p&gt;
-&lt;p&gt;Looking ahead at the transformer-module correspondence in &lt;a href=&#34;#4-a-family-of-transformer-like-modules&#34;&gt;Section 4&lt;/a&gt;, we recognize a normalized, scaled sum of a residual connection, an attention term, and an expression in terms of magnetizations and couplings playing the role of the feed-forward network, but without additional free parameters.&lt;/p&gt;
+&lt;p&gt;Looking ahead at the transformer-module correspondence in &lt;a href=&#34;#4-a-family-of-transformer-like-modules&#34;&gt;Section 4&lt;/a&gt;, we recognize a normalized, scaled sum of a residual connection, an attention term, and an expression in terms of magnetizations and couplings playing the role of the feed-forward network, but &lt;em&gt;without additional free parameters&lt;/em&gt;.&lt;/p&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h2 id=&#34;33-a-simple-jax-implementation&#34;&gt;3.3. A simple JAX implementation&lt;/h2&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
@@ -410,33 +410,31 @@ I_{\nu-1}(z) + I_{\nu+1}(z) &amp;amp;= 2 I&#39;_{\nu}(z), \label{eq:irecurrderiv
 \end{equation}&lt;/p&gt;
 &lt;p&gt;and Eqs. \eqref{eq:irecurr}-\eqref{eq:irecurrderiv}, we find&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\frac{\partial \boldsymbol{\varphi}(\mathbf{h}(\alpha))}{\partial\alpha} = \beta &amp;amp;\lambda (\lVert \mathbf{h}(\alpha) \rVert) \left( \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \cdot \Delta \mathbf{h} \right) \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \nonumber \\
+\frac{\partial \boldsymbol{\varphi}(\mathbf{h}(\alpha))}{\partial\alpha} = \beta &amp;amp;\lambda_{D} (\beta R \lVert \mathbf{h}(\alpha) \rVert) \left( \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \cdot \Delta \mathbf{h} \right) \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \nonumber \\
 &amp;amp;+ \frac{I_{D/2}(\beta R \lVert \mathbf{h}(\alpha) \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{h}(\alpha) \rVert)} \frac{R \Delta \mathbf{h}}{\lVert \mathbf{h}(\alpha) \rVert}
 \end{align}&lt;/p&gt;
 &lt;p&gt;where&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\lambda (x) = \frac{I^2_{D/2-1}(\beta R x)}{I^2_{D/2}(\beta R x)} - \frac{D}{\beta R x} \frac{I_{D/2-1}(\beta R x)}{I_{D/2}(\beta R x)} - 1. \label{eq:app:lambda}
+\lambda_{D} (x) = \frac{I^2_{D/2-1}(x)}{I^2_{D/2}(x)} - \frac{D}{x} \frac{I_{D/2-1}(x)}{I_{D/2}(x)} - 1. \label{eq:app:lambda}
 \end{equation}&lt;/p&gt;
 &lt;p&gt;For the second-order derivative, we need to slog through even more tedious algebra,&lt;/p&gt;
 &lt;p&gt;\begin{align}
 \frac{\partial^2 \boldsymbol{\varphi}(\mathbf{h}(\alpha))}{\partial^2\alpha}
-= \beta &amp;amp;\frac{\partial}{\partial\alpha}\biggl( \lambda (\lVert \mathbf{h}(\alpha) \rVert) \left( \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \cdot \Delta \mathbf{h} \right) \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \biggr) \nonumber \\
-&amp;amp;+ \frac{\partial}{\partial\alpha}\biggl( \frac{I_{D/2}(\beta R \lVert \mathbf{h}(\alpha) \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{h}(\alpha) \rVert)} \frac{R \Delta \mathbf{h}}{\lVert \mathbf{h}(\alpha) \rVert} \biggr) \nonumber,
+= \beta &amp;amp;\frac{\partial}{\partial\alpha}\biggl( \lambda_{D} (\beta R \lVert \mathbf{h}(\alpha) \rVert) \left( \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \cdot \Delta \mathbf{h} \right) \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \biggr) \nonumber \\
+&amp;amp;+ \frac{\partial}{\partial\alpha}\biggl( \frac{I_{D/2}(\beta R \lVert \mathbf{h}(\alpha) \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{h}(\alpha) \rVert)} \frac{R \Delta \mathbf{h}}{\lVert \mathbf{h}(\alpha) \rVert} \biggr) ,
 \end{align}&lt;/p&gt;
-&lt;p&gt;which leads to&lt;/p&gt;
+&lt;p&gt;which eventually leads to something like&lt;/p&gt;
 &lt;p&gt;\begin{align}
 \frac{\partial^2 \boldsymbol{\varphi}(\mathbf{h}(\alpha))}{\partial^2\alpha}
-= \beta &amp;amp; \, \kappa (\lVert \mathbf{h}(\alpha) \rVert) \left( \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \cdot \Delta \mathbf{h} \right)^{2} \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \nonumber \\
-&amp;amp;+ \beta \lambda (\lVert \mathbf{h}(\alpha) \rVert) \left( \frac{\partial\boldsymbol{\varphi}(\mathbf{h}(\alpha))}{\partial\alpha} \cdot \Delta \mathbf{h} \right) \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \nonumber \\
-&amp;amp;+ \beta \lambda (\lVert \mathbf{h}(\alpha) \rVert) \left( \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \cdot \Delta \mathbf{h} \right) \frac{\partial\boldsymbol{\varphi}(\mathbf{h}(\alpha))}{\partial\alpha} \nonumber \\
-&amp;amp;- \frac{D}{\lVert \mathbf{h}(\alpha) \rVert^2} \left( \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \cdot \Delta \mathbf{h} \right) \Delta \mathbf{h} \nonumber ,
+= -2\beta^2 &amp;amp; \, \kappa_{D} (\beta R \lVert \mathbf{h}(\alpha) \rVert) \left( \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \cdot \Delta \mathbf{h} \right)^{2} \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \nonumber \\
+&amp;amp;+ \beta \lambda_{D} (\beta R \lVert \mathbf{h}(\alpha) \rVert) \left( \frac{\partial\boldsymbol{\varphi}(\mathbf{h}(\alpha))}{\partial\alpha} \cdot \Delta \mathbf{h} \right) \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \nonumber \\
+&amp;amp;+ \beta \lambda_{D} (\beta R \lVert \mathbf{h}(\alpha) \rVert) \left( \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \cdot \Delta \mathbf{h} \right) \frac{\partial\boldsymbol{\varphi}(\mathbf{h}(\alpha))}{\partial\alpha} \nonumber \\
+&amp;amp;- \frac{D}{\lVert \mathbf{h}(\alpha) \rVert^2} \left( \boldsymbol{\varphi}(\mathbf{h}(\alpha)) \cdot \Delta \mathbf{h} \right) \Delta \mathbf{h} ,
 \end{align}&lt;/p&gt;
 &lt;p&gt;where&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\kappa (x) = - 2 &amp;amp;\beta \frac{I^4_{D/2-1}(\beta R x)}{I^4_{D/2}(\beta R x)} - \frac{3D-2}{R x} \frac{I^3_{D/2-1}(\beta R x)}{I^3_{D/2}(\beta R x)} \nonumber \\
-&amp;amp;+ \left( 2 \beta + \frac{(2-D)D}{\beta R^2 x^2} \right) \frac{I^2_{D/2-1}(\beta R x)}{I^2_{D/2}(\beta R x)} - \frac{D}{R x} \frac{I_{D/2-1}(\beta R x)}{I_{D/2}(\beta R x)}.
+\kappa_{D} (x) = \lambda^2_{D} (x) + \left( 1 + \frac{D/2 + 1}{x} \frac{I_{D/2-1}(x)}{I_{D/2}(x)} \right) \lambda_{D} (x) + \frac{1}{x} \frac{I_{D/2-1}(x)}{I_{D/2}(x)}.
 \end{align}&lt;/p&gt;
-&lt;p&gt;It might be possible to rewrite parts of $\kappa (x)$ in terms of $\lambda (x)$ (see Eq. \eqref{eq:app:lambda}).&lt;/p&gt;
 &lt;h2 id=&#34;a5-naive-mean-field-approximation&#34;&gt;A.5. Naive mean-field approximation&lt;/h2&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h2 id=&#34;a6-thouless-anderson-palmer-approximation&#34;&gt;A.6. Thouless-Anderson-Palmer approximation&lt;/h2&gt;
