@@ -323,7 +323,7 @@
     
       <meta property="article:published_time" content="2022-06-19T09:28:17&#43;01:00">
     
-    <meta property="article:modified_time" content="2023-06-15T12:15:18&#43;01:00">
+    <meta property="article:modified_time" content="2023-06-17T21:30:18&#43;01:00">
   
 
   
@@ -356,7 +356,7 @@
   ],
   
   "datePublished": "2022-06-19T09:28:17+01:00",
-  "dateModified": "2023-06-15T12:15:18+01:00",
+  "dateModified": "2023-06-17T21:30:18+01:00",
   
   "author": {
     "@type": "Person",
@@ -649,7 +649,7 @@
           Last updated on
       
     
-    Jun 15, 2023
+    Jun 17, 2023
   </span>
   
 
@@ -658,7 +658,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    24 min read
+    25 min read
   </span>
   
 
@@ -734,8 +734,8 @@
 <p><strong>✨ This is a work in progress exploring connections between transformer neural networks and mean-field dynamics of asymmetric vector-spin models. JAX implementations of the content outlined in this post should eventually become available at <a href="https://github.com/mcbal/spin-model-transformers" target="_blank" rel="noopener"><code>mcbal/spin-model-transformers</code></a>.</strong></p>
 </blockquote>
 <p>In a series of previous <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">blog posts</a>, we have tried to connect the forward pass of a transformer neural-network module to computing mean magnetizations in disordered Ising-like vector-spin models with parameterized couplings and external magnetic fields. In this framework, the forward pass of a transformer module computes statistical observables given a specific realization of quenched couplings and external magnetic fields while the backward pass nudges the parameterized couplings and external magnetic fields. Physically, the transformer module represents an interacting many-body system modulating its behavior by learning to respond to being driven in all kinds of funny ways.</p>
-<p>However, both the mean-field message-passing approach of <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a> and the saddle-point free-energy approach of <a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Transformers from Spin Models: Approximate Free Energy Minimization</a> inherently rely on methods that are only well-defined for spin models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution. Because the softmax attention operation in transformer modules is famously asymmetric, we need to come up with something better to establish a convincing correspondence.</p>
-<p>To capture spin models with asymmetric coupling matrices, we turn to non-equilibrium spin systems, whose dynamics can be pretty wild, yet gentle enough to support regimes where relaxation to a non-equilibrium steady state can occur. In the past few decades, dynamical mean-field approaches have been developed for the binary kinetic Ising model, which exhibits non-equilibrium behavior when couplings are asymmetric or when model parameters are subject to rapid changes. In this post, we generalize one of these approaches from binary spins to vector spins with the aim of comparing the mean-field update equations for the magnetizations to the forward pass of a transformer module.</p>
+<p>However, both the mean-field message-passing approach of <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a> and the saddle-point free-energy approach of <a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Transformers from Spin Models: Approximate Free Energy Minimization</a> inherently rely on methods that are only well-defined for spin models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution. Since the softmax attention operation in transformer modules is famously asymmetric, we need to come up with something better to establish a convincing correspondence.</p>
+<p>To capture spin models with asymmetric coupling matrices, we turn to non-equilibrium spin systems, whose dynamics can be pretty wild yet gentle enough to support regimes where relaxation to a non-equilibrium steady state can occur. In the past few decades, dynamical mean-field approaches have been developed for the binary kinetic Ising model, which exhibits non-equilibrium behavior when couplings are asymmetric or when model parameters are subject to rapid changes. In this post, we generalize one of these approaches from binary spins to vector spins with the aim of comparing the mean-field update equations for the magnetizations to the forward pass of a transformer module.</p>
 <h1 id="2-mean-field-theory-of-asymmetric-ising-models-with-binary-spins">2. Mean-field theory of asymmetric Ising models with binary spins</h1>
 <p>In this section, we review known results on mean-field theory approaches to capturing the stochastic dynamics of binary kinetic Ising models. We primarily follow the discussion outlined in <a href="https://arxiv.org/abs/2002.04309" target="_blank" rel="noopener"><em>A unifying framework for mean-field theories of asymmetric kinetic Ising systems</em> (Aguilera et al., 2021)</a>. We implement the mean-field update equations for the mean magnetizations in JAX and run a few numerical experiments.</p>
 <h2 id="21-setting-the-scene-the-kinetic-ising-model">2.1. Setting the scene: the kinetic Ising model</h2>
@@ -970,21 +970,27 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 <p>The first-order derivative with respect to $\alpha$ is given by</p>
 <p>\begin{align}
 \frac{\partial \mathbf{m}_{i,t}(\alpha)}{\partial\alpha} = \int &amp;\mathrm{d} \mathbf{s}_{t-1} \int \mathrm{d} \mathbf{s}_{t-2} \Biggl( \frac{\partial\boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right)}{\partial\alpha} \, P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} ) \nonumber\\
-&amp;+ \boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right) \, \frac{\partial P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )}{\partial\alpha} \Biggr) P( \mathbf{s}_{t-2} ),
+&amp;+ \boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right) \, \frac{\partial P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )}{\partial\alpha} \Biggr) P( \mathbf{s}_{t-2} ), \label{eq:mitfirstorderalpha}
 \end{align}</p>
-<p>which is given by (see <a href="#a5-naive-mean-field-approximation">Appendix A.5</a>)</p>
+<p>where (see <a href="#a4-partial-derivatives-with-respect-to">Appendix A.4</a>)</p>
 <p>\begin{align}
-\frac{\partial \mathbf{m}_{i,t}(\alpha)}{\partial\alpha} &amp;= \ldots .
+\frac{\partial \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha} = \beta &amp;\lambda_{D} (\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert) \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \cdot \Delta \mathbf{h}_{i,t} \right) \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
+&amp;+ \frac{I_{D/2}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{h}_{i,t}(\alpha) \rVert)} \frac{R \Delta \mathbf{h}_{i,t}}{\lVert \mathbf{h}_{i,t}(\alpha) \rVert}
 \end{align}</p>
-<p>We evaluate at $\alpha=0$ to find</p>
-<p>\begin{align}
-\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} &amp;= \ldots,
-\end{align}</p>
-<p>Following Eq. \eqref{eq:mftheta}, the first-order approximation should satisfy</p>
+<p>with</p>
 <p>\begin{equation}
-\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} = \ldots = \mathbf{0},
+\lambda_{D} (x) = \frac{I^2_{D/2-1}(x)}{I^2_{D/2}(x)} - \frac{D}{x} \frac{I_{D/2-1}(x)}{I_{D/2}(x)} - 1.
 \end{equation}</p>
-<p>so that $\boldsymbol{\theta}^{*}_{i,t} = \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1}$ and we end up with the naive mean-field equations:</p>
+<p>At $\alpha=0$, the second term in \eqref{eq:mitfirstorderalpha} becomes 0 because the derivative of $P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )$ becomes independent of $\boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right)$ and $\int \mathrm{d} \mathbf{s}_{t-1} P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )=1$. We thus find</p>
+<p>\begin{align}
+\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} = \beta &amp;\lambda_{D} (\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert) \left( \mathbf{m}_{i,t} \cdot \Delta \mathbf{h}_{i,t} \right) \mathbf{m}_{i,t} \nonumber \\
+&amp;+ \frac{I_{D/2}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)}{I_{D/2 - 1}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)} \frac{R \Delta \mathbf{h}_{i,t}}{\lVert \boldsymbol{\theta}_{i,t} \rVert}
+\end{align}</p>
+<p>where $\Delta \mathbf{h}_{i,t} = -\boldsymbol{\theta}_{i,t} + \mathbf{x}_{i,t} + \sum_{j=1}^{N} J_{ij} \mathbf{m}_{j,t-1}$. Following Eq. \eqref{eq:mftheta}, the first-order approximation should satisfy</p>
+<p>\begin{equation}
+\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} = \mathbf{0},
+\end{equation}</p>
+<p>so that $\Delta \mathbf{h}_{i,t}=\mathbf{0}$ and hence $\boldsymbol{\theta}^{*}_{i,t} = \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1}$, leading to the naive mean-field equations:</p>
 <p>\begin{equation}
 \boxed{ \mathbf{m}_{i,t} \approx \frac{I_{D/2}(\beta R \lVert \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \rVert)} \frac{R \left(\mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1}\right)}{\lVert \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \rVert} } \label{eq:naivemvector}
 \end{equation}</p>
@@ -1082,8 +1088,8 @@ I_{\nu-1}(z) + I_{\nu+1}(z) &amp;= 2 I'_{\nu}(z), \label{eq:irecurrderiv}
 <h2 id="a3-ratio-of-modified-bessel-functions">A.3. Ratio of modified Bessel functions</h2>
 <p>To compute the ratio $I_{\nu+1}(x) / I_{\nu}(x)$ of modified Bessel functions of the first kind for $\nu \geq 0$ and $x \geq 0$, we implement a <a href="https://github.com/mcbal/spin-model-transformers/blob/main/spin_model_transformers/bessel.py" target="_blank" rel="noopener">JAX version</a> of the algorithm described in <a href="https://www.jstor.org/stable/2005830" target="_blank" rel="noopener">(Amos, 1974)</a>. A pseudocode implementation can be found in <a href="https://isas.iar.kit.edu/pdf/ACC13_Kurz.pdf" target="_blank" rel="noopener">(Kurz et al., 2013)</a>. We compare our implementation against explicitly calculating the ratio using <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.ive.html#scipy.special.ive" target="_blank" rel="noopener"><code>scipy.special.ive</code></a> across a range of orders $\nu$ for several different values of $x$ to get a feel for its behavior.</p>
 <p><img src="bessel_plot_1.png" alt=""></p>
-<p>We observe a satisfying agreement between the two approaches. For $x=\sqrt{\nu}$, the ratio takes on very small values for large orders. For $x=\nu^2$, the oppositive happens and we see saturation. The case $x=\nu$ seems to sit in between, which suggests it might be opportune to fix the radius of our little spins to $R=\sqrt{D}$ so that with $\lVert\mathbf{h}\rVert \sim \mathcal{O}(\sqrt{D})$ we might maximize the &ldquo;sensitivity&rdquo; of the expected value.</p>
-<h2 id="a4-mean-magnetization-derivatives">A.4. Mean-magnetization derivatives</h2>
+<p>We observe a satisfying agreement between the two approaches. For $x=\sqrt{\nu}$, the ratio takes on very small values for large orders. For $x=\nu^2$, the oppositive happens and we see saturation. The case $x=\nu$ seems to sit in between, which suggests it might be opportune to fix the radius of our little spins to $R=\sqrt{D}$ so that with $\lVert\mathbf{h}\rVert \sim \mathcal{O}(\sqrt{D})$ we might maximize the &ldquo;sensitivity&rdquo; of the expected value. In this regime, we would probably also be able to get away with using <a href="https://link.springer.com/article/10.1007/BF02764812" target="_blank" rel="noopener">known asymptotic expansions</a> for large $\nu$ given that the ratio flattens out quickly.</p>
+<h2 id="a4-partial-derivatives-with-respect-to-alpha">A.4. Partial derivatives with respect to $\alpha$</h2>
 <p>We are interested in computing the first-order and second-order derivative with respect to $\alpha$ of the function</p>
 <p>\begin{equation}
 \boldsymbol{\varphi}(\mathbf{h}(\alpha)) = \frac{I_{D/2}(\beta R \lVert \mathbf{h}(\alpha) \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{h}(\alpha) \rVert)} \frac{R \mathbf{h}(\alpha)}{\lVert \mathbf{h}(\alpha) \rVert},
@@ -1119,6 +1125,15 @@ I_{\nu-1}(z) + I_{\nu+1}(z) &amp;= 2 I'_{\nu}(z), \label{eq:irecurrderiv}
 <p>\begin{align}
 \kappa_{D} (x) = \lambda^2_{D} (x) + \left( 1 + \frac{D/2 + 1}{x} \frac{I_{D/2-1}(x)}{I_{D/2}(x)} \right) \lambda_{D} (x) + \frac{1}{x} \frac{I_{D/2-1}(x)}{I_{D/2}(x)}.
 \end{align}</p>
+<p>Another useful derivative is that of the single-site probability distribution \eqref{eq:pcondsinglesitevector},</p>
+<p>\begin{align}
+\frac{\partial}{\partial\alpha} \left( \frac{\mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}(\alpha)}}{\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}(\alpha)} } \right) =  \frac{\partial}{\partial\mathbf{h}(\alpha)} \left( \frac{\mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}(\alpha)}}{\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}(\alpha)} } \right) \cdot \Delta \mathbf{h},
+\end{align}</p>
+<p>which evaluates to</p>
+<p>\begin{align}
+\left( \mathbf{s} - \boldsymbol{\varphi}\left(\mathbf{h}(\alpha)\right) \right) \cdot \Delta \mathbf{h} \frac{ \beta \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}(\alpha)} }{ \int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}(\alpha)} }
+\end{align}</p>
+<p>and can be used to calculate derivatives of the conditional distribution \eqref{eq:pcondaltvector}.</p>
 <h2 id="a5-naive-mean-field-approximation">A.5. Naive mean-field approximation</h2>
 <p>$\ldots$</p>
 <h2 id="a6-thouless-anderson-palmer-approximation">A.6. Thouless-Anderson-Palmer approximation</h2>
