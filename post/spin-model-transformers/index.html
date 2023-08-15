@@ -658,7 +658,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    27 min read
+    30 min read
   </span>
   
 
@@ -702,6 +702,10 @@
 
     <div class="article-style">
       <hr>
+<blockquote>
+<p>✨ <strong>This blog post is a work in progress exploring connections between transformer neural networks and mean-field dynamics of (asymmetric) vector-spin models. JAX implementations of the content outlined in this post should eventually become available at <a href="https://github.com/mcbal/spin-model-transformers" target="_blank" rel="noopener"><code>mcbal/spin-model-transformers</code></a>.</strong></p>
+</blockquote>
+<hr>
 <ol>
 <li><a href="#1-introduction">Introduction</a></li>
 <li><a href="#2-mean-field-theory-of-asymmetric-ising-models-with-binary-spins">Mean-field theory of asymmetric Ising models with binary spins</a>
@@ -729,20 +733,19 @@
 <li><a href="#appendices">Appendices</a>
 <ol>
 <li><a href="#a1-vector-spin-distribution-normalization-constant">Vector-spin distribution: normalization constant</a></li>
-<li><a href="#a2-vector-spin-distribution-expected-value">Vector-spin distribution: expected value</a></li>
-<li><a href="#a3-ratio-of-modified-bessel-functions-of-the-first-kind">Ratio of modified Bessel functions of the first kind</a></li>
-<li><a href="#a4-general-case-partial-derivatives-with-respect-to-alpha">General case: partial derivatives with respect to $\alpha$</a></li>
+<li><a href="#a2-vector-spin-distribution-expected-value-first-moment">Vector-spin distribution: expected value (first moment)</a></li>
+<li><a href="#a3-vector-spin-distribution-variance-second-moment">Vector-spin distribution: variance (second moment)</a></li>
+<li><a href="#a4-ratio-of-modified-bessel-functions-of-the-first-kind">Ratio of modified Bessel functions of the first kind</a></li>
+<li><a href="#a5-general-case-partial-derivatives-with-respect-to-alpha">General case: partial derivatives with respect to $\alpha$</a></li>
 </ol>
 </li>
 </ol>
 <hr>
 <h1 id="1-introduction">1. Introduction</h1>
-<blockquote>
-<p><strong>✨ This is a work in progress exploring connections between transformer neural networks and mean-field dynamics of asymmetric vector-spin models. JAX implementations of the content outlined in this post should eventually become available at <a href="https://github.com/mcbal/spin-model-transformers" target="_blank" rel="noopener"><code>mcbal/spin-model-transformers</code></a>.</strong></p>
-</blockquote>
 <p>In a series of previous <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">blog posts</a>, we have tried to connect the forward pass of a transformer neural-network module to computing mean magnetizations in disordered Ising-like vector-spin models with parameterized couplings and external magnetic fields. In this framework, the forward pass of a transformer module computes statistical observables given a specific realization of quenched couplings and external magnetic fields while the backward pass nudges the parameterized couplings and external magnetic fields. Physically, the transformer module represents an interacting many-body system modulating its behavior by learning to respond to being driven in all kinds of funny ways.</p>
-<p>However, both the mean-field message-passing approach of <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms</a> and the saddle-point free-energy approach of <a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Transformers from Spin Models: Approximate Free Energy Minimization</a> inherently rely on methods that are only well-defined for spin models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution. Since the softmax attention operation in transformer modules is famously asymmetric, we had better come up with a more convincing approach to establish a correspondence.</p>
-<p>To capture spin models with asymmetric coupling matrices, we turn to non-equilibrium spin systems, whose dynamics can be pretty wild yet gentle enough to support regimes where relaxation to a non-equilibrium steady state can occur. In the past few decades, dynamical mean-field approaches have been developed for the binary kinetic Ising model, which exhibits non-equilibrium behavior when couplings are asymmetric or when model parameters are subject to rapid changes. In this post, we generalize one of these approaches from binary spins to vector spins with the aim of comparing the mean-field update equations for the magnetizations to the forward pass of a transformer module.</p>
+<p>However, both the mean-field message-passing approach of <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)</a> and the saddle-point free-energy approach of <a href="https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/" target="_blank" rel="noopener">Transformers from Spin Models: Approximate Free Energy Minimization (2021)</a> inherently rely on methods that are only well-defined for spin models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution. Since the softmax attention operation in transformer modules is famously asymmetric, we had better come up with a more convincing approach to establish a correspondence.</p>
+<p>To capture spin models with asymmetric coupling matrices, we turn to non-equilibrium spin systems, whose dynamics can be pretty wild yet gentle enough to support regimes where relaxation to a non-equilibrium steady state can occur. In the past few decades, dynamical mean-field approaches have been developed for the binary kinetic Ising model, which exhibits non-equilibrium behavior when couplings are asymmetric or when model parameters are subject to rapid changes.</p>
+<p>In this post, we generalize one of these approaches from binary spins to vector spins with the aim of comparing the mean-field update equations for the magnetizations to the forward pass of a transformer module. In doing so, we introduce a physics-inspired class of transformer modules where the underlying spin-system structure is rich enough to yield residual connections, attention terms, and feed-forward terms without having to introduce additional parameters beyond the parametrized couplings.</p>
 <h1 id="2-mean-field-theory-of-asymmetric-ising-models-with-binary-spins">2. Mean-field theory of asymmetric Ising models with binary spins</h1>
 <p>In this section, we review known results on mean-field theory approaches to capturing the stochastic dynamics of binary kinetic Ising models. We primarily follow the discussion outlined in <a href="https://arxiv.org/abs/2002.04309" target="_blank" rel="noopener"><em>A unifying framework for mean-field theories of asymmetric kinetic Ising systems</em> (Aguilera et al., 2021)</a>. We implement the mean-field update equations for the mean magnetizations in JAX and run a few numerical experiments.</p>
 <h2 id="21-setting-the-scene-the-kinetic-ising-model">2.1. Setting the scene: the kinetic Ising model</h2>
@@ -935,7 +938,7 @@ def simulate(
 <p><img src="binary_plot_4.png" alt=""></p>
 <p>Every curve in the above plot describes the final steady-state value of the &ldquo;order parameter&rdquo; $| \langle m_{i} \rangle |$ for a fixed set of model parameters sweeping across $\beta$. We observe a greater spread of values near the critical point and hence an improved capacity to map input external fields to a range of output magnetizations. If we were to let the number of spins $N \to \infty$ and average over a large number of model parameter samples, the finite-size results above would probably transform into a sharp curve with zero magnetization below the critical point and a sudden non-zero magnetization emerging at the critical point.</p>
 <h1 id="3-mean-field-theory-of-asymmetric-ising-models-with-vector-spins">3. Mean-field theory of asymmetric Ising models with vector spins</h1>
-<p>We now transpose the binary-spin results of the previous section to a setting where local spin degrees of freedom are $D$-dimensional vector spins restricted to wiggle around on $(D-1)$-dimensional spheres. We start by generalizing the conditional distribution Eq. \eqref{eq:pcondalt} to vector spins. Next, we motivate and implement the limit of large vector dimension and derive mean-field equations for the mean magnetizations. We finish this section with a JAX implementation of the update equations.</p>
+<p>We now transpose the binary-spin results of the previous section to a setting where local spin degrees of freedom are $D$-dimensional vector spins restricted to wiggle around on $(D-1)$-dimensional spheres. We start by generalizing the conditional distribution Eq. \eqref{eq:pcondalt} to vector spins. Next, we motivate the limit of large vector dimension and derive mean-field equations for the mean magnetizations. We finish this section with a JAX implementation of the update equations.</p>
 <h2 id="31-vector-spins-distributions-on-hyperspheres">3.1. Vector spins: distributions on hyperspheres</h2>
 <img src="vector_spins.png" alt="Random Ising model configuration with vector spins" width="250px"/>
 <p>A vector-spin equivalent of Eq. \eqref{eq:pcondalt} looks like</p>
@@ -948,7 +951,7 @@ P_{\alpha}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N} \frac{\mat
 \end{equation}</p>
 <p>where $S_{D-1}(R) = \{ x \in \mathbb{R}^{D} : \lVert x \rVert = R \}$ denotes the $(D-1)$-dimensional sphere with radius $R$ embedded in $D$ dimensions. Let us focus on the distribution for a single site and drop all subscripts and dependencies for clarity:</p>
 <p>\begin{equation}
-\frac{\mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}}}{\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} }. \label{eq:pcondsinglesitevector}
+p ( \mathbf{s} ; \beta, \mathbf{h}) = \frac{\mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}}}{\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} }. \label{eq:pcondsinglesitevector}
 \end{equation}</p>
 <p>The normalization constant in the denominator can be shown to be (see <a href="#a1-normalization-constant">Appendix A.1</a>)</p>
 <p>\begin{equation}
@@ -966,10 +969,8 @@ Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathr
 \mathbf{m}_{i,t} = \frac{I_{D/2}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)}{I_{D/2 - 1}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)} \frac{R \boldsymbol{\theta}_{i,t}}{\lVert \boldsymbol{\theta}_{i,t} \rVert} \equiv \boldsymbol{\varphi} \left(\boldsymbol{\theta}_{i,t}\right), \label{eq:meanmagsbessels}
 \end{equation}</p>
 <p>which plays the role of $m_{i,t} = \tanh \theta_{i,t}$ in the binary setting, see Eq. \eqref{eq:meanmagstanh}.</p>
-<blockquote>
-<p>✨ Looking ahead at turning these equations into code, we note that there exist <a href="https://www.jstor.org/stable/2005830" target="_blank" rel="noopener">efficient algorithms</a> to compute the ratio of modified Bessel functions of the first kind.  In <a href="#a3-ratio-of-modified-bessel-functions">Appendix A.3</a> we implement a fast JAX version and show numerically how the ratio flattens out quickly for large order.</p>
-</blockquote>
-<p>Let us now circle back to our goal of relating these vector-spin models to transformers. Since the vector dimension used in transformer modules is of the order $10^2&ndash;10^4$, it makes sense to consider the limit of large vector dimension. In this context, an interesting uniform asymptotic expansion of the ratio of modified Bessel functions of the first kind can be found in <a href="https://link.springer.com/article/10.1007/BF02764812" target="_blank" rel="noopener">(Kiefer &amp; Weiss, 1972)</a>:</p>
+<p>Let us briefly circle back to our goal of relating these vector-spin models to transformers. Looking ahead at turning the above equations into code, we note that there exist <a href="https://www.jstor.org/stable/2005830" target="_blank" rel="noopener">efficient algorithms</a> to compute the ratio of modified Bessel functions of the first kind. We implement a fast JAX version in <a href="#a4-ratio-of-modified-bessel-functions">Appendix A.4</a> and show numerically how the ratio flattens out quickly for large values of the order $\nu = D/2 -1$, motivating some kind of large-order (or, equivalently, large-$D$) expansion.</p>
+<p>Since the vector dimension used in practical transformer modules ranges between $\mathcal{O}(10^2)$ and $\mathcal{O}(10^5)$, it makes even more sense to consider the limit of large vector dimension in our context. An interesting uniform asymptotic expansion of the ratio of modified Bessel functions of the first kind can be found in <a href="https://link.springer.com/article/10.1007/BF02764812" target="_blank" rel="noopener">(Kiefer &amp; Weiss, 1972)</a>:</p>
 <p>\begin{align}
 \frac{I_{\nu+\alpha}(\nu x)}{I_{\nu}(\nu x)} = \left( \frac{x}{1+\sqrt{1+x^2}} \right)^{\alpha} \left( 1 - \frac{1+\alpha\sqrt{1+x^2}}{2(1+x^2)} \frac{\alpha}{\nu} + \mathcal{O}\left( \frac{1}{\nu^2} \right) \right)
 \end{align}</p>
@@ -979,9 +980,9 @@ Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathr
 \end{align}</p>
 <p>we can apply the leading order of the asymptotic expansion to \eqref{eq:meanmagsbessels} to find</p>
 <p>\begin{equation}
-\mathbf{m}^{D \to \infty}_{i,t} \approx \frac{\beta}{1+\sqrt{1+\beta^2 \lVert \boldsymbol{\theta}_{i,t} \rVert^2 / R^2 }} \boldsymbol{\theta}_{i,t} \equiv \boldsymbol{\varphi}^{D \to \infty} \left(\boldsymbol{\theta}_{i,t}\right).
+\mathbf{m}^{D \to \infty}_{i,t} \approx \frac{\beta}{1+\sqrt{1+\beta^2 \lVert \boldsymbol{\theta}_{i,t} \rVert^2 / R^2 }} \boldsymbol{\theta}_{i,t} \equiv \boldsymbol{\varphi}^{D \to \infty} \left(\boldsymbol{\theta}_{i,t}\right). \label{eq:largedevmag}
 \end{equation}</p>
-<p>In the next sections, we will default to using the above large-$D$ approximation and refer to <a href="#a4-general-case-partial-derivatives-with-respect-to-alpha">Appendix A.4</a> for derivations of the general case supporting all values of $D \geq 1$.</p>
+<p>In the next sections, we will default to using the above large-$D$ approximation because keeping track of derivatives of Bessel functions gets boring real quick. We defer derivations pertaining to the general case supporting all values of $D \geq 1$ to <a href="#a4-general-case-partial-derivatives-with-respect-to-alpha">Appendix A.4</a>.</p>
 <h2 id="32-naive-mean-field-and-thouless-anderson-palmer-approximations">3.2. Naive mean-field and Thouless-Anderson-Palmer approximations</h2>
 <p>Closely mimicking the binary case, we start from the following approximated marginal probability distribution</p>
 <p>\begin{equation}
@@ -1002,16 +1003,16 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 \frac{\partial \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha} = - &amp; \frac{\beta}{R^2} \frac{ \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \cdot \Delta \mathbf{h}_{i,t} \right) }{ \sqrt{1+\beta^2 \lVert \mathbf{h}_{i,t}(\alpha) \rVert^2 / R^2 } } \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
 &amp;+ \frac{\beta}{1+\sqrt{1+\beta^2 \lVert \mathbf{h}_{i,t}(\alpha) \rVert^2 / R^2 }} \Delta \mathbf{h}_{i,t}
 \end{align}</p>
-<p>Evaluating \eqref{eq:mitfirstorderalpha} at $\alpha=0$, the second term drops out because the first-order derivative of $P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )$ becomes independent of $\boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right)$ and $\int \mathrm{d} \mathbf{s}_{t-1} P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )=1$. We thus find</p>
+<p>Evaluating \eqref{eq:mitfirstorderalpha} at $\alpha=0$, the second term drops out because the first-order derivative of $P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )$ becomes independent of $\boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right)$ and $\int \mathrm{d} \mathbf{s}_{t-1} P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )=1$. We thus end up with</p>
 <p>\begin{align}
 \frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} = - &amp;\frac{\beta}{R^2}\frac{\left( \mathbf{m}_{i,t} \cdot \boldsymbol{v}_{i,t} \right)}{\sqrt{1+\beta^2 \lVert \boldsymbol{\theta}_{i,t}  \rVert^2 / R^2 }} \mathbf{m}_{i,t} \nonumber \\
 &amp;+ \frac{\beta}{1+\sqrt{1+\beta^2 \lVert \boldsymbol{\theta}_{i,t} \rVert^2 / R^2 }}\boldsymbol{v}_{i,t}
 \end{align}</p>
 <p>where</p>
 <p>\begin{align}
-\boldsymbol{v}_{i,t} = -\boldsymbol{\theta}_{i,t} + \mathbf{x}_{i,t} + \sum_{j=1}^{N} J_{ij} \mathbf{m}_{j,t-1}
+\boldsymbol{v}_{i,t} = -\boldsymbol{\theta}_{i,t} + \mathbf{x}_{i,t} + \sum_{j=1}^{N} J_{ij} \mathbf{m}_{j,t-1} \label{eq:vmf}
 \end{align}</p>
-<p>Following Eq. \eqref{eq:mftheta}, the first-order approximation should satisfy</p>
+<p>captures the result of integrating $\Delta \mathbf{h}_{i,t}$ over the spins $\mathbf{s}_{t-1}$. Following Eq. \eqref{eq:mftheta}, the first-order approximation should satisfy</p>
 <p>\begin{equation}
 \left[ \alpha \frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} \right]_{\alpha=1} = \mathbf{0} + \left[ \mathcal{O}\left(\alpha^2\right)\right]_{\alpha=1},
 \end{equation}</p>
@@ -1030,7 +1031,12 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 &amp;+ 2\frac{\partial\boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right)}{\partial\alpha} \, \frac{\partial P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )}{\partial\alpha} \nonumber \\
 &amp;+ \boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right) \, \frac{\partial^{2} P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )}{\partial^{2}\alpha} \Biggr) P( \mathbf{s}_{t-2} ). \label{eq:mhasecordder}
 \end{align}</p>
-<p>Evaluating at $\alpha=0$, the third term in the expression above drops out because the derivative becomes independent of $\boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right)$ and $\int \mathrm{d} \mathbf{s}_{t-1} P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )=1$. Let us take a closer look at the first term. Using the notation $s(\alpha) = \sqrt{1+\beta^2 \lVert \mathbf{h}_{i,t}(\alpha) \rVert^2 / R^2 }$, we find</p>
+<p>Evaluating at $\alpha=0$, the third term in the expression above will drop out because the derivative becomes independent of $\boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right)$ and $\int \mathrm{d} \mathbf{s}_{t-1} P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )=1$.</p>
+<p>Let us take a closer look at the first term in Eq. \eqref{eq:mhasecordder}. If we let</p>
+<p>\begin{align}
+s(\alpha) = \sqrt{1+\beta^2 \lVert \mathbf{h}_{i,t}(\alpha) \rVert^2 / R^2 },
+\end{align}</p>
+<p>then</p>
 <p>\begin{align}
 \frac{\partial^2 \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha^2} = &amp; \frac{\beta^2}{R^4} \frac{ 1+s(\alpha) }{ s(\alpha)^3 } \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \cdot \Delta \mathbf{h}_{i,t} \right)^2 \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
 &amp;- \frac{\beta}{R^2} \frac{1}{s(\alpha)} \left( \frac{\partial\boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha} \cdot \Delta \mathbf{h}_{i,t} \right) \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
@@ -1042,6 +1048,22 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 \frac{\partial^2 \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha^2} = &amp; \frac{\beta^2}{R^4} \frac{ 1+3s(\alpha) }{ s(\alpha)^3 } \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \cdot \Delta \mathbf{h}_{i,t} \right)^2 \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
 &amp;- \frac{\beta^2}{R^2} \frac{1}{s(\alpha)^2 + s(\alpha)} \left( \Delta \mathbf{h}_{i,t} \cdot \Delta \mathbf{h}_{i,t} \right) \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
 &amp;- \frac{\beta^2}{R^2} \frac{2}{s(\alpha)^2 + s(\alpha)} \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))  \cdot \Delta \mathbf{h}_{i,t} \right) \Delta \mathbf{h}_{i,t} .
+\end{align}</p>
+<p>The second term in Eq. \eqref{eq:mhasecordder} contains contributions coming from $\mathbf{s}_{t-1}$ terms in $\ldots$</p>
+<p>\begin{align}
+\ldots
+\end{align}</p>
+<p>Before taking the $\alpha \to 0$ limit of Eq. \eqref{eq:mhasecordder}, we list a few useful tricks to make the evaluation easier. First of all, we use Eq. \eqref{eq:vmf} to introduce the following sneaky substitution</p>
+<p>\begin{align}
+\Delta \mathbf{h}_{i,t} = -\boldsymbol{\theta}_{i,t} + \mathbf{x}_{i,t} + \sum_{j=1}^{N} J_{ij} \mathbf{s}_{j,t-1} = \boldsymbol{v}_{i,t} + \sum_{j=1}^{N} J_{ij} \left( \mathbf{s}_{j,t-1} - \mathbf{m}_{j,t-1} \right),
+\end{align}</p>
+<p>which conveniently separates terms with fluctuating spin variables from magnetizations that can be pulled out of the integrals. Secondly, all terms that contain only one spin variable with a dependence looking like $\mathbf{s}_{j,t-1} - \mathbf{m}_{j,t-1}$ drop out because, schematically,</p>
+<p>\begin{align}
+\mathbf{s}_{j,t-1} \overset{\int \mathrm{d} \mathbf{s}_{t-1}}{\to} \boldsymbol{\varphi}(\mathbf{h}_{j,t}(\alpha)) \overset{\alpha \to 0}{\to} \mathbf{m}_{j,t-1}.
+\end{align}</p>
+<p>Thirdly, since the $\alpha \to 0$ limit decouples all spins $\mathbf{s}_{t-1}$, any term containing dot products $(\mathbf{s}_{j,t-1}-\mathbf{m}_{j,t-1}) \cdot (\mathbf{s}_{k,t-1}-\mathbf{m}_{k,t-1})$ of two spin variables is zero for $j \neq k$ and equal to $R^2 - \mathbf{m}^2_{j,t-1}$ for $j=k$. Finally, we will also encounter terms containing outer products $\mathbf{s}_{j,t-1} \otimes \mathbf{s}_{k,t-1}$, which we can think of as projection operators. For $j \neq k$, these again evaluate to zero, while, for $j=k$, we find that the variance looks like (see <a href="#a3-vector-spin-distribution-variance-second-moment">Appendix A.3</a>)</p>
+<p>\begin{align}
+\mathrm{Var}_{P} [ \mathbf{s}_{i,t} ] &amp;= \frac{\mathbb{1}}{1+s(\alpha)} - \frac{ \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))^T }{ R^2 }.
 \end{align}</p>
 <p>Back to Eq. \eqref{eq:mhasecordder}, where taking the $\alpha \to 0$ limit leads to</p>
 <p>\begin{align}
@@ -1067,13 +1089,17 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 <p>$\ldots$</p>
 <h2 id="41-fast--and-slow-moving-parameters">4.1. Fast- and slow-moving parameters</h2>
 <p>$\ldots$</p>
-<p>As mentioned previously in <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">Transformers Are Secretly Collectives of Spin Systems</a>, each example in a batch of sequential data can be thought of as probing the spin system in a particular way. Physically, the <em>fast-moving</em> parameterized couplings $\mathbf{J}(\mathbf{X})$ are determined by the <em>fast-moving</em> parameterized external fields $\mathbf{X}$, which in turn depend on the magnetizations of the previous layer and ultimately on the input data. The external fields act as an environment of patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing some kind of state of quenched disorder. The <em>slow-moving</em> parameters are those receiving gradient updates during training, e.g. the query-key matrices in the softmax couplings. On the level of the spin-model transformer module, training can be understood as <em>shaping the input-dependent distribution of coupling parameters</em> by amassing information from a huge amount of quenched disorder realizations, sculpting a spin glass with data.</p>
+<p>As mentioned previously in <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">Transformers Are Secretly Collectives of Spin Systems (2021)</a>, each example in a batch of sequential data can be thought of as probing the spin system in a particular way. Physically, the <em>fast-moving</em> parameterized couplings $\mathbf{J}(\mathbf{X})$ are determined by the <em>fast-moving</em> parameterized external fields $\mathbf{X}$, which in turn depend on the magnetizations of the previous layer and ultimately on the input data. The external fields act as an environment of patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing some kind of state of quenched disorder. The <em>slow-moving</em> parameters are those receiving gradient updates during training, e.g. the query-key matrices in the softmax couplings. On the level of the spin-model transformer module, training can be understood as <em>shaping the input-dependent distribution of coupling parameters</em> by amassing information from a huge amount of quenched disorder realizations, sculpting a spin glass with data.</p>
 <p>$\ldots$</p>
 <h1 id="5-conclusion">5. Conclusion</h1>
 <p>$\ldots$</p>
 <h1 id="appendices">Appendices</h1>
 <h2 id="a1-vector-spin-distribution-normalization-constant">A.1. Vector-spin distribution: normalization constant</h2>
-<p>Let $Z(\beta, R, \mathbf{h})=\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}}$ and switch to $D$-dimensional spherical coordinates to make our life easier. We use rotational symmetry to choose the polar axis parallel to $\mathbf{h}$,</p>
+<p>We consider the single-site vector-spin distribution Eq. \eqref{eq:pcondsinglesitevector}:</p>
+<p>\begin{equation}
+p ( \mathbf{s} ; \beta, \mathbf{h}) = \frac{\mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}}}{\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} }.
+\end{equation}</p>
+<p>Let $Z(\beta, R, \mathbf{h})=\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}}$. We switch to $D$-dimensional spherical coordinates to make our life easier and use rotational symmetry to choose the polar axis parallel to $\mathbf{h}$,</p>
 <p>\begin{equation}
 Z(\beta, R, h) = R^{D-1} \int_{\Omega} \int_{0}^{\pi} \mathrm{d}^{D-2} \Omega \;\mathrm{d}\theta \; \mathrm{e}^{\beta R h \cos \theta } \sin^{D-2} \theta ,
 \end{equation}</p>
@@ -1095,24 +1121,28 @@ I_{\nu}(z) = \frac{2^{-\nu}}{\sqrt{\pi}\, \Gamma\left(\nu+\frac{1}{2}\right)} z^
 \end{equation}</p>
 <p>we identify $\nu = D/2 - 1$ and $z = \beta R h$ to find</p>
 <p>\begin{equation}
-Z(\beta, R, h) = \frac{ \left( 2 \pi R \right)^{D/2} I_{D/2 - 1}(\beta R h) }{ \left(\beta h\right)^{D/2-1} }
+Z(\beta, R, h) = \frac{ \left( 2 \pi R \right)^{D/2} I_{D/2 - 1}(\beta R h) }{ \left(\beta h\right)^{D/2-1} }.
 \end{equation}</p>
-<h2 id="a2-vector-spin-distribution-expected-value">A.2. Vector-spin distribution: expected value</h2>
+<h2 id="a2-vector-spin-distribution-expected-value-first-moment">A.2. Vector-spin distribution: expected value (first moment)</h2>
+<p>We consider the single-site vector-spin distribution Eq. \eqref{eq:pcondsinglesitevector}:</p>
+<p>\begin{equation}
+p ( \mathbf{s} ; \beta, \mathbf{h}) = \frac{\mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}}}{\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} }.
+\end{equation}</p>
 <p>Starting from the expression of the normalization constant Eq. \eqref{eq:partfun},</p>
 <p>\begin{equation}
 \int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} = \frac{ \left( 2 \pi R \right)^{D/2} I_{D/2 - 1}(\beta R \lVert \mathbf{h}\rVert) }{ \left(\beta \lVert \mathbf{h}\rVert\right)^{D/2-1} } = Z(\beta, R, \lVert \mathbf{h}\rVert) ,
 \end{equation}</p>
 <p>we write the expected value as</p>
 <p>\begin{equation}
-\mathbf{m} = \frac{1}{Z} \int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} \, \mathbf{s} = \frac{1}{\beta Z} \frac{ \partial }{ \partial \mathbf{h} } \int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}}
+\mathbb{E}_{p} [ \mathbf{s} ] = \frac{1}{Z} \int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathbf{s} \, \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} = \frac{1}{\beta Z} \frac{ \partial }{ \partial \mathbf{h} } \int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}}
 \end{equation}</p>
 <p>so that</p>
 <p>\begin{align}
-\mathbf{m} = \frac{1}{\beta Z} \frac{ \partial }{ \partial \mathbf{h} } \left( \frac{ \left( 2 \pi R \right)^{D/2} I_{D/2 - 1}(\beta R \lVert\mathbf{h} \rVert) }{ \left(\beta \lVert\mathbf{h}\rVert \right)^{D/2-1} } \right)
+\mathbb{E}_{p} [ \mathbf{s} ] = \frac{1}{\beta Z} \frac{ \partial }{ \partial \mathbf{h} } \left( \frac{ \left( 2 \pi R \right)^{D/2} I_{D/2 - 1}(\beta R \lVert\mathbf{h} \rVert) }{ \left(\beta \lVert\mathbf{h}\rVert \right)^{D/2-1} } \right)
 \end{align}</p>
 <p>which evaluates to</p>
 <p>\begin{align}
-\mathbf{m} = \left( \frac{I&rsquo;_{D/2 - 1}(\beta R \lVert \mathbf{h}\rVert)}{I_{D/2 - 1}(\beta R \lVert\mathbf{h}\rVert)} - \frac{ D/2-1 }{ \beta R \lVert\mathbf{h}\rVert} \right) \frac{R \mathbf{h}}{\lVert\mathbf{h}\rVert}.
+\mathbb{E}_{p} [ \mathbf{s} ] = \left( \frac{I&rsquo;_{D/2 - 1}(\beta R \lVert \mathbf{h}\rVert)}{I_{D/2 - 1}(\beta R \lVert\mathbf{h}\rVert)} - \frac{ D/2-1 }{ \beta R \lVert\mathbf{h}\rVert} \right) \frac{R \mathbf{h}}{\lVert\mathbf{h}\rVert}.
 \end{align}</p>
 <p>Using the <a href="https://dlmf.nist.gov/10.29" target="_blank" rel="noopener">modified Bessel function recurrence relations</a>,</p>
 <p>\begin{align}
@@ -1121,13 +1151,47 @@ I_{\nu-1}(z) + I_{\nu+1}(z) &amp;= 2 I'_{\nu}(z), \label{eq:irecurrderiv}
 \end{align}</p>
 <p>we end up with</p>
 <p>\begin{align}
-\mathbf{m} = \frac{I_{D/2}(\beta R \lVert \mathbf{h}\rVert)}{I_{D/2 - 1}(\beta R \lVert\mathbf{h}\rVert)} \frac{R \mathbf{h}}{\lVert\mathbf{h}\rVert}\equiv \boldsymbol{\varphi} (\mathbf{h}).
+\mathbb{E}_{p} [ \mathbf{s} ] = \frac{I_{D/2}(\beta R \lVert \mathbf{h}\rVert)}{I_{D/2 - 1}(\beta R \lVert\mathbf{h}\rVert)} \frac{R \mathbf{h}}{\lVert\mathbf{h}\rVert}\equiv \boldsymbol{\varphi} (\mathbf{h}). \label{eq:app:expectedvalue}
 \end{align}</p>
-<h2 id="a3-ratio-of-modified-bessel-functions-of-the-first-kind">A.3. Ratio of modified Bessel functions of the first kind</h2>
+<h2 id="a3-vector-spin-distribution-variance-second-moment">A.3. Vector-spin distribution: variance (second moment)</h2>
+<blockquote>
+<p>✨ <strong>TODO:</strong> Add variance for general case.</p>
+</blockquote>
+<p>We consider the single-site vector-spin distribution Eq. \eqref{eq:pcondsinglesitevector}:</p>
+<p>\begin{equation}
+p ( \mathbf{s} ; \beta, \mathbf{h}) = \frac{\mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}}}{\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} }.
+\end{equation}</p>
+<p>Using the expression of the normalization constant Eq. \eqref{eq:partfun},</p>
+<p>\begin{equation}
+\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} = \frac{ \left( 2 \pi R \right)^{D/2} I_{D/2 - 1}(\beta R \lVert \mathbf{h}\rVert) }{ \left(\beta \lVert \mathbf{h}\rVert\right)^{D/2-1} } = Z(\beta, R, \lVert \mathbf{h}\rVert) ,
+\end{equation}</p>
+<p>we write the outer-product variance matrix as</p>
+<p>\begin{align}
+\mathrm{Var}_{p} [ \mathbf{s} ] &amp;= \frac{1}{Z} \int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} \, ( \mathbf{s} - \mathbb{E}_{p} [ \mathbf{s} ])( \mathbf{s} - \mathbb{E}_{p} [ \mathbf{s} ])^{T} \\
+&amp;= \frac{1}{\beta^2 Z} \frac{ \partial^2 }{ \partial \mathbf{h} \partial \mathbf{h}^{T} } \int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} - \mathbb{E}_{p} [ \mathbf{s} ] \mathbb{E}_{p} [ \mathbf{s} ]^{T},
+\end{align}</p>
+<p>so that</p>
+<p>\begin{align}
+\mathrm{Var}_{p} [ \mathbf{s} ] &amp;= \frac{1}{\beta Z} \frac{ \partial }{ \partial \mathbf{h} } \left( Z \mathbb{E}_{p} [ \mathbf{s} ]^{T} \right) - \mathbb{E}_{p} [ \mathbf{s} ] \mathbb{E}_{p} [ \mathbf{s} ]^{T}, \\
+&amp;= \frac{1}{\beta} \frac{ \partial }{ \partial \mathbf{h} } \mathbb{E}_{p} [ \mathbf{s} ]^{T},
+\end{align}</p>
+<p>which evaluates to</p>
+<p>\begin{align}
+\mathrm{Var}_{p} [ \mathbf{s} ] &amp;= \ldots \label{eq:app:var}
+\end{align}</p>
+<p>for the general case with the expected value given by Eq. \eqref{eq:app:expectedvalue} and to</p>
+<p>\begin{align}
+\mathrm{Var}_{p} [ \mathbf{s} ] &amp;= \frac{\mathbb{1}}{1+\sqrt{1+\beta^{2}\lVert\mathbf{h}\rVert^{2}/R^2}} - \frac{\beta^2\mathbf{h}\mathbf{h}^T / R^2}{\left(1+\sqrt{1+\beta^{2}\lVert\mathbf{h}\rVert^{2}/R^2}\right)^2}
+\end{align}</p>
+<p>for the large-$D$ limit with the expected value given by Eq. \eqref{eq:largedevmag}.</p>
+<h2 id="a4-ratio-of-modified-bessel-functions-of-the-first-kind">A.4. Ratio of modified Bessel functions of the first kind</h2>
 <p>To compute the ratio $I_{\nu+1}(x) / I_{\nu}(x)$ of modified Bessel functions of the first kind for $\nu \geq 0$ and $x \geq 0$, we implement a <a href="https://github.com/mcbal/spin-model-transformers/blob/main/spin_model_transformers/bessel.py" target="_blank" rel="noopener">JAX version</a> of the algorithm described in <a href="https://www.jstor.org/stable/2005830" target="_blank" rel="noopener">(Amos, 1974)</a>. A pseudocode implementation can be found in <a href="https://isas.iar.kit.edu/pdf/ACC13_Kurz.pdf" target="_blank" rel="noopener">(Kurz et al., 2013)</a>. We compare our implementation against explicitly calculating the ratio using <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.ive.html#scipy.special.ive" target="_blank" rel="noopener"><code>scipy.special.ive</code></a> across a range of orders $\nu$ for several different values of $x$ to get a feel for its behavior.</p>
 <p><img src="bessel_plot_1.png" alt=""></p>
 <p>We observe a satisfying agreement between the two approaches. For $x=\sqrt{\nu}$, the ratio takes on very small values for large orders. For $x=\nu^2$, the oppositive happens and we see saturation. The case $x=\nu$ seems to sit in between, which suggests it might be opportune to fix the radius of our little spins to $R=\sqrt{D}$ so that with $\lVert\mathbf{h}\rVert \sim \mathcal{O}(\sqrt{D})$ we might maximize the &ldquo;sensitivity&rdquo; of the expected value. In this regime, we can get away with <a href="https://link.springer.com/article/10.1007/BF02764812" target="_blank" rel="noopener">known asymptotic expansions</a> for large $\nu$ given that the ratio flattens out quickly.</p>
-<h2 id="a4-general-case-partial-derivatives-with-respect-to-alpha">A.4. General case: partial derivatives with respect to $\alpha$</h2>
+<h2 id="a5-general-case-partial-derivatives-with-respect-to-alpha">A.5. General case: partial derivatives with respect to $\alpha$</h2>
+<blockquote>
+<p>✨ <strong>TODO:</strong> Clean up and verify.</p>
+</blockquote>
 <p>We are interested in computing the first-order and second-order derivative with respect to $\alpha$ of the function</p>
 <p>\begin{equation}
 \boldsymbol{\varphi}(\mathbf{h}(\alpha)) = \frac{I_{D/2}(\beta R \lVert \mathbf{h}(\alpha) \rVert)}{I_{D/2 - 1}(\beta R \lVert \mathbf{h}(\alpha) \rVert)} \frac{R \mathbf{h}(\alpha)}{\lVert \mathbf{h}(\alpha) \rVert},
