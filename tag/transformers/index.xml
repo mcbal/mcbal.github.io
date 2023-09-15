@@ -18,10 +18,6 @@
       <pubDate>Sun, 19 Jun 2022 09:28:17 +0100</pubDate>
       <guid>https://mcbal.github.io/post/spin-model-transformers/</guid>
       <description>&lt;hr&gt;
-&lt;blockquote&gt;
-&lt;p&gt;✨ &lt;strong&gt;This blog post is a work in progress exploring connections between transformer neural networks and mean-field dynamics of (asymmetric) vector-spin models. JAX implementations of the content outlined in this post should eventually become available at &lt;a href=&#34;https://github.com/mcbal/spin-model-transformers&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;mcbal/spin-model-transformers&lt;/code&gt;&lt;/a&gt;.&lt;/strong&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;hr&gt;
 &lt;ol&gt;
 &lt;li&gt;&lt;a href=&#34;#1-introduction&#34;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#2-mean-field-theory-of-asymmetric-ising-models-with-binary-spins&#34;&gt;Mean-field theory of asymmetric Ising models with binary spins&lt;/a&gt;
@@ -36,8 +32,10 @@
 &lt;li&gt;&lt;a href=&#34;#3-mean-field-theory-of-asymmetric-ising-models-with-vector-spins&#34;&gt;Mean-field theory of asymmetric Ising models with vector spins&lt;/a&gt;
 &lt;ol&gt;
 &lt;li&gt;&lt;a href=&#34;#31-vector-spins-distributions-on-hyperspheres&#34;&gt;Vector spins: distributions on hyperspheres&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#32-naive-mean-field-and-thouless-anderson-palmer-approximations&#34;&gt;Naive mean-field and Thouless-Anderson-Palmer approximations&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#33-a-simple-jax-implementation&#34;&gt;A simple JAX implementation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#32-magnetizations-and-limit-of-large-vector-dimension&#34;&gt;Magnetizations and limit of large vector dimension&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#33-first-order-naive-mean-field-approximation&#34;&gt;First-order naive mean-field approximation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#34-second-order-thouless-anderson-palmer-approximation&#34;&gt;Second-order Thouless-Anderson-Palmer approximation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#35-a-simple-jax-implementation&#34;&gt;A simple JAX implementation&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#4-a-family-of-transformer-like-modules&#34;&gt;A family of transformer-like modules&lt;/a&gt;
@@ -58,10 +56,12 @@
 &lt;/ol&gt;
 &lt;hr&gt;
 &lt;h1 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;✨ &lt;strong&gt;This blog post is a work in progress exploring connections between transformer neural networks and mean-field dynamics of (asymmetric) vector-spin models. Code in JAX and PyTorch of the content outlined in this post should eventually become available at &lt;a href=&#34;https://github.com/mcbal/spin-model-transformers&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;mcbal/spin-model-transformers&lt;/code&gt;&lt;/a&gt;. Come join the fun.&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;In a series of previous &lt;a href=&#34;https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;blog posts&lt;/a&gt;, we have tried to connect the forward pass of a transformer neural-network module to computing mean magnetizations in disordered Ising-like vector-spin models with parameterized couplings and external magnetic fields. In this framework, the forward pass of a transformer module computes statistical observables given a specific realization of quenched couplings and external magnetic fields while the backward pass nudges the parameterized couplings and external magnetic fields. Physically, the transformer module represents an interacting many-body system modulating its behavior by learning to respond to being driven in all kinds of funny ways.&lt;/p&gt;
-&lt;p&gt;However, both the mean-field message-passing approach of &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)&lt;/a&gt; and the saddle-point free-energy approach of &lt;a href=&#34;https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers from Spin Models: Approximate Free Energy Minimization (2021)&lt;/a&gt; inherently rely on methods that are only well-defined for spin models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution. Since the softmax attention operation in transformer modules is famously asymmetric, we had better come up with a more convincing approach to establish a correspondence.&lt;/p&gt;
-&lt;p&gt;To capture spin models with asymmetric coupling matrices, we turn to non-equilibrium spin systems, whose dynamics can be pretty wild yet gentle enough to support regimes where relaxation to a non-equilibrium steady state can occur. In the past few decades, dynamical mean-field approaches have been developed for the binary kinetic Ising model, which exhibits non-equilibrium behavior when couplings are asymmetric or when model parameters are subject to rapid changes.&lt;/p&gt;
-&lt;p&gt;In this post, we generalize one of these approaches from binary spins to vector spins with the aim of comparing the mean-field update equations for the magnetizations to the forward pass of a transformer module. In doing so, we introduce a physics-inspired class of transformer modules where the underlying spin-system structure is rich enough to yield residual connections, attention terms, and feed-forward terms without having to introduce additional parameters beyond the parametrized couplings.&lt;/p&gt;
+&lt;p&gt;However, both the mean-field message-passing approach of &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)&lt;/a&gt; and the saddle-point free-energy approach of &lt;a href=&#34;https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers from Spin Models: Approximate Free Energy Minimization (2021)&lt;/a&gt; inherently rely on methods that are only well-defined for spin models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution. Since the softmax attention matrix in transformer modules is famously asymmetric, we had better come up with a more convincing approach to establish a correspondence.&lt;/p&gt;
+&lt;p&gt;To capture spin models with asymmetric coupling matrices, we turn to non-equilibrium spin systems, whose dynamics can be pretty wild yet gentle enough to support regimes where relaxation to a non-equilibrium steady state can occur. In the past few decades, dynamical mean-field approaches have been developed for the binary kinetic Ising model, which exhibits non-equilibrium behavior when couplings are asymmetric or when model parameters are subject to rapid changes. In this post, we generalize one of these approaches from binary spins to vector spins with the aim of relating the mean-field update equations for the magnetizations to the forward pass of a transformer module.&lt;/p&gt;
 &lt;h1 id=&#34;2-mean-field-theory-of-asymmetric-ising-models-with-binary-spins&#34;&gt;2. Mean-field theory of asymmetric Ising models with binary spins&lt;/h1&gt;
 &lt;p&gt;In this section, we review known results on mean-field theory approaches to capturing the stochastic dynamics of binary kinetic Ising models. We primarily follow the discussion outlined in &lt;a href=&#34;https://arxiv.org/abs/2002.04309&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;em&gt;A unifying framework for mean-field theories of asymmetric kinetic Ising systems&lt;/em&gt; (Aguilera et al., 2021)&lt;/a&gt;. We implement the mean-field update equations for the mean magnetizations in JAX and run a few numerical experiments.&lt;/p&gt;
 &lt;h2 id=&#34;21-setting-the-scene-the-kinetic-ising-model&#34;&gt;2.1. Setting the scene: the kinetic Ising model&lt;/h2&gt;
@@ -132,7 +132,7 @@ h_{i,t}(\alpha) = (1-\alpha) \theta_{i,t} + \alpha \left( x_{i,t} + \sum_{j=1}^{
 &lt;p&gt;\begin{equation}
 \sum_{k=1}^{n} \frac{1}{k!} \frac{\partial^{k} \mathbf{m}_{t}(\alpha=0)}{\partial \alpha^{k}} + \mathcal{O}(\alpha^{n+1}) = 0. \label{eq:mftheta}
 \end{equation}&lt;/p&gt;
-&lt;p&gt;Finally, we solve Eq. \eqref{eq:mftheta} for $\boldsymbol{\theta}_{t}$ to find the mean-field values $\boldsymbol{\theta}^{*}_{t}$ of the parameters of the distribution Eq. \eqref{eq:q}. Physically, we are tuning the effective external magnetic fields of the factorized ansatz to $\boldsymbol{\theta}^{*}_{t}$ so that its approximate mean magnetizations get as close as possible to the real ones.&lt;/p&gt;
+&lt;p&gt;Finally, we solve Eq. \eqref{eq:mftheta} for $\boldsymbol{\theta}_{t}$ to find the mean-field values $\boldsymbol{\theta}^{*}_{t}$ of the parameters of the distribution Eq. \eqref{eq:q}. Physically, we are tuning the effective external magnetic fields of the factorized ansatz to $\boldsymbol{\theta}^{*}_{t}$ so that its approximate mean magnetizations get as close as possible to the true ones.&lt;/p&gt;
 &lt;h2 id=&#34;24-naive-mean-field-and-thouless-anderson-palmer-approximations&#34;&gt;2.4. Naive mean-field and Thouless-Anderson-Palmer approximations&lt;/h2&gt;
 &lt;p&gt;We now consider first and second order approximations of the mean magnetizations Eq. \eqref{eq:mtaylor} to recover respectively the naive mean-field and Thouless-Anderson-Palmer (TAP) approximations for the binary kinetic Ising model. The starting point is a Plefka expansion around factorized models at times $t-1$ and $t$. From Eq. \eqref{eq:marginal} and Eq. \eqref{eq:pcondalt}, we construct a marginal probability distribution&lt;/p&gt;
 &lt;p&gt;\begin{equation}
@@ -269,28 +269,27 @@ P_{\alpha}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) = \prod_{i=1}^{N} \frac{\mat
 &lt;p&gt;\begin{equation}
 p ( \mathbf{s} ; \beta, \mathbf{h}) = \frac{\mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}}}{\int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} }. \label{eq:pcondsinglesitevector}
 \end{equation}&lt;/p&gt;
-&lt;p&gt;The normalization constant in the denominator can be shown to be (see &lt;a href=&#34;#a1-normalization-constant&#34;&gt;Appendix A.1&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;The normalization constant in the denominator can be shown to be (see &lt;a href=&#34;#a1-vector-spin-distribution-normalization-constant&#34;&gt;Appendix A.1&lt;/a&gt;)&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 \int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} = \frac{ \left( 2 \pi R \right)^{D/2} I_{D/2 - 1}(\beta R \lVert \mathbf{h}\rVert) }{ \left(\beta \lVert \mathbf{h}\rVert\right)^{D/2-1} } \equiv Z(\beta, R, \lVert \mathbf{h}\rVert) \label{eq:partfun}
 \end{equation}&lt;/p&gt;
 &lt;p&gt;where $I_{\nu}(z)$ denotes the modified Bessel function of the first kind and $\lVert \mathbf{h}\rVert = \sqrt{\mathbf{h} \cdot \mathbf{h}}$. Physically, we can think of this single-site distribution as measuring dot-product alignment to an effective external magnetic field $\mathbf{h}$ at inverse temperature $\beta$.&lt;/p&gt;
-&lt;p&gt;If we consider spins living on the unit sphere $R=1$ as well as unit vectors $\mathbf{h}$, the distribution looks like a &lt;a href=&#34;https://en.wikipedia.org/wiki/Von_Mises%E2%80%93Fisher_distribution&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;von Mises–Fisher distribution&lt;/a&gt; with mean direction $\boldsymbol{\mu} \equiv \mathbf{h}$ and &lt;a href=&#34;https://en.wikipedia.org/wiki/Concentration_parameter&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;concentration parameter&lt;/a&gt; $\kappa \equiv \beta$. This distribution is unimodal for $\kappa &amp;gt; 0$ and can be derived from restricting an isotropic multivariate Gaussian to the unit hypersphere. The greater the value of $\kappa$ (the inverse temperature $\beta$), the higher the concentration of the distribution around the mean direction $\boldsymbol{\mu}$ (the more the spin tends to align to the effective external field $\mathbf{h}$). Instead of a fixed parameter $\boldsymbol{\mu}$, we have a very funky parameter Eq. \eqref{eq:pcondalthvector} that depends on all other spins to spice things up.&lt;/p&gt;
+&lt;p&gt;If we consider spins living on the unit sphere $R=1$ as well as unit vectors $\mathbf{h}$, the distribution boils down to a &lt;a href=&#34;https://en.wikipedia.org/wiki/Von_Mises%E2%80%93Fisher_distribution&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;von Mises–Fisher distribution&lt;/a&gt; with mean direction $\boldsymbol{\mu} \equiv \mathbf{h}$ and &lt;a href=&#34;https://en.wikipedia.org/wiki/Concentration_parameter&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;concentration parameter&lt;/a&gt; $\kappa \equiv \beta$. This distribution is unimodal for $\kappa &amp;gt; 0$ and can be derived from restricting an isotropic multivariate Gaussian to the unit hypersphere. The greater the value of $\kappa$ (the inverse temperature $\beta$), the higher the concentration of the distribution around the mean direction $\boldsymbol{\mu}$ (the more the spin tends to align to the effective external field $\mathbf{h}$). Instead of a fixed parameter $\boldsymbol{\mu}$, we have a very funky parameter Eq. \eqref{eq:pcondalthvector} that depends on all other spins to spice things up.&lt;/p&gt;
 &lt;h2 id=&#34;32-magnetizations-and-limit-of-large-vector-dimension&#34;&gt;3.2. Magnetizations and limit of large vector dimension&lt;/h2&gt;
-&lt;p&gt;Before we derive mean-field approximations for the mean magnetizations, let us first consider the decoupled $\alpha \to 0$ limit of the distribution Eq. \eqref{eq:pcondaltvector},&lt;/p&gt;
+&lt;p&gt;Before we derive mean-field approximations for the mean magnetizations of our vector-spin system, let us first consider the decoupled $\alpha \to 0$ limit of the distribution Eq. \eqref{eq:pcondaltvector},&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathrm{e}^{\beta \, \mathbf{s}_{i,t} \cdot \boldsymbol{\theta}_{i,t}}}{Z_{i,t}\left(\beta, R, \lVert \boldsymbol{\theta}_{i,t} \rVert\right)},
 \end{equation}&lt;/p&gt;
-&lt;p&gt;and find an expression for its mean magnetizations. The mean magnetization for every decoupled site can be shown to be (see &lt;a href=&#34;#a2-expected-value&#34;&gt;Appendix A.2&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;and find an expression for its mean magnetizations. For every decoupled site, the mean magnetization can be shown to be (see &lt;a href=&#34;#a2-vector-spin-distribution-expected-value-first-moment&#34;&gt;Appendix A.2&lt;/a&gt;)&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 \mathbf{m}_{i,t} = \frac{I_{D/2}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)}{I_{D/2 - 1}(\beta R \lVert \boldsymbol{\theta}_{i,t} \rVert)} \frac{R \boldsymbol{\theta}_{i,t}}{\lVert \boldsymbol{\theta}_{i,t} \rVert} \equiv \boldsymbol{\varphi} \left(\boldsymbol{\theta}_{i,t}\right), \label{eq:meanmagsbessels}
 \end{equation}&lt;/p&gt;
-&lt;p&gt;which plays the role of $m_{i,t} = \tanh \theta_{i,t}$ in the binary setting, see Eq. \eqref{eq:meanmagstanh}.&lt;/p&gt;
-&lt;p&gt;Let us briefly circle back to our goal of relating these vector-spin models to transformers. Looking ahead at turning the above equations into code, we note that there exist &lt;a href=&#34;https://www.jstor.org/stable/2005830&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;efficient algorithms&lt;/a&gt; to compute the ratio of modified Bessel functions of the first kind. We implement a fast JAX version in &lt;a href=&#34;#a4-ratio-of-modified-bessel-functions&#34;&gt;Appendix A.4&lt;/a&gt; and show numerically how the ratio flattens out quickly for large values of the order $\nu = D/2 -1$, motivating some kind of large-order (or, equivalently, large-$D$) expansion.&lt;/p&gt;
-&lt;p&gt;Since the vector dimension used in practical transformer modules ranges between $\mathcal{O}(10^2)$ and $\mathcal{O}(10^5)$, it makes even more sense to consider the limit of large vector dimension in our context. An interesting uniform asymptotic expansion of the ratio of modified Bessel functions of the first kind can be found in &lt;a href=&#34;https://link.springer.com/article/10.1007/BF02764812&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;(Kiefer &amp;amp; Weiss, 1972)&lt;/a&gt;:&lt;/p&gt;
+&lt;p&gt;which plays the role of $m_{i,t} = \tanh \theta_{i,t}$ in the binary setting, see Eq. \eqref{eq:meanmagstanh}. Looking ahead at turning the above equation into code, we note that there exist &lt;a href=&#34;https://www.jstor.org/stable/2005830&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;efficient algorithms&lt;/a&gt; to compute the ratio of modified Bessel functions of the first kind. We implement a fast JAX version in &lt;a href=&#34;#a4-ratio-of-modified-bessel-functions-of-the-first-kind&#34;&gt;Appendix A.4&lt;/a&gt; and show numerically how the ratio flattens out quickly for large values of the order $\nu = D/2 -1$, motivating some kind of large-order expansion.&lt;/p&gt;
+&lt;p&gt;As the vector dimension in practical transformer modules tends be somewhere between $\mathcal{O}(10^2)$ and $\mathcal{O}(10^5)$, it makes sense to focus on the limit of large vector dimension. A relevant uniform asymptotic expansion of the ratio of modified Bessel functions of the first kind can be found in &lt;a href=&#34;https://link.springer.com/article/10.1007/BF02764812&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;(Kiefer &amp;amp; Weiss, 1972)&lt;/a&gt;:&lt;/p&gt;
 &lt;p&gt;\begin{align}
 \frac{I_{\nu+\alpha}(\nu x)}{I_{\nu}(\nu x)} = \left( \frac{x}{1+\sqrt{1+x^2}} \right)^{\alpha} \left( 1 - \frac{1+\alpha\sqrt{1+x^2}}{2(1+x^2)} \frac{\alpha}{\nu} + \mathcal{O}\left( \frac{1}{\nu^2} \right) \right)
 \end{align}&lt;/p&gt;
-&lt;p&gt;If we choose to tie the radius $R$ of our little spins to their vector dimension $D$ via&lt;/p&gt;
+&lt;p&gt;Ineed, if we choose to tie the radius $R$ of our little spins to their vector dimension $D$ via&lt;/p&gt;
 &lt;p&gt;\begin{align}
 \nu=D/2-1=R^2,
 \end{align}&lt;/p&gt;
@@ -298,8 +297,8 @@ Q( \mathbf{s}_{t} \vert \boldsymbol{\theta}_{t} ) = \prod_{i=1}^{N} \frac{\mathr
 &lt;p&gt;\begin{equation}
 \mathbf{m}^{D \to \infty}_{i,t} \approx \frac{\beta}{1+\sqrt{1+\beta^2 \lVert \boldsymbol{\theta}_{i,t} \rVert^2 / R^2 }} \boldsymbol{\theta}_{i,t} \equiv \boldsymbol{\varphi}^{D \to \infty} \left(\boldsymbol{\theta}_{i,t}\right). \label{eq:largedevmag}
 \end{equation}&lt;/p&gt;
-&lt;p&gt;In the next sections, we will default to using the above large-$D$ approximation because keeping track of derivatives of Bessel functions gets boring real quick. We defer derivations pertaining to the general case supporting all values of $D \geq 1$ to &lt;a href=&#34;#a4-general-case-partial-derivatives-with-respect-to-alpha&#34;&gt;Appendix A.4&lt;/a&gt;.&lt;/p&gt;
-&lt;h2 id=&#34;32-naive-mean-field-and-thouless-anderson-palmer-approximations&#34;&gt;3.2. Naive mean-field and Thouless-Anderson-Palmer approximations&lt;/h2&gt;
+&lt;p&gt;From here on, we will default to using the large-$D$ approximation because keeping track of (derivatives of) Bessel functions gets boring real quick. We refer to &lt;a href=&#34;#a5-general-case-partial-derivatives-with-respect-to-alpha&#34;&gt;Appendix A.5&lt;/a&gt; for some outrageous expressions pertaining to the general case valid for all $D&amp;gt;1$.&lt;/p&gt;
+&lt;h2 id=&#34;33-first-order-naive-mean-field-approximation&#34;&gt;3.3. First-order naive mean-field approximation&lt;/h2&gt;
 &lt;p&gt;Closely mimicking the binary case, we start from the following approximated marginal probability distribution&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \mathrm{d} \mathbf{s}_{t-2} \; P_{\alpha}( \mathbf{s}_{t} \vert \mathbf{s}_{t-1} ) P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} ) P( \mathbf{s}_{t-2} ),
@@ -317,12 +316,12 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 &lt;p&gt;where&lt;/p&gt;
 &lt;p&gt;\begin{align}
 \frac{\partial \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha} = - &amp;amp; \frac{\beta}{R^2} \frac{ \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \cdot \Delta \mathbf{h}_{i,t} \right) }{ \sqrt{1+\beta^2 \lVert \mathbf{h}_{i,t}(\alpha) \rVert^2 / R^2 } } \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
-&amp;amp;+ \frac{\beta}{1+\sqrt{1+\beta^2 \lVert \mathbf{h}_{i,t}(\alpha) \rVert^2 / R^2 }} \Delta \mathbf{h}_{i,t}
+&amp;amp;+ \frac{\beta}{1+\sqrt{1+\beta^2 \lVert \mathbf{h}_{i,t}(\alpha) \rVert^2 / R^2 }} \Delta \mathbf{h}_{i,t} \label{eq:firstorderphialpha}
 \end{align}&lt;/p&gt;
 &lt;p&gt;Evaluating \eqref{eq:mitfirstorderalpha} at $\alpha=0$, the second term drops out because the first-order derivative of $P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )$ becomes independent of $\boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right)$ and $\int \mathrm{d} \mathbf{s}_{t-1} P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )=1$. We thus end up with&lt;/p&gt;
 &lt;p&gt;\begin{align}
 \frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} = - &amp;amp;\frac{\beta}{R^2}\frac{\left( \mathbf{m}_{i,t} \cdot \boldsymbol{v}_{i,t} \right)}{\sqrt{1+\beta^2 \lVert \boldsymbol{\theta}_{i,t}  \rVert^2 / R^2 }} \mathbf{m}_{i,t} \nonumber \\
-&amp;amp;+ \frac{\beta}{1+\sqrt{1+\beta^2 \lVert \boldsymbol{\theta}_{i,t} \rVert^2 / R^2 }}\boldsymbol{v}_{i,t}
+&amp;amp;+ \frac{\beta}{1+\sqrt{1+\beta^2 \lVert \boldsymbol{\theta}_{i,t} \rVert^2 / R^2 }}\boldsymbol{v}_{i,t} \label{eq:mfirstorderalphazero}
 \end{align}&lt;/p&gt;
 &lt;p&gt;where&lt;/p&gt;
 &lt;p&gt;\begin{align}
@@ -330,13 +329,27 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 \end{align}&lt;/p&gt;
 &lt;p&gt;captures the result of integrating $\Delta \mathbf{h}_{i,t}$ over the spins $\mathbf{s}_{t-1}$. Following Eq. \eqref{eq:mftheta}, the first-order approximation should satisfy&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\left[ \alpha \frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} \right]_{\alpha=1} = \mathbf{0} + \left[ \mathcal{O}\left(\alpha^2\right)\right]_{\alpha=1},
+\left[ \alpha \frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} \right]_{\alpha=1} = \mathbf{0} + \left[ \mathcal{O}\left(\alpha^2\right)\right]_{\alpha=1},\label{eq:firstorderapproxreqs}
 \end{equation}&lt;/p&gt;
 &lt;p&gt;so that we are encouraged to set $\boldsymbol{v}_{i,t}=0$ and hence $\boldsymbol{\theta}^{*}_{i,t} = \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1}$, leading to the naive mean-field equations:&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 \boxed{ \mathbf{m}_{i,t} \approx \frac{\beta \left( \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \right)}{1+\sqrt{1+\beta^2 \lVert \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \rVert^2 / R^2 }} } \label{eq:naivemvector}
 \end{equation}&lt;/p&gt;
-&lt;p&gt;Looking ahead at the transformer-module correspondence in &lt;a href=&#34;#4-a-family-of-transformer-like-modules&#34;&gt;Section 4&lt;/a&gt;, we recognize a scaled sum of a residual connection and an attention term.&lt;/p&gt;
+&lt;p&gt;Looking ahead at the transformer-module correspondence in &lt;a href=&#34;#4-a-family-of-transformer-like-modules&#34;&gt;Section 4&lt;/a&gt;, we squint our eyes and recognize a scaled sum of a residual connection and an attention term.&lt;/p&gt;
+&lt;p&gt;Before moving on to the second-order approximation, let us end this section with an interesting observation about Eq. \eqref{eq:mfirstorderalphazero}. In &lt;a href=&#34;#a3-vector-spin-distribution-variance-second-moment&#34;&gt;Appendix A.3&lt;/a&gt;, we show that the variance matrix of a single spin in the large-$D$ limit equals&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\mathrm{Var} [ \mathbf{s}_{i,t} ] &amp;amp;= \frac{\mathbb{1}}{1+\gamma(\mathbf{h}_{i,t})} - \frac{ \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \otimes \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) }{ R^2 \gamma(\mathbf{h}_{i,t}) }, \label{eq:spinvariance}
+\end{align}&lt;/p&gt;
+&lt;p&gt;where&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\gamma(\mathbf{h}_{i,t}) = \sqrt{1+\beta^{2}\lVert\mathbf{h}_{i,t}\rVert^{2}/R^2},
+\end{align}&lt;/p&gt;
+&lt;p&gt;Taking the $\alpha \to 0$ limit of the above expressions, we can reinterpret Eq. \eqref{eq:mfirstorderalphazero} as the matrix-vector multiplication of the decoupled spin&amp;rsquo;s variance matrix with $\boldsymbol{v}_{i,t}$,&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} = \beta \mathrm{Var} [ \mathbf{s}_{i,t} ] \boldsymbol{v}_{i,t}.
+\end{align}&lt;/p&gt;
+&lt;h2 id=&#34;34-second-order-thouless-anderson-palmer-approximation&#34;&gt;3.4. Second-order Thouless-Anderson-Palmer approximation&lt;/h2&gt;
+&lt;p&gt;Let us now try to find out whether going to the second-order approximation generates additional feed-forward like terms in the update equations for the magnetizations.&lt;/p&gt;
 &lt;p&gt;Again following Eq. \eqref{eq:mftheta}, the second-order approximation should satisfy&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 \left[ \alpha \frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} \right]_{\alpha=1} + \left[ \frac{\alpha^2}{2} \frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha}\right]_{\alpha=1} = \mathbf{0} + \left[ \mathcal{O}\left(\alpha^3\right)\right]_{\alpha=1}, \label{eq:secondorderconstraint}
@@ -347,59 +360,67 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 &amp;amp;+ 2\frac{\partial\boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right)}{\partial\alpha} \, \frac{\partial P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )}{\partial\alpha} \nonumber \\
 &amp;amp;+ \boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right) \, \frac{\partial^{2} P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )}{\partial^{2}\alpha} \Biggr) P( \mathbf{s}_{t-2} ). \label{eq:mhasecordder}
 \end{align}&lt;/p&gt;
-&lt;p&gt;Evaluating at $\alpha=0$, the third term in the expression above will drop out because the derivative becomes independent of $\boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right)$ and $\int \mathrm{d} \mathbf{s}_{t-1} P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )=1$.&lt;/p&gt;
-&lt;p&gt;Let us take a closer look at the first term in Eq. \eqref{eq:mhasecordder}. If we let&lt;/p&gt;
+&lt;p&gt;Evaluating at $\alpha=0$, the third term in the expression above will drop out because the derivative becomes independent of $\boldsymbol{\varphi} \left(\mathbf{h}_{i,t}(\alpha)\right)$ and $\int \mathrm{d} \mathbf{s}_{t-1} P_{\alpha}( \mathbf{s}_{t-1} \vert \mathbf{s}_{t-2} )=1$. Letting&lt;/p&gt;
 &lt;p&gt;\begin{align}
-s(\alpha) = \sqrt{1+\beta^2 \lVert \mathbf{h}_{i,t}(\alpha) \rVert^2 / R^2 },
+\gamma (\alpha) \equiv \gamma(\mathbf{h}_{i,t}(\alpha)) = \sqrt{1+\beta^2 \lVert \mathbf{h}_{i,t}(\alpha) \rVert^2 / R^2 },
 \end{align}&lt;/p&gt;
-&lt;p&gt;then&lt;/p&gt;
+&lt;p&gt;the first term in Eq. \eqref{eq:mhasecordder} can be shown to look something like&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\frac{\partial^2 \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha^2} = &amp;amp; \frac{\beta^2}{R^4} \frac{ 1+s(\alpha) }{ s(\alpha)^3 } \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \cdot \Delta \mathbf{h}_{i,t} \right)^2 \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
-&amp;amp;- \frac{\beta}{R^2} \frac{1}{s(\alpha)} \left( \frac{\partial\boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha} \cdot \Delta \mathbf{h}_{i,t} \right) \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
-&amp;amp;- \frac{\beta}{R^2} \frac{1}{s(\alpha)} \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))  \cdot \Delta \mathbf{h}_{i,t} \right) \frac{\partial\boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha} \nonumber \\
-&amp;amp;- \frac{\beta^2}{R^2} \frac{1}{s(\alpha)^2 + s(\alpha) } \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \cdot \Delta \mathbf{h}_{i,t} \right) \Delta \mathbf{h}_{i,t},
+\frac{\partial^2 \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha^2} = &amp;amp; \frac{\beta^2}{R^4} \frac{ 1+\gamma(\alpha) }{ \gamma(\alpha)^3 } \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \cdot \Delta \mathbf{h}_{i,t} \right)^2 \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
+&amp;amp;- \frac{\beta}{R^2} \frac{1}{\gamma(\alpha)} \left( \frac{\partial\boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha} \cdot \Delta \mathbf{h}_{i,t} \right) \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
+&amp;amp;- \frac{\beta}{R^2} \frac{1}{\gamma(\alpha)} \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))  \cdot \Delta \mathbf{h}_{i,t} \right) \frac{\partial\boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha} \nonumber \\
+&amp;amp;- \frac{\beta^2}{R^2} \frac{1}{\gamma(\alpha)^2 + \gamma(\alpha) } \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \cdot \Delta \mathbf{h}_{i,t} \right) \Delta \mathbf{h}_{i,t},
 \end{align}&lt;/p&gt;
-&lt;p&gt;which, after substituting the first-order derivative, leads to&lt;/p&gt;
+&lt;p&gt;which, after substituting the first-order derivative Eq. \eqref{eq:firstorderphialpha}, simplifies to&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\frac{\partial^2 \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha^2} = &amp;amp; \frac{\beta^2}{R^4} \frac{ 1+3s(\alpha) }{ s(\alpha)^3 } \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \cdot \Delta \mathbf{h}_{i,t} \right)^2 \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
-&amp;amp;- \frac{\beta^2}{R^2} \frac{1}{s(\alpha)^2 + s(\alpha)} \left( \Delta \mathbf{h}_{i,t} \cdot \Delta \mathbf{h}_{i,t} \right) \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
-&amp;amp;- \frac{\beta^2}{R^2} \frac{2}{s(\alpha)^2 + s(\alpha)} \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))  \cdot \Delta \mathbf{h}_{i,t} \right) \Delta \mathbf{h}_{i,t} .
+\frac{\partial^2 \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))}{\partial\alpha^2} = &amp;amp; \frac{\beta^2}{R^4} \frac{ 1+3\gamma(\alpha) }{ \gamma(\alpha)^3 } \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \cdot \Delta \mathbf{h}_{i,t} \right)^2 \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
+&amp;amp;- \frac{\beta^2}{R^2} \frac{1}{\gamma(\alpha)^2 + \gamma(\alpha)} \left( \Delta \mathbf{h}_{i,t} \cdot \Delta \mathbf{h}_{i,t} \right) \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \nonumber \\
+&amp;amp;- \frac{\beta^2}{R^2} \frac{2}{\gamma(\alpha)^2 + \gamma(\alpha)} \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))  \cdot \Delta \mathbf{h}_{i,t} \right) \Delta \mathbf{h}_{i,t} . \label{eq:secondorderphialpha}
 \end{align}&lt;/p&gt;
-&lt;p&gt;The second term in Eq. \eqref{eq:mhasecordder} contains contributions coming from $\mathbf{s}_{t-1}$ terms in $\ldots$&lt;/p&gt;
+&lt;p&gt;The second term in Eq. \eqref{eq:mhasecordder} contains non-vanishing contributions in the $\alpha \to 0$ limit coming from the $\sum_{j=1}^{N} J_{ij} \mathbf{s}_{j, t-1}$ terms in $\Delta \mathbf{h}_{i,t}$. The surviving terms in the integrand are proportional to&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\ldots
+\sum_{j} J_{ij} \Biggl( &amp;amp;\frac{2 \beta^2}{1+\gamma(\alpha)} \frac{\partial\mathbf{m}_{j, t-1}(\alpha)}{\partial\alpha} \nonumber \\
+&amp;amp;- \frac{2 \beta^2}{R^2 \gamma(\alpha)} \left( \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \cdot \frac{\partial\mathbf{m}_{j, t-1}(\alpha)}{\partial\alpha} \right) \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \Biggr),
 \end{align}&lt;/p&gt;
-&lt;p&gt;Before taking the $\alpha \to 0$ limit of Eq. \eqref{eq:mhasecordder}, we list a few useful tricks to make the evaluation easier. First of all, we use Eq. \eqref{eq:vmf} to introduce the following sneaky substitution&lt;/p&gt;
+&lt;p&gt;which we can ignore since they are $\mathcal{O}(\alpha)$ on their own, and thus $\mathcal{O}(\alpha^3)$ when multiplied with $\alpha^2$ in the second-order approximation.&lt;/p&gt;
+&lt;p&gt;Before taking the $\alpha \to 0$ limit of whatever is left in Eq. \eqref{eq:mhasecordder}, we list a few useful tricks to make the evaluation easier. First of all, we use Eq. \eqref{eq:vmf} to introduce the following sneaky substitution&lt;/p&gt;
 &lt;p&gt;\begin{align}
 \Delta \mathbf{h}_{i,t} = -\boldsymbol{\theta}_{i,t} + \mathbf{x}_{i,t} + \sum_{j=1}^{N} J_{ij} \mathbf{s}_{j,t-1} = \boldsymbol{v}_{i,t} + \sum_{j=1}^{N} J_{ij} \left( \mathbf{s}_{j,t-1} - \mathbf{m}_{j,t-1} \right),
 \end{align}&lt;/p&gt;
 &lt;p&gt;which conveniently separates terms with fluctuating spin variables from magnetizations that can be pulled out of the integrals. Secondly, all terms that contain only one spin variable with a dependence looking like $\mathbf{s}_{j,t-1} - \mathbf{m}_{j,t-1}$ drop out because, schematically,&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\mathbf{s}_{j,t-1} \overset{\int \mathrm{d} \mathbf{s}_{t-1}}{\to} \boldsymbol{\varphi}(\mathbf{h}_{j,t}(\alpha)) \overset{\alpha \to 0}{\to} \mathbf{m}_{j,t-1}.
+\mathbf{s}_{j,t-1} - \mathbf{m}_{j,t-1} \overset{\int \mathrm{d} \mathbf{s}_{t-1}}{\to} \boldsymbol{\varphi}(\mathbf{h}_{j,t}(\alpha)) - \mathbf{m}_{j,t-1} \overset{\alpha \to 0}{\to} \mathbf{0}.
 \end{align}&lt;/p&gt;
-&lt;p&gt;Thirdly, since the $\alpha \to 0$ limit decouples all spins $\mathbf{s}_{t-1}$, any term containing dot products $(\mathbf{s}_{j,t-1}-\mathbf{m}_{j,t-1}) \cdot (\mathbf{s}_{k,t-1}-\mathbf{m}_{k,t-1})$ of two spin variables is zero for $j \neq k$ and equal to $R^2 - \mathbf{m}^2_{j,t-1}$ for $j=k$. Finally, we will also encounter terms containing outer products $\mathbf{s}_{j,t-1} \otimes \mathbf{s}_{k,t-1}$, which we can think of as projection operators. For $j \neq k$, these again evaluate to zero, while, for $j=k$, we find that the variance looks like (see &lt;a href=&#34;#a3-vector-spin-distribution-variance-second-moment&#34;&gt;Appendix A.3&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;Thirdly, since the $\alpha \to 0$ limit decouples all spins $\mathbf{s}_{t-1}$, any term containing dot products $(\mathbf{s}_{j,t-1}-\mathbf{m}_{j,t-1}) \cdot (\mathbf{s}_{k,t-1}-\mathbf{m}_{k,t-1})$ of two spin variables is zero for $j \neq k$ and equal to $R^2 - \mathbf{m}^2_{j,t-1}$ for $j=k$. We will also encounter terms containing (tensor contractions with) outer products $(\mathbf{s}_{j,t-1}-\mathbf{m}_{j,t-1}) \otimes (\mathbf{s}_{k,t-1}-\mathbf{m}_{k,t-1})$, which we can think of as projection operators. For $j \neq k$, these and similar terms again evaluate to zero, while, for $j=k$, we get the variance contribution we mentioned previously in Eq. \eqref{eq:spinvariance}.&lt;/p&gt;
+&lt;p&gt;Finally, taking the $\alpha \to 0$ limit of Eq. \eqref{eq:mhasecordder} leads to the following mess:&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\mathrm{Var}_{P} [ \mathbf{s}_{i,t} ] &amp;amp;= \frac{\mathbb{1}}{1+s(\alpha)} - \frac{ \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha)) \boldsymbol{\varphi}(\mathbf{h}_{i,t}(\alpha))^T }{ R^2 }.
+&amp;amp;\qquad \frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha} = \nonumber \\
+&amp;amp;\frac{\beta^2}{R^4} \frac{1+3\gamma(0)}{\gamma(0)^3} \left( \left( \mathbf{m}_{i,t} \cdot \mathbf{v}_{i,t} \right)^2 + \sum_{j} J_{ij} \left( \frac{\mathbf{m}_{i,t}^2}{1+\gamma(0)} - \frac{\left(\mathbf{m}_{i,t}\cdot\mathbf{m}_{j,t-1}\right)^2}{R^2 \gamma(0)} \right) \right) \mathbf{m}_{i,t} \nonumber \\
+&amp;amp;- \frac{\beta^2}{R^2} \frac{1}{\gamma^2 (0) + \gamma(0)} \left( \mathbf{v}_{i,t}^2 + {\color{red}\sum_{j} J_{ij} \left( R^2 - \mathbf{m}_{j,t-1}^2 \right)} \right) \mathbf{m}_{i,t} \nonumber \\
+&amp;amp;- \frac{\beta^2}{R^2} \frac{2}{\gamma^2 (0) + \gamma(0)} \left( \mathbf{v}_{i,t} \otimes \mathbf{v}_{i,t} + \sum_{j} J_{ij} \left( \frac{\mathbb{1}}{1+\gamma(0)} - \frac{\mathbf{m}_{j,t-1}\otimes\mathbf{m}_{j,t-1}}{R^2 \gamma(0)} \right) \right) \mathbf{m}_{i,t} \nonumber
 \end{align}&lt;/p&gt;
-&lt;p&gt;Back to Eq. \eqref{eq:mhasecordder}, where taking the $\alpha \to 0$ limit leads to&lt;/p&gt;
+&lt;p&gt;At this point, it is already too late. We should have remembered that the second-order approximation lives in the neighborhood of the first-order approximation. We probably ended up doing too much work by taking terms into account that are of higher order than $\mathcal{O}(\alpha^2)$. Eyeballing the result, let us only keep the ${\color{red}\mathrm{red\ term}}$, which we recognize as the vector equivalent of the surviving term in the TAP approximation for binary spins. We can always reintroduce the other terms later on if it turns out we have been too careless.&lt;/p&gt;
+&lt;p&gt;Now then, can we solve Eq. \eqref{eq:secondorderconstraint} for $\boldsymbol{\theta}^{*}_{i,t}$ and wrap this up? Only keeping the term selected above, we should solve&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\frac{\partial^{2} \mathbf{m}_{i,t}(\alpha = 0)}{\partial^{2}\alpha} = \ldots
+\beta &amp;amp;\left( \frac{\mathbb{1}}{1+\gamma(0)} - \frac{\mathbf{m}_{i,t}\otimes\mathbf{m}_{i,t}}{R^2 \gamma(0)} \right) \mathbf{v}_{i,t} \nonumber \\
+&amp;amp;= \frac{\beta^2}{2R^2(\gamma(0)^2+\gamma(0))} \sum_{j} J_{ij} \left( R^2 - \mathbf{m}_{j,t-1}^2 \right) \mathbf{m}_{i,t}.
 \end{align}&lt;/p&gt;
-&lt;p&gt;so that Eq. \eqref{eq:secondorderconstraint} boils down to&lt;/p&gt;
+&lt;p&gt;We can isolate $\boldsymbol{\theta}_{i,t}$ in $\mathbf{v}_{i,t}$ to find&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\boldsymbol{\theta}_{i,t} = \mathbf{x}_{i,t} &amp;amp;+ \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \nonumber \\
+&amp;amp;- \frac{\beta}{2R^2 \gamma(0)} \sum_{j} J_{ij} \left( R^2 - \mathbf{m}_{j,t-1}^2 \right) \left( \mathbf{m}_{i,t} - \frac{\mathbf{m}_{i,t}^2 \mathbf{m}_{i,t}}{\frac{R^2 \gamma(0)}{1+\gamma(0)} - \mathbf{m}_{i,t}^2} \right),
+\end{align}&lt;/p&gt;
+&lt;p&gt;where we have used the &lt;a href=&#34;https://en.wikipedia.org/wiki/Sherman%E2%80%93Morrison_formula&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Sherman–Morrison formula&lt;/a&gt; to compute the matrix inverse. But we are not done yet, since the expression on the right-hand side &lt;em&gt;also&lt;/em&gt; depends on $\boldsymbol{\theta}_{i,t}$ through $\gamma(0)=\sqrt{1+\beta^2 \lVert \boldsymbol{\theta}_{i,t} \rVert^2 / R^2 }$. It looks like we have stumbled upon a fixed-point equation&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\boldsymbol{\theta}_{i,t} = f(\boldsymbol{\theta}_{t}, \mathbf{m}_{i,t}, \mathbf{m}_{t-1}),
+\end{align}&lt;/p&gt;
+&lt;p&gt;which we should solve for $\boldsymbol{\theta}^{*}_{i,t}$. The second-order mean-field equations then become yet another fixed-point equation&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\ldots = \mathbf{0} + \left[ \mathcal{O}\left(\alpha^3\right)\right]_{\alpha=1}
+\boxed{\mathbf{m}_{i,t} \approx \boldsymbol{\varphi} \left(\boldsymbol{\theta}^{*}_{i,t}(\mathbf{m}_{i,t}, \mathbf{m}_{t-1})\right) } \label{eq:tapmvector}
 \end{equation}&lt;/p&gt;
-&lt;p&gt;and hence&lt;/p&gt;
-&lt;p&gt;\begin{equation}
-\boldsymbol{\theta}^{*}_{i,t} = \ldots ,
-\end{equation}&lt;/p&gt;
-&lt;p&gt;and we end up with the TAP mean-field equations:&lt;/p&gt;
-&lt;p&gt;\begin{equation}
-\boxed{\mathbf{m}_{i,t} \approx \boldsymbol{\varphi} \left(\boldsymbol{\theta}^{*}_{i,t}\right) =  \ldots } \label{eq:tapmvector}
-\end{equation}&lt;/p&gt;
-&lt;p&gt;Looking ahead at the transformer-module correspondence in &lt;a href=&#34;#4-a-family-of-transformer-like-modules&#34;&gt;Section 4&lt;/a&gt;, we recognize a scaled sum of a residual connection, an attention term, and an expression in terms of magnetizations and couplings playing the role of the feed-forward network, but &lt;em&gt;without additional free parameters&lt;/em&gt;.&lt;/p&gt;
-&lt;p&gt;$\ldots$&lt;/p&gt;
-&lt;h2 id=&#34;33-a-simple-jax-implementation&#34;&gt;3.3. A simple JAX implementation&lt;/h2&gt;
+&lt;p&gt;Like in the binary case, the dependence of $\boldsymbol{\theta}^{*}_{i,t}$ on $\mathbf{m}_{i,t}$ indicates that we should solve for a fixed-point $\mathbf{m}^{*}_{i,t}$. In contrast to the binary case, however, the dependence here is &lt;em&gt;implicit&lt;/em&gt; since $\boldsymbol{\theta}^{*}_{i,t}$ is also obtained from solving a fixed-point equation.&lt;/p&gt;
+&lt;p&gt;Looking ahead at the transformer-module correspondence in &lt;a href=&#34;#4-a-family-of-transformer-like-modules&#34;&gt;Section 4&lt;/a&gt;, we recognize a scaled sum of a residual connection, an attention term, and a self-consistent expression in terms of magnetizations and couplings playing the role of the feed-forward network, &lt;em&gt;without introducing additional free parameters beyond those in the couplings&lt;/em&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;35-a-simple-jax-implementation&#34;&gt;3.5. A simple JAX implementation&lt;/h2&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h1 id=&#34;4-a-family-of-transformer-like-modules&#34;&gt;4. A family of transformer-like modules&lt;/h1&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
@@ -481,7 +502,7 @@ p ( \mathbf{s} ; \beta, \mathbf{h}) = \frac{\mathrm{e}^{\beta \, \mathbf{s} \cdo
 &lt;p&gt;\begin{equation}
 \int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} = \frac{ \left( 2 \pi R \right)^{D/2} I_{D/2 - 1}(\beta R \lVert \mathbf{h}\rVert) }{ \left(\beta \lVert \mathbf{h}\rVert\right)^{D/2-1} } = Z(\beta, R, \lVert \mathbf{h}\rVert) ,
 \end{equation}&lt;/p&gt;
-&lt;p&gt;we write the outer-product variance matrix as&lt;/p&gt;
+&lt;p&gt;we write the symmetric outer-product variance matrix as&lt;/p&gt;
 &lt;p&gt;\begin{align}
 \mathrm{Var}_{p} [ \mathbf{s} ] &amp;amp;= \frac{1}{Z} \int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} \, ( \mathbf{s} - \mathbb{E}_{p} [ \mathbf{s} ])( \mathbf{s} - \mathbb{E}_{p} [ \mathbf{s} ])^{T} \\
 &amp;amp;= \frac{1}{\beta^2 Z} \frac{ \partial^2 }{ \partial \mathbf{h} \partial \mathbf{h}^{T} } \int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}} - \mathbb{E}_{p} [ \mathbf{s} ] \mathbb{E}_{p} [ \mathbf{s} ]^{T},
@@ -497,9 +518,13 @@ p ( \mathbf{s} ; \beta, \mathbf{h}) = \frac{\mathrm{e}^{\beta \, \mathbf{s} \cdo
 \end{align}&lt;/p&gt;
 &lt;p&gt;for the general case with the expected value given by Eq. \eqref{eq:app:expectedvalue} and to&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\mathrm{Var}_{p} [ \mathbf{s} ] &amp;amp;= \frac{\mathbb{1}}{1+\sqrt{1+\beta^{2}\lVert\mathbf{h}\rVert^{2}/R^2}} - \frac{\beta^2\mathbf{h}\mathbf{h}^T / R^2}{\left(1+\sqrt{1+\beta^{2}\lVert\mathbf{h}\rVert^{2}/R^2}\right)^2}
+\mathrm{Var}_{p} [ \mathbf{s} ] &amp;amp;= \frac{\mathbb{1}}{1+\gamma(\mathbf{h})} - \frac{\beta^2\mathbf{h} \otimes \mathbf{h}}{R^2\gamma(\mathbf{h})\left(1+\gamma(\mathbf{h})\right)^2}\\
+&amp;amp;= \frac{\mathbb{1}}{1+\gamma(\mathbf{h})} - \frac{\boldsymbol{\varphi} (\mathbf{h}) \otimes \boldsymbol{\varphi}(\mathbf{h})}{R^2\gamma(\mathbf{h})}
 \end{align}&lt;/p&gt;
-&lt;p&gt;for the large-$D$ limit with the expected value given by Eq. \eqref{eq:largedevmag}.&lt;/p&gt;
+&lt;p&gt;for the large-$D$ limit with the expected value given by Eq. \eqref{eq:largedevmag}, where&lt;/p&gt;
+&lt;p&gt;\begin{align}
+\gamma(\mathbf{h}) = \sqrt{1+\beta^{2}\lVert\mathbf{h}\rVert^{2}/R^2}
+\end{align}&lt;/p&gt;
 &lt;h2 id=&#34;a4-ratio-of-modified-bessel-functions-of-the-first-kind&#34;&gt;A.4. Ratio of modified Bessel functions of the first kind&lt;/h2&gt;
 &lt;p&gt;To compute the ratio $I_{\nu+1}(x) / I_{\nu}(x)$ of modified Bessel functions of the first kind for $\nu \geq 0$ and $x \geq 0$, we implement a &lt;a href=&#34;https://github.com/mcbal/spin-model-transformers/blob/main/spin_model_transformers/bessel.py&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;JAX version&lt;/a&gt; of the algorithm described in &lt;a href=&#34;https://www.jstor.org/stable/2005830&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;(Amos, 1974)&lt;/a&gt;. A pseudocode implementation can be found in &lt;a href=&#34;https://isas.iar.kit.edu/pdf/ACC13_Kurz.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;(Kurz et al., 2013)&lt;/a&gt;. We compare our implementation against explicitly calculating the ratio using &lt;a href=&#34;https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.ive.html#scipy.special.ive&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;scipy.special.ive&lt;/code&gt;&lt;/a&gt; across a range of orders $\nu$ for several different values of $x$ to get a feel for its behavior.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;bessel_plot_1.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
