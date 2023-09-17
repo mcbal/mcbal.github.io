@@ -833,7 +833,7 @@ m_{i,t}(\alpha) &amp;= \sum_{\mathbf{s}_{t},\mathbf{s}_{t-1},\mathbf{s}_{t-2}} s
 \end{equation}</p>
 <p>so that $\theta^{*}_{i,t} = x_{i,t} + \sum_{j} J_{ij} m_{j,t-1}$ and we end up with the naive mean-field equations:</p>
 <p>\begin{equation}
-\boxed{m_{i,t} \approx \tanh \left( x_{i,t} + \sum_{j} J_{ij} m_{j,t-1} \right)} \label{eq:naivem}
+\boxed{m_{i,t} = \tanh \left( x_{i,t} + \sum_{j} J_{ij} m_{j,t-1} \right)} \label{eq:naivem}
 \end{equation}</p>
 <p>Again following Eq. \eqref{eq:mftheta}, the second-order approximation should satisfy</p>
 <p>\begin{equation}
@@ -849,18 +849,18 @@ m_{i,t}(\alpha) &amp;= \sum_{\mathbf{s}_{t},\mathbf{s}_{t-1},\mathbf{s}_{t-2}} s
 \end{equation}</p>
 <p>and we end up with the TAP mean-field equations:</p>
 <p>\begin{equation}
-\boxed{m_{i,t} \approx \tanh \left( x_{i,t} + \sum_{j} J_{ij} m_{j,t-1} - m_{i,t} \sum_{j} J^{2}_{ij} \left( 1-m^{2}_{j,t-1} \right) \right)} \label{eq:tapm}
+\boxed{m_{i,t} = \tanh \left( x_{i,t} + \sum_{j} J_{ij} m_{j,t-1} - m_{i,t} \sum_{j} J^{2}_{ij} \left( 1-m^{2}_{j,t-1} \right) \right)} \label{eq:tapm}
 \end{equation}</p>
 <p>The mean-field equations obtained above can also be elegantly derived using a Legendre transformation of the generating functional of the set of trajectories of the model, as outlined in e.g. <a href="https://arxiv.org/abs/1103.1044" target="_blank" rel="noopener"><em>Dynamical TAP equations for non-equilibrium Ising spin glasses (2011)</em></a>. We can also derive second-order TAP approximations of the correlations</p>
 <p>\begin{equation}
-C_{ik,t} \approx \begin{cases}
+C_{ik,t} = \begin{cases}
 1 - m^{2}_{i,t}  &amp; i = k \\
 \left( 1-m^{2}_{i,t} \right) \left( 1-m^{2}_{k,t} \right) \sum_{j} J_{ij} J_{kj} \left( 1-m^{2}_{j,t-1} \right) &amp; i \neq k \label{eq:tapc}
 \end{cases}
 \end{equation}</p>
 <p>and delayed correlations</p>
 <p>\begin{equation}
-D_{il,t} \approx J_{il} \left( 1-m^{2}_{i,t} \right) \left( 1-m^{2}_{l,t-1} \right) \left( 1 + 2 J_{il} m_{i,t} m_{l,t-1} \right). \label{eq:tapd}
+D_{il,t} = J_{il} \left( 1-m^{2}_{i,t} \right) \left( 1-m^{2}_{l,t-1} \right) \left( 1 + 2 J_{il} m_{i,t} m_{l,t-1} \right). \label{eq:tapd}
 \end{equation}</p>
 <p>We refer to <a href="https://arxiv.org/abs/2002.04309" target="_blank" rel="noopener">(Aguilera et al., 2020)</a> for full derivations of the above mean-field results as well as variations based on different approximations of the marginal distribution $P( \mathbf{s}_{t} )$.</p>
 <p>In summary, given the mean magnetizations $\mathbf{m}_{t-1}$ of the system at time $t-1$, we can use equations \eqref{eq:tapm} \eqref{eq:tapc} \eqref{eq:tapd} to compute a tuple $(\mathbf{m}_{t},\mathbf{C}_{t},\mathbf{D}_{t})$ of approximate statistical properties  of the system at time $t$. The time evolution of the system can thus be captured at the mean-field level by recursively computing $\mathbf{m}_{t}$ starting from an initial state $\mathbf{m}_{0}$, although approximation errors accumulate over the iterations.</p>
@@ -1017,7 +1017,7 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 \end{equation}</p>
 <p>so that we are encouraged to set $\boldsymbol{v}_{i,t}=0$ and hence $\boldsymbol{\theta}^{*}_{i,t} = \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1}$, leading to the naive mean-field equations:</p>
 <p>\begin{equation}
-\boxed{ \mathbf{m}_{i,t} \approx \frac{\beta \left( \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \right)}{1+\sqrt{1+\beta^2 \lVert \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \rVert^2 / R^2 }} } \label{eq:naivemvector}
+\boxed{ \mathbf{m}_{i,t} = \frac{\beta \left( \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \right)}{1+\sqrt{1+\beta^2 \lVert \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \rVert^2 / R^2 }} } \label{eq:naivemvector}
 \end{equation}</p>
 <p>Looking ahead at the transformer-module correspondence in <a href="#4-a-family-of-transformer-like-modules">Section 4</a>, we squint our eyes and recognize a scaled sum of a residual connection and an attention term. No feed-forward terms though.</p>
 <p>Before moving on to the second-order approximation, let us end this section with an interesting observation about Eq. \eqref{eq:mfirstorderalphazero}. In <a href="#a3-vector-spin-distribution-variance-second-moment">Appendix A.3</a>, we show that the variance matrix of a single spin in the large-$D$ limit equals a rank-1 perturbation of a diagonal matrix</p>
@@ -1083,27 +1083,34 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 &amp;- \frac{\beta^2}{R^2} \frac{1}{\gamma^2 (0) + \gamma(0)} \left( \mathbf{v}_{i,t}^2 + {\color{red}\sum_{j} J_{ij} \left( R^2 - \mathbf{m}_{j,t-1}^2 \right)} \right) \mathbf{m}_{i,t} \nonumber \\
 &amp;- \frac{\beta^2}{R^2} \frac{2}{\gamma^2 (0) + \gamma(0)} \left( \mathbf{v}_{i,t} \otimes \mathbf{v}_{i,t} + {\color{red}\sum_{j} J_{ij} \left( \frac{\mathbb{1}}{1+\gamma(0)} - \frac{\mathbf{m}_{j,t-1}\otimes\mathbf{m}_{j,t-1}}{R^2 \gamma(0)} \right)} \right) \mathbf{m}_{i,t} \nonumber
 \end{align}</p>
-<p>At this point, it is already too late. We should have remembered that the second-order approximation lives in the neighborhood of the first-order approximation. We probably ended up doing too much work by taking terms into account that are of higher order than $\mathcal{O}(\alpha^2)$. Eyeballing the result, let us only keep the ${\color{red}\mathrm{red\ terms}}$, which are linear in $\mathbf{m}_{i,t}$. We can always reintroduce additional terms later on if it turns out we have been too careless.</p>
-<p>Now then, can we solve Eq. \eqref{eq:secondorderconstraint} for $\boldsymbol{\theta}^{*}_{i,t}$? Only keeping the terms selected above, we should solve (<strong>TODO</strong>: Just write right-hand side below as a vector function containing all relevant terms instead of focusing on a specific term.)</p>
+<p>At this point, it is already too late. We should have remembered that the second-order approximation lives in the neighborhood of the first-order approximation. We probably ended up doing too much work by taking terms into account that are of higher order than $\mathcal{O}(\alpha^2)$. Eyeballing the result, it might make sense to only keep the ${\color{red}\mathrm{red\ terms}}$, which are linear in $\mathbf{m}_{i,t}$. We can always reintroduce additional terms later on if it turns out we have been too careless.</p>
+<p>To arrive at the second-order mean-field equations for the magnetizations, we now only have to solve Eq. \eqref{eq:secondorderconstraint} for $\boldsymbol{\theta}^{*}_{i,t}$,</p>
+<p>\begin{equation}
+\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} + \frac{1}{2} \frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha} = \mathbf{0} + \mathcal{O}\left(\alpha^3\right)
+\end{equation}</p>
+<p>Let us substitute $\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha}$ but keep $\frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha}$ for clarity:</p>
 <p>\begin{align}
-\beta &amp;\left( \frac{\mathbb{1}}{1+\gamma(0)} - \frac{\mathbf{m}_{i,t}\otimes\mathbf{m}_{i,t}}{R^2 \gamma(0)} \right) \mathbf{v}_{i,t} \nonumber \\
-&amp;= \frac{\beta^2}{2R^2(\gamma(0)^2+\gamma(0))} \sum_{j} J_{ij} \left( R^2 - \mathbf{m}_{j,t-1}^2 \right) \mathbf{m}_{i,t}.
+\beta \left( \frac{\mathbb{1}}{1+\gamma(0)} - \frac{\mathbf{m}_{i,t}\otimes\mathbf{m}_{i,t}}{R^2 \gamma(0)} \right) \mathbf{v}_{i,t} - \frac{1}{2} \frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha} = \mathbf{0} + \mathcal{O}\left(\alpha^3\right)
 \end{align}</p>
 <p>We can isolate $\boldsymbol{\theta}_{i,t}$ in $\mathbf{v}_{i,t}$ to find</p>
 <p>\begin{align}
 \boldsymbol{\theta}_{i,t} = \mathbf{x}_{i,t} &amp;+ \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \nonumber \\
-&amp;- \frac{\beta}{2R^2 \gamma(0)} \sum_{j} J_{ij} \left( R^2 - \mathbf{m}_{j,t-1}^2 \right) \left( \mathbf{m}_{i,t} - \frac{\mathbf{m}_{i,t}^2 \mathbf{m}_{i,t}}{\frac{R^2 \gamma(0)}{1+\gamma(0)} - \mathbf{m}_{i,t}^2} \right),
+&amp;+ \frac{1+\gamma(0)}{2\beta} \left( \frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha} + \frac{\mathbf{m}_{i,t} \cdot \frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha}}{\frac{R^2 \gamma(0)}{1+\gamma(0)} - \mathbf{m}_{i,t}^2} \mathbf{m}_{i,t} \right),
 \end{align}</p>
-<p>where we have used the <a href="https://en.wikipedia.org/wiki/Sherman%E2%80%93Morrison_formula" target="_blank" rel="noopener">Sherman–Morrison formula</a> to compute the matrix inverse. But we are not done yet, since the expression on the right-hand side <em>also</em> depends on $\boldsymbol{\theta}_{i,t}$ through $\gamma(0)=\sqrt{1+\beta^2 \lVert \boldsymbol{\theta}_{i,t} \rVert^2 / R^2 }$. It looks like we have stumbled upon a fixed-point equation</p>
+<p>where we have used the <a href="https://en.wikipedia.org/wiki/Sherman%E2%80%93Morrison_formula" target="_blank" rel="noopener">Sherman–Morrison formula</a> to compute the matrix inverse. But we are not done yet, since the expression on the right-hand side <em>also</em> depends (implicitly) on $\boldsymbol{\theta}_{i,t}$. It looks like we have stumbled upon a fixed-point equation</p>
 <p>\begin{align}
-\boldsymbol{\theta}_{i,t} = f(\boldsymbol{\theta}_{t}, \mathbf{m}_{i,t}, \mathbf{m}_{t-1}),
+\boldsymbol{\theta}_{i,t} = \mathbf{f} (\boldsymbol{\theta}_{i,t}, \mathbf{x}_{i,t}, \mathbf{m}_{i,t}, \mathbf{m}_{t-1}),
 \end{align}</p>
 <p>which we should solve for $\boldsymbol{\theta}^{*}_{i,t}$. The second-order mean-field equations then become yet another fixed-point equation</p>
 <p>\begin{equation}
-\boxed{\mathbf{m}_{i,t} \approx \boldsymbol{\varphi} \left(\boldsymbol{\theta}^{*}_{i,t}(\mathbf{m}_{i,t}, \mathbf{m}_{t-1})\right) } \label{eq:tapmvector}
+\boxed{\mathbf{m}_{i,t} = \boldsymbol{\varphi} \left(\boldsymbol{\theta}^{*}_{i,t}(\mathbf{x}_{i,t}, \mathbf{m}_{i,t}, \mathbf{m}_{t-1})\right) } \label{eq:tapmvector}
 \end{equation}</p>
-<p>Like in the binary case, the dependence of $\boldsymbol{\theta}^{*}_{i,t}$ on $\mathbf{m}_{i,t}$ indicates that we should solve for a fixed-point $\mathbf{m}^{*}_{i,t}$. In contrast to the binary case, however, the dependence here is <em>implicit</em> since $\boldsymbol{\theta}^{*}_{i,t}$ is also obtained from solving a fixed-point equation.</p>
-<p>Looking ahead at the transformer-module correspondence in <a href="#4-a-family-of-transformer-like-modules">Section 4</a>, we recognize a scaled sum of a residual connection, an attention term, and a self-consistent expression in terms of magnetizations and couplings playing the role of the feed-forward network, <em>without introducing additional free parameters beyond those in the couplings</em>.</p>
+<p>Like in the TAP approximation Eq. \eqref{eq:tapm} for the binary case, the dependence of $\boldsymbol{\theta}^{*}_{i,t}$ on $\mathbf{m}_{i,t}$ indicates that we should solve for fixed-point magnetizations $\mathbf{m}^{*}_{i,t}$. However, in contrast to the binary case, the dependence here is <em>implicit</em> since $\boldsymbol{\theta}^{*}_{i,t}$ is obtained from solving another fixed-point equation involving $\mathbf{m}_{i,t}$. Numerically, we should try to jointly optimize for the fixed-point tuple $(\mathbf{m}^{*}_{i,t}, \boldsymbol{\theta}^{*}_{i,t})$ such that the following pair of equations holds:</p>
+<p>\begin{align}
+\boldsymbol{\theta}^{*}_{i,t} &amp;= \mathbf{f} (\boldsymbol{\theta}^{*}_{i,t}, \mathbf{x}_{i,t}, \mathbf{m}^{*}_{i,t}, \mathbf{m}_{t-1}) \\
+\mathbf{m}^{*}_{i,t} &amp;= \boldsymbol{\varphi} \left( \boldsymbol{\theta}^{*}_{i,t}(\mathbf{x}_{i,t}, \mathbf{m}^{*}_{i,t}, \mathbf{m}_{t-1}) \right)
+\end{align}</p>
+<p>Looking ahead at the transformer-module correspondence in <a href="#4-a-family-of-transformer-like-modules">Section 4</a>, we recognize a scaled sum of a residual connection, an attention term, and a self-consistent expression in terms of magnetizations and couplings playing the role of the feed-forward network, <em>without having to introduce additional free parameters</em>.</p>
 <h2 id="35-a-simple-jax-implementation">3.5. A simple JAX implementation</h2>
 <p>$\ldots$</p>
 <h1 id="4-a-family-of-transformer-like-modules">4. A family of transformer-like modules</h1>
