@@ -13,7 +13,7 @@
     </image>
     
     <item>
-      <title>Spin-Model Transformers: A Physics-Inspired Class of Transformer Modules</title>
+      <title>Spin-Model Transformers</title>
       <link>https://mcbal.github.io/post/spin-model-transformers/</link>
       <pubDate>Sun, 19 Jun 2022 09:28:17 +0100</pubDate>
       <guid>https://mcbal.github.io/post/spin-model-transformers/</guid>
@@ -40,7 +40,9 @@
 &lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#4-a-family-of-transformer-like-modules&#34;&gt;A family of transformer-like modules&lt;/a&gt;
 &lt;ol&gt;
-&lt;li&gt;&lt;a href=&#34;#41-fast--and-slow-moving-parameters&#34;&gt;Fast- and slow-moving parameters&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#41-connecting-the-dots&#34;&gt;Connecting the dots&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#42-fast--and-slow-moving-parameters&#34;&gt;Fast- and slow-moving parameters&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#43-a-simple-jax-implementation&#34;&gt;A simple JAX implementation&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#5-conclusion&#34;&gt;Conclusion&lt;/a&gt;&lt;/li&gt;
@@ -53,6 +55,7 @@
 &lt;li&gt;&lt;a href=&#34;#a5-general-case-partial-derivatives-with-respect-to-alpha&#34;&gt;General case: partial derivatives with respect to $\alpha$&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
 &lt;hr&gt;
 &lt;h1 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h1&gt;
@@ -402,38 +405,46 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 &lt;p&gt;At this point, it is already too late. We should have remembered that the second-order approximation lives in the neighborhood of the first-order approximation. We probably ended up doing too much work by taking terms into account that are of higher order than $\mathcal{O}(\alpha^2)$. Eyeballing the result, it might make sense to only keep the ${\color{red}\mathrm{red\ terms}}$, which are linear in $\mathbf{m}_{i,t}$. We can always reintroduce additional terms later on if it turns out we have been too careless.&lt;/p&gt;
 &lt;p&gt;To arrive at the second-order mean-field equations for the magnetizations, we now only have to solve Eq. \eqref{eq:secondorderconstraint} for $\boldsymbol{\theta}^{*}_{i,t}$,&lt;/p&gt;
 &lt;p&gt;\begin{equation}
-\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} + \frac{1}{2} \frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha} = \mathbf{0} + \mathcal{O}\left(\alpha^3\right)
+\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha} + \frac{1}{2} \frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha} = \mathbf{0} + \mathcal{O}\left(\alpha^3\right).
 \end{equation}&lt;/p&gt;
-&lt;p&gt;Let us substitute $\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha}$ but keep $\frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha}$ for clarity:&lt;/p&gt;
+&lt;p&gt;Let us substitute $\frac{\partial \mathbf{m}_{i,t}(\alpha=0)}{\partial\alpha}$ but keep $\frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha}$ for generality:&lt;/p&gt;
 &lt;p&gt;\begin{align}
 \beta \left( \frac{\mathbb{1}}{1+\gamma(0)} - \frac{\mathbf{m}_{i,t}\otimes\mathbf{m}_{i,t}}{R^2 \gamma(0)} \right) \mathbf{v}_{i,t} + \frac{1}{2} \frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha} = \mathbf{0} + \mathcal{O}\left(\alpha^3\right)
 \end{align}&lt;/p&gt;
-&lt;p&gt;We can isolate $\boldsymbol{\theta}_{i,t}$ in $\mathbf{v}_{i,t}$ to find&lt;/p&gt;
+&lt;p&gt;so that we can then isolate $\boldsymbol{\theta}_{i,t}$ in $\mathbf{v}_{i,t}$ to find&lt;/p&gt;
 &lt;p&gt;\begin{align}
 \boldsymbol{\theta}_{i,t} = \mathbf{x}_{i,t} &amp;amp;+ \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \nonumber \\
 &amp;amp;+ \frac{1+\gamma(0)}{2\beta} \left( \frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha} + \frac{\mathbf{m}_{i,t} \cdot \frac{\partial^{2} \mathbf{m}_{i,t}(\alpha=0)}{\partial^{2}\alpha}}{\frac{R^2 \gamma(0)}{1+\gamma(0)} - \mathbf{m}_{i,t}^2} \mathbf{m}_{i,t} \right),
 \end{align}&lt;/p&gt;
-&lt;p&gt;where we have used the &lt;a href=&#34;https://en.wikipedia.org/wiki/Sherman%E2%80%93Morrison_formula&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Sherman–Morrison formula&lt;/a&gt; to compute the matrix inverse. But we are not done yet, since the expression on the right-hand side &lt;em&gt;also&lt;/em&gt; depends (implicitly) on $\boldsymbol{\theta}_{i,t}$. It looks like we have stumbled upon a fixed-point equation&lt;/p&gt;
+&lt;p&gt;where we have used the &lt;a href=&#34;https://en.wikipedia.org/wiki/Sherman%E2%80%93Morrison_formula&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Sherman–Morrison formula&lt;/a&gt; to compute the inverse of the variance matrix. But we are not done yet, since the expression on the right-hand side &lt;em&gt;also&lt;/em&gt; depends (implicitly) on $\boldsymbol{\theta}_{i,t}$. We seem to have stumbled upon a fixed-point equation&lt;/p&gt;
 &lt;p&gt;\begin{align}
-\boldsymbol{\theta}_{i,t} = \mathbf{f} (\boldsymbol{\theta}_{i,t}, \mathbf{x}_{i,t}, \mathbf{m}_{i,t}, \mathbf{m}_{t-1}),
+\boldsymbol{\theta}_{i,t} = \mathbf{f} (\boldsymbol{\theta}_{i,t}, \mathbf{x}_{i,t}, \mathbf{m}_{i,t}, \mathbf{m}_{t-1}), \label{eq:thetafp}
 \end{align}&lt;/p&gt;
 &lt;p&gt;which we should solve for $\boldsymbol{\theta}^{*}_{i,t}$. The second-order mean-field equations then become yet another fixed-point equation&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 \boxed{\mathbf{m}_{i,t} = \boldsymbol{\varphi} \left(\boldsymbol{\theta}^{*}_{i,t}(\mathbf{x}_{i,t}, \mathbf{m}_{i,t}, \mathbf{m}_{t-1})\right) } \label{eq:tapmvector}
 \end{equation}&lt;/p&gt;
-&lt;p&gt;Like in the TAP approximation Eq. \eqref{eq:tapm} for the binary case, the dependence of $\boldsymbol{\theta}^{*}_{i,t}$ on $\mathbf{m}_{i,t}$ indicates that we should solve for fixed-point magnetizations $\mathbf{m}^{*}_{i,t}$. However, in contrast to the binary case, the dependence here is &lt;em&gt;implicit&lt;/em&gt; since $\boldsymbol{\theta}^{*}_{i,t}$ is obtained from solving another fixed-point equation involving $\mathbf{m}_{i,t}$. Numerically, we should try to jointly optimize for the fixed-point tuple $(\mathbf{m}^{*}_{i,t}, \boldsymbol{\theta}^{*}_{i,t})$ such that the following pair of equations holds:&lt;/p&gt;
+&lt;p&gt;Like in the TAP approximation Eq. \eqref{eq:tapm} for the binary case, the dependence of $\boldsymbol{\theta}^{*}_{i,t}$ on $\mathbf{m}_{i,t}$ indicates that we should solve for fixed-point magnetizations $\mathbf{m}^{*}_{i,t}$. However, in contrast to the binary case, the dependence here turns out to be &lt;em&gt;implicit&lt;/em&gt; since $\boldsymbol{\theta}^{*}_{i,t}$ is obtained from solving another fixed-point equation Eq. \eqref{eq:thetafp} which depends on $\mathbf{m}_{i,t}$ as well. Numerically, we should try to jointly optimize for the fixed-point tuple $(\mathbf{m}^{*}_{i,t}, \boldsymbol{\theta}^{*}_{i,t})$ such that the following pair of equations holds:&lt;/p&gt;
 &lt;p&gt;\begin{align}
 \boldsymbol{\theta}^{*}_{i,t} &amp;amp;= \mathbf{f} (\boldsymbol{\theta}^{*}_{i,t}, \mathbf{x}_{i,t}, \mathbf{m}^{*}_{i,t}, \mathbf{m}_{t-1}) \\
 \mathbf{m}^{*}_{i,t} &amp;amp;= \boldsymbol{\varphi} \left( \boldsymbol{\theta}^{*}_{i,t}(\mathbf{x}_{i,t}, \mathbf{m}^{*}_{i,t}, \mathbf{m}_{t-1}) \right)
 \end{align}&lt;/p&gt;
-&lt;p&gt;Looking ahead at the transformer-module correspondence in &lt;a href=&#34;#4-a-family-of-transformer-like-modules&#34;&gt;Section 4&lt;/a&gt;, we recognize a scaled sum of a residual connection, an attention term, and a self-consistent expression in terms of magnetizations and couplings playing the role of the feed-forward network, &lt;em&gt;without having to introduce additional free parameters&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Looking ahead at the transformer-module correspondence in &lt;a href=&#34;#4-a-family-of-transformer-like-modules&#34;&gt;Section 4&lt;/a&gt;, we recognize a scaled sum of a residual connection, an attention term, and a self-consistent expression in terms of magnetizations and couplings playing the role of the feed-forward network. These feed-forward-like correction terms are determined wholly by the structure of the mean-field approximation and require &lt;em&gt;no additional free parameters&lt;/em&gt;.&lt;/p&gt;
 &lt;h2 id=&#34;35-a-simple-jax-implementation&#34;&gt;3.5. A simple JAX implementation&lt;/h2&gt;
+&lt;p&gt;We now turn to a JAX implementation of the mean-field time evolution of the magnetizations according to the vector-spin model introduced in the previous sections.&lt;/p&gt;
+&lt;p&gt;$\ldots$&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import jax
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;$\ldots$&lt;/p&gt;
+&lt;h3 id=&#34;hunting-for-non-equilibrium-steady-states&#34;&gt;Hunting for non-equilibrium steady states&lt;/h3&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h1 id=&#34;4-a-family-of-transformer-like-modules&#34;&gt;4. A family of transformer-like modules&lt;/h1&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
-&lt;h2 id=&#34;41-fast--and-slow-moving-parameters&#34;&gt;4.1. Fast- and slow-moving parameters&lt;/h2&gt;
+&lt;h2 id=&#34;41-connecting-the-dots&#34;&gt;4.1. Connecting the dots&lt;/h2&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
+&lt;h2 id=&#34;42-fast--and-slow-moving-parameters&#34;&gt;4.2. Fast- and slow-moving parameters&lt;/h2&gt;
 &lt;p&gt;As mentioned previously in &lt;a href=&#34;https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers Are Secretly Collectives of Spin Systems (2021)&lt;/a&gt;, each example in a batch of sequential data can be thought of as probing the spin system in a particular way. Physically, the &lt;em&gt;fast-moving&lt;/em&gt; parameterized couplings $\mathbf{J}(\mathbf{X})$ are determined by the &lt;em&gt;fast-moving&lt;/em&gt; parameterized external fields $\mathbf{X}$, which in turn depend on the magnetizations of the previous layer and ultimately on the input data. The external fields act as an environment of patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing some kind of state of quenched disorder. The &lt;em&gt;slow-moving&lt;/em&gt; parameters are those receiving gradient updates during training, e.g. the query-key matrices in the softmax couplings. On the level of the spin-model transformer module, training can be understood as &lt;em&gt;shaping the input-dependent distribution of coupling parameters&lt;/em&gt; by amassing information from a huge amount of quenched disorder realizations, sculpting a spin glass with data.&lt;/p&gt;
+&lt;h2 id=&#34;43-a-simple-jax-implementation&#34;&gt;4.3. A simple JAX implementation&lt;/h2&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h1 id=&#34;5-conclusion&#34;&gt;5. Conclusion&lt;/h1&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
@@ -585,7 +596,7 @@ p ( \mathbf{s} ; \beta, \mathbf{h}) = \frac{\mathrm{e}^{\beta \, \mathbf{s} \cdo
 \beta \left( \mathbf{s} - \boldsymbol{\varphi}\left(\mathbf{h}(\alpha)\right) \right) \cdot \Delta \mathbf{h} \frac{ \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}(\alpha)} }{ \int_{S_{D-1}} \mathrm{d}^{D} \mathbf{s} \; \mathrm{e}^{\beta \, \mathbf{s} \cdot \mathbf{h}(\alpha)} }
 \end{align}&lt;/p&gt;
 &lt;p&gt;and can be used to calculate derivatives of the conditional distribution \eqref{eq:pcondaltvector}.&lt;/p&gt;
-&lt;h2 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h2&gt;
+&lt;h1 id=&#34;references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/h1&gt;
 &lt;p&gt;A non-exhaustive list of references and inspiration includes:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
@@ -604,7 +615,7 @@ p ( \mathbf{s} ; \beta, \mathbf{h}) = \frac{\mathrm{e}^{\beta \, \mathbf{s} \cdo
 &lt;hr&gt;
 &lt;p&gt;If you happen to find this work useful, please consider citing it as:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;@article{bal2023spinmodeltransformers,
-  title   = {Spin-Model Transformers: A Physics-Inspired Class of Transformer Modules},
+  title   = {Spin-Model Transformers},
   author  = {Bal, Matthias},
   year    = {2023},
   month   = {?},
