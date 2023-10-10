@@ -323,7 +323,7 @@
     
       <meta property="article:published_time" content="2022-06-19T09:28:17&#43;01:00">
     
-    <meta property="article:modified_time" content="2023-10-07T13:37:41&#43;01:00">
+    <meta property="article:modified_time" content="2023-10-10T23:37:41&#43;01:00">
   
 
   
@@ -356,7 +356,7 @@
   ],
   
   "datePublished": "2022-06-19T09:28:17+01:00",
-  "dateModified": "2023-10-07T13:37:41+01:00",
+  "dateModified": "2023-10-10T23:37:41+01:00",
   
   "author": {
     "@type": "Person",
@@ -630,7 +630,7 @@
           Last updated on
       
     
-    Oct 7, 2023
+    Oct 10, 2023
   </span>
   
 
@@ -639,7 +639,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    34 min read
+    35 min read
   </span>
   
 
@@ -1112,8 +1112,15 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 <p>In this final section, we propose a physics-inspired class of transformer modules based on the mean-field update equations for the vector-spin magnetizations derived in the previous section. Essentially, we identify the softmax attention matrix as a parametrized input-dependent flavor of the asymmetric coupling matrix of a vector-spin model. We highlight conceptual similarities, physical interpretations, and potential benefits of exploiting the spin-model structure to reduce parameter count.</p>
 <h2 id="41-connecting-the-dots">4.1. Connecting the dots</h2>
 <p>$\ldots$</p>
+<h4 id="normalization">Normalization</h4>
+<p>A flavor of <a href="https://github.com/lucidrains/x-transformers#root-mean-square-layer-normalization" target="_blank" rel="noopener">Root Mean Square Layer Normalization</a> naturally appears in expression Eq. \eqref{eq:largedevmag} for the magnetization in the limit of large vector dimension. Variants of RMSNorm have already been used as alternatives to the transformer module&rsquo;s canonical layer normalization to train large transformers like <a href="https://arxiv.org/abs/2112.11446" target="_blank" rel="noopener">Gopher</a>.</p>
+<h4 id="causal-masks">Causal masks</h4>
+<p>Since we identify the attention matrix with the spin-model couplings, autoregressive modeling can be done by applying the appropriate triangular mask to the coupling matrix instead. The causal structure is preserved during the within-module time evolution.</p>
+<h4 id="attention-heads">Attention heads</h4>
+<p>Multiple attention heads can be implemented by embedding <code>num_heads</code> couplings tensors into a head-block-diagonal coupling tensor. Effectively, this operation stacks <code>num_heads</code> smaller-dimensional spin models, each one processing a disjoint piece of the full vector space, but with each individual coupling matrix constructed from query/key mappings acting on the full inputs.</p>
+<p>$\ldots$</p>
 <h2 id="42-fast--and-slow-moving-parameters">4.2. Fast- and slow-moving parameters</h2>
-<p>As mentioned previously in <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)</a>  and <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">Transformers Are Secretly Collectives of Spin Systems (2021)</a>, each example in a batch of sequential data can be thought of as probing a spin-transformer module in a particular way.</p>
+<p>Let us now provide some physical intuition on the spin-transformer module. As mentioned previously in <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)</a>  and <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">Transformers Are Secretly Collectives of Spin Systems (2021)</a>, each example in a batch of sequential data can be thought of as probing a spin-transformer module in a particular way.</p>
 <img src="spin_model_transformer_module.png" alt="A stack of spin-model transformer modules" width="550px"/>
 <p>Physically, the <em>fast-moving</em> parameterized couplings $\mathbf{J}(\mathbf{x})$ are determined by the <em>fast-moving</em> parameterized external fields $\mathbf{x}$, which, in a stack of modules, depend on the magnetizations of the previous layer and ultimately on the input data. The external fields act as an environment of patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing some kind of state of quenched disorder. The <em>slow-moving</em> parameters are those receiving gradient updates during training, e.g., the query-key matrices in the softmax couplings. On the level of a spin-model transformer module, training can be understood as <em>shaping the input-dependent distribution of coupling parameters</em> by amassing information from a huge amount of quenched disorder realizations, sculpting a spin glass with data.</p>
 <h2 id="43-a-simple-jax-implementation">4.3. A simple JAX implementation</h2>
