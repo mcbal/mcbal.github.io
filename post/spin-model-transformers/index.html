@@ -323,7 +323,7 @@
     
       <meta property="article:published_time" content="2022-06-19T09:28:17&#43;01:00">
     
-    <meta property="article:modified_time" content="2023-10-14T19:37:41&#43;01:00">
+    <meta property="article:modified_time" content="2023-10-16T19:17:41&#43;01:00">
   
 
   
@@ -356,7 +356,7 @@
   ],
   
   "datePublished": "2022-06-19T09:28:17+01:00",
-  "dateModified": "2023-10-14T19:37:41+01:00",
+  "dateModified": "2023-10-16T19:17:41+01:00",
   
   "author": {
     "@type": "Person",
@@ -630,7 +630,7 @@
           Last updated on
       
     
-    Oct 14, 2023
+    Oct 16, 2023
   </span>
   
 
@@ -712,7 +712,6 @@
 <li><a href="#41-connecting-the-dots">Connecting the dots</a></li>
 <li><a href="#42-fast--and-slow-moving-parameters">Fast- and slow-moving parameters</a></li>
 <li><a href="#43-a-simple-jax-implementation">A simple JAX implementation</a></li>
-<li><a href="#44-hunting-for-non-equilibrium-steady-states">Hunting for non-equilibrium steady states</a></li>
 </ol>
 </li>
 <li><a href="#5-conclusion">Conclusion</a></li>
@@ -1117,13 +1116,27 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 <h1 id="4-a-family-of-transformer-like-modules">4. A family of transformer-like modules</h1>
 <p>In this final section, we propose a physics-inspired class of transformer modules based on the mean-field update equations for the vector-spin magnetizations derived in the previous section. We highlight conceptual similarities, physical interpretations, and potential benefits of exploiting spin-model structure to reduce parameter count.</p>
 <h2 id="41-connecting-the-dots">4.1. Connecting the dots</h2>
-<p>In contrast to <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)</a> and <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/#5-why-dont-we-just-probe-a-vector-spin-system-with-data" target="_blank" rel="noopener">Transformers Are Secretly Collectives of Spin Systems (2021)</a>, the dynamical mean-field fixed-point expressions Eq. \eqref{eq:tapmvector} for the vector-spin magnetizations no longer assume symmetric coupling matrices and the existence of equilibrium free energies. Conceptually, there is little difference though: we still probe a spin system and observe its response.</p>
+<p>Following <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)</a> and <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/#5-why-dont-we-just-probe-a-vector-spin-system-with-data" target="_blank" rel="noopener">Transformers Are Secretly Collectives of Spin Systems (2021)</a>, we interpret a transformer module as a differentiable vector-spin system that is driven by data and whose collective behavior can be shaped through training. Intuitively, there is little difference compared to the work mentioned above: we still probe a spin system and observe its response. But, technically and conceptually, shifting to non-equilibrium phenomena and dynamical mean-field expressions enables us to move past symmetric coupling matrices and equilibrium free energies.</p>
 <p>We define a <em>spin-model transformer module</em> as a wrapper around a vector-spin model where module inputs get routed to external magnetic fields $\mathbf{x} \in \mathbb{R}^{N \times D}$. Starting at time $t=0$, we evolve a set of initial magnetizations in time using respectively the first-order (Eq. \eqref{eq:naivemvector}) or the second-order (Eq. \eqref{eq:tapmvector}) mean-field update equations. Only the second-order update equations exhibit feed-forward-like corrections. We choose to keep applying the same external magnetic fields at all time steps ($\mathbf{x}_{t} \equiv \mathbf{x}$, $\forall t \geq 0$) and construct the couplings once from the initial inputs via a row-stochastic softmax attention matrix,</p>
 <p>\begin{equation}
-\mathbf{J}(\mathbf{x}) = \mathrm{softmax}\left( \frac{\boldsymbol{X} \boldsymbol{W}_{\boldsymbol{Q}} \boldsymbol{W}_{\boldsymbol{K}}^{T} \boldsymbol{X}^{T}}{\sqrt{D}} \right). \label{eq:softmaxcouplings}
+\mathbf{J}(\mathbf{x}) = \mathrm{softmax}\left( \frac{\boldsymbol{x} \boldsymbol{W}_{\boldsymbol{Q}} \boldsymbol{W}_{\boldsymbol{K}}^{T} \boldsymbol{x}^{T}}{\sqrt{D}} \right). \label{eq:softmaxcouplings}
 \end{equation}</p>
-<p>where $\boldsymbol{W}_{\boldsymbol{Q}}$ and $\boldsymbol{W}_{\boldsymbol{K}}$ denote the familiar linear query- and key-mappings. Essentially, we recognize the softmax attention matrix as a parametrized input-dependent flavor of the (asymmetric) coupling matrix of a vector-spin model. The within-module time evolution is said to converge when the mean magnetizations collectively reach a <em>non-equilibrium steady-state</em>, which is not guaranteed and requires us to make sure the couplings, inverse temperature, and normalizations are sensibly chosen. Numerically, we monitor the convergence of the update equations. If convergence occurs, the non-equilibrium steady-state magnetizations $\mathbf{m}^{\mathrm{NESS}} \in \mathbb{R}^{N \times D}$ are returned as module outputs.</p>
+<p>where $\boldsymbol{W}_{\boldsymbol{Q}}$ and $\boldsymbol{W}_{\boldsymbol{K}}$ denote the familiar linear query- and key-mappings. Adding bias terms to these linear transformations would introduce intrinsic interactions between the spins, even in the absence of external magnetic fields. Essentially, we recognize the softmax attention matrix as a parametrized input-dependent flavor of the (asymmetric) coupling matrix of a vector-spin model.</p>
 <img src="arch_comparison.png" alt="Comparison between vanilla transformer module and spin-model transformer module" width="650px"/>
+<p>The within-module time evolution is said to converge when the mean magnetizations collectively reach a <em>non-equilibrium steady-state</em>, which is not guaranteed and requires us to make sure the couplings, inverse temperature, and normalizations are sensibly chosen. Numerically, we can monitor the convergence of the update equations. If convergence occurs, the non-equilibrium steady-state magnetizations $\mathbf{m}_{\mathrm{NESS}} \in \mathbb{R}^{N \times D}$ are returned as module outputs.</p>
+<hr>
+<p>Instead of time evolving for a number of steps until convergence, we could also try hunting for the non-equilibrium steady state directly by assuming it exists and solving for it as if it were a fixed point of the time evolution. For the first-order update equations Eq. \eqref{eq:naivemvector}, this would mean solving for the fixed-point $\mathbf{m}^{\mathrm{NESS}}$ so that</p>
+<p>\begin{align}
+\boldsymbol{\theta}^{\mathrm{NESS}}_{i} &amp;= \mathbf{x}_{i} + \sum_{j} J_{ij} \mathbf{m}^{\mathrm{NESS}}_{j} \\
+\mathbf{m}^{\mathrm{NESS}}_{i} &amp;= \boldsymbol{\varphi} \left( \boldsymbol{\theta}^{\mathrm{NESS}}_{i} \right),
+\end{align}</p>
+<p>while, for the second-order update equations Eq. \eqref{eq:tapmvector}, we would need to solve</p>
+<p>\begin{align}
+\boldsymbol{\theta}^{\mathrm{NESS}}_{i} &amp;= \mathbf{f} (\boldsymbol{\theta}^{\mathrm{NESS}}_{i}, \mathbf{x}_{i}, \mathbf{m}^{\mathrm{NESS}}) \\
+\mathbf{m}^{\mathrm{NESS}}_{i} &amp;= \boldsymbol{\varphi} \left( \boldsymbol{\theta}^{\mathrm{NESS}}_{i} (\mathbf{x}_{i}, \mathbf{m}^{\mathrm{NESS}}) \right),
+\end{align}</p>
+<p>where the distinction between time steps $t$ and $t-1$ would disappear.</p>
+<hr>
 <p>To wrap up this section, we list a few other conceptual similarities and features below to close the gap between vector-spin models and transformer modules:</p>
 <ul>
 <li>
@@ -1133,19 +1146,17 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 <p><strong>Causal masks:</strong> Since we identify the attention matrix with the spin-model couplings, autoregressive modeling can be done by applying the appropriate triangular mask to the coupling matrix instead. The (spatial) causal structure is preserved during the within-module time evolution. More generally, we expect any kind of masking done on the level of the attention matrix to transfer to the coupling matrix.</p>
 </li>
 <li>
-<p><strong>Normalization:</strong> A flavor of <a href="https://github.com/lucidrains/x-transformers#root-mean-square-layer-normalization" target="_blank" rel="noopener">Root Mean Square Layer Normalization</a> (RMSNorm) naturally appears in expression Eq. \eqref{eq:largedevmag} for the magnetization in the limit of large vector dimension as well as in all the mean-field update equations derived from it. Variants of RMSNorm have already been explored as alternatives for the canonical layer normalization to <a href="https://arxiv.org/abs/2112.11446" target="_blank" rel="noopener">train large transformers</a>.</p>
+<p><strong>Normalization:</strong> A flavor of <a href="https://github.com/lucidrains/x-transformers#root-mean-square-layer-normalization" target="_blank" rel="noopener">Root Mean Square Layer Normalization</a> (RMSNorm) naturally appears in expression Eq. \eqref{eq:largedevmag} for the magnetization in the limit of large vector dimension as well as in all the mean-field update equations derived from it.</p>
 </li>
 </ul>
 <h2 id="42-fast--and-slow-moving-parameters">4.2. Fast- and slow-moving parameters</h2>
-<p>We now provide some physical intuition. As mentioned previously in <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)</a>  and <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">Transformers Are Secretly Collectives of Spin Systems (2021)</a>, each example in a batch of sequential data can be thought of as probing a spin-model transformer module in a particular way. The within-module mean-field time evolution dynamically adapts the system&rsquo;s responses given the context of the applied external fields. We can tune the behavior of the system by parametrizing the couplings and making sure the whole probe-response stack is differentiable.</p>
+<p>We now provide some physical intuition. As mentioned ad nauseam in <a href="https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/" target="_blank" rel="noopener">Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)</a>  and <a href="https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/" target="_blank" rel="noopener">Transformers Are Secretly Collectives of Spin Systems (2021)</a>, each example in a batch of sequential data can be thought of as probing a transformer module in a particular way. The response of the many-body system depends on the context provided by the applied external fields. We can tune the collective response behavior by parametrizing the couplings and making sure the whole probe-response stack is differentiable.</p>
 <img src="spin_model_transformer_module.png" alt="Focus on a spin-model transformer module in a stack of layers" width="550px"/>
 <p>Physically, the <em>fast-moving</em> parameterized couplings $\mathbf{J}(\mathbf{x})$ are determined by the <em>fast-moving</em> parameterized external fields $\mathbf{x}$, which, in a stack of transformer modules, depend on the magnetizations of the previous layer and ultimately on the input data. The external fields act as an environment of contextual patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing some kind of state of quenched disorder. The <em>slow-moving</em> parameters are those receiving gradient updates during training, e.g., the query-key matrices in the softmax couplings. On the level of a spin-model transformer module, training can be understood as <em>shaping the input-dependent distribution of coupling parameters</em> by amassing information from a huge amount of quenched disorder realizations, sculpting a spin glass with data.</p>
 <h2 id="43-a-simple-jax-implementation">4.3. A simple JAX implementation</h2>
 <p>$\ldots$</p>
 <pre><code class="language-python">import jax
 </code></pre>
-<p>$\ldots$</p>
-<h2 id="44-hunting-for-non-equilibrium-steady-states">4.4. Hunting for non-equilibrium steady states</h2>
 <p>$\ldots$</p>
 <h1 id="5-conclusion">5. Conclusion</h1>
 <p>$\ldots$</p>
