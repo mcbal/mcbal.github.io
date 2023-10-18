@@ -209,6 +209,7 @@ def update_naive_mf(m0, _, x, J):
 
 def update_tap_mf(m0, _, x, J):
     &amp;quot;&amp;quot;&amp;quot;See Eq. (26).&amp;quot;&amp;quot;&amp;quot;
+
     def tap(m, _m0, _x, _J):
         return jnp.tanh(
             _x
@@ -445,22 +446,157 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 &lt;h2 id=&#34;35-a-simple-jax-implementation&#34;&gt;3.5. A simple JAX implementation&lt;/h2&gt;
 &lt;p&gt;We now turn to a JAX implementation of the mean-field time evolution of the magnetizations according to the vector-spin model introduced in the previous sections.&lt;/p&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import jax
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from functools import partial
+
+import jax
+import jax.numpy as jnp
+
+from jaxopt import AndersonAcceleration
+
+
+def gamma(x, beta, R):
+    &amp;quot;&amp;quot;&amp;quot;See Eq. (48).&amp;quot;&amp;quot;&amp;quot;
+    return jax.lax.sqrt(1 + beta**2 * jnp.sum(x * x, axis=-1, keepdims=True) / R**2)
+
+
+def phi(x, beta, R):
+    &amp;quot;&amp;quot;&amp;quot;See Eq. (38).&amp;quot;&amp;quot;&amp;quot;
+    return beta / (1 + gamma(x, beta, R)) * x
+
+
+def update_naive_mf(m0, _, x, J, beta, R):
+    &amp;quot;&amp;quot;&amp;quot;See Eq. (46).&amp;quot;&amp;quot;&amp;quot;
+    theta = x + jnp.einsum(&amp;quot;i j, j d -&amp;gt; i d&amp;quot;, J, m0)
+    m1 = phi(theta, beta, R)
+    return m1, m0
+
+
+def second_order_corrections(theta, m1, m0, x, J, beta, R):
+    &amp;quot;&amp;quot;&amp;quot;See Eq. (58).&amp;quot;&amp;quot;&amp;quot;
+    g0 = gamma(theta, beta, R)
+    v = -theta + x + jnp.einsum(&amp;quot;i j, j d-&amp;gt; i d&amp;quot;, J, m0)
+    return (
+        (beta**2 * (1 + 3 * g0))
+        / (R**4 * g0**3)
+        * (
+            jnp.einsum(&amp;quot;i d, i d -&amp;gt; i&amp;quot;, m1, v)[:, None]
+            + jnp.einsum(
+                &amp;quot;i j, i d -&amp;gt; i d&amp;quot;,
+                J,
+                jnp.sum(m1 * m1, axis=-1, keepdims=True) / (1 + g0),
+            )
+            - jnp.einsum(
+                &amp;quot;i j, i d, j d, i e, j e -&amp;gt; i&amp;quot;,
+                J,
+                m1,
+                m0,
+                m1,
+                m0 / (R**2 * g0),
+            )[:, None]
+        )
+        * m1
+        - (beta**2)
+        / (R**2 * (g0**2 + g0))
+        * (
+            jnp.sum(v * v, axis=-1, keepdims=True)
+            + jnp.einsum(
+                &amp;quot;i j, j d-&amp;gt; i d&amp;quot;,
+                J,
+                R**2 - jnp.sum(m0 * m0, axis=-1, keepdims=True),
+            )
+        )
+        * m1
+        - 2
+        * beta**2
+        / (R**2 * (g0**2 + g0))
+        * (
+            jnp.einsum(&amp;quot;i d, i d, i f -&amp;gt; i f&amp;quot;, v, m1, v)
+            + jnp.einsum(&amp;quot;i j, i d -&amp;gt; i d&amp;quot;, J, m1 / (1 + g0))
+            - jnp.einsum(
+                &amp;quot;i j, i d, j d, j f -&amp;gt; i f&amp;quot;,
+                J,
+                m1,
+                m0,
+                m0 / (R**2 * g0),
+            )
+        )
+    )
+
+
+def f(theta, m1, m0, x, J, beta, R):
+    &amp;quot;&amp;quot;&amp;quot;See Eq. (61).&amp;quot;&amp;quot;&amp;quot;
+    attn = jnp.einsum(&amp;quot;i j, j d-&amp;gt; i d&amp;quot;, J, m0)
+
+    g0 = gamma(theta, beta, R)
+    d2_m_d2_alpha_0 = second_order_corrections(
+        theta, m1, m0, x, J, beta, R
+    )
+    ff = (
+        (1 + g0)
+        / (2 * beta)
+        * (
+            d2_m_d2_alpha_0
+            + (
+                jnp.einsum(&amp;quot;i d, i d -&amp;gt; i&amp;quot;, m1, d2_m_d2_alpha_0)[:, None]
+                / ((R**2 * g0) / (1 + g0) - jnp.sum(m1 * m1, axis=-1, keepdims=True))
+                * m1
+            )
+        )
+    )
+    return x + attn + ff
+
+
+def update_tap_mf(m0, _, x, J, beta, R):
+    &amp;quot;&amp;quot;&amp;quot;See Eq. (64) and Eq. (65).&amp;quot;&amp;quot;&amp;quot;
+
+    def _fixed_point_fun(params, _m0, _x, _J, _beta, _R):
+        theta, m1 = params
+        theta_next = f(theta, m1, _m0, _x, _J, _beta, _R)
+        m1_next = phi(theta_next, _beta, _R)
+        return (theta_next, m1_next)
+
+    theta_init, m1_init = x + J @ m0, m0
+    _, m1 = (
+        AndersonAcceleration(
+            fixed_point_fun=_fixed_point_fun,
+            tol=1e-3,
+            maxiter=10,
+        )
+        .run((theta_init, m1_init), m0, x, J, beta, R)
+        .params
+    )
+    return m1, m0
+
+
+def time_evolution(m0, steps, update_fun):
+    final_carry, stacked_outputs = jax.lax.scan(update_fun, init=m0, xs=steps)
+    return final_carry, stacked_outputs
+
+
+def simulate(x, J, m0, steps, beta, update_fun=update_tap_mf):
+    R = (m0.shape[-1] / 2 - 1) ** 0.5
+    wrapped_time_evolution = partial(
+        time_evolution,
+        steps=steps,
+        update_fun=partial(update_fun, x=x, J=J, beta=beta, R=R),
+    )
+    final_carry, stacked_outputs = jax.vmap(wrapped_time_evolution)(m0)
+    return final_carry, stacked_outputs
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h1 id=&#34;4-a-family-of-transformer-like-modules&#34;&gt;4. A family of transformer-like modules&lt;/h1&gt;
 &lt;p&gt;In this final section, we propose a physics-inspired class of transformer modules based on the mean-field update equations for the vector-spin magnetizations derived in the previous section. We highlight conceptual similarities, physical interpretations, and potential benefits of exploiting spin-model structure to reduce parameter count.&lt;/p&gt;
 &lt;h2 id=&#34;41-connecting-the-dots&#34;&gt;4.1. Connecting the dots&lt;/h2&gt;
-&lt;p&gt;Following &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)&lt;/a&gt; and &lt;a href=&#34;https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/#5-why-dont-we-just-probe-a-vector-spin-system-with-data&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers Are Secretly Collectives of Spin Systems (2021)&lt;/a&gt;, we interpret a transformer module as a differentiable vector-spin system that is driven by data and whose collective behavior can be shaped through training. Intuitively, there is little difference compared to the work mentioned above: we still probe a spin system and observe its response. But, technically and conceptually, shifting to non-equilibrium phenomena and dynamical mean-field expressions enables us to move past symmetric coupling matrices and equilibrium free energies.&lt;/p&gt;
-&lt;p&gt;We define a &lt;em&gt;spin-model transformer module&lt;/em&gt; as a wrapper around a vector-spin model where module inputs get routed to external magnetic fields $\mathbf{x} \in \mathbb{R}^{N \times D}$. Starting at time $t=0$, we evolve a set of initial magnetizations in time using respectively the first-order (Eq. \eqref{eq:naivemvector}) or the second-order (Eq. \eqref{eq:tapmvector}) mean-field update equations. Only the second-order update equations exhibit feed-forward-like corrections. We choose to keep applying the same external magnetic fields at all time steps ($\mathbf{x}_{t} \equiv \mathbf{x}$, $\forall t \geq 0$) and construct the couplings once from the initial inputs via a row-stochastic softmax attention matrix,&lt;/p&gt;
+&lt;p&gt;Following &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)&lt;/a&gt; and &lt;a href=&#34;https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/#5-why-dont-we-just-probe-a-vector-spin-system-with-data&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Transformers Are Secretly Collectives of Spin Systems (2021)&lt;/a&gt;, we interpret a transformer module as a differentiable vector-spin system that is driven by data and whose collective behavior can be shaped through training. Intuitively, there is little difference compared to the work mentioned above: we still probe a spin system and observe its response. But, technically and conceptually, the shift to non-equilibrium phenomena and dynamical mean-field expressions enables us to solidify the correspondence by moving past symmetric coupling matrices and equilibrium free energies.&lt;/p&gt;
+&lt;p&gt;We define a &lt;em&gt;spin-model transformer module&lt;/em&gt; as a wrapper around a vector-spin model where module inputs $\mathbf{x} \in \mathbb{R}^{N \times D}$ get routed to external magnetic fields. Inside the module, we evolve a set of initial magnetizations in time using either the first-order (Eq. \eqref{eq:naivemvector}) or the second-order (Eq. \eqref{eq:tapmvector}) mean-field update equations. Only the second-order update equations exhibit feed-forward-like corrections. We choose to keep applying the same external magnetic fields at all time steps ($\mathbf{x}_{t} \equiv \mathbf{x}$, $\forall t \geq 0$) and construct the couplings once from the initial inputs via a row-stochastic softmax attention matrix,&lt;/p&gt;
 &lt;p&gt;\begin{equation}
 \mathbf{J}(\mathbf{x}) = \mathrm{softmax}\left( \frac{\boldsymbol{x} \boldsymbol{W}_{\boldsymbol{Q}} \boldsymbol{W}_{\boldsymbol{K}}^{T} \boldsymbol{x}^{T}}{\sqrt{D}} \right). \label{eq:softmaxcouplings}
 \end{equation}&lt;/p&gt;
-&lt;p&gt;where $\boldsymbol{W}_{\boldsymbol{Q}}$ and $\boldsymbol{W}_{\boldsymbol{K}}$ denote the familiar linear query- and key-mappings. Adding bias terms to these linear transformations would introduce intrinsic interactions between the spins, even in the absence of external magnetic fields. Essentially, we recognize the softmax attention matrix as a parametrized input-dependent flavor of the (asymmetric) coupling matrix of a vector-spin model.&lt;/p&gt;
+&lt;p&gt;where $\boldsymbol{W}_{\boldsymbol{Q}}$ and $\boldsymbol{W}_{\boldsymbol{K}}$ denote the familiar linear query- and key-mappings. Adding bias terms to these linear transformations would introduce intrinsic interactions between the spins, which persist even in the absence of the external magnetic fields. Essentially, we recognize the softmax attention matrix as a parametrized input-dependent flavor of the (asymmetric) coupling matrix of a vector-spin model.&lt;/p&gt;
 &lt;img src=&#34;arch_comparison.png&#34; alt=&#34;Comparison between vanilla transformer module and spin-model transformer module&#34; width=&#34;650px&#34;/&gt;
-&lt;p&gt;The within-module time evolution is said to converge when the mean magnetizations collectively reach a &lt;em&gt;non-equilibrium steady-state&lt;/em&gt;, which is not guaranteed and requires us to make sure the couplings, inverse temperature, and normalizations are sensibly chosen. Numerically, we can monitor the convergence of the update equations. If convergence occurs, the non-equilibrium steady-state magnetizations $\mathbf{m}_{\mathrm{NESS}} \in \mathbb{R}^{N \times D}$ are returned as module outputs.&lt;/p&gt;
+&lt;p&gt;What does the module return? The within-module time evolution is said to converge when the mean magnetizations collectively reach a &lt;em&gt;non-equilibrium steady-state&lt;/em&gt;, which is not guaranteed a priori and requires us to make sure the couplings, inverse temperature, and normalizations are sensibly chosen. Numerically, we can monitor the convergence of the magnetizations obtained from iterating the update equations. If the within-module time evolution converges, we return the non-equilibrium steady-state (NESS) magnetizations $\mathbf{m}_{\mathrm{NESS}} \in \mathbb{R}^{N \times D}$ as module outputs.&lt;/p&gt;
 &lt;hr&gt;
-&lt;p&gt;Instead of time evolving for a number of steps until convergence, we could also try hunting for the non-equilibrium steady state directly by assuming it exists and solving for it as if it were a fixed point of the time evolution. For the first-order update equations Eq. \eqref{eq:naivemvector}, this would mean solving for the fixed-point $\mathbf{m}^{\mathrm{NESS}}$ so that&lt;/p&gt;
+&lt;p&gt;✨ Instead of time evolving for a number of steps until convergence, we could also try hunting for the non-equilibrium steady state directly by assuming it exists and solving for it as if it were a fixed point of the time evolution. For the first-order update equations Eq. \eqref{eq:naivemvector}, this would mean solving for the fixed-point $\mathbf{m}^{\mathrm{NESS}}$ so that&lt;/p&gt;
 &lt;p&gt;\begin{align}
 \boldsymbol{\theta}^{\mathrm{NESS}}_{i} &amp;amp;= \mathbf{x}_{i} + \sum_{j} J_{ij} \mathbf{m}^{\mathrm{NESS}}_{j} \\
 \mathbf{m}^{\mathrm{NESS}}_{i} &amp;amp;= \boldsymbol{\varphi} \left( \boldsymbol{\theta}^{\mathrm{NESS}}_{i} \right),
@@ -470,9 +606,9 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 \boldsymbol{\theta}^{\mathrm{NESS}}_{i} &amp;amp;= \mathbf{f} (\boldsymbol{\theta}^{\mathrm{NESS}}_{i}, \mathbf{x}_{i}, \mathbf{m}^{\mathrm{NESS}}) \\
 \mathbf{m}^{\mathrm{NESS}}_{i} &amp;amp;= \boldsymbol{\varphi} \left( \boldsymbol{\theta}^{\mathrm{NESS}}_{i} (\mathbf{x}_{i}, \mathbf{m}^{\mathrm{NESS}}) \right),
 \end{align}&lt;/p&gt;
-&lt;p&gt;where the distinction between time steps $t$ and $t-1$ would disappear.&lt;/p&gt;
+&lt;p&gt;where the distinction between time steps $t$ and $t-1$ has disappeared in our notation.&lt;/p&gt;
 &lt;hr&gt;
-&lt;p&gt;To wrap up this section, we list a few other conceptual similarities and features below to close the gap between vector-spin models and transformer modules:&lt;/p&gt;
+&lt;p&gt;To wrap up this section, we list a few conceptual similarities and features below to close the gap between vector-spin models and transformer modules:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Attention heads:&lt;/strong&gt; Multiple attention heads can be implemented by embedding $N_{h}$ coupling matrices into a head-block-diagonal coupling tensor. Effectively, this operation stacks $N_{h}$ smaller-dimensional spin models where each submodel processes a disjoint $D_{h}-$dimensional piece of the full $D-$dimensional vector space. Mixing between subspaces can occur because (1) each individual coupling matrix is still constructed from query/key mappings $\mathbb{R}^{D} \to \mathbb{R}^{N_{h} \times D_{h}}$ acting on the full input space, and (2) the dot products in the second-order correction terms Eq. \eqref{eq:secondordercorrections} naturally mix channels. We refer to the explicit code in &lt;a href=&#34;#43-a-simple-jax-implementation&#34;&gt;Section 4.3&lt;/a&gt; for more details.&lt;/p&gt;
@@ -481,7 +617,18 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 &lt;p&gt;&lt;strong&gt;Causal masks:&lt;/strong&gt; Since we identify the attention matrix with the spin-model couplings, autoregressive modeling can be done by applying the appropriate triangular mask to the coupling matrix instead. The (spatial) causal structure is preserved during the within-module time evolution. More generally, we expect any kind of masking done on the level of the attention matrix to transfer to the coupling matrix.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Cross-attention:&lt;/strong&gt; The framework described above implements self-attention by constructing both queries and keys from the inputs $x$ according to Eq. \eqref{eq:softmaxcouplings}. Decoder layers in encoder-decoder models, however, rely on cross-attention, where keys (and values) from the encoder output are sent to the decoder input as context. We can accommodate this scenario by feeding the spin-transformer module an additional set of context vectors $\mathbf{c}$ to build the couplings matrix, i.e.,&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;\begin{equation}
+\mathbf{J}(\mathbf{x}, \mathbf{c}) = \mathrm{softmax}\left( \frac{\boldsymbol{x} \boldsymbol{W}_{\boldsymbol{Q}} \boldsymbol{W}_{\boldsymbol{K}}^{T} \boldsymbol{c}^{T}}{\sqrt{D}} \right). \label{eq:crosssoftmaxcouplings}
+\end{equation}&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Normalization:&lt;/strong&gt; A flavor of &lt;a href=&#34;https://github.com/lucidrains/x-transformers#root-mean-square-layer-normalization&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Root Mean Square Layer Normalization&lt;/a&gt; (RMSNorm) naturally appears in expression Eq. \eqref{eq:largedevmag} for the magnetization in the limit of large vector dimension as well as in all the mean-field update equations derived from it.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Sparse computation:&lt;/strong&gt; $\ldots$&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&#34;42-fast--and-slow-moving-parameters&#34;&gt;4.2. Fast- and slow-moving parameters&lt;/h2&gt;
@@ -494,6 +641,8 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h1 id=&#34;5-conclusion&#34;&gt;5. Conclusion&lt;/h1&gt;
+&lt;p&gt;$\ldots$&lt;/p&gt;
+&lt;p&gt;Computational experiments at scale should inform us about potential bottlenecks of spin-transformer models in terms of &lt;a href=&#34;https://twitter.com/YiTayML/status/1714315484357857766&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;efficiency&lt;/a&gt;, representational power, and scaling behavior.&lt;/p&gt;
 &lt;p&gt;$\ldots$&lt;/p&gt;
 &lt;h1 id=&#34;appendices&#34;&gt;Appendices&lt;/h1&gt;
 &lt;h2 id=&#34;a1-vector-spin-distribution-normalization-constant&#34;&gt;A.1. Vector-spin distribution: normalization constant&lt;/h2&gt;
