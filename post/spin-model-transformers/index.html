@@ -639,7 +639,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    46 min read
+    47 min read
   </span>
   
 
@@ -1113,25 +1113,120 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 
 import jax
 import jax.numpy as jnp
-
 from jaxopt import AndersonAcceleration
 
 
-def gamma(x, beta, R):
-    &quot;&quot;&quot;See Eq. (48).&quot;&quot;&quot;
-    return jax.lax.sqrt(1 + beta**2 * jnp.sum(x * x, axis=-1, keepdims=True) / R**2)
+def _gamma(x, beta, R):
+    &quot;&quot;&quot;See Eq. (39).&quot;&quot;&quot;
+    return jnp.sqrt(1 + beta**2 * jnp.sum(x**2, axis=-1, keepdims=True) / R**2)
 
 
-def phi(x, beta, R):
+def _phi(theta, beta, R):
     &quot;&quot;&quot;See Eq. (38).&quot;&quot;&quot;
-    return beta / (1 + gamma(x, beta, R)) * x
+    return beta / (1 + _gamma(theta, beta, R)) * theta
 
 
 def update_naive_mf(m0, _, x, J, beta, R):
-    &quot;&quot;&quot;See Eq. (46).&quot;&quot;&quot;
-    attn = jnp.einsum(&quot;i j, j d -&gt; i d&quot;, J, m0)
-    theta = x + attn
-    m1 = phi(theta, beta, R)
+    &quot;&quot;&quot;See Eq. (47).&quot;&quot;&quot;
+    theta = x + jnp.einsum(&quot;i j, j d -&gt; i d&quot;, J, m0)
+    m1 = _phi(theta, beta, R)
+    return m1, m0
+
+
+def _inv_phi(m, beta, R):
+    &quot;&quot;&quot;See Eq. (64).&quot;&quot;&quot;
+    return 2 * R**2 / (beta * (R**2 - jnp.sum(m**2, axis=-1, keepdims=True))) * m
+
+
+def _d2_m_d_alpha_2(m1, m0, x, J, beta, R):
+    &quot;&quot;&quot;See Eq. (58).&quot;&quot;&quot;
+    g0 = _gamma(_inv_phi(m0, beta, R), beta, R)
+    g1 = _gamma(_inv_phi(m1, beta, R), beta, R)
+    v = -_inv_phi(m1, beta, R) + x + jnp.einsum(&quot;i j, j d -&gt; i d&quot;, J, m0)
+
+    return (
+        (beta**2 * (1 + 3 * g1))
+        / (R**4 * g1**3)
+        * (
+            jnp.einsum(&quot;i d, i d -&gt; i&quot;, m1, v)[:, None] ** 2
+            + jnp.einsum(
+                &quot;i j, i d -&gt; i d&quot;,
+                J**2,
+                jnp.sum(m1**2, axis=-1, keepdims=True),
+            )
+            / (1 + g0)
+            - jnp.einsum(
+                &quot;i j, i d, j d, i e, j e -&gt; i&quot;,
+                J**2,
+                m1,
+                m0,
+                m1,
+                m0,
+            )[:, None]
+            / (R**2 * g0)
+        )
+        * m1
+        - (beta**2)
+        / (R**2 * (g1**2 + g1))
+        * (
+            jnp.sum(v**2, axis=-1, keepdims=True)
+            + jnp.einsum(
+                &quot;i j, j -&gt; i&quot;,
+                J**2,
+                R**2 - jnp.sum(m0**2, axis=-1),
+            )[:, None]
+        )
+        * m1
+        - 2.0
+        * beta**2
+        / (R**2 * (g1**2 + g1))
+        * (
+            jnp.einsum(&quot;i d, i d, i f -&gt; i f&quot;, v, m1, v)
+            + jnp.einsum(&quot;i j, i d -&gt; i d&quot;, J**2, m1 / (1 + g0))
+            - jnp.einsum(
+                &quot;i j, i d, j d, j f -&gt; i f&quot;,
+                J**2,
+                m1,
+                m0,
+                m0,
+            )
+            / (R**2 * g0)
+        )
+    )
+
+
+def _f(m1, m0, x, J, beta, R):
+    &quot;&quot;&quot;See Eq. (61).&quot;&quot;&quot;
+    g1 = _gamma(_inv_phi(m1, beta, R), beta, R)
+    d2_m_d_alpha_2 = _d2_m_d_alpha_2(m1, m0, x, J, beta, R)
+
+    ff = (
+        (1 + g1)
+        / (2 * beta)
+        * (
+            d2_m_d_alpha_2
+            + (
+                jnp.einsum(&quot;i d, i d -&gt; i&quot;, m1, d2_m_d_alpha_2)[:, None]
+                / ((R**2 * g1) / (1 + g1) - jnp.sum(m1**2, axis=-1, keepdims=True))
+                * m1
+            )
+        )
+    )
+    return x + jnp.einsum(&quot;i j, j d -&gt; i d&quot;, J, m0) + ff
+
+
+def update_tap_mf(m0, _, x, J, beta, R):
+    &quot;&quot;&quot;See Eq. (65).&quot;&quot;&quot;
+
+    def tap(m1, _m0, _x, _J, _beta, _R):
+        return _phi(_f(m1, _m0, _x, _J, _beta, _R), _beta, _R)
+
+    m1 = (
+        AndersonAcceleration(fixed_point_fun=tap, tol=1e-3, maxiter=100)
+        .run(_phi(x + J @ m0, beta, R), m0, x, J, beta, R)
+        .params
+    )
+
     return m1, m0
 
 

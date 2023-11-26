@@ -448,25 +448,120 @@ P^{[t-1:t]}_{\alpha}( \mathbf{s}_{t} ) = \int \mathrm{d} \mathbf{s}_{t-1} \int \
 
 import jax
 import jax.numpy as jnp
-
 from jaxopt import AndersonAcceleration
 
 
-def gamma(x, beta, R):
-    &amp;quot;&amp;quot;&amp;quot;See Eq. (48).&amp;quot;&amp;quot;&amp;quot;
-    return jax.lax.sqrt(1 + beta**2 * jnp.sum(x * x, axis=-1, keepdims=True) / R**2)
+def _gamma(x, beta, R):
+    &amp;quot;&amp;quot;&amp;quot;See Eq. (39).&amp;quot;&amp;quot;&amp;quot;
+    return jnp.sqrt(1 + beta**2 * jnp.sum(x**2, axis=-1, keepdims=True) / R**2)
 
 
-def phi(x, beta, R):
+def _phi(theta, beta, R):
     &amp;quot;&amp;quot;&amp;quot;See Eq. (38).&amp;quot;&amp;quot;&amp;quot;
-    return beta / (1 + gamma(x, beta, R)) * x
+    return beta / (1 + _gamma(theta, beta, R)) * theta
 
 
 def update_naive_mf(m0, _, x, J, beta, R):
-    &amp;quot;&amp;quot;&amp;quot;See Eq. (46).&amp;quot;&amp;quot;&amp;quot;
-    attn = jnp.einsum(&amp;quot;i j, j d -&amp;gt; i d&amp;quot;, J, m0)
-    theta = x + attn
-    m1 = phi(theta, beta, R)
+    &amp;quot;&amp;quot;&amp;quot;See Eq. (47).&amp;quot;&amp;quot;&amp;quot;
+    theta = x + jnp.einsum(&amp;quot;i j, j d -&amp;gt; i d&amp;quot;, J, m0)
+    m1 = _phi(theta, beta, R)
+    return m1, m0
+
+
+def _inv_phi(m, beta, R):
+    &amp;quot;&amp;quot;&amp;quot;See Eq. (64).&amp;quot;&amp;quot;&amp;quot;
+    return 2 * R**2 / (beta * (R**2 - jnp.sum(m**2, axis=-1, keepdims=True))) * m
+
+
+def _d2_m_d_alpha_2(m1, m0, x, J, beta, R):
+    &amp;quot;&amp;quot;&amp;quot;See Eq. (58).&amp;quot;&amp;quot;&amp;quot;
+    g0 = _gamma(_inv_phi(m0, beta, R), beta, R)
+    g1 = _gamma(_inv_phi(m1, beta, R), beta, R)
+    v = -_inv_phi(m1, beta, R) + x + jnp.einsum(&amp;quot;i j, j d -&amp;gt; i d&amp;quot;, J, m0)
+
+    return (
+        (beta**2 * (1 + 3 * g1))
+        / (R**4 * g1**3)
+        * (
+            jnp.einsum(&amp;quot;i d, i d -&amp;gt; i&amp;quot;, m1, v)[:, None] ** 2
+            + jnp.einsum(
+                &amp;quot;i j, i d -&amp;gt; i d&amp;quot;,
+                J**2,
+                jnp.sum(m1**2, axis=-1, keepdims=True),
+            )
+            / (1 + g0)
+            - jnp.einsum(
+                &amp;quot;i j, i d, j d, i e, j e -&amp;gt; i&amp;quot;,
+                J**2,
+                m1,
+                m0,
+                m1,
+                m0,
+            )[:, None]
+            / (R**2 * g0)
+        )
+        * m1
+        - (beta**2)
+        / (R**2 * (g1**2 + g1))
+        * (
+            jnp.sum(v**2, axis=-1, keepdims=True)
+            + jnp.einsum(
+                &amp;quot;i j, j -&amp;gt; i&amp;quot;,
+                J**2,
+                R**2 - jnp.sum(m0**2, axis=-1),
+            )[:, None]
+        )
+        * m1
+        - 2.0
+        * beta**2
+        / (R**2 * (g1**2 + g1))
+        * (
+            jnp.einsum(&amp;quot;i d, i d, i f -&amp;gt; i f&amp;quot;, v, m1, v)
+            + jnp.einsum(&amp;quot;i j, i d -&amp;gt; i d&amp;quot;, J**2, m1 / (1 + g0))
+            - jnp.einsum(
+                &amp;quot;i j, i d, j d, j f -&amp;gt; i f&amp;quot;,
+                J**2,
+                m1,
+                m0,
+                m0,
+            )
+            / (R**2 * g0)
+        )
+    )
+
+
+def _f(m1, m0, x, J, beta, R):
+    &amp;quot;&amp;quot;&amp;quot;See Eq. (61).&amp;quot;&amp;quot;&amp;quot;
+    g1 = _gamma(_inv_phi(m1, beta, R), beta, R)
+    d2_m_d_alpha_2 = _d2_m_d_alpha_2(m1, m0, x, J, beta, R)
+
+    ff = (
+        (1 + g1)
+        / (2 * beta)
+        * (
+            d2_m_d_alpha_2
+            + (
+                jnp.einsum(&amp;quot;i d, i d -&amp;gt; i&amp;quot;, m1, d2_m_d_alpha_2)[:, None]
+                / ((R**2 * g1) / (1 + g1) - jnp.sum(m1**2, axis=-1, keepdims=True))
+                * m1
+            )
+        )
+    )
+    return x + jnp.einsum(&amp;quot;i j, j d -&amp;gt; i d&amp;quot;, J, m0) + ff
+
+
+def update_tap_mf(m0, _, x, J, beta, R):
+    &amp;quot;&amp;quot;&amp;quot;See Eq. (65).&amp;quot;&amp;quot;&amp;quot;
+
+    def tap(m1, _m0, _x, _J, _beta, _R):
+        return _phi(_f(m1, _m0, _x, _J, _beta, _R), _beta, _R)
+
+    m1 = (
+        AndersonAcceleration(fixed_point_fun=tap, tol=1e-3, maxiter=100)
+        .run(_phi(x + J @ m0, beta, R), m0, x, J, beta, R)
+        .params
+    )
+
     return m1, m0
 
 
