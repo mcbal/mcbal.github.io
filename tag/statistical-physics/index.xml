@@ -55,7 +55,7 @@
 &lt;li&gt;&lt;a href=&#34;#a5-general-case-partial-derivatives-with-respect-to-alpha&#34;&gt;General case: partial derivatives with respect to $\alpha$&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#references--footnotes&#34;&gt;References &amp;amp; footnotes&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#references&#34;&gt;References&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
 &lt;hr&gt;
 &lt;h1 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h1&gt;
@@ -587,7 +587,7 @@ def simulate(x, J, m0, steps, beta, R, update_fun=update_tap_mf):
 &lt;img src=&#34;vector_plot_1.png&#34; width=&#34;500px&#34;/&gt;
 &lt;p&gt;We randomly initialize the external magnetic fields $\mathbf{x} \in \mathbb{R}^{N \times D}$ and coupling matrix $\mathbf{J} \in \mathbb{R}^{N \times N}$ by drawing from respectively $\mathcal{N}\left( 0, 1\right)$  and $\mathcal{N}\left( 0, 1/N \right)$ and simulate $N=1024$ $(D=512)-$dimensional vector spins at inverse temperature $\beta=1.0$ for $t=20$ time steps starting from an intial state $\mathbf{m}_{0} \in \mathbb{R}^{N \times D}$ of all-ones vectors. We choose to normalize all $\mathbf{x}$ vectors to lie on the spherical shell at radius $R$, so that $\mathbf{x}_{i} \to R \mathbf{x}_{i} / \lVert\mathbf{x}_{i}\rVert$. We apply the same external magnetic fields at all time steps ($\mathbf{x}_{t} \equiv \mathbf{x}$, $\forall t \geq 0$) so that the probing of the system is time-independent and relentless.&lt;/p&gt;
 &lt;p&gt;We first consider the first-order naive mean-field update equations. To visualize a set of vectors evolving in time, we track their directionalities with respect to reference states using cosine similarities and their magnitudes using Euclidean norms.&lt;/p&gt;
-&lt;img src=&#34;vector_plot_2.png&#34; width=&#34;320px&#34;/&gt;
+&lt;img src=&#34;vector_plot_2.png&#34; width=&#34;300px&#34;/&gt;
 &lt;p&gt;The top plot shows the cosine-similarity alignments of individual magnetization trajectories $\mathbf{m}_{i,t}$ compared to respectively $\mathbf{m}_{i,t-1}$ (green, magnetizations at previous time step to track convergence), $\mathbf{m}_{0}$ (yellow, magnetizations at initial time step to track drift from initial conditions), and $\mathbf{x}_{i}$ (blue, time-independent external magnetic fields to track alignment with the &amp;ldquo;residual stream&amp;rdquo;). The bottom plot tracks the evolution of the norms of $\mathbf{m}_{i,t}$ during time evolution. From the tracked metrics, we observe convergence to what looks like a &lt;em&gt;non-equilibrium / near-equilibrium steady state&lt;/em&gt; (NESS) with magnetizations remaining dynamically stable at the mean-field level.&lt;/p&gt;
 &lt;p&gt;To compare the naive first-order mean-field update equations to the second-order Thouless-Anderson-Palmer (TAP) ones, we plot the mean magnetization trajectories across all sites and add shading to denote the spread of maximum and minimum values.&lt;/p&gt;
 &lt;img src=&#34;vector_plot_3.png&#34; width=&#34;500px&#34;/&gt;
@@ -602,8 +602,8 @@ def simulate(x, J, m0, steps, beta, R, update_fun=update_tap_mf):
 \mathbf{m}_{i,t} = \boldsymbol{\varphi} \left(\boldsymbol{\theta}_{i,t}\right) = \frac{\beta}{1+\sqrt{1+\beta^2 \lVert \boldsymbol{\theta}_{i,t} \rVert^2 / R^2 }} \boldsymbol{\theta}_{i,t},
 \end{equation}&lt;/p&gt;
 &lt;p&gt;we observe that the infinite-temperature limit $\beta \to 0$ pushes the magnitude of the magnitization to $0$ whereas the zero-temperature limit $\beta \to \infty$ snaps to the spherical shell at radius $R$. We can plot the norm of this equation for different values of $\beta$ as a function of $\lVert\boldsymbol{\theta}\rVert$ in $D=512$ dimensions below. The dashed horizontal and vertical lines indicate the value of $R=\sqrt{D/2-1}\approx 15.9687$.&lt;/p&gt;
-&lt;img src=&#34;vector_plot_6.png&#34; width=&#34;500px&#34;/&gt;
-&lt;p&gt;This plot partly explains why the TAP equations start showing convergence issues at lower temperatures. Large values of $\beta$ push the norm of the magnetizations towards $R$, but that in turn leads to $\boldsymbol{\theta}$ blowing up because of the $R^2-\mathbf{m}^2_{i,t}$ factors in the denominators of Eq. \eqref{eq:ftheta} and Eq. \eqref{eq:invphi}. This is no surprise becaues the Plefka expansion is in fact a high-temperature expansion. Indeed, if we write out the mean-field update equations, we find that the first-order terms scale as $\beta$ and the second-order terms as $\beta^2$. Additionally, we know from mean-field theory of binary spin glasses that the TAP equations break down when crossing the so-called de Almeida-Thouless line (AT line) in the $(\beta, x)$ phase diagram. Assuming an &lt;a href=&#34;https://arxiv.org/abs/1003.5599&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;equivalent transition exists in for vector-spin glasses&lt;/a&gt;, it might be worth rederiving the Onsager term like was done for binary spins in &lt;a href=&#34;https://arxiv.org/abs/1509.01229&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;(Opper et al., 2015)&lt;/a&gt; to make sure its time indices are more geared towards convergence. But even then we would still not be able to cross the AT line and find mean-field solutions at lower temperatures.&lt;/p&gt;
+&lt;img src=&#34;vector_plot_6.png&#34; width=&#34;400px&#34;/&gt;
+&lt;p&gt;This plot partly explains why the TAP equations start showing convergence issues at lower temperatures. Large values of $\beta$ push the norm of the magnetizations towards $R$, but that in turn leads to $\boldsymbol{\theta}$ blowing up because of the $R^2-\mathbf{m}^2_{i,t}$ factors in the denominators of Eq. \eqref{eq:ftheta} and Eq. \eqref{eq:invphi}. This is no surprise since the Plefka expansion is in fact a high-temperature expansion. Indeed, if we write out the mean-field update equations, we find that the first-order terms scale as $\beta$ and the second-order terms as $\beta^2$. Additionally, we know from mean-field theory of binary spin glasses that the TAP equations break down when crossing the so-called de Almeida-Thouless line (AT line) in the $(\beta, x)$ phase diagram. Assuming an &lt;a href=&#34;https://arxiv.org/abs/1003.5599&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;equivalent transition exists in for vector-spin glasses&lt;/a&gt;, it might be worth rederiving the Onsager term like was done for binary spins in &lt;a href=&#34;https://arxiv.org/abs/1509.01229&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;(Opper et al., 2015)&lt;/a&gt; to make sure its time indices are more geared towards convergence. But even then we would still not be able to cross the AT line and find mean-field solutions at lower temperatures.&lt;/p&gt;
 &lt;p&gt;But we have to ask ourselves whether we actually care about this low-temperature failure mode for our purposes. Do we want a spin-transformer module to inhabit a complex spin-glass phase full of local minima containing frozen disordered spins that cannot respond to external magnetic fields? No. We would like our system to be able to fluidly and adaptively respond to its environment.&lt;/p&gt;
 &lt;h1 id=&#34;4-spin-transformer-modules-a-family-of-transformer-like-modules&#34;&gt;4. Spin-transformer modules: a family of transformer-like modules&lt;/h1&gt;
 &lt;p&gt;In this final section, we propose a physics-inspired class of transformer modules based on the mean-field update equations for the vector-spin magnetizations derived in the previous section. We highlight conceptual similarities, physical interpretations, and potential benefits of exploiting spin-model structure to reduce parameter count.&lt;/p&gt;
@@ -644,21 +644,180 @@ def simulate(x, J, m0, steps, beta, R, update_fun=update_tap_mf):
 &lt;img src=&#34;spin_model_transformer_module.png&#34; alt=&#34;Focus on a spin-transformer module in a stack of layers&#34; width=&#34;450px&#34;/&gt;
 &lt;p&gt;Physically, the &lt;em&gt;fast-moving&lt;/em&gt; parameterized couplings $\mathbf{J}(\mathbf{x})$ are determined by the &lt;em&gt;fast-moving&lt;/em&gt; parameterized external fields $\mathbf{x}$, which, in a stack of transformer modules, depend on the magnetizations of the previous layer and ultimately on the input data. The external fields act as an environment of contextual patterns that gets transformed instantly into the values of the coupling matrix, effectively inducing some kind of state of quenched disorder. The &lt;em&gt;slow-moving&lt;/em&gt; parameters are those receiving gradient updates during training, e.g., the query-key matrices in the softmax couplings. On the level of a spin-transformer module, training can be understood as &lt;em&gt;shaping the input-dependent distribution of coupling parameters&lt;/em&gt; by amassing information from a huge amount of quenched disorder realizations, sculpting a spin glass with data.&lt;/p&gt;
 &lt;h2 id=&#34;43-a-simple-jax-implementation&#34;&gt;4.3. A simple JAX implementation&lt;/h2&gt;
-&lt;p&gt;Let us wrap up this post with some code showing how one could implement a spin-transformer module based on the recipe described above. Since different flavors of mean-field approximations lead to different update equations for the magnetizations, we want to stress that the approach we took in this post is just one possible option, which might not be the most useful one in practice.&lt;/p&gt;
-&lt;p&gt;We use &lt;code&gt;equinox&lt;/code&gt; to implement our neural network modules. Additionally, we replace the fixed-step &lt;code&gt;lax.scan&lt;/code&gt; time evolution of &lt;a href=&#34;#35-a-simple-jax-implementation&#34;&gt;Section 3.5&lt;/a&gt; with &lt;code&gt;equinox.internal.while_loop&lt;/code&gt; to implement early-stopping when convergence occurs in a way that supports reverse-mode autodifferentiation.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;✨ &lt;strong&gt;TODO:&lt;/strong&gt; Add support for multiple attention heads.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import jax
+&lt;p&gt;Let us wrap up this post with some code showing how one could implement a spin-transformer module based on the recipe described above. We choose to normalize input vectors to have norm $R$, and, because of this choice, we set the softmax temperature in the couplings Eq. \eqref{eq:softmaxcouplings} to $1$ instead of $\sqrt{D}$ to make sure the scale of the matrix elements is similar as in scaled dot-product attention. As we have seen in &lt;a href=&#34;#35-a-simple-jax-implementation&#34;&gt;Section 3.5&lt;/a&gt;, lowering the norm of the input vectors decreases the strength the applied magnetic fields and increases the influence of the spin-spin interactions. Other normalization conventions might turn out to work better in actual training scenarios. Additionally, since different flavors of mean-field approximations lead to different update equations for the magnetizations, we want to stress that the approach we took in this post is just one possible option, which might not be the most useful one in practice.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;We use &lt;a href=&#34;https://github.com/patrick-kidger/equinox&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;equinox&lt;/code&gt;&lt;/a&gt; to implement our neural network modules. We could replace the fixed-step &lt;code&gt;lax.scan&lt;/code&gt; time evolution of &lt;a href=&#34;#35-a-simple-jax-implementation&#34;&gt;Section 3.5&lt;/a&gt; with an &lt;code&gt;equinox.internal.while_loop&lt;/code&gt; to implement early-stopping when convergence occurs in a way that supports reverse-mode autodifferentiation. But then we would have to make sure to stop gradients so that only the values of the final iteration, corresponding to the steady-state magnetizations $\mathbf{m}^{\mathrm{NESS}}$, contribute to the gradient computation. To make things easier in the implementation below, we are going to assume the NESS exists and solve for it as if it were a fixed point of the time evolution. Implicit differentation of the fixed-point solver then takes care of the (near-)equilibrium gradients. So we only need the following function:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def vector_tap_fp(m0, x, J, beta, R, tol: float = 1e-3, maxiter: int = 100):
+    &amp;quot;&amp;quot;&amp;quot;Find fixed-point vector magnetizations of second-order mean-field update equations.&amp;quot;&amp;quot;&amp;quot;
+
+    def _fun(m, _x, _J, _beta, _R):
+        return _phi(_f(m, m, _x, _J, _beta, _R), _beta, _R)
+
+    return (
+        AndersonAcceleration(
+            fixed_point_fun=_fun,
+            tol=tol,
+            maxiter=maxiter,
+        )
+        .run(_phi(x + J @ m0, beta, R), x, J, beta, R)
+        .params
+    )
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;$\ldots$&lt;/p&gt;
+&lt;p&gt;We implement a spin-transformer module by wrapping a little boilerplate around the &lt;code&gt;vector_tap_fp&lt;/code&gt; function. We construct the spin-model couplings from the input vectors and mimic multi-head attention by &lt;code&gt;vmap&lt;/code&gt;&amp;lsquo;ing the magnetizations&amp;rsquo; fixed-point solving across &lt;code&gt;num_heads&lt;/code&gt; spin models where each one acts on an equal-size subspace of the full vector dimension.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from functools import partial
+from typing import Callable
+
+import equinox as eqx
+
+from einops import rearrange
+
+
+class SpinTransformerModule(eqx.Module):
+    dim: int
+    dim_head: int
+    num_heads: int
+    scale: float
+    to_qk: eqx.Module
+    vector_tap_fp: Callable
+
+    def __init__(
+        self,
+        *,
+        dim,
+        num_heads,
+        beta,
+        key,
+    ):
+        super().__init__()
+
+        self.dim = dim
+        self.num_heads = num_heads
+        self.dim_head = dim // num_heads
+        self.scale = (self.dim_head / 2 - 1) ** 0.5
+
+        self.to_qk = eqx.nn.Linear(
+            dim, 2 * self.dim_head * num_heads, use_bias=False, key=key
+        )
+        self.vector_tap_fp = partial(
+            vector_tap_fp, beta=beta, R=(self.dim_head / 2 - 1) ** 0.5
+        )
+
+    def _J(self, x, mask=None):
+        x = rearrange(x, &amp;quot;... h n d -&amp;gt; ... n (h d)&amp;quot;, h=self.num_heads)
+
+        q, k = jnp.split(jax.vmap(self.to_qk)(x), 2, axis=-1)
+        q, k = map(
+            lambda t: rearrange(t, &amp;quot;... n (h d) -&amp;gt; ... h n d&amp;quot;, h=self.num_heads), (q, k)
+        )
+
+        sim = jnp.einsum(&amp;quot;... i d, ... j d -&amp;gt; ... i j&amp;quot;, q, k)
+
+        if mask is not None:
+            sim = jnp.where(mask, sim, jnp.finfo(sim.dtype).min)
+
+        return jax.nn.softmax(sim, axis=-1)
+
+    def __call__(self, x, mask=None):
+        x = rearrange(x, &amp;quot;... n (h d) -&amp;gt; ... h n d&amp;quot;, h=self.num_heads, d=self.dim_head)
+        x = self.scale * x / jnp.linalg.norm(x, axis=-1, keepdims=True)
+
+        m0 = jnp.ones_like(x)
+        m0 = m0 / jnp.linalg.norm(m0, axis=-1, keepdims=True)
+
+        return rearrange(
+            jax.vmap(self.vector_tap_fp, in_axes=(0, 0, 0))(
+                m0, x, self._J(x, mask=mask)
+            ),
+            &amp;quot;... h n d -&amp;gt; ... n (h d)&amp;quot;,
+        )
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Let&amp;rsquo;s run a forward pass of the spin-transformer module&amp;hellip;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;key = jax.random.PRNGKey(2666)
+x_key, mod_key = jax.random.split(key)
+
+x = jax.random.normal(x_key, shape=(1, 512, 512))
+transformer_module = SpinTransformerModule(dim=512, num_heads=1, beta=2.0, key=mod_key)
+
+print(jax.vmap(transformer_module)(x))
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;[[[ 0.46483648  0.3805422  -0.44913006 ...  0.02650307 -0.36570293
+    0.23443604]
+  [-0.37061682 -0.42315483  0.1197958  ...  0.6265602  -0.61598897
+    0.5583689 ]
+  [ 0.21803643  0.17418407  0.22512378 ... -0.82831764  0.13957487
+    0.17361565]
+  ...
+  [-0.03738704  0.10310851 -0.12114237 ... -0.17507279  0.30361462
+    0.09653477]
+  [ 0.4211655  -0.20545821  0.12954816 ...  0.74708706 -0.35752055
+   -0.5818469 ]
+  [ 1.149747   -0.6245326  -0.28383803 ...  0.31866318 -0.13622926
+    0.52548647]]]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&amp;hellip; and a backward pass.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;@eqx.filter_jit
+def loss_fn(model, x):
+    return jnp.mean(jax.vmap(model)(x))
+
+print(eqx.filter_grad(loss_fn)(module, x).to_qk.weight)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;[[ 6.84143470e-06  1.26781670e-04  3.00350985e-05 ... -2.42774186e-05
+   6.56897682e-05 -1.09572255e-04]
+ [ 2.77053477e-04 -1.62737968e-04 -9.00395680e-05 ... -8.95370322e-05
+  -4.99462512e-05  5.35702784e-05]
+ [-1.52689070e-04 -1.44067290e-05  1.77498405e-05 ... -1.35530383e-04
+   7.19401141e-05  1.22722937e-04]
+ ...
+ [-4.90037055e-05 -1.04181963e-04  4.73747787e-06 ... -8.87275892e-05
+  -5.93782897e-06 -4.02471051e-05]
+ [-4.34355170e-05  3.30054972e-05  1.77152877e-04 ... -1.20974844e-04
+  -1.17946729e-04  4.90189996e-06]
+ [-3.79099110e-05 -1.06873820e-04 -8.71618904e-05 ...  4.89293416e-05
+   8.51267905e-05 -1.46996666e-04]]
+&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;We can stack spin-transformer modules to create a spin-transformer model using the &lt;a href=&#34;https://docs.kidger.site/equinox/tricks/#improve-compilation-speed-with-scan-over-layers&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;scan-over-layers trick&lt;/a&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import jax
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;class SpinTransformer(eqx.Module):
+    modules: SpinTransformerModule
+
+    def __init__(self, depth, dim, num_heads, beta, key):
+        keys = jax.random.split(key, depth)
+
+        make_modules = lambda k: SpinTransformerModule(
+            dim=dim, num_heads=num_heads, beta=beta, key=k
+        )
+        self.modules = eqx.filter_vmap(make_modules)(keys)
+
+    def __call__(self, x):
+        dynamic_modules, static_modules = eqx.partition(self.modules, eqx.is_array)
+
+        def f(_x, _dynamic_module):
+            module = eqx.combine(_dynamic_module, static_modules)
+            return module(_x), None
+
+        out, _ = jax.lax.scan(f, x, dynamic_modules)
+        return out
+
+
+transformer = SpinTransformer(depth=6, dim=512, num_heads=8, beta=1.0, key=mod_key)
+print(jax.vmap(transformer)(x))
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;$\ldots$&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;[[[ 0.20396525 -0.06002701 -0.24426042 ...  0.25347382 -0.01503923
+   -0.15146086]
+  [-0.3552067  -0.4154298  -0.2159235  ...  0.68296695 -0.18692644
+    0.20893992]
+  [-0.03525298 -0.11836862 -0.13671912 ... -0.22646151  0.18905625
+   -0.05829766]
+  ...
+  [-0.11216182 -0.26305646 -0.31211302 ...  0.27817503  0.25123474
+   -0.11120855]
+  [ 0.17170963 -0.33360714 -0.12762357 ...  0.70538384 -0.04229175
+   -0.5447842 ]
+  [ 0.5191558  -0.5662918  -0.33646253 ...  0.4568781  -0.04439414
+    0.18843232]]]
+&lt;/code&gt;&lt;/pre&gt;
 &lt;h1 id=&#34;5-conclusion&#34;&gt;5. Conclusion&lt;/h1&gt;
 &lt;p&gt;In this post, we have shown how &lt;a href=&#34;https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;intuitive ideas connecting spin models to transformers&lt;/a&gt; can be generalized to capture asymmetric coupling matrices like softmax attention. We observed that dynamical mean-field descriptions of vector-spin models exhibit structure capable of yielding residual connections, attention terms, and feed-forward-like correction terms, motivating a physics-inspired class of spin-transformer modules. By blending ideas from deep learning and statistical mechanics, we hope our work can help open up broader interdisciplinary bridges to improve our understanding of learning and generalization in transformer neural networks.&lt;/p&gt;
-&lt;p&gt;From a theoretical point of view, it would be interesting to further explore and develop connections to the physics of vector spin glasses. Computationally, we look forward to experiments at scale to get more insight into potential benefits and bottlenecks of spin-transformer models in terms of &lt;a href=&#34;https://twitter.com/YiTayML/status/1714315484357857766&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;efficiency&lt;/a&gt;, interpretability, representation power, and scaling behavior. In any case, it is fun to think about transformers as a collective of driven, disordered vector-spin models, whose response behavior can be shaped by learning parameterized interactions, gradually steering a cascade of near-equilibrium steady-state magnetizations towards solving a given objective.&lt;/p&gt;
+&lt;p&gt;From a theoretical point of view, it would be interesting to further explore and develop connections to the physics of vector spin glasses. Computationally, we look forward to experiments at scale to get more insight into potential benefits and bottlenecks of spin-transformer models in terms of &lt;a href=&#34;https://twitter.com/YiTayML/status/1714315484357857766&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;efficiency&lt;/a&gt;, representational power, and scaling behavior. In any case, it is fun to think about transformers as a collective of driven, disordered vector-spin models, whose response behavior can be shaped by learning parameterized interactions and gradually steering a cascade of near-equilibrium steady-state magnetizations towards solving a given objective.&lt;/p&gt;
 &lt;h1 id=&#34;references&#34;&gt;References&lt;/h1&gt;
 &lt;p&gt;A non-exhaustive list of references and inspiration includes:&lt;/p&gt;
 &lt;ul&gt;
@@ -667,9 +826,6 @@ def simulate(x, J, m0, steps, beta, R, update_fun=update_tap_mf):
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;M. Aguilera, S.A. Moosavi, and H. Shimazaki, A unifying framework for mean-field theories of asymmetric kinetic Ising systems, &lt;em&gt;Nat Commun&lt;/em&gt; &lt;strong&gt;12&lt;/strong&gt;, 1197 (2021) &lt;a href=&#34;https://arxiv.org/abs/2002.04309&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://arxiv.org/abs/2002.04309&lt;/a&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;L. Zdeborová and F. Krzakala, Statistical physics of inference: Thresholds and algorithms (2015), &lt;a href=&#34;https://arxiv.org/abs/1511.02476&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://arxiv.org/abs/1511.02476&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;Y. Roudi and J. Hertz, Dynamical TAP equations for non-equilibrium Ising spin glasses, &lt;em&gt;J. Stat. Mech.&lt;/em&gt;, P03031 (2011) &lt;a href=&#34;https://arxiv.org/abs/1103.1044&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://arxiv.org/abs/1103.1044&lt;/a&gt;&lt;/p&gt;
