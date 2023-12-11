@@ -1343,6 +1343,9 @@ def simulate(x, J, m0, steps, beta, R, update_fun=update_tap_mf):
     )
 </code></pre>
 <p>We implement a spin-transformer module by wrapping a little boilerplate around the <code>vector_tap_fp</code> function. We construct the spin-model couplings from the input vectors and mimic multi-head attention by <code>vmap</code>&lsquo;ing the magnetizations&rsquo; fixed-point solving across <code>num_heads</code> spin models where each one acts on an equal-size subspace of the full vector dimension.</p>
+<blockquote>
+<p>✨ <strong>TODO:</strong> Fix multi-head case (it&rsquo;s not just <code>vmap</code>&lsquo;ing the full thing).</p>
+</blockquote>
 <pre><code class="language-python">from functools import partial
 from typing import Callable
 
@@ -1581,7 +1584,7 @@ p ( \mathbf{s} ; \beta, \mathbf{h}) = \frac{\mathrm{e}^{\beta \, \mathbf{s} \cdo
 <p>Using the <a href="https://dlmf.nist.gov/10.29" target="_blank" rel="noopener">modified Bessel function recurrence relations</a>,</p>
 <p>\begin{align}
 I_{\nu-1}(z) - I_{\nu+1}(z) &amp;= \frac{2\nu}{z} I_{\nu}(z), \label{eq:irecurr}\\
-I_{\nu-1}(z) + I_{\nu+1}(z) &amp;= 2 I'_{\nu}(z), \label{eq:irecurrderiv}
+I_{\nu-1}(z) + I_{\nu+1}(z) &amp;= 2 I&rsquo;_{\nu}(z), \label{eq:irecurrderiv}
 \end{align}</p>
 <p>we end up with</p>
 <p>\begin{align}
