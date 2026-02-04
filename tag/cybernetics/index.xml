@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Cybernetics | mcbal</title>
+    <link>https://mcbal.github.io/tag/cybernetics/</link>
+      <atom:link href="https://mcbal.github.io/tag/cybernetics/index.xml" rel="self" type="application/rss+xml" />
+    <description>Cybernetics</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-gb</language><copyright>Matthias Bal © 2020–2026</copyright><lastBuildDate>Mon, 02 Feb 2026 09:28:17 +0100</lastBuildDate>
+    <image>
+      <url>https://mcbal.github.io/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_3.png</url>
+      <title>Cybernetics</title>
+      <link>https://mcbal.github.io/tag/cybernetics/</link>
+    </image>
+    
+    <item>
+      <title>Entropy Production in Non-Equilibrium Neural Networks</title>
+      <link>https://mcbal.github.io/post/entropy-production-in-non-equilibrium-neural-networks/</link>
+      <pubDate>Mon, 02 Feb 2026 09:28:17 +0100</pubDate>
+      <guid>https://mcbal.github.io/post/entropy-production-in-non-equilibrium-neural-networks/</guid>
+      <description>&lt;p&gt;&lt;a title=&#34;Walter Baxter / A murmuration of starlings at Gretna&#34; href=&#34;https://commons.wikimedia.org/wiki/File:Starling_murmuration.jpg&#34;&gt;&lt;img width=&#34;512&#34; alt=&#34;A murmuration of starlings at Gretna&#34; src=&#34;https://upload.wikimedia.org/wikipedia/commons/8/8d/Starling_murmuration.jpg?20150218191823&#34;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;&lt;p align=&#34;center&#34;&gt;This project is a work in progress (open research)&lt;/p&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;✨ GitHub repository: &lt;a href=&#34;https://github.com/mcbal/neqnn&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;mcbal/neqnn&lt;/code&gt;&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;In this post, we take the notion of treating neural networks as non-equilibrium thermodynamic systems seriously. We design a physics-inspired transformer module with adaptable couplings and memory parameters based on the naive mean-field dynamics of vector-spin models introduced in &lt;a href=&#34;https://mcbal.github.io/post/spin-model-transformers/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Spin-Model Transformers (2023)&lt;/a&gt;. Using the underlying mean-field spin-model interpretation, we can derive an expression for &lt;a href=&#34;https://en.wikipedia.org/wiki/Entropy_production#Entropy_production_in_stochastic_processes&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;em&gt;entropy production&lt;/em&gt;&lt;/a&gt;, a thermodynamic quantity measuring &amp;ldquo;instantaneous&amp;rdquo; irreversibility by quantifying the asymmetry between forward and backward time steps.&lt;/p&gt;
+&lt;p&gt;Since every step in our mean-field setup is differentiable, entropy production can be made into a loss function. For example, maximizing entropy production incentivizes the system to &lt;em&gt;lean into the external drive&lt;/em&gt; by nudging its parameters to dump entropy as fast as possible in a way that maximizes uncertainty given constraints. Internally, we imagine the system reshaping itself into ordered structures to enable more efficient dissipation of the internal tension caused by the incoming data stream.&lt;/p&gt;
+&lt;h2 id=&#34;2-background-and-intuitions&#34;&gt;2. Background and intuitions&lt;/h2&gt;
+&lt;p&gt;We yet again consider transformer modules as differentiable driven disordered vector-spin systems whose collective behavior we can control through training, and refer to &lt;a href=&#34;https://mcbal.github.io/#posts&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;previous posts&lt;/a&gt; going back to &lt;a href=&#34;https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)&lt;/a&gt; for earlier explorations of this intuition. According to this correspondence, &lt;em&gt;inputs&lt;/em&gt; map to time-varying applied external fields, &lt;em&gt;interactions&lt;/em&gt; can be identified with asymmetric, sparse attention matrices, and &lt;em&gt;outputs&lt;/em&gt; map to mean-field spin expectation values or magnetizations. Practically, the forward pass of a spin-transformer module can be designed to mimic that of a vanilla transformer module.&lt;/p&gt;
+&lt;p&gt;In contrast to physics-oriented literature, we do not specify explicit probability distributions for the external fields and couplings of the disordered many-body system, nor are we interested in Nobel-prize-winning ways to average out the disorder. We instead focus on the very specific quenched disorder realizations induced by a dataset of interest, whose examples we use to drive the system. In this way, training the spin-transformer neural network module corresponds to sculpting the underlying system&amp;rsquo;s collective response by tuning the parametrized distributions of its external fields and couplings.&lt;/p&gt;
+&lt;p&gt;In &lt;a href=&#34;https://mcbal.github.io/post/spin-model-transformers/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Spin-Model Transformers (2023)&lt;/a&gt;, we observed that these systems tend to settle into non-equilibrium steady states as a dynamic sweet spot where the &amp;ldquo;continuous kicking&amp;rdquo; of the inputs (applied external fields) &amp;ldquo;sustains&amp;rdquo; the outputs (magnetizations).This process tends to happen in just a few time-step iterations&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;. As soon as the input sequence changes, the system has to renegotiate a different steady state compatible with what the current version of its parameters dictate its response should be.&lt;/p&gt;
+&lt;p&gt;&amp;hellip;&lt;/p&gt;
+&lt;h2 id=&#34;3-model&#34;&gt;3. Model&lt;/h2&gt;
+&lt;p&gt;&amp;hellip;&lt;/p&gt;
+&lt;p&gt;The above update equation resembles the forward pass of parallel transformer blocks as introduced in GPT-J and used in PaLM, with the notable difference that the &amp;ldquo;values&amp;rdquo; here correspond to the outputs (magnetizations) of the previous time step instead of some linear transformation applied to the inputs (applied external fields) at the current time step.&lt;/p&gt;
+&lt;p&gt;&amp;hellip;&lt;/p&gt;
+&lt;h2 id=&#34;4-experiments&#34;&gt;4. Experiments&lt;/h2&gt;
+&lt;p&gt;&amp;hellip;&lt;/p&gt;
+&lt;h4 id=&#34;do-independently-optimized-modules-synchronize&#34;&gt;Do independently optimized modules synchronize?&lt;/h4&gt;
+&lt;p&gt;We test a stack of spin-transformer modules in a toy femtoscale online learning setup and try to see if we can make &lt;a href=&#34;https://en.wikipedia.org/wiki/Synchronization_%28alternating_current%29&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;synchronization happen between the spin-transformer modules&lt;/a&gt; when maximizing per-layer entropy-production losses &lt;em&gt;independently&lt;/em&gt;. If we detach module outputs after applying each layer, we end up with systems communicating via their input/output interfaces but without gradients backpropagating through the whole stack. (Pretty unlikely that the entropy-production losses on their own provide enough signal though.)&lt;/p&gt;
+&lt;p&gt;&amp;hellip;&lt;/p&gt;
+&lt;h2 id=&#34;5-discussion&#34;&gt;5. Discussion&lt;/h2&gt;
+&lt;p&gt;&amp;hellip;&lt;/p&gt;
+&lt;h2 id=&#34;references&#34;&gt;References&lt;/h2&gt;
+&lt;p&gt;A non-exhaustive list of references and inspiration includes:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://arxiv.org/abs/2002.04309&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;A unifying framework for mean-field theories of asymmetric kinetic Ising systems&lt;/a&gt; by
+Miguel Aguilera, S. Amin Moosavi, and Hideaki Shimazaki&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://dspace.mit.edu/handle/1721.1/130835?show=full&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Self-organized fine-tuned response in a driven spin glass&lt;/a&gt; by Jacob Mitchell Gold&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If you happen to find this work useful, please consider citing it as:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;@article{bal2026,
+  title   = {Entropy Production in Non-Equilibrium Neural Networks},
+  author  = {Bal, Matthias},
+  year    = {2026},
+  month   = {?},
+  url     = {https://mcbal.github.io/post/entropy-production-in-non-equilibrium-neural-networks/}
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;footnotes&#34;&gt;Footnotes&lt;/h1&gt;
+&lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;The first iteration already gives a decent guess, which might explain why (1) transformers can get away with just stacking modules whose forward passes take just one time step, and (2) why doing a few time steps can improve performance, as done in recursive reasoning approaches. Indeed, repeating the same module (which itself can be made up of a stack of modules) can be seen as allowing the underlying non-equilibrium system to settle into its steady state for that particular inputs/parameters configuration.&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
