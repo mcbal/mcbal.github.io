@@ -29,7 +29,11 @@
 &lt;li&gt;&lt;a href=&#34;#32-entropy-production&#34;&gt;Entropy production&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#4-experiments&#34;&gt;Experiments&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#4-experiments&#34;&gt;Experiments&lt;/a&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#local-backpropagation-do-independently-optimized-modules-synchronize&#34;&gt;Local backpropagation: do independently optimized modules synchronize?&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#5-discussion-and-related-work&#34;&gt;Discussion and related work&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#references&#34;&gt;References&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
@@ -102,7 +106,7 @@ D_{ij,t} \sim J_{ij} \cos^2 \alpha_{(i,t)(j,t-1)},
 &lt;p&gt;&amp;hellip;&lt;/p&gt;
 &lt;h2 id=&#34;4-experiments&#34;&gt;4. Experiments&lt;/h2&gt;
 &lt;p&gt;&amp;hellip;&lt;/p&gt;
-&lt;h4 id=&#34;do-independently-optimized-modules-synchronize&#34;&gt;Do independently optimized modules synchronize?&lt;/h4&gt;
+&lt;h3 id=&#34;local-backpropagation-do-independently-optimized-modules-synchronize&#34;&gt;Local backpropagation: do independently optimized modules synchronize?&lt;/h3&gt;
 &lt;p&gt;We test a stack of spin-transformer modules in a toy femtoscale online learning setup and try to see if we can make &lt;a href=&#34;https://en.wikipedia.org/wiki/Synchronization_%28alternating_current%29&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;synchronization happen between the spin-transformer modules&lt;/a&gt; when maximizing per-layer entropy-production losses &lt;em&gt;independently&lt;/em&gt;. If we detach module outputs after applying each layer, we end up with systems communicating via their input/output interfaces but without gradients backpropagating through the whole stack. (Pretty unlikely that the entropy-production losses on their own provide enough signal though.)&lt;/p&gt;
 &lt;p&gt;&amp;hellip;&lt;/p&gt;
 &lt;h2 id=&#34;5-discussion-and-related-work&#34;&gt;5. Discussion and related work&lt;/h2&gt;

@@ -681,7 +681,11 @@
 <li><a href="#32-entropy-production">Entropy production</a></li>
 </ol>
 </li>
-<li><a href="#4-experiments">Experiments</a></li>
+<li><a href="#4-experiments">Experiments</a>
+<ol>
+<li><a href="#local-backpropagation-do-independently-optimized-modules-synchronize">Local backpropagation: do independently optimized modules synchronize?</a></li>
+</ol>
+</li>
 <li><a href="#5-discussion-and-related-work">Discussion and related work</a></li>
 <li><a href="#references">References</a></li>
 </ol>
@@ -754,7 +758,7 @@ D_{ij,t} \sim J_{ij} \cos^2 \alpha_{(i,t)(j,t-1)},
 <p>&hellip;</p>
 <h2 id="4-experiments">4. Experiments</h2>
 <p>&hellip;</p>
-<h4 id="do-independently-optimized-modules-synchronize">Do independently optimized modules synchronize?</h4>
+<h3 id="local-backpropagation-do-independently-optimized-modules-synchronize">Local backpropagation: do independently optimized modules synchronize?</h3>
 <p>We test a stack of spin-transformer modules in a toy femtoscale online learning setup and try to see if we can make <a href="https://en.wikipedia.org/wiki/Synchronization_%28alternating_current%29" target="_blank" rel="noopener">synchronization happen between the spin-transformer modules</a> when maximizing per-layer entropy-production losses <em>independently</em>. If we detach module outputs after applying each layer, we end up with systems communicating via their input/output interfaces but without gradients backpropagating through the whole stack. (Pretty unlikely that the entropy-production losses on their own provide enough signal though.)</p>
 <p>&hellip;</p>
 <h2 id="5-discussion-and-related-work">5. Discussion and related work</h2>
