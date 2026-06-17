@@ -6,7 +6,7 @@ subtitle: "An exercise in cybernetics"
 summary: "An exercise in cybernetics"
 authors:
   - me
-tags: ["Artificial Intelligence", "Associative Memories", "Attention", "Controllable Non-Equilibrium Behavior", "Cybernetics", "Deep Learning", "Entropy Production", "Ising Models", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Near-Equilibrium Dynamics", "Non-Equilibrium Dynamics", "Self-Organizing Computational Stability", "Spin Glasses", "Spin Models", "Statistical Physics", "Transformers", "Vector-Spin Models"]
+tags: ["Artificial Intelligence", "Associative Memories", "Attention", "Cybernetics", "Deep Learning", "Entropy Production", "Ising Models", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Near-Equilibrium Dynamics", "Non-Equilibrium Dynamics", "Self-Organizing Computational Stability", "Statistical Physics", "Transformers", "Vector-Spin Models"]
 categories: []
 date: 2026-02-02T09:28:17+01:00
 lastmod: 2026-02-18T16:26:41+01:00

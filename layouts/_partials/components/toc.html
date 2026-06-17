@@ -9,7 +9,7 @@
 <nav class="hb-toc order-last hidden w-64 shrink-0 xl:block print:hidden px-4" aria-label="table of contents">
   {{ partial "functions/get_hook" (dict "hook" "toc-start" "context" .) }}
   {{- if $toc }}
-  <div class="hb-scrollbar text-sm [hyphens:auto] sticky top-16 overflow-y-auto pr-4 pt-6 max-h-[calc(100vh-var(--navbar-height)-env(safe-area-inset-bottom))] -mr-4 rtl:-ml-4">
+  <div class="hb-scrollbar text-sm [hyphens:auto] sticky top-16 overflow-y-auto pr-4 pt-6 h-[calc(100vh-var(--navbar-height)-env(safe-area-inset-bottom))] max-h-[calc(100vh-var(--navbar-height)-env(safe-area-inset-bottom))] -mr-4 rtl:-ml-4">
     {{- $toc_depth := .Params.toc_depth | default site.Params.hugoblox.content.toc.depth | default 1 -}}
     {{- with .Fragments.Headings -}}
     <p class="mb-4 font-semibold tracking-tight">{{ $on_this_page }}</p>
@@ -80,9 +80,27 @@
 
     const linkById = new Map(links.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
     const headings = Array.from(document.querySelectorAll("[id]")).filter((heading) => linkById.has(heading.id));
+    const tocScroller = document.querySelector(".hb-toc .hb-scrollbar");
     if (!headings.length) return;
 
     let ticking = false;
+    let activeId = "";
+    const keepActiveLinkVisible = (link) => {
+      if (!tocScroller || !link) return;
+
+      const linkTop = link.offsetTop;
+      const linkBottom = linkTop + link.offsetHeight;
+      const visibleTop = tocScroller.scrollTop;
+      const visibleBottom = visibleTop + tocScroller.clientHeight;
+      const padding = 32;
+
+      if (linkTop < visibleTop + padding) {
+        tocScroller.scrollTo({ top: Math.max(linkTop - padding, 0), behavior: "smooth" });
+      } else if (linkBottom > visibleBottom - padding) {
+        tocScroller.scrollTo({ top: linkBottom - tocScroller.clientHeight + padding, behavior: "smooth" });
+      }
+    };
+
     const setActive = () => {
       let active = headings[0].id;
       for (const heading of headings) {
@@ -95,6 +113,10 @@
 
       for (const link of links) {
         link.classList.toggle("is-active", link === linkById.get(active));
+      }
+      if (active !== activeId) {
+        activeId = active;
+        keepActiveLinkVisible(linkById.get(active));
       }
       ticking = false;
     };
