@@ -1,0 +1,73 @@
+schema: hugoblox/author/v1
+slug: me
+is_owner: true
+name:
+  display: Matthias Bal
+  given: Matthias
+  family: Bal
+postnominals: []
+status:
+  icon: ""
+role:
+email: matthiascbal@gmail.com
+bio: AI/ML engineer with a background in physics.
+
+affiliations: []
+
+links:
+  - icon: at-symbol
+    url: mailto:matthiascbal@gmail.com
+    label: E-mail Me
+  - icon: brands/x
+    url: https://twitter.com/MatthiasBal
+  - icon: brands/linkedin
+    url: https://www.linkedin.com/in/matthiasbal/
+  - icon: brands/github
+    url: https://github.com/mcbal
+  - icon: brands/google-scholar
+    url: https://scholar.google.be/citations?user=vjYY0bMAAAAJ&hl=en
+
+interests:
+  - Machine learning, deep learning, and anything but AI
+  - Statistical physics, many-body systems, and tensor networks
+  - Literature, language, and the stories we tell ourselves
+
+education:
+  - degree: PhD in Physics
+    institution: Ghent University
+    end: 2018-01-01
+  - degree: MSc in Physics and Astronomy
+    institution: Ghent University
+    end: 2013-01-01
+  - degree: BSc in Physics and Astronomy
+    institution: Ghent University
+    end: 2011-01-01
+
+experience: []
+skills:
+  - name: Research
+    items:
+      - label: Machine Learning
+        level: 5
+      - label: Deep Learning
+        level: 5
+      - label: Statistical Physics
+        level: 5
+      - label: Tensor Networks
+        level: 4
+  - name: Tools
+    items:
+      - label: Python
+        level: 5
+      - label: JAX
+        level: 4
+      - label: Data Science
+        level: 5
+
+languages:
+  - name: English
+    level: 5
+  - name: Dutch
+    level: 5
+
+awards: []

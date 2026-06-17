@@ -1,0 +1,76 @@
+# Configuration of Hugo
+# Guide: https://docs.hugoblox.com/tutorial/
+# Hugo Documentation: https://gohugo.io/getting-started/configuration/#all-configuration-settings
+# This file is formatted using YAML syntax - learn more at https://learnxinyminutes.com/docs/yaml/
+
+# Website name (set in params.yaml under hugoblox.branding.name)
+title: 'mcbal'
+# Website URL
+baseURL: 'https://mcbal.github.io/'
+
+############################
+## LANGUAGE
+############################
+
+defaultContentLanguage: en
+hasCJKLanguage: false
+defaultContentLanguageInSubdir: false
+removePathAccents: true
+
+############################
+## ADVANCED
+############################
+
+build:
+  writeStats: true
+enableGitInfo: false
+summaryLength: 30
+pagination:
+  pagerSize: 10
+enableEmoji: true
+enableRobotsTXT: true
+footnotereturnlinkcontents: <sup>^</sup>
+ignoreFiles: [".ipynb_checkpoints$", "\\.Rmd$", "\\.Rmarkdown$", "_cache$"]
+disableAliases: true
+outputs:
+  home: [HTML, RSS, headers, redirects, backlinks]
+  section: [HTML, RSS]
+imaging:
+  resampleFilter: lanczos
+  quality: 90
+  anchor: smart
+  hint: picture
+timeout: 600000
+taxonomies:
+  author: authors
+  tag: tags
+  category: categories
+  publication_type: publication_types
+permalinks:
+  blog: /post/:slug/
+markup:
+  _merge: deep
+  goldmark:
+    extensions:
+      passthrough:
+        enable: true
+        delimiters:
+          block:
+            - ["\\[", "\\]"]
+            - ["$$", "$$"]
+            - ["\\begin{equation}", "\\end{equation}"]
+            - ["\\begin{align}", "\\end{align}"]
+            - ["\\begin{alignat}", "\\end{alignat}"]
+            - ["\\begin{gather}", "\\end{gather}"]
+          inline:
+            - ["\\(", "\\)"]
+            - ["$", "$"]
+  highlight:
+    lineNos: false
+  tableOfContents:
+    startLevel: 1
+    endLevel: 6
+security:
+  _merge: deep
+sitemap:
+  _merge: deep
