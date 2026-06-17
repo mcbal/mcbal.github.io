@@ -1,0 +1,113 @@
+{{/* Table of Contents */}}
+
+{{- $toc := .Params.toc | default true -}}
+
+{{/* UI Text */}}
+{{- $on_this_page := T "on_this_page" }}
+{{- $edit_this_page := T "edit_page" }}
+
+<nav class="hb-toc order-last hidden w-64 shrink-0 xl:block print:hidden px-4" aria-label="table of contents">
+  {{ partial "functions/get_hook" (dict "hook" "toc-start" "context" .) }}
+  {{- if $toc }}
+  <div class="hb-scrollbar text-sm [hyphens:auto] sticky top-16 overflow-y-auto pr-4 pt-6 max-h-[calc(100vh-var(--navbar-height)-env(safe-area-inset-bottom))] -mr-4 rtl:-ml-4">
+    {{- $toc_depth := .Params.toc_depth | default site.Params.hugoblox.content.toc.depth | default 1 -}}
+    {{- with .Fragments.Headings -}}
+    <p class="mb-4 font-semibold tracking-tight">{{ $on_this_page }}</p>
+    <ul>
+      {{ template "toc-headings" (dict "headings" . "level" 0 "max_depth" $toc_depth) }}
+    </ul>
+    {{- end -}}
+
+    {{- $class := "" -}}
+    {{- if .Fragments.Headings -}}
+      {{- $class = "mt-8 border-t dark:border-neutral-700 pt-8" -}}
+    {{- end -}}
+
+    {{/* Page Features */}}
+    {{- if site.Params.hugoblox.repository.url | and .Params.editable -}}
+    <div class="{{ $class }} sticky bottom-0 flex flex-col items-start gap-2 pb-8">
+
+        {{ $edit_url := site.Params.hugoblox.repository.url | default "" }}
+        {{ $branch := site.Params.hugoblox.repository.branch | default "main" }}
+        {{ $dir := site.Params.hugoblox.repository.content_dir | default "content" }}
+        {{- with .File -}}{{ $edit_url = urls.JoinPath $edit_url "edit" $branch $dir (replace .Path "\\" "/") }}{{- end -}}
+        {{- with .Params.edit_url -}}{{ $edit_url = . }}{{- end -}}
+        <a class="text-xs font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 contrast-more:text-gray-800 contrast-more:dark:text-gray-50" href="{{ $edit_url }}" target="_blank" rel="noreferer">{{ $edit_this_page }}</a>
+
+    </div>
+    {{- end -}}
+
+    {{ partial "components/backlinks" . }}
+
+    {{ partial "functions/get_hook" (dict "hook" "toc-end" "context" .) }}
+
+  </div>
+  {{ end -}}
+</nav>
+
+{{/* Render Headings */}}
+{{- define "toc-headings" -}}
+  {{- $headings := .headings -}}
+  {{- $level := .level -}}
+  {{- $max_depth := .max_depth -}}
+  {{- if lt $level $max_depth -}}
+
+    {{- $padding := (mul $level 4) -}}{{/* Requires inclusion in Tailwind safelist!! */}}
+    {{- $class := cond (eq $level 0) "font-semibold" (printf "pl-%d rtl:pr-%d" $padding $padding) -}}
+
+    {{- range $headings }}
+      {{- if .Title }}
+        {{- $title := .Title | plainify | htmlUnescape | replaceRE "^[A-Z]\\.\\d+\\.\\s+" "" -}}
+        <li class="my-2 scroll-my-6 scroll-py-6">
+          <a class="hb-toc-link {{ $class }} inline-block text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300 w-full break-words" href="#{{ anchorize .ID }}">
+            {{- $title -}}
+          </a>
+        </li>
+      {{- end -}}
+
+      {{- with .Headings -}}
+        {{ template "toc-headings" (dict "headings" . "level" (add $level 1) "max_depth" $max_depth) }}
+      {{- end -}}
+
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const links = Array.from(document.querySelectorAll(".hb-toc-link"));
+    if (!links.length) return;
+
+    const linkById = new Map(links.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+    const headings = Array.from(document.querySelectorAll("[id]")).filter((heading) => linkById.has(heading.id));
+    if (!headings.length) return;
+
+    let ticking = false;
+    const setActive = () => {
+      let active = headings[0].id;
+      for (const heading of headings) {
+        if (heading.getBoundingClientRect().top <= 112) {
+          active = heading.id;
+        } else {
+          break;
+        }
+      }
+
+      for (const link of links) {
+        link.classList.toggle("is-active", link === linkById.get(active));
+      }
+      ticking = false;
+    };
+
+    const requestUpdate = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(setActive);
+        ticking = true;
+      }
+    };
+
+    setActive();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("hashchange", requestUpdate);
+  });
+</script>

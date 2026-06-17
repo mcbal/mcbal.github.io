@@ -1,0 +1,11 @@
+# Navigation Links
+#   To link a homepage section, use a hash `#` followed by the section ID.
+#   The weight parameter defines the order that the links appear.
+
+main:
+  - name: About me
+    url: /#about-me
+    weight: 10
+  - name: Blog
+    url: /#posts
+    weight: 10

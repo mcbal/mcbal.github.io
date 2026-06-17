@@ -1,0 +1,18 @@
+html,
+body {
+  background: #ffffff;
+}
+
+.home-section-bg,
+.page-body {
+  background-color: #ffffff !important;
+}
+
+.hb-toc-link.is-active {
+  color: #111827;
+  font-weight: 700;
+}
+
+.dark .hb-toc-link.is-active {
+  color: #f9fafb;
+}
