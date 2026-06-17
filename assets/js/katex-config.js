@@ -1,14 +1,31 @@
 document.addEventListener("DOMContentLoaded", () => {
   const labels = new Map();
-  let nextLabelNumber = 1;
 
-  for (const match of document.body.textContent.matchAll(/\\label\{([^}]+)\}/g)) {
-    const label = match[1];
-    if (!labels.has(label)) {
-      labels.set(label, nextLabelNumber);
-      nextLabelNumber += 1;
+  const collectLabels = (root) => {
+    const text = root.textContent;
+    const displayMath = /\\begin\{(?:equation|align|alignat|gather)\}|\\\[|\$\$/g;
+    let equationNumber = 1;
+    let match;
+
+    while ((match = displayMath.exec(text)) !== null) {
+      const startToken = match[0];
+      const endToken = startToken === "\\[" ? "\\]" : startToken === "$$" ? "$$" : startToken.replace("\\begin", "\\end");
+      const endIndex = text.indexOf(endToken, displayMath.lastIndex);
+      if (endIndex === -1) break;
+
+      const math = text.slice(displayMath.lastIndex, endIndex);
+      for (const labelMatch of math.matchAll(/\\label\{([^}]+)\}/g)) {
+        const label = labelMatch[1];
+        if (!labels.has(label)) {
+          labels.set(label, equationNumber);
+        }
+      }
+      equationNumber += 1;
+      displayMath.lastIndex = endIndex + endToken.length;
     }
-  }
+  };
+
+  collectLabels(document.body);
 
   const renderReference = (label, eqref) => {
     const number = labels.get(label) || "?";

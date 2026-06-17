@@ -32,7 +32,7 @@ projects: []
 
 ---
 
-**✨ Update (November 2021):** _Please consider reading [Transformers Are Secretly Collectives of Spin Systems](https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/) for an arguably more comprehensive approach towards understanding transformers from a physics perspective._
+> **✨ Update (November 2021):** Please consider reading [Transformers Are Secretly Collectives of Spin Systems](https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/) for an arguably more comprehensive approach towards understanding transformers from a physics perspective.
 
 
 <!-- In this post, I will try to partly address the concerns of the following critic:

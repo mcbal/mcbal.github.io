@@ -36,6 +36,72 @@ body {
   text-align: center;
 }
 
+.prose img {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.prose .katex-display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
+}
+
+.prose .katex-display > .katex {
+  white-space: nowrap;
+}
+
+.prose .spin-system-figure {
+  text-align: center;
+}
+
+.prose blockquote {
+  margin: 1.5rem 0;
+  border-left: 4px solid var(--color-primary-500);
+  border-radius: 0.5rem;
+  background: #f8fafc;
+  color: #334155;
+  font-style: normal;
+  font-weight: 400;
+  quotes: none;
+  padding: 1rem 1.25rem;
+}
+
+.dark .prose blockquote {
+  background: #1f2937;
+  color: #d1d5db;
+}
+
+.prose blockquote p {
+  margin: 0.5rem 0;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.prose blockquote p:first-of-type {
+  margin-top: 0;
+}
+
+.prose blockquote p:last-of-type {
+  margin-bottom: 0;
+}
+
+.prose blockquote p:first-of-type::before,
+.prose blockquote p:last-of-type::after {
+  content: none !important;
+}
+
+.prose blockquote strong {
+  color: inherit;
+  font-weight: 700;
+}
+
+.prose blockquote em,
+.prose blockquote i {
+  font-style: normal;
+}
+
 .prose code:not(:where(pre *))::before,
 .prose code:not(:where(pre *))::after {
   content: none !important;

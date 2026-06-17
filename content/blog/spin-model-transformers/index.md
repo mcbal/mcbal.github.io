@@ -32,9 +32,9 @@ projects: []
 
 # Introduction
 
-✨ **TL;DR:** _We interpret and implement transformer modules as driven, disordered vector-spin models whose response behavior can be shaped by learning parameterized interactions, gradually steering a cascade of near-equilibrium steady-state magnetizations towards solving a given objective. Using dynamical mean-field theory, we show that a first-order approximation of the update equations for the magnetizations reproduces residual and attention terms. Going to second-order adds explicit expressions for feed-forward-like correction terms that are fully determined by the mean-field structure of the underlying spin model. By blending ideas from deep learning and statistical mechanics, we hope our work can help open up broader interdisciplinary bridges to improve our understanding of learning and generalization in transformer neural networks._
+> ✨ **TL;DR:** _We interpret and implement transformer modules as driven, disordered vector-spin models whose response behavior can be shaped by learning parameterized interactions, gradually steering a cascade of near-equilibrium steady-state magnetizations towards solving a given objective. Using dynamical mean-field theory, we show that a first-order approximation of the update equations for the magnetizations reproduces residual and attention terms. Going to second-order adds explicit expressions for feed-forward-like correction terms that are fully determined by the mean-field structure of the underlying spin model. By blending ideas from deep learning and statistical mechanics, we hope our work can help open up broader interdisciplinary bridges to improve our understanding of learning and generalization in transformer neural networks._
 
-✨ **GitHub repository: [`mcbal/spin-model-transformers`](https://github.com/mcbal/spin-model-transformers)**
+> ✨ **GitHub repository: [`mcbal/spin-model-transformers`](https://github.com/mcbal/spin-model-transformers)**
 
 In a series of previous [blog posts](https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/), we have tried to connect the forward pass of a transformer neural-network module to computing mean magnetizations in disordered Ising-like vector-spin models with parameterized couplings and external magnetic fields. According to this perspective, the forward pass of a transformer module can be understood as computing statistical observables given a specific realization of quenched couplings and external magnetic fields while the backward pass nudges the parameterized couplings and external magnetic fields. Physically, the transformer module represents an interacting many-body system modulating its behavior by learning to respond to being probed and driven in all kinds of ways.
 
@@ -227,7 +227,7 @@ In summary, given the mean magnetizations $\mathbf{m}_{t-1}$ of the system at ti
 
 ## A simple JAX implementation
 
-✨ **GitHub repository: [`mcbal/spin-model-transformers`](https://github.com/mcbal/spin-model-transformers)**
+> ✨ **GitHub repository: [`mcbal/spin-model-transformers`](https://github.com/mcbal/spin-model-transformers)**
 
 To get more insight into what is going on, let us turn the mean-field update equations \eqref{eq:naivem} and \eqref{eq:tapm} for the mean magnetizations into code. But before we show a few plots, we need to know a bit more background about the model we are about to simulate. In [(Aguilera et al., 2020)](https://arxiv.org/abs/2002.04309), the authors derive a solution of the asymmetric version of the kinetic [Sherrington-Kirkpatrick mean-field spin-glass model](https://en.wikipedia.org/wiki/Spin_glass#Sherrington%E2%80%93Kirkpatrick_model) using a generating functional or dynamical partition function approach to capture the distribution of trajectories. They consider the same kinetic Ising model as in Eq. \eqref{eq:pcond} but with an inverse temperature parameter $\beta$ in the exponentials:
 
@@ -606,7 +606,7 @@ Looking ahead at the transformer-module correspondence in [Section 4](#spin-tran
 
 ## A simple JAX implementation
 
-✨ **GitHub repository: [`mcbal/spin-model-transformers`](https://github.com/mcbal/spin-model-transformers)**
+> ✨ **GitHub repository: [`mcbal/spin-model-transformers`](https://github.com/mcbal/spin-model-transformers)**
 
 We now turn to a JAX implementation of the mean-field time evolution of the magnetizations according to the vector-spin model introduced in the previous sections. Compared to the binary-spin simulations of [Section 2.5](#a-simple-jax-implementation), we will not attempt to precisely tune the vector-spin model since computing its critical temperature and quirky phase-diagram properties is well beyond the scope of this work. We will instead take an empirical approach and play around with a numerical implementation to figure out what works. Along the way, we provide some physical intuition.
 
@@ -845,7 +845,7 @@ Physically, the _fast-moving_ parameterized couplings $\mathbf{J}(\mathbf{x})$ a
 
 ## A simple JAX implementation
 
-✨ **GitHub repository: [`mcbal/spin-model-transformers`](https://github.com/mcbal/spin-model-transformers)**
+> ✨ **GitHub repository: [`mcbal/spin-model-transformers`](https://github.com/mcbal/spin-model-transformers)**
 
 Let us wrap up this post with some code showing how one could implement a spin-transformer module based on the recipe described above. We choose to normalize input vectors to have norm $R$, and, because of this choice, we set the softmax temperature in the couplings Eq. \eqref{eq:softmaxcouplings} to $1$ instead of $\sqrt{D}$ to make sure the scale of the matrix elements is similar as in scaled dot-product attention. As we have seen in [Section 3.5](#a-simple-jax-implementation), lowering the norm of the input vectors decreases the strength the applied magnetic fields and increases the influence of the spin-spin interactions. Other normalization conventions might turn out to work better in actual training scenarios. Additionally, since different flavors of mean-field approximations lead to different update equations for the magnetizations, we want to stress that the approach we took in this post is just one possible option, which might not be the most useful one in practice.
 

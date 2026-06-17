@@ -38,13 +38,11 @@ sections:
       show_status: false
       show_scroll_indicator: false
       typewriter:
-        enable: true
+        enable: false
         prefix: "I write about"
         strings:
-          - "artificial intelligence"
           - "associative memories"
           - "attention"
-          - "machine learning"
           - "statistical physics"
           - "cybernetics"
           - "dynamical systems"
@@ -60,9 +58,9 @@ sections:
           - "spin systems"
           - "transformers"
           - "vector-spin models"
-        type_speed: 70
-        delete_speed: 40
-        pause_time: 2500
+        type_speed: 100
+        delete_speed: 50
+        pause_time: 2000
       cta_buttons: []
     design:
       style: centered

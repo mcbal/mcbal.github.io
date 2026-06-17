@@ -34,13 +34,13 @@ projects: []
 
 ---
 
-**<p align="center">This project is a work in progress (open research)</p>**
+> **<p align="center">This project is a work in progress (open research)</p>**
 
 
 
 ## Introduction
 
-**✨ GitHub repository: [`mcbal/neqnn`](https://github.com/mcbal/neqnn)**
+> **✨ GitHub repository: [`mcbal/neqnn`](https://github.com/mcbal/neqnn)**
 
 Modern large-scale autoregressive language models are impressive system engineering artifacts. Yet they are frozen, with no apparent notion of dynamics unfolding over time. Surfacing in-context learning at inference time through prompt and environment engineering mitigates the fact that these models are temporal only in so far as information inside their context windows matches patterns observed during consecutive offline training stages. Time, and its dynamic memory affordances, is in a sense amortized or compressed away, incentivizing models to overrely on storing relevant patterns into parametric memory instead of sculpting latent low-dimensional shapes supporting stable dynamic computation. This has implications for online continual learning, adaptive model deployment, and real-time closed-loop interaction with live systems.
 

@@ -32,12 +32,12 @@ projects: []
 
 ---
 
-**✨ Update (November 2021):** _Consider reading [Transformers Are Secretly Collectives of Spin Systems](https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/) for a high-level overview of some of the ideas outlined in this post._
+> **✨ Update (November 2021):** Consider reading [Transformers Are Secretly Collectives of Spin Systems](https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/) for a high-level overview of some of the ideas outlined in this post.
 
 
 # Introduction
 
-**✨ Code: A reference PyTorch implementation of the ideas outlined in this blog post is available in the repository [`mcbal/deep-implicit-attention`](https://github.com/mcbal/deep-implicit-attention). Comments welcome.**
+> **✨ Code: A reference PyTorch implementation of the ideas outlined in this blog post is available in the repository [`mcbal/deep-implicit-attention`](https://github.com/mcbal/deep-implicit-attention). Comments welcome.**
 
 To explore progress beyond the cage of softmax attention, we have previously looked at energy-based perspectives on attention mechanisms:
 
@@ -158,8 +158,6 @@ with spin variances $\chi_{ii} = 1 - \langle S_{i} \rangle^2$.
 
 # Attention as a fixed-point method
 In this section, we attempt to generalize the mean-field equations obtained in the previous section to random Ising-like models with vector spin degrees of freedom. We then recognize the physical system as an attention model and provide both a slow, explicit implementation and a faster, neural one.
-
-**✨ Code: A reference PyTorch implementation of the models outlined below is available in the repository [`deep-implicit-attention`](https://github.com/mcbal/deep-implicit-attention).**
 
 ## Generalizing spin models to vector degrees of freedom
 

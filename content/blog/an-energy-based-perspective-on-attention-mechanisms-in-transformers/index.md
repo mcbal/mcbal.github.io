@@ -36,8 +36,7 @@ projects: []
 
 ---
 
-**✨ Update (November 2021):** _Please consider reading [Transformers Are Secretly Collectives of Spin Systems](https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/) for an arguably more comprehensive approach towards understanding transformers from a physics perspective._
-
+> **✨ Update (November 2021):** Please consider reading [Transformers Are Secretly Collectives of Spin Systems](https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/) for an arguably more comprehensive approach towards understanding transformers from a physics perspective.
 
 
 # Introduction
@@ -140,7 +139,7 @@ we can generalize the energy to
   E = - \sum_{i=1}^{N} \exp \left( \boldsymbol{x}_{i}^{T} \cdot \boldsymbol{\xi} \right)
 \end{equation}
 
-with storage capacity $C \cong 2^{d\/2}$. The corresponding update rules for modern discrete Hopfield networks can be shown to converge quickly with high probability[^ref:modern-dam2].
+with storage capacity $C \cong 2^{d/2}$. The corresponding update rules for modern discrete Hopfield networks can be shown to converge quickly with high probability[^ref:modern-dam2].
 
 ## Modern continuous Hopfield networks
 
@@ -229,9 +228,11 @@ So what about the system defined by the energy function \eqref{eq:energyfunc}? L
 
 which, because of the $\log$ in the "interaction term", boils down to a sum of [$n$-dimensional Gaussian integrals](https://en.wikipedia.org/wiki/Gaussian_integral#n-dimensional_with_linear_term)
 
+\begin{equation}
 \begin{aligned}
   Z = (2\pi)^{n/2} \sum_{i=1}^{N} \mathrm{e}^{ \frac{1}{2} \boldsymbol{x}_{i}^{T} \cdot \boldsymbol{x}_{i} }
 \end{aligned}
+\end{equation}
 
 After taking the logarithm, we end up with the $\mathrm{logsumexp}$ operator:
 

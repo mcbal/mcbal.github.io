@@ -31,11 +31,9 @@ projects: []
 ---
 
 
-
-
 # Introduction
 
-**📓 Colab notebook available [here](https://colab.research.google.com/drive/1UsJ24rwCT9sVjh_v3bnr6Ld5NwLbJq54?usp=sharing). Comments welcome.**
+> **📓 Colab notebook available [here](https://colab.research.google.com/drive/1UsJ24rwCT9sVjh_v3bnr6Ld5NwLbJq54?usp=sharing). Comments welcome.**
 
 Recent work [^ref:hiayn] [^ref:hopfield-new] has shown that the softmax-attention update step in transformer models can be intepreted as a one-step gradient update or "inference" step of a judiciously chosen energy function. An overview of these ideas can be found in previous blog posts:
 
