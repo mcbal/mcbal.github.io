@@ -16,3 +16,27 @@ body {
 .dark .hb-toc-link.is-active {
   color: #f9fafb;
 }
+
+.prose a:not(.footnote-ref):not(.footnote-backref) {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.prose a:not(.footnote-ref):not(.footnote-backref):hover {
+  color: var(--color-primary-600);
+  text-decoration: underline;
+}
+
+.dark .prose a:not(.footnote-ref):not(.footnote-backref):hover {
+  color: var(--color-primary-400);
+}
+
+.prose figcaption {
+  text-align: center;
+}
+
+.prose code:not(:where(pre *))::before,
+.prose code:not(:where(pre *))::after {
+  content: none !important;
+}

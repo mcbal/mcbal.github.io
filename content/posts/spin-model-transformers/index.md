@@ -30,13 +30,9 @@ image:
 projects: []
 ---
 
-
-
+# Introduction
 
 ✨ **TL;DR:** _We interpret and implement transformer modules as driven, disordered vector-spin models whose response behavior can be shaped by learning parameterized interactions, gradually steering a cascade of near-equilibrium steady-state magnetizations towards solving a given objective. Using dynamical mean-field theory, we show that a first-order approximation of the update equations for the magnetizations reproduces residual and attention terms. Going to second-order adds explicit expressions for feed-forward-like correction terms that are fully determined by the mean-field structure of the underlying spin model. By blending ideas from deep learning and statistical mechanics, we hope our work can help open up broader interdisciplinary bridges to improve our understanding of learning and generalization in transformer neural networks._
----
-
-# Introduction
 
 ✨ **GitHub repository: [`mcbal/spin-model-transformers`](https://github.com/mcbal/spin-model-transformers)**
 
@@ -130,8 +126,7 @@ where $m^{{\color{red}P}}_{i,t}$ and $m^{{\color{green}Q_{\theta^{*}}}}_{i,t}$ r
 Great, but is it even possible to find the parameters
 
 \begin{equation}
-\DeclareMathOperator*{\argmin}{arg\,min}
-\boldsymbol{\theta}^{*}_{t} = \argmin_{\boldsymbol{\theta}_{t}} \left( - \sum_{\mathbf{s}_{t}} P( \mathbf{s}_{t}) \log Q_{\theta}( \mathbf{s}_{t}) \right)
+\boldsymbol{\theta}^{*}_{t} = \operatorname*{arg\,min}_{\boldsymbol{\theta}_{t}} \left( - \sum_{\mathbf{s}_{t}} P( \mathbf{s}_{t}) \log Q_{\theta}( \mathbf{s}_{t}) \right)
 \end{equation}
 
 that minimize the KL divergence? Well, that's going to be hard, unless you already know the target distribution $P( \mathbf{s}_{t})$, or you have a clever way of approximately evaluating the expectation value of $\log {\color{green}Q_{\theta}}$ with respect to ${\color{red}P}$. So let us introduce some more distributions to get around this issue. To apply the Plefka expansion to our problem, we introduce the conditional distribution 
@@ -594,7 +589,7 @@ where the function $\mathbf{f}$ is given by the right-hand side of Eq. \eqref{eq
 
 because of the dependence of $\boldsymbol{\theta}^{*}_{i,t}$ on $\mathbf{m}_{i,t}$. Similar to the binary TAP approximation Eq. \eqref{eq:tapm}, this dependency suggests that we should solve for fixed-point magnetizations $\mathbf{m}^{*}_{i,t}$. However, in contrast to the binary case, the dependence here is _implicit_ since $\boldsymbol{\theta}^{*}_{i,t}$ is itself obtained from solving fixed-point equations Eq. \eqref{eq:thetafp}, which, in turn, also depend on $\mathbf{m}_{i,t}$.
 
-The problem setup looks like a [bi-level optimization problem](https://en.wikipedia.org/wiki/Bilevel_optimization), where the solutions to the inner-level fixed-point equations are fed as parameters to the outer-level fixed-point equations. Because of the hierarchical relationship and the implicit dependence of the outer solution on the inner problem's parameters, bi-level optimization can be potentially computationally demanding and unstable. Let us try to sidestep this dreadfulness by writing all instances of $\boldsymbol{\theta}_{i,t}$ in Eq. \eqref{eq:ftheta} in terms of $\\mathbf{m}_{i,t}$ by inverting Eq \eqref{eq:largedevmag} so that, for $\mathbf{m}^2_{i,t} < R^2$,
+The problem setup looks like a [bi-level optimization problem](https://en.wikipedia.org/wiki/Bilevel_optimization), where the solutions to the inner-level fixed-point equations are fed as parameters to the outer-level fixed-point equations. Because of the hierarchical relationship and the implicit dependence of the outer solution on the inner problem's parameters, bi-level optimization can be potentially computationally demanding and unstable. Let us try to sidestep this dreadfulness by writing all instances of $\boldsymbol{\theta}_{i,t}$ in Eq. \eqref{eq:ftheta} in terms of $\mathbf{m}_{i,t}$ by inverting Eq \eqref{eq:largedevmag} so that, for $\mathbf{m}^2_{i,t} < R^2$,
 
 \begin{equation}
 \boldsymbol{\theta}_{i,t} = \frac{2 R^2}{\beta \left( R^2 - \mathbf{m}^2_{i,t} \right)} \mathbf{m}_{i,t},\label{eq:invphi}
