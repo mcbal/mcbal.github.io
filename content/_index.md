@@ -6,20 +6,20 @@ type: landing
 
 sections:
   - block: collection
-    id: posts
+    id: blog
     content:
       title: Recent Posts
       subtitle: "Notes on attention, energy landscapes, spin systems, and neural dynamics"
       filters:
         folders:
-          - posts
+          - blog
         exclude_featured: false
       count: 5
       order: desc
       archive:
         enable: true
         text: "Browse all posts"
-        link: "/posts/"
+        link: "/blog/"
     design:
       view: card
       columns: 3

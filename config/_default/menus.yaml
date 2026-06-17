@@ -4,7 +4,7 @@
 
 main:
   - name: Blog
-    url: /#posts
+    url: /#blog
     weight: 10
   - name: About
     url: /#about
