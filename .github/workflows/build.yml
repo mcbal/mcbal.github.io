@@ -131,8 +131,21 @@ jobs:
         HUGO_ENVIRONMENT: production
         HUGO_BLOX_LICENSE: ${{ secrets.HUGO_BLOX_LICENSE }}
       run: |
+        hugo version
         echo "Hugo Cache Dir: $(hugo config | grep cachedir)"
         hugo --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
+
+    - name: Verify rendered dates
+      run: |
+        if ! grep -R -E "Published on (January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{1,2}, [0-9]{4}" public/post >/dev/null; then
+          echo "::error::Could not find a post header with a rendered month name."
+          exit 1
+        fi
+
+        if ! grep -R -E "<time[^>]*>(January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{1,2}, [0-9]{4}" public/index.html public/blog/index.html >/dev/null; then
+          echo "::error::Could not find a blog card with a rendered month name."
+          exit 1
+        fi
 
     - name: Generate Pagefind search index (if applicable)
       run: |

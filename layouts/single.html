@@ -70,10 +70,10 @@
       <div class="mt-4 mb-16">
       <div class="text-gray-500 dark:text-gray-300 text-sm flex items-center flex-wrap gap-y-2">
         {{- if $display_date | and (.Params.show_date | default true) -}}
-        <span class="mr-1">Published {{ (time $display_date) | time.Format $date_format }}</span>
+        <span class="mr-1">Published on {{ (time $display_date) | time.Format $date_format }}</span>
         {{- if and (.Lastmod) (ne (.Lastmod.Format "2006-01-02T15:04:05Z07:00") ((time $display_date).Format "2006-01-02T15:04:05Z07:00")) -}}
         <span class="mx-1">·</span>
-        <span class="mr-1">Updated {{ .Lastmod | time.Format $date_format }}</span>
+        <span class="mr-1">Last updated on {{ .Lastmod | time.Format $date_format }}</span>
         {{- end -}}
         {{- if .Params.authors }}<span class="mx-1">·</span>{{ end -}}
         {{- end -}}

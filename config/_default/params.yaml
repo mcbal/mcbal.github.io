@@ -240,7 +240,7 @@ hugoblox:
   # Regional formatting preferences
   # ────────────────────────────────────────────────────────────────────────────
   locale:
-    date_format: "Jan 2, 2006"          # Go time format
+    date_format: "January 2, 2006"      # Go time format
     time_format: "15:04"
     address_format: en-gb
 
