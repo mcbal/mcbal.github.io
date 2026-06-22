@@ -1,6 +1,6 @@
 github.com/HugoBlox/kit/modules/blox v0.0.0-20260527025321-61f41d3667f1 h1:JBLSLEfVXqErxi9+DO70n4VX++C+rO103d45CDajzmE=
 github.com/HugoBlox/kit/modules/blox v0.0.0-20260527025321-61f41d3667f1/go.mod h1:0F2Ss2NeylmaBP7+qx0U6zFPeMZ9NoLbAQakKXDqygo=
-github.com/HugoBlox/kit/modules/integrations/netlify v0.0.0-20260327032542-ef8ed449c7e8 h1:lPk5L2PGVluHJKHWytWBEaZI4d1x8z9QMYwcYtMhF3w=
-github.com/HugoBlox/kit/modules/integrations/netlify v0.0.0-20260327032542-ef8ed449c7e8/go.mod h1:UuppRGml2K1EmlDkN+HemycohgZLjOy0QPGYOnoPnY4=
+github.com/HugoBlox/kit/modules/integrations/netlify v1.3.0 h1:OP7H3ZaN9cXQrGEzOXt2uD1IRD1MNFGbI5qIM75gth8=
+github.com/HugoBlox/kit/modules/integrations/netlify v1.3.0/go.mod h1:UuppRGml2K1EmlDkN+HemycohgZLjOy0QPGYOnoPnY4=
 github.com/HugoBlox/kit/modules/slides v1.3.0 h1:jMvtb0dtbXpN7PFol/sLt99ITJlVu8fFls5ZSnrIl7M=
 github.com/HugoBlox/kit/modules/slides v1.3.0/go.mod h1:/XTQAtd2KCiwg/GVMAoSzKPf/DYPVbAAEysmBdWgYu4=
