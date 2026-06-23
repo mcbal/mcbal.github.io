@@ -9,7 +9,7 @@ authors:
 tags: ["Artificial Intelligence", "Associative Memories", "Attention", "Cybernetics", "Deep Learning", "Entropy Production", "Ising Models", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Near-Equilibrium Dynamics", "Non-Equilibrium Dynamics", "Self-Organizing Computational Stability", "Statistical Physics", "Transformers", "Vector-Spin Models"]
 categories: []
 date: 2026-02-02T09:28:17+01:00
-lastmod: 2026-06-22T20:55:41+01:00
+lastmod: 2026-06-23T16:30:41+01:00
 featured: false
 draft: false
 toc: true
@@ -37,15 +37,17 @@ projects: []
 
 ## Introduction
 
-> **This project is an open research work in progress.**
+> **✨ Disclaimer: This project is open research and a work in progress**
 
-> **✨ GitHub repository: [`mcbal/neqnn`](https://github.com/mcbal/neqnn)**
+> **✨ GitHub repository:  [`mcbal/neqnn`](https://github.com/mcbal/neqnn)**
 
-Modern large-scale autoregressive language models are impressive system engineering artifacts. Yet they are frozen, with no apparent notion of dynamics unfolding over time. Surfacing in-context learning at inference time through prompt, harness, and environment engineering mitigates the fact that these models are temporal only in so far as information inside their context windows matches patterns observed during consecutive batched offline training stages. Time, and its dynamic memory affordances, is in a sense amortized or compressed away, incentivizing models to overrely on storing relevant patterns into parametric memory instead of sculpting latent low-dimensional shapes supporting stable dynamic computation. This has implications for online continual learning, adaptive model deployment, and real-time closed-loop interaction with live systems.
+Modern large-scale autoregressive language models are impressive system engineering artifacts. Yet they are frozen, with no apparent notion of dynamics unfolding over time. Surfacing in-context learning at inference time through prompt, harness, and environment engineering mitigates the fact that these models are temporal only in so far as information inside their large but finite context windows matches patterns observed during batched offline training stages. Time, and its dynamic memory affordances, is in a sense amortized or compressed away, incentivizing models to overrely on storing relevant patterns into parametric memory instead of sculpting latent low-dimensional structures supporting stable dynamic computation. This has implications for online continual learning, adaptive model deployment, and real-time closed-loop interaction with live systems.
 
-In this post, we take the notion of treating neural networks as non-equilibrium thermodynamic systems seriously. We design a physics-inspired transformer module with adaptable couplings and memory parameters based on the naive mean-field dynamics of a class of vector-spin models introduced in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/). The underlying mean-field spin-model interpretation enables us to write down an expression for [_entropy production_](https://en.wikipedia.org/wiki/Entropy_production#Entropy_production_in_stochastic_processes), a thermodynamic quantity measuring "instantaneous" irreversibility by quantifying the asymmetry between forward and backward time steps.
+In this post, we build on [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/) and take the notion of treating neural networks as non-equilibrium thermodynamic systems seriously. We design a physics-inspired transformer module with adaptable couplings and memory parameters based on the naive mean-field dynamics of a class of vector-spin models. The mean-field spin-model interpretation underpinning the architecture enables us to write down a mean-field proxy for [_entropy production_](https://en.wikipedia.org/wiki/Entropy_production#Entropy_production_in_stochastic_processes), a thermodynamic quantity measuring irreversibility by quantifying the asymmetry between forward and backward time steps. Since every operation in our spin-transformer module is differentiable, entropy production can be made into a local loss function measuring irreversible flow.
 
-Since every operation in our spin-transformer module is differentiable, entropy production can be made into a loss function. For example, maximizing entropy production incentivizes the system to _lean into the external drive_ by nudging its parameters to dump entropy as fast as possible given constraints. Internally, we imagine the system reshaping itself into ordered structures to enable more efficient dissipation of the internal tension caused by the incoming data stream.
+For example, maximizing entropy production incentivizes the system to _lean into the external drive_ by nudging its parameters to dump entropy as fast as possible given constraints. Internally, we imagine the system reshaping itself into ordered structures to enable more efficient dissipation of the internal tension caused by the incoming data stream. We are not interested in maximal dissipation failure modes, but in _useful, controlled dissipation_ aligned with structure in the environment. Ideally, individual modules locally amplify directional delayed flows in parallel, while module connectivity and environment feedback collectively constrain which flows remain stable and useful for the system as a whole. Ideally, as part of this bitter-lesson-pilled self-organization and synchronization story, prediction and world-model-building are not explicit hand-crafted objectives, but develop internally to better keep local irreversible flows useful.
+
+...
 
 
 ## Background and intuitions
@@ -63,9 +65,10 @@ In [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-tran
 
 ## Non-equilibrium neural networks
 
-When designing neural networks around mean-field vector-spin models, there is a lot of architectural freedom. First of all, we must decide on what mean-field approximation to use to approximate the time-dependent behavior of our vector-spin system. Projecting the dynamics to different ansatz distributions leads to different mean-field equations, which take into account more or less correlations at different time steps.
 
 ### Example model
+
+When designing neural networks around mean-field vector-spin models, there is a lot of architectural freedom. First of all, we must decide on what mean-field approximation to use to approximate the time-dependent behavior of our vector-spin system. Projecting the dynamics to different ansatz distributions leads to different mean-field equations, which take into account more or less correlations at different time steps.
 
 Mindful of the importance of locality and scaling, we pick the simplest option: a first-order `Plefka[t-1,t]` approximation. From [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we all remember
 
@@ -93,11 +96,9 @@ then our forward pass looks like
   \mathbf{m}_{i,t} = \frac{\beta \left( \mathbf{x}_{i,t} + \mathrm{FFN}\left( \mathbf{x}_{i,t} \right) + \sum_{j} J_{ij} (\mathbf{x}_{t}) \mathbf{m}_{j,t-1} \right)}{1+\sqrt{1+\beta^2 \lVert \mathbf{x}_{i,t} + \mathrm{FFN}\left( \mathbf{x}_{i,t} \right) + \sum_{j} J_{ij} (\mathbf{x}_{t}) \mathbf{m}_{j,t-1} \rVert^2 / R^2 }},
 \end{equation}
 
-which resembles a parallel transformer block, with the notable difference that the "values" here correspond to the outputs (magnetizations) of the previous time step instead of some linear transformation applied to the inputs at the current time step.
+which resembles a parallel transformer block, with the notable difference that the "values" here correspond to the outputs (magnetizations) of the previous time step instead of some linear transformation applied to the inputs at the current time step. Making the applied external fields as well as the couplings input-dependent leads to a _highly-adaptive system_ where the interaction landscape itself is dynamically shaped by the inputs. Each vector spin effectively experiences a local mean-field that is the sum of a residual stream, a feed-forward-like drive, and attention-like couplings.
 
-Making the applied external fields as well as the couplings input-dependent leads to a _highly adaptive system_ where the interaction landscape itself is dynamically shaped by the inputs. Each vector spin effectively experiences a local mean-field that is the sum of a residual stream, a feed-forward-like drive, and attention-like couplings.
-
-We can choose to have our module keep track of the previous state so that one forward pass corresponds to taking a single time step. If we care more about the steady state, we can also immediately compute the fixed point of the time evolution using a differentiable fixed-point solver, so that one forward pass corresponds to jumping to the time-evolution fixed point. The latter approach is reminiscent of deep equilibrium models and recent loopy recursive reasoning approaches, but arguably less _ad hoc_ in this case since we are solving self-consistent mean-field equations.
+We can choose to have our module keep track of the previous state so that one forward pass corresponds to taking a single time step. If we care more about the steady state, we can also immediately compute the fixed point of the time evolution using a differentiable fixed-point solver. In that case, one forward pass corresponds to jumping to the time-evolution fixed point. The latter approach is reminiscent of deep equilibrium models and recent looped, recursive reasoning approaches, but arguably less _ad hoc_ here since we loop to solve self-consistent mean-field message-passing-likeequations.
 
 
 ### Mean-field proxy for entropy production
@@ -108,13 +109,35 @@ Following [Aguilera et al. (2020)](https://arxiv.org/abs/2002.04309), the entrop
   \sigma_{t} = \sum_{ij} \left(J_{ij} - J_{ji}\right) D_{ij,t} \geq 0,
 \end{equation}
 
-where $J_{ij}$ corresponds to the couplings and $D_{ij,t}$ denotes the time-delayed correlations. If we write this down for the vector-spin case,
+where $J_{ij}$ corresponds to the couplings and $D_{ij,t}$ denotes the time-delayed correlations. Intuitively, this is like
+
+\begin{equation}
+  \sigma_{t} = \sum_{ij} \left[\operatorname{directionality}\right]_{ij} \times \left[\operatorname{delayed\ flow}\right]_{ij,t},
+\end{equation}
+
+or, even more hand-wavy, $\operatorname{dissipation} \sim \operatorname{force} \times \operatorname{flux}$. The asymmetric part of the couplings says whether that propagation channel is directionally biased. The full sum rewards directed, temporally effective, vector-aligned information flow.
+
+Back to reality. If we write down $D_{ij,t}$ for the vector-spin case,
 
 \begin{equation}
   D_{ij,t} = \int \mathrm{d} \mathbf{s}_{t} \int \mathrm{d} \mathbf{s}_{t-1} \; \left( \mathbf{s}_{i,t} - \mathbf{m}_{i,t} \right) \cdot \left( \mathbf{s}_{j,t-1} - \mathbf{m}_{j,t-1}\right) \; P( \mathbf{s}_{t}, \mathbf{s}_{t-1} ),
 \end{equation}
 
 we can compute a first-order `Plefka[t-1,t]` mean-field approximation for the time-delayed correlations, similar to the computations we did previously for the magnetizations in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), leading to something like
+
+\begin{align}
+  D_{ij,t} = &\beta J_{ij} \operatorname{Tr} \left( \Sigma_{i,t} \Sigma_{j,t-1} \right),
+\end{align}
+
+where $\Sigma_{i,t} = \operatorname{Var} \left[ s_{i,t} \right]$ denotes the single-site covariance. The trace captures which directions on the vector-spin sphere are still free to fluctuate. If a spin is weakly magnetized, it has many soft directions. If it is strongly magnetized, many directions are suppressed because the spin is pinned close to its mean direction.
+
+Substituting the large-$D$ approximation
+
+\begin{align}
+  \Sigma_{i,t} \approx \frac{1}{1+\gamma_{i,t}} - \frac{\mathbf{m}_{i,t} \mathbf{m}_{i,t}^{T}}{R^2 \gamma_{i,t}},
+\end{align}
+
+we end up with the explicit expression
 
 \begin{align}
   D_{ij,t} = &\frac{\beta J_{ij}}{1+\gamma_{i,t}} \left(R^2 - \mathbf{m}_{j,t-1}^2 \right) \nonumber\\\\
@@ -129,7 +152,7 @@ where
   \boldsymbol{\theta}_{i,t} &= \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1}.
 \end{align}
 
-The first-order time-delayed correlations $D_{ij,t}$ is a mean-field estimate of how much a fluctuation in one vector spin is transmitted one time step later into another spin. Or, put differently, when spin $j$ fluctuates away from its mean at the previous time step $t-1$, how much of that fluctuation shows up as a fluctuation of spin $i$ at the current time step $t$? The asymmetric part of the couplings says whether that propagation is directionally biased. The full sum rewards directed, temporally effective, embedding-aligned information flow.
+The first-order time-delayed correlations $D_{ij,t}$ is a mean-field estimate of how much the fluctuation in one vector spin is transmitted one time step later "into" another spin. Or, put differently, when spin $j$ fluctuates away from its mean at the previous time step $t-1$, how much of that fluctuation shows up as a fluctuation of spin $i$ at the current time step $t$? 
 
 
 ### Vibe check
@@ -150,18 +173,26 @@ which, in general, is minimized for symmetric coupling matrices or orthogonal em
 
 But for the softmax attention matrix Eq. \eqref{eq:softmax}, we have additional constraints $J_{ij} \geq 0$ as well as a Frobenius norm of $\mathcal{O}(\sqrt{N})$ preventing unbounded growth under maximization. Additionally, imposing a causal mask on the couplings to do autoregressive modeling leads to even more constraints since then the upper triangular part of $J_{ij}$ is fixed to zero. So it feels like maximizing entropy production for causal softmax couplings promotes some kind of compromise between _sparse attention_ (intuitively, if the upper-triangular part is zero then it is favorable to push the lower-triangular elements close to zero as well) and _clustering of embeddings_ (weighted maximization of cosine similarity).
 
-...
-
-### Local-learning and sparse credit assignment rules
-
-...
-We define useful irreversible flow as directed state change that remains coupled to structured environmental feedback under stable closed-loop dynamics. A closed-loop agent cannot maximize useful irreversible flow for long unless its internal dynamics remain coupled to controllable structure in a sufficiently complex environment. If the agent's internal flow stops aligning the world, the consequences of actions become uninformative and unstable and the agent is trapped. But in a sufficiently rich action-observation loop, prediction-error reduction might emerge as a way to sustain high-quality useful local irreversible flows. A structured environment acts as a regularizer and determines which flows remain useful. Prediction might not be the objective, but building an internal model of the environment through prediction can keep local irreversible flows useful.
-
+> ✨ The mean-field entropy production proxy captures how much asymmetric attention transports aligned state fluctuations forward in time.
 
 ...
 
+### Local-learning rules and sparse credit assignment
 
-## Experiments
+...
+
+Imagine we want to turn our entropy production proxy into a loss function. One option would be a stop-gradient / local version
+
+\begin{equation}
+  \sigma_{t} = \sum_{ij} \left(J_{ij} - J_{ji}\right) \operatorname{sg}\left(D_{ij,t}\right),
+\end{equation}
+
+then $\Delta J_{ij} \propto D_{ij} - D_{ji}$ is a temporally asymmetric Hebbian learning rule.
+
+...
+
+
+## Numerical experiments
 
 ...
 
