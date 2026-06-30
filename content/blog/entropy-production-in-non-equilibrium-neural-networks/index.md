@@ -45,9 +45,9 @@ In this post, we focus on adaptive systems that can reuse a fixed substrate, rem
 
 The physics-inspired backbone of these architectures enables us to write down a proxy for [_entropy production_](https://en.wikipedia.org/wiki/Entropy_production#Entropy_production_in_stochastic_processes), a thermodynamic quantity measuring irreversibility by quantifying the asymmetry between forward and backward time steps. Since every operation in the computational graph is differentiable, entropy production can be made into a loss measuring irreversible flow through the system. Maximizing entropy production then incentivizes the system to _lean into the external drive_ by nudging its parameters towards asymmetric delayed responses that absorb and transmit structure in the incoming drive. Internally, we imagine the system reshaping itself into ordered structures to enable more efficient dissipation of the tension caused by the incoming data stream. 
 
-The risk is that the system finds local dissipative shortcuts: asymmetric attention collapse, self-exciting cycles, or coupling to noise. The interesting regime is not unconstrained maximal dissipation, but bounded driven systems where useless dissipation saturates while structure-sensitive flows remain persistent. For this to happen, the environment and the boundary interfaces between systems need to be designed so that the most stable way to increase entropy production when flooded by a structured data stream is to latch onto the latent temporal structure. Ideally, individual modules locally amplify asymmetric delayed flows in parallel, while module connectivity and environment feedback collectively constrain which flows remain stable and useful for the system as a whole.
+The risk is that the system finds local dissipative shortcuts: asymmetric attention collapse, self-exciting cycles, or coupling to noise. The interesting regime is not unconstrained maximal dissipation, but bounded driven systems where useless dissipation saturates while structure-sensitive flows remain persistent. For this to happen, the environment and the boundary interfaces coupling separate driven systems need to be designed so that the most stable way to increase entropy production when flooded by a structured data stream is to latch onto the latent temporal structure. Ideally, individual modules locally amplify asymmetric delayed flows in parallel, while module connectivity and environment feedback collectively constrain which flows remain stable and useful for the system as a whole.
 
-The bet is that, in sufficiently structured streams, the cheapest way for a bounded local system to keep dissipating is to become predictive, where prediction is a thermodynamic adaptation to ensure continuing support for asymmetric delayed flows. We admit that the main motivation for this bet is aesthetic. To move beyond aesthetics, we run numerical experiments to find out whether local ascent on a computable entropy-production proxy, under bounded dynamics and structured drive, can lead to local, scaling-compatible learning rules.
+The bet is that, in sufficiently structured streams, the cheapest way for a bounded local system to keep dissipating is to become predictive, where prediction is a thermodynamic adaptation to ensure continuing support for asymmetric delayed flows. The global computation then emerges from coupled local dissipative systems. We admit that the main motivation for this bet is aesthetic. To move beyond aesthetics, we run numerical experiments to find out whether local ascent on a computable entropy-production proxy, under bounded dynamics and structured drive, can lead to local, scaling-compatible learning rules.
 
 ...
 
@@ -84,7 +84,9 @@ If we now consider some kind of _parametrized input-dependent couplings_
   \mathbf{J} (\mathbf{x}) = \mathrm{softmax}\left( \mathbf{x} \boldsymbol{Q} \boldsymbol{K}^{T} \mathbf{x}^{T} \right), \label{eq:softmax}
 \end{equation}
 
-and augment the applied external fields with some kind of _parametrized input-dependent local drive or memory_,
+we turn the fixed-size coupling matrix into a parametrized rule that supports variable system size, input-dependent routing, and a way to scale system size without learning new explicit parameters. Softmax attention is a conventient choice for a bounded positive row-stochastic coupling rule. Other choices include additive or multiplicative combinations with slower (parametrized) base couplings $\mathbf{J}^{0}$ that are input-independent.
+
+If we also augment the applied external fields with some kind of _parametrized input-dependent local drive or memory_,
 
 \begin{equation}
   \mathbf{x}_{i,t} \to \mathbf{x}_{i,t} + \mathrm{FFN}\left( \mathbf{x}_{i,t} \right),
@@ -96,9 +98,10 @@ then our forward pass looks like
   \mathbf{m}_{i,t} = \frac{\beta \left( \mathbf{x}_{i,t} + \mathrm{FFN}\left( \mathbf{x}_{i,t} \right) + \sum_{j} J_{ij} (\mathbf{x}_{t}) \mathbf{m}_{j,t-1} \right)}{1+\sqrt{1+\beta^2 \lVert \mathbf{x}_{i,t} + \mathrm{FFN}\left( \mathbf{x}_{i,t} \right) + \sum_{j} J_{ij} (\mathbf{x}_{t}) \mathbf{m}_{j,t-1} \rVert^2 / R^2 }},
 \end{equation}
 
-which resembles a parallel transformer block, with the notable difference that the "values" here correspond to the outputs (magnetizations) of the previous time step instead of some linear transformation applied to the inputs at the current time step. Making the applied external fields as well as the couplings input-dependent leads to a _highly-adaptive system_ where the interaction landscape itself is dynamically shaped by the inputs. Each vector spin effectively experiences a local mean-field that is the sum of a residual stream, a feed-forward-like drive, and attention-like couplings.
+which resembles a parallel transformer block, with the notable difference that the "values" here correspond to the outputs (magnetizations) of the previous time step instead of some linear transformation applied to the inputs at the current time step: current drive routes previous state. Making the applied external fields as well as the couplings input-dependent leads to a _highly-adaptive system_ where the interaction landscape itself is dynamically shaped by the inputs. Each vector spin effectively experiences a local mean-field that is the sum of a residual stream, a feed-forward-like drive, and attention-like couplings.
 
-We can choose to have our module keep track of the previous mean-field state and have one forward pass correspond to taking a single time step. If we care more about the steady state, we can also immediately compute the fixed point of the time evolution using a differentiable fixed-point solver. In that case, one forward pass corresponds to jumping to the time-evolution fixed point. The latter approach is reminiscent of deep equilibrium models and recent looped, recursive reasoning approaches, but arguably less _ad hoc_ here since we loop to solve self-consistent mean-field message-passing-like equations.
+But where are the values? To solve the mean-field equations for the current input drive, we should solve for the fixed-point self-consistent magnetizations $\mathbf{m}^{*}_{i,t}$ that survive repeated interaction under the current drive, resulting in a nonlinear, context-dependent, self-consistent state. In this framework, attention is not a one-shot lookup but a process where a driven interacting system settles in a near-equilibrium steady state. Values are not projected inputs but self-consistent magnetizations. This approach is reminiscent of deep equilibrium models and looped, recursive reasoning approaches, but, arguably, less _ad hoc_ since here the looping is done to solve self-consistent mean-field message-passing equations. 
+
 
 ### Mean-field proxy for entropy production
 
@@ -151,7 +154,9 @@ where
   \boldsymbol{\theta}_{i,t} &= \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1}.
 \end{align}
 
-The first-order time-delayed correlations $D_{ij,t}$ is a mean-field estimate of how much the fluctuation in one vector spin is transmitted one time step later "into" another spin. Or, put differently, when spin $j$ fluctuates away from its mean at the previous time step $t-1$, how much of that fluctuation shows up as a fluctuation of spin $i$ at the current time step $t$? 
+The first-order time-delayed correlations $D_{ij,t}$ is a mean-field estimate of how much the fluctuation in one vector spin is transmitted one time step later "into" another spin. Or, put differently, when spin $j$ fluctuates away from its mean at the previous time step $t-1$, how much of that fluctuation shows up as a fluctuation of spin $i$ at the current time step $t$?
+
+> In the fixed-point implementation, the iteration index used by the solver should not be identified with physical time. Physical time is the index of the external drive. Each forward pass computes the fixed-point magnetizations induced by the current drive. The delayed correlations entering the entropy-production proxy are computed across external time steps, not across internal relaxation time steps.
 
 
 ### Vibe check
