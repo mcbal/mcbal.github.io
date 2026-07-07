@@ -2,14 +2,14 @@
 # Documentation: https://wowchemy.com/docs/managing-content/
 
 title: "Entropy Production in Non-Equilibrium Neural Networks"
-subtitle: "An exercise in cybernetics"
-summary: "An exercise in cybernetics"
+subtitle: "Only driven things remember forward: an exercise in cybernetics"
+summary: "Only driven things remember forward: an exercise in cybernetics"
 authors:
   - me
-tags: ["Artificial Intelligence", "Associative Memories", "Attention", "Cybernetics", "Deep Learning", "Entropy Production", "Ising Models", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Near-Equilibrium Dynamics", "Non-Equilibrium Dynamics", "Self-Organizing Computational Stability", "Statistical Physics", "Transformers", "Vector-Spin Models"]
+tags: ["Artificial Intelligence", "Associative Memories", "Attention", "Cybernetics", "Deep Learning", "Dynamical Systems", "Entropy Production", "Ising Models", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Near-Equilibrium Dynamics", "Non-Equilibrium Dynamics", "Self-Organizing Computational Stability", "Statistical Physics", "Steady State", "Stochastic Thermodynamics", "Transformers", "Vector-Spin Models"]
 categories: []
 date: 2026-02-02T09:28:17+01:00
-lastmod: 2026-06-29T08:30:41+01:00
+lastmod: 2026-07-07T10:30:41+01:00
 featured: false
 draft: false
 toc: true
@@ -35,75 +35,90 @@ projects: []
 ---
 
 
-## Introduction
+# Introduction
+
+> **✨ Work in progress. Reach out if you want to come join the fun!**
 
 > **✨ GitHub repository:  [`mcbal/neqnn`](https://github.com/mcbal/neqnn)**
 
 Modern large-scale autoregressive language models are impressive system engineering artifacts serving billions of users. Powerful in-context learning capabilities can be elicited at inference time through external scaffolding, harnesses, and environment engineering. Yet these models are frozen, with memory externalized into ever-growing transcripts and learning into large-scale offline optimization. This has implications for online continual learning, adaptive model deployment, and real-time closed-loop interaction with live systems.
 
-In this post, we focus on adaptive systems that can reuse a fixed substrate, remain online, and continuously reshape internal dynamics under local constraints. To move in this direction, we take the notion of treating neural networks as non-equilibrium thermodynamic systems seriously. Building on previous work in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design transformer-like modules based on mean-field dynamics of a class of vector-spin models. Inputs correspond to applied fields driving the system, outputs are mean-field magnetizations, attention-like couplings transport magnetizations forward in time, and previous magnetizations act as internal states.
+In this post, we focus on adaptive systems that can reuse a fixed substrate, remain online, and continuously reshape internal dynamics under local constraints. To move in this direction, we treat neural networks as non-equilibrium thermodynamic systems. Building on previous work in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design transformer-like modules based on mean-field dynamics of a class of vector-spin models where module inputs map to applied fields driving the system and module outputs are mean-field magnetizations.
 
-The physics-inspired backbone of these architectures enables us to write down a proxy for [_entropy production_](https://en.wikipedia.org/wiki/Entropy_production#Entropy_production_in_stochastic_processes), a thermodynamic quantity measuring irreversibility by quantifying the asymmetry between forward and backward time steps. Since every operation in the computational graph is differentiable, entropy production can be made into a loss measuring irreversible flow through the system. Maximizing entropy production then incentivizes the system to _lean into the external drive_ by nudging its parameters towards asymmetric delayed responses that absorb and transmit structure in the incoming drive. Internally, we imagine the system reshaping itself into ordered structures to enable more efficient dissipation of the tension caused by the incoming data stream. 
+The physics-inspired backbone of these architectures enables us to write down a proxy for [_entropy production_](https://en.wikipedia.org/wiki/Entropy_production#Entropy_production_in_stochastic_processes), a thermodynamic quantity measuring irreversibility by quantifying the asymmetry between forward and backward time steps. Since every operation in the computational graph is differentiable, entropy production can be made into a loss steering irreversible flow through the system. For example, maximizing entropy production incentivizes the system to _lean into the external drive_ by nudging its parameters towards asymmetric delayed responses that absorb and transmit structure in the incoming drive. Internally, we imagine the system reshaping itself into ordered structures to enable more efficient dissipation of the tension caused by the incoming data stream. 
 
-The risk is that the system finds local dissipative shortcuts: asymmetric attention collapse, self-exciting cycles, or coupling to noise. The interesting regime is not unconstrained maximal dissipation, but bounded driven systems where useless dissipation saturates while structure-sensitive flows remain persistent. For this to happen, the environment and the boundary interfaces coupling separate driven systems need to be designed so that the most stable way to increase entropy production when flooded by a structured data stream is to latch onto the latent temporal structure. Ideally, individual modules locally amplify asymmetric delayed flows in parallel, while module connectivity and environment feedback collectively constrain which flows remain stable and useful for the system as a whole.
+The risk is that the system finds local dissipative shortcuts: asymmetric attention collapse, self-exciting cycles, or coupling to noise. In the interesting regime of bounded driven system, useless dissipation saturates while structure-sensitive flows remain persistent. For this to happen, environments, as well as the boundary interfaces coupling separate driven systems, need to be engineered so that the most stable way to increase entropy production when flooded by a structured data stream is to latch onto the latent (temporal) structure. Ideally, individual modules locally amplify asymmetric delayed flows in parallel, while module connectivity and environment feedback collectively constrain which flows remain stable and useful for the system as a whole.
 
-The bet is that, in sufficiently structured streams, the cheapest way for a bounded local system to keep dissipating is to become predictive, where prediction is a thermodynamic adaptation to ensure continuing support for asymmetric delayed flows. The global computation then emerges from coupled local dissipative systems. We admit that the main motivation for this bet is aesthetic. To move beyond aesthetics, we run numerical experiments to find out whether local ascent on a computable entropy-production proxy, under bounded dynamics and structured drive, can lead to local, scaling-compatible learning rules.
-
-...
+The bet is that, embedded in sufficiently structured streams and with a capability to act on its environment, the cheapest way for a bounded local system to keep dissipating is to become predictive, where prediction is a thermodynamic adaptation to ensure continuing support for asymmetric delayed flows. The global computation then emerges from coupled local dissipative systems. We readily admit that the main motivation for this bet is aesthetic. To move beyond aesthetics, we run numerical experiments to find out whether local ascent on a computable entropy-production proxy, under bounded dynamics and structured drive, can lead to local, scaling-compatible learning rules.
 
 
-## Background and intuitions
+# Background and intuition
 
-We [yet again](https://byorgey.wordpress.com/2009/01/12/abstraction-intuition-and-the-monad-tutorial-fallacy/) consider transformer modules as differentiable driven disordered vector-spin systems whose mean-field collective behavior we can control through training, and refer to [previous posts](https://mcbal.github.io/#posts) going back to [Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)](https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/) for earlier instantiations of this intuition. According to our correspondence, the forward pass of a transformer module implements a spin system's response to getting probed, where _inputs_ map to time-varying applied external fields, _asymmetric, sparse attention matrices_ can be identified with fully-connected spin-spin interactions, and _outputs_ map to spin expectation values or magnetizations. Practically, the forward pass of a spin-transformer module can be designed to mimic that of a vanilla transformer module.
+We [yet again](https://byorgey.wordpress.com/2009/01/12/abstraction-intuition-and-the-monad-tutorial-fallacy/) consider transformer modules as differentiable driven disordered vector-spin systems whose mean-field collective behavior we can control through training, and refer to [previous posts](https://mcbal.github.io/#posts) going back to [Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)](https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/) for earliest instantiations of this intuition. According to our correspondence, the forward pass of a transformer module implements a spin system's response to getting probed, where _inputs_ map to time-varying applied external fields, _asymmetric, sparse attention matrices_ can be identified with fully-connected spin-spin interactions, and _outputs_ map to spin expectation values or magnetizations. Vigorously waving hands, the forward pass of a spin-transformer module can be designed to mimic that of a vanilla transformer module.
 
-In contrast to physics-oriented literature, we do not specify explicit probability distributions for the external fields and couplings of the disordered many-body system, nor are we interested in Nobel-prize-winning ways to average out the disorder. We instead focus on the very specific quenched disorder realizations induced by a dataset or environment of interest (encoded as sequences of vector embeddings), whose examples we use to drive the system. In this framing, training a transformer module corresponds to sculpting the underlying system's collective response by tuning the parametrized distributions of its external fields and couplings.
+In contrast to physics-oriented literature, we do not specify explicit probability distributions for the external fields and couplings of the disordered many-body system, nor are we interested in Nobel-prize-winning ways to average out the disorder. We instead focus on the very specific stream of quenched disorder realizations induced by a dataset or environment of interest, encoded as sequences of vector embeddings, which we use to drive the system relentlessly. In this framing, training a transformer module corresponds to sculpting the underlying system's collective response by tuning the parametrized distributions of its external fields and couplings. We are sculpting a spin glass with data.
 
 <img src="spin_transformer_module_fwd_bwd.png" alt="Forward and backward pass illustration" width="500px"/>
 
-In [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we observed that these systems tend to settle into non-equilibrium steady states as dynamic sweet spots where the "continuous kicking" of the inputs (applied external fields) "sustains" the outputs (magnetizations). This negotiation process tends to happen after just a few iterations. The first iteration already gives a decent guess, which might explain why (1) transformers can get away with just stacking modules whose forward passes take just one time step, and (2) why doing a few time steps can improve performance, as done in looping and recursive reasoning approaches. Indeed, repeating the same module can be seen as allowing the underlying non-equilibrium system to settle more snuggly into its steady state for that particular configuration of inputs and parameters. However, as soon as the input drive changes, or the parameters change, the system has to renegotiate a different steady state compatible with what its new configuration dictates the response should be. 
-
-...
+In [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we observed that these systems tend to settle into non-equilibrium steady states (NESSs) as dynamic sweet spots where the "continuous kicking" of the inputs (applied external fields) "sustains" the outputs (magnetizations). This negotiation process tends to happen after just a few iterations. The first iteration already gives a decent guess, which might explain why (1) transformers can get away with stacking modules whose forward passes take just one time step, and (2) why doing a few time steps can improve performance, as done in looping and recursive reasoning approaches. Indeed, repeating the same module can be seen as allowing the underlying non-equilibrium system to settle more snuggly into its steady state for that particular configuration of inputs and parameters. However, as soon as the input drive changes, or the parameters change, the system has to somehow renegotiate a different steady state compatible with what its new configuration dictates the response should be. More on that later (it is more intricate than this; it always is).
 
 
-## Non-equilibrium neural networks
+# Non-equilibrium neural networks
 
 
-### Example model
+## Motivation
 
-When designing neural networks around mean-field vector-spin models, there is a lot of architectural freedom. First of all, we must decide on what mean-field approximation to use to approximate the time-dependent behavior of our vector-spin system. Projecting the dynamics to different ansatz distributions leads to different mean-field equations, which take into account more or less correlations at different time steps. Mindful of the importance of locality and scaling, we pick the simplest option: a first-order `Plefka[t-1,t]` approximation. From [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we all remember
+
+## Minimal model
+
+When designing neural networks around mean-field vector-spin models, there is a lot of architectural freedom. First of all, we must decide on what mean-field approximation to use to approximate the time-dependent behavior of our vector-spin system. Projecting the dynamics to different ansatz distributions leads to different mean-field equations, which take into account more or less correlations at different time steps.
+
+Mindful of the importance of locality and scaling in distributed systems, we pick the simplest option: a first-order `Plefka[t-1,t]` approximation. From [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we all remember
 
 \begin{equation}
 \mathbf{m}_{i,t} = \frac{\beta \left( \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \right)}{1+\sqrt{1+\beta^2 \lVert \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1} \rVert^2 / R^2 }},
 \end{equation}
 
-where $\mathbf{m}_{i,t} \in \mathbb{R}^{D}$ denote the magnetizations (outputs) at time $t$, $\mathbf{x}_{i,t} \in \mathbb{R}^{D}$ denote the applied external fields (inputs) at time $t$, $J_{ij}$ are the couplings, $\beta$ is an inverse temperature, and $R=\sqrt{D/2 -1}$ is a natural hyperspherical length scale resulting from the large-$D$ approximation we used to get rid of dealing with Bessel functions. The large-$D$ approximation should be fine since the embedding dimensions in modern neural networks are large.
+where $\mathbf{m}_{i,t} \in \mathbb{R}^{D}$ denote the magnetizations (outputs) at time $t$, $\mathbf{x}_{i,t} \in \mathbb{R}^{D}$ denote the applied external fields (inputs) at time $t$, $J_{ij}$ are the couplings, $\beta$ is an inverse temperature, and $R=\sqrt{D/2 -1}$ is a natural hyperspherical length scale resulting from the large-$D$ approximation we used to get rid of dealing with Bessel functions. The large-$D$ approximation should be fine since the embedding dimensions in modern neural networks _are_ large.
 
-If we now consider some kind of _parametrized input-dependent couplings_
+If we now consider some kind of _parametrized drive-dependent couplings_
 
 \begin{equation}
   \mathbf{J} (\mathbf{x}) = \mathrm{softmax}\left( \mathbf{x} \boldsymbol{Q} \boldsymbol{K}^{T} \mathbf{x}^{T} \right), \label{eq:softmax}
 \end{equation}
 
-we turn the fixed-size coupling matrix into a parametrized rule that supports variable system size, input-dependent routing, and a way to scale system size without learning new explicit parameters. Softmax attention is a conventient choice for a bounded positive row-stochastic coupling rule. Other choices include additive or multiplicative combinations with slower (parametrized) base couplings $\mathbf{J}^{0}$ that are input-independent.
+we turn the fixed-size coupling matrix into a parametrized rule that supports variable system size, drive-dependent routing, and a way to scale system size without learning new explicit parameters. Softmax attention is a convenient choice for a bounded positive row-stochastic coupling rule. Other choices include additive or multiplicative combinations with slower base coupling parameters $\mathbf{J}^{0}$ that are drive-independent, leading to a system with persistent interactions in the absence of drive.
 
-If we also augment the applied external fields with some kind of _parametrized input-dependent local drive or memory_,
+If we also augment the applied external fields with some kind of _parametrized drive-dependent local drive or memory_,
 
 \begin{equation}
   \mathbf{x}_{i,t} \to \mathbf{x}_{i,t} + \mathrm{FFN}\left( \mathbf{x}_{i,t} \right),
 \end{equation}
 
-then our forward pass looks like
+then our forward pass looks like the recurrence relation
 
 \begin{equation}
   \mathbf{m}_{i,t} = \frac{\beta \left( \mathbf{x}_{i,t} + \mathrm{FFN}\left( \mathbf{x}_{i,t} \right) + \sum_{j} J_{ij} (\mathbf{x}_{t}) \mathbf{m}_{j,t-1} \right)}{1+\sqrt{1+\beta^2 \lVert \mathbf{x}_{i,t} + \mathrm{FFN}\left( \mathbf{x}_{i,t} \right) + \sum_{j} J_{ij} (\mathbf{x}_{t}) \mathbf{m}_{j,t-1} \rVert^2 / R^2 }},
 \end{equation}
 
-which resembles a parallel transformer block, with the notable difference that the "values" here correspond to the outputs (magnetizations) of the previous time step instead of some linear transformation applied to the inputs at the current time step: current drive routes previous state. Making the applied external fields as well as the couplings input-dependent leads to a _highly-adaptive system_ where the interaction landscape itself is dynamically shaped by the inputs. Each vector spin effectively experiences a local mean-field that is the sum of a residual stream, a feed-forward-like drive, and attention-like couplings.
+which resembles a parallel transformer block, with the notable difference that the "values" here correspond to the outputs (magnetizations) of the previous time step instead of some linear transformation applied to the inputs at the current time step: current drive routes previous state. Making the applied external fields as well as the couplings drive-dependent leads to a _highly-adaptive system_ where the interaction landscape itself is dynamically shaped by the inputs. Each vector spin effectively experiences a local mean-field that is the sum of a residual stream, a feed-forward-like drive, and attention-like couplings.
 
-But where are the values? To solve the mean-field equations for the current input drive, we should solve for the fixed-point self-consistent magnetizations $\mathbf{m}^{*}_{i,t}$ that survive repeated interaction under the current drive, resulting in a nonlinear, context-dependent, self-consistent state. In this framework, attention is a process where a driven interacting system settles in a near-equilibrium steady state. Values are not projected inputs but self-consistent magnetizations. This approach is reminiscent of deep equilibrium models and looped, recursive reasoning approaches, but, arguably, less _ad hoc_ since here the looping is done to solve self-consistent mean-field message-passing equations. 
+But _where are the values_ we know and love from QKV attention? Let us jump ahead and try to figure out what is going on by thinking how we can embed spin-transformer modules in a neural network. We will be forced to grapple with non-equilibrium thermodynamics (_*audience groans and starts rolling their eyes*_). There are two main scenarios: (1) a fixed-point module where we clamp the drive $\mathbf{x}_{t}$ and relax the response along an internal time dimension towards a NESS, and (2) a finite-step recurrent module where changing input drives induces quenches or driven transitions between NESSs. These two limits are about timescale separation and adiabaticity: if internal relaxation time becomes comparable to the physical drive timescale, then a fixed point cannot be reached. When a system is driven rapidly, it fails to relax to its instantaneous NESS and the system is forced to keep chasing moving targets in a fast, non-adiabatic regime.
+
+Let us first walk through the fixed-point relaxation scenario. Freezing the drive at $\mathbf{x}_{t}$, we interpret the update equations as an inner-loop relaxation
+
+\begin{equation}
+  \mathbf{m}_{i,k} = \frac{\beta \left( \mathbf{x}_{i,t} + \mathrm{FFN}\left( \mathbf{x}_{i,t} \right) + \sum_{j} J_{ij} (\mathbf{x}_{t}) \mathbf{m}_{j,k-1} \right)}{1+\sqrt{1+\beta^2 \lVert \mathbf{x}_{i,t} + \mathrm{FFN}\left( \mathbf{x}_{i,t} \right) + \sum_{j} J_{ij} (\mathbf{x}_{t}) \mathbf{m}_{j,k-1} \rVert^2 / R^2 }},
+\end{equation}
+
+hopefully settling into an instantaneous near-equilibrium steady-state (NESS) fixed point $\mathbf{m}^{*}_{t}(\mathbf{x}_{t})$ for $k \to \infty$ compatible with the current drive $\mathbf{x}_{t}$. If the fixed point is unique, the influence of the initialization is erased. If the landscape is funky, supporting multiple attractor basins or showing signs of hysteresis, then the response $\mathbf{m}^{*}_{t}(\mathbf{x}_{t})$ of the relaxation dynamics depends on the initialization: the system has an implicit memory. In this setup, we can interpret values in QKV attention as amortized feed-forward responses, approximating the internal relaxation process by learning a linear mapping from input drives directly to values. So a transformer block with QKV attention is like a one-shot learned estimator of a fixed-point relaxation response. This approach is also reminiscent of deep equilibrium models (DEQs) and looped, recursive reasoning approaches, but, arguably, less _ad hoc_ since here the looping is done to solve self-consistent mean-field message-passing equations. External time $t$ advances only when the drive changes $\mathbf{x}_{t} \to \mathbf{x}_{t+1}$ (a new sequence arrives) and the nonstationarity messes up everything again, provoking a transition $\mathbf{m}^{*}_{t}(\mathbf{x}_{t}) \to \mathbf{m}^{*}_{t+1}(\mathbf{x}_{t+1})$ between two NESSs.
+
+In the second scenario with a finite-step recurrent module, the driven nonstationary system keeps track of state $\mathbf{m}_{t-1}$ while chasing a moving target with only finite number of internal relaxation steps at every external time step $t$. This is a pretty challenging problem.
+
+> **About time and clocks:** In this section, we have introduced an external physical time index $t$ as well as an internal relaxation index $k$. Yet at this point we are still only discussing a single module, _i.e._ a single spin system, getting probed by an environment. A deep network is a stack of untied modules, which, in our framework, are part of a collective of _different_ driven spin systems driving each other sequentially. The layer index does not (have to) correspond to external time nor internal relaxation time (except maybe in how DEQ models are sometimes presented). It is an additional axis labeling the simple feed-forward topology (depth) of the computational graph.
 
 
-### Mean-field proxy for entropy production
+## Mean-field proxy for entropy production
 
 Following [Aguilera et al. (2020)](https://arxiv.org/abs/2002.04309), the entropy production for the kinetic Ising model, assuming a non-equilibrium steady state, is given by
 
@@ -159,7 +174,7 @@ The first-order time-delayed correlations $D_{ij,t}$ is a mean-field estimate of
 > In the fixed-point implementation, the iteration index used by the solver should not be identified with physical time. Physical time is the index of the external drive. Each forward pass computes the fixed-point magnetizations induced by the current drive. The delayed correlations entering the entropy-production proxy are computed across external time steps, not across internal relaxation time steps.
 
 
-### Vibe check
+## Vibe check
 
 Let us try to get a feel for what the entropy production looks like for vector-spin models using some rough back-of-the-envelope estimations. Assume both vectors $\mathbf{m}_{i,t}$ and $\mathbf{m}_{j,t-1}$ have a norm $\mathcal{O}(R)$, then the time-delayed correlations behave approximately like
 
@@ -181,7 +196,7 @@ But for the softmax attention matrix Eq. \eqref{eq:softmax}, we have additional 
 
 ...
 
-### Local-learning rules and sparse credit assignment
+## Local-learning rules and sparse credit assignment
 
 ...
 
@@ -196,40 +211,41 @@ then $\Delta J_{ij} \propto D_{ij} - D_{ji}$ is a temporally asymmetric Hebbian 
 ...
 
 
-## Numerical experiments
+# Collectives, loops, and adaptive systems
 
 ...
 
-### Model behavior in a noisy environment
+
+
+# Numerical experiments
+
+...
+
+## Model behavior in a noisy environment
 
 Cybernetics, interfaces, environments, sensors, controllers, and effectors.
 
 ...
 
-### Global coherence from local backpropagation
+## Global coherence from local backpropagation
 
 We test a stack of spin-transformer modules in a toy femtoscale online learning setup and try to see if we can make synchronization or specialization happen between the spin-transformer modules when maximizing per-layer entropy-production losses _independently_. If we detach module outputs after applying each layer, we end up with systems communicating via their boundary interfaces, but without gradients backpropagating through the whole stack. (Pretty unlikely that the entropy-production losses on their own provide enough signal though.)
 
 ...
 
-### Growing network topologies
+## Growing network topologies
 
 ...
 
-## Discussion and related work
+# Discussion and related work
 
 ...
 
+# Conclusion
 
-## References
+...
 
-A non-exhaustive list of references and inspiration includes:
-
-- [A unifying framework for mean-field theories of asymmetric kinetic Ising systems](https://arxiv.org/abs/2002.04309) by 
-Miguel Aguilera, S. Amin Moosavi, and Hideaki Shimazaki
-- [Self-organized fine-tuned response in a driven spin glass](https://dspace.mit.edu/handle/1721.1/130835?show=full) by Jacob Mitchell Gold
-- [Bootstrapping Life-Inspired Machine Intelligence: The Biological Route from Chemistry to Cognition and Creativity](https://arxiv.org/abs/2602.08079) by Giovanni Pezzulo and Michael Levin
-
+# References
 
 If you happen to find this work useful, please consider citing it as:
 
@@ -242,6 +258,18 @@ If you happen to find this work useful, please consider citing it as:
   url     = {https://mcbal.github.io/post/entropy-production-in-non-equilibrium-neural-networks/}
 }
 ```
+
+A non-exhaustive list of references and inspiration includes:
+
+- [A unifying framework for mean-field theories of asymmetric kinetic Ising systems](https://arxiv.org/abs/2002.04309) by 
+Miguel Aguilera, S. Amin Moosavi, and Hideaki Shimazaki
+- [Self-organized fine-tuned response in a driven spin glass](https://dspace.mit.edu/handle/1721.1/130835?show=full) by Jacob Mitchell Gold
+- [Bootstrapping Life-Inspired Machine Intelligence: The Biological Route from Chemistry to Cognition and Creativity](https://arxiv.org/abs/2602.08079) by Giovanni Pezzulo and Michael Levin
+
+
+# Acknowledgements
+
+
 ---
 
 # Footnotes
