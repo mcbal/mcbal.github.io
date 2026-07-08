@@ -255,6 +255,17 @@ We test a stack of spin-transformer modules in a toy femtoscale online learning 
 
 # References
 
+
+A non-exhaustive list of references and inspiration includes:
+
+- [A unifying framework for mean-field theories of asymmetric kinetic Ising systems](https://arxiv.org/abs/2002.04309) by 
+Miguel Aguilera, S. Amin Moosavi, and Hideaki Shimazaki
+- [The thermodynamics of prediction](https://arxiv.org/abs/1203.3271) by Susanne Still, David A. Sivak, Anthony J. Bell, and Gavin E. Crooks
+- [Three detailed fluctuation theorems](https://arxiv.org/abs/0911.2666v2) by Massimiliano Esposito and Christian Van den Broeck
+- [Stochastic thermodynamics of learning](https://arxiv.org/abs/1611.09428) by Sebastian Goldt and Udo Seifert
+- [Self-organized fine-tuned response in a driven spin glass](https://dspace.mit.edu/handle/1721.1/130835?show=full) by Jacob Mitchell Gold
+
+
 If you happen to find this work useful, please consider citing it as:
 
 ```
@@ -266,14 +277,6 @@ If you happen to find this work useful, please consider citing it as:
   url     = {https://mcbal.github.io/post/entropy-production-in-non-equilibrium-neural-networks/}
 }
 ```
-
-A non-exhaustive list of references and inspiration includes:
-
-- [A unifying framework for mean-field theories of asymmetric kinetic Ising systems](https://arxiv.org/abs/2002.04309) by 
-Miguel Aguilera, S. Amin Moosavi, and Hideaki Shimazaki
-- [Self-organized fine-tuned response in a driven spin glass](https://dspace.mit.edu/handle/1721.1/130835?show=full) by Jacob Mitchell Gold
-- [Bootstrapping Life-Inspired Machine Intelligence: The Biological Route from Chemistry to Cognition and Creativity](https://arxiv.org/abs/2602.08079) by Giovanni Pezzulo and Michael Levin
-
 
 # Acknowledgements
 
