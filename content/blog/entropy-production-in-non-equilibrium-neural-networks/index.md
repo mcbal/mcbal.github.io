@@ -2,8 +2,8 @@
 # Documentation: https://wowchemy.com/docs/managing-content/
 
 title: "Entropy Production in Non-Equilibrium Neural Networks"
-subtitle: "Only driven things remember forward: an exercise in cybernetics"
-summary: "Only driven things remember forward: an exercise in cybernetics"
+subtitle: "A non-equilibrium thermodynamics perspective on transformers"
+summary: "A non-equilibrium thermodynamics perspective on transformers"
 authors:
   - me
 tags: ["Artificial Intelligence", "Associative Memories", "Attention", "Cybernetics", "Deep Learning", "Dynamical Systems", "Entropy Production", "Ising Models", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Near-Equilibrium Dynamics", "Non-Equilibrium Dynamics", "Self-Organizing Computational Stability", "Statistical Physics", "Steady State", "Stochastic Thermodynamics", "Transformers", "Vector-Spin Models"]
