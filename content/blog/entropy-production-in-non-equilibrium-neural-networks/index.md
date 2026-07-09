@@ -63,7 +63,7 @@ In contrast to physics-oriented literature, we do not specify explicit probabili
 In [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we observed that these systems tend to settle into non-equilibrium steady states (NESSs) as dynamic sweet spots where the "continuous kicking" of the inputs (applied external fields) "sustains" the outputs (magnetizations). This negotiation process tends to happen after just a few iterations. The first iteration already gives a decent guess, which might explain why (1) transformers can get away with stacking modules whose forward passes take just one time step, and (2) why doing a few time steps can improve performance, as done in looping and recursive reasoning approaches. Indeed, repeating the same module can be seen as allowing the underlying non-equilibrium system to settle more snuggly into its steady state for that particular configuration of inputs and parameters. However, as soon as the input drive changes, or the parameters change, the system has to somehow renegotiate a different steady state compatible with what its new configuration dictates the response should be. More on that later (it is more intricate than this; it always is).
 
 
-# Non-equilibrium neural networks
+# Non-equilibrium spin-model transformers
 
 ## Minimal model
 
@@ -187,7 +187,7 @@ which, in general, is minimized for symmetric coupling matrices or orthogonal em
 But for the softmax attention matrix Eq. \eqref{eq:softmax}, we have additional constraints $J_{ij} \geq 0$ as well as a Frobenius norm of $\mathcal{O}(\sqrt{N})$ preventing unbounded growth under maximization. Additionally, imposing a causal mask on the couplings to do autoregressive modeling leads to even more constraints since then the upper triangular part of $J_{ij}$ is fixed to zero. So it feels like maximizing entropy production for causal softmax couplings promotes some kind of compromise between _sparse attention_ (intuitively, if the upper-triangular part is zero then it is favorable to push most of the lower-triangular elements close to zero as well) and _clustering of embeddings_ (weighted maximization of cosine similarity).
 
 
-## Physical interpretations
+## Entropy production decompositions
 
 We referred to Eq. \eqref{eq:sigma_hk} as _housekeeping_ entropy production and then never mentioned why we called it that way. Let us think again how we can turn vector-spin models with weird drive-dependent couplings $J_{ij}(\mathbf{x}_{t})$ into a transformer-like neural network. Doing so will force us, once again, to grapple with non-equilibrium thermodynamics (_*audience now visible annoyed and looking for the exit*_). In the fixed-point interpretation, the housekeeping entropy production
 
