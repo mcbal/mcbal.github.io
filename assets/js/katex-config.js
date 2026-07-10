@@ -75,4 +75,33 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/\\ref\{([^}]+)\}/g, (_match, label) => `\\text{${renderReference(label, false)}}`),
     throwOnError: false,
   });
+
+  const displayMath = document.querySelectorAll(".katex-display");
+  const updateMathOverflow = (element) => {
+    const renderedMath = element.querySelector(".katex-html");
+    if (!renderedMath) return;
+
+    const range = document.createRange();
+    range.selectNodeContents(renderedMath);
+    const mathBounds = range.getBoundingClientRect();
+    const containerBounds = element.getBoundingClientRect();
+    const tolerance = 2;
+
+    element.classList.toggle(
+      "is-overflowing",
+      mathBounds.left < containerBounds.left - tolerance
+        || mathBounds.right > containerBounds.right + tolerance,
+    );
+  };
+
+  displayMath.forEach(updateMathOverflow);
+
+  if ("ResizeObserver" in window) {
+    const mathResizeObserver = new ResizeObserver((entries) => {
+      entries.forEach(({target}) => updateMathOverflow(target));
+    });
+    displayMath.forEach((element) => mathResizeObserver.observe(element));
+  }
+
+  document.fonts?.ready.then(() => displayMath.forEach(updateMathOverflow));
 });

@@ -43,9 +43,23 @@ body {
 
 .prose .katex-display {
   max-width: 100%;
-  overflow-x: auto;
+  overflow-x: clip;
   overflow-y: hidden;
   padding: 0.25rem 0;
+}
+
+.prose .katex-display.is-overflowing {
+  overflow-x: auto;
+}
+
+.prose .katex-display.is-overflowing > .katex {
+  text-align: left;
+}
+
+.prose .katex-display.is-overflowing > .katex > .katex-html > .tag {
+  position: static;
+  display: inline-block;
+  margin-left: 1rem;
 }
 
 .prose .katex-display > .katex {
