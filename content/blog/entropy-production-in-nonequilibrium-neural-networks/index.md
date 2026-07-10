@@ -1,12 +1,12 @@
 ---
 # Documentation: https://wowchemy.com/docs/managing-content/
 
-title: "Entropy Production in Non-Equilibrium Neural Networks"
-subtitle: "A non-equilibrium thermodynamics perspective on transformers"
-summary: "A non-equilibrium thermodynamics perspective on transformers"
+title: "Entropy Production in Nonequilibrium Neural Networks"
+subtitle: "A nonequilibrium thermodynamics perspective on transformers"
+summary: "A nonequilibrium thermodynamics perspective on transformers"
 authors:
   - me
-tags: ["Artificial Intelligence", "Associative Memories", "Attention", "Cybernetics", "Deep Learning", "Dynamical Systems", "Entropy Production", "Ising Models", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Near-Equilibrium Dynamics", "Non-Equilibrium Dynamics", "Self-Organizing Computational Stability", "Statistical Physics", "Steady State", "Stochastic Thermodynamics", "Transformers", "Vector-Spin Models"]
+tags: ["Artificial Intelligence", "Associative Memories", "Attention", "Cybernetics", "Deep Learning", "Dynamical Systems", "Entropy Production", "Ising Models", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Near-Equilibrium Dynamics", "Nonequilibrium Dynamics", "Self-Organizing Computational Stability", "Statistical Physics", "Steady State", "Stochastic Thermodynamics", "Transformers", "Vector-Spin Models"]
 categories: []
 date: 2026-02-02T09:28:17+01:00
 lastmod: 2026-07-07T10:30:41+01:00
@@ -37,13 +37,13 @@ projects: []
 
 # Introduction
 
-> **✨ Work in progress. Reach out if you want to come join the fun!**
+> **✨ Work in progress...**
 
 > **✨ GitHub repository:  [`mcbal/neqnn`](https://github.com/mcbal/neqnn)**
 
 Modern large-scale autoregressive language models are impressive system engineering artifacts serving billions of users. Powerful in-context learning capabilities can be elicited at inference time through external scaffolding, harnesses, and environment engineering. Yet these models are frozen, with memory externalized into ever-growing transcripts and learning into large-scale offline optimization. This has implications for online continual learning, adaptive model deployment, and real-time closed-loop interaction with live systems.
 
-In this post, we focus on adaptive systems that can reuse a fixed substrate, remain online, and continuously reshape internal dynamics under local constraints. To move in this direction, we treat neural networks as non-equilibrium thermodynamic systems. Building on previous work in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design transformer-like modules based on mean-field dynamics of a class of vector-spin models where module inputs map to applied fields driving the system and module outputs are mean-field magnetizations.
+In this post, we focus on adaptive systems that can reuse a fixed substrate, remain online, and continuously reshape internal dynamics under local constraints. To move in this direction, we treat neural networks as nonequilibrium thermodynamic systems. Building on previous work in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design transformer-like modules based on mean-field dynamics of a class of vector-spin models where module inputs map to applied fields driving the system and module outputs are mean-field magnetizations.
 
 The physics-inspired backbone of these architectures enables us to write down a proxy for [_entropy production_](https://en.wikipedia.org/wiki/Entropy_production#Entropy_production_in_stochastic_processes), a thermodynamic quantity measuring irreversibility by quantifying the asymmetry between forward and backward time steps. Since every operation in the computational graph is differentiable, entropy production can be made into a loss steering irreversible flow through the system. For example, maximizing entropy production incentivizes the system to _lean into the external drive_ by nudging its parameters towards asymmetric delayed responses that absorb and transmit structure in the incoming drive. Internally, we imagine the system reshaping itself into ordered structures to enable more efficient dissipation of the tension caused by the incoming data stream. 
 
@@ -60,10 +60,10 @@ In contrast to physics-oriented literature, we do not specify explicit probabili
 
 <img src="spin_transformer_module_fwd_bwd.png" alt="Forward and backward pass illustration" width="500px"/>
 
-In [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we observed that these systems tend to settle into non-equilibrium steady states (NESSs) as dynamic sweet spots where the "continuous kicking" of the inputs (applied external fields) "sustains" the outputs (magnetizations). This negotiation process tends to happen after just a few iterations. The first iteration already gives a decent guess, which might explain why (1) transformers can get away with stacking modules whose forward passes take just one time step, and (2) why doing a few time steps can improve performance, as done in looping and recursive reasoning approaches. Indeed, repeating the same module can be seen as allowing the underlying non-equilibrium system to settle more snuggly into its steady state for that particular configuration of inputs and parameters. However, as soon as the input drive changes, or the parameters change, the system has to somehow renegotiate a different steady state compatible with what its new configuration dictates the response should be. More on that later (it is more intricate than this; it always is).
+In [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we observed that these systems tend to settle into nonequilibrium steady states (NESSs) as dynamic sweet spots where the "continuous kicking" of the inputs (applied external fields) "sustains" the outputs (magnetizations). This negotiation process tends to happen after just a few iterations. The first iteration already gives a decent guess, which might explain why (1) transformers can get away with stacking modules whose forward passes take just one time step, and (2) why doing a few time steps can improve performance, as done in looping and recursive reasoning approaches. Indeed, repeating the same module can be seen as allowing the underlying nonequilibrium system to settle more snuggly into its steady state for that particular configuration of inputs and parameters. However, as soon as the input drive changes, or the parameters change, the system has to somehow renegotiate a different steady state compatible with what its new configuration dictates the response should be. More on that later (it is more intricate than this; it always is).
 
 
-# Non-equilibrium spin-model transformers
+# Nonequilibrium spin-model transformers
 
 ## Minimal model
 
@@ -99,7 +99,7 @@ then our forward pass looks like the recurrence relation
 
 which resembles a parallel transformer block, with the notable difference that the "values" here correspond to the outputs (magnetizations) of the previous time step instead of some linear transformation applied to the inputs at the current time step: current drive routes previous state. Making the applied external fields as well as the couplings drive-dependent leads to a _highly-adaptive system_ where the interaction landscape itself is dynamically shaped by the inputs. Each vector spin effectively experiences a local mean-field that is the sum of a residual stream, a feed-forward-like drive, and attention-like couplings.
 
-But _where are the values_ we know and love from QKV attention? Let us jump ahead and try to figure out what is going on by thinking how we can approach spin-transformer modules. We will be forced to grapple with non-equilibrium thermodynamics (_*audience groans and starts rolling their eyes*_). There are two main implementation scenarios: (1) a fixed-point module where we clamp the drive $\mathbf{x}_{t}$ and relax the response along an internal time dimension towards a NESS, and (2) a finite-step recurrent module where changing input drives repeatedly induce quenches or driven transitions. These two limits are about timescale separation and adiabaticity: if the physical drive timescale becomes comparable to the internal relaxation time, then a fixed point is out of reach. When a system is driven rapidly, it fails to relax to an instantaneous NESS and it is forced to keep chasing moving targets in a fast, non-adiabatic regime.
+But _where are the values_ we know and love from QKV attention? Let us jump ahead and try to figure out what is going on by thinking how we can approach spin-transformer modules. We will be forced to grapple with nonequilibrium thermodynamics (_*audience groans and starts rolling their eyes*_). There are two main implementation scenarios: (1) a fixed-point module where we clamp the drive $\mathbf{x}_{t}$ and relax the response along an internal time dimension towards a NESS, and (2) a finite-step recurrent module where changing input drives repeatedly induce quenches or driven transitions. These two limits are about timescale separation and adiabaticity: if the physical drive timescale becomes comparable to the internal relaxation time, then a fixed point is out of reach. When a system is driven rapidly, it fails to relax to an instantaneous NESS and it is forced to keep chasing moving targets in a fast, non-adiabatic regime.
 
 Let us walk through the fixed-point relaxation scenario. Freezing the drive at $\mathbf{x}_{t}$, we interpret the update equations as an inner-loop relaxation
 
@@ -116,7 +116,7 @@ The second scenario with a finite-step recurrent module is much more challenging
 
 ## Mean-field proxy for entropy production
 
-Following [Aguilera et al. (2020)](https://arxiv.org/abs/2002.04309), the housekeeping entropy production for the kinetic Ising model, assuming a non-equilibrium steady state, is given by
+Following [Aguilera et al. (2020)](https://arxiv.org/abs/2002.04309), the housekeeping entropy production for the kinetic Ising model, assuming a nonequilibrium steady state, is given by
 
 \begin{equation}
   \langle \sigma_{t} \rangle = \sum_{ij} \left(J_{ij} - J_{ji}\right) D_{ij,t} \geq 0, \label{eq:sigma_hk}
@@ -189,7 +189,7 @@ But for the softmax attention matrix Eq. \eqref{eq:softmax}, we have additional 
 
 ## Entropy production decompositions
 
-We referred to Eq. \eqref{eq:sigma_hk} as _housekeeping_ entropy production and then never mentioned why we called it that way. Let us think again how we can turn vector-spin models with weird drive-dependent couplings $J_{ij}(\mathbf{x}_{t})$ into a transformer-like neural network. Doing so will force us, once again, to grapple with non-equilibrium thermodynamics (_*audience now visible annoyed and looking for the exit*_). In the fixed-point interpretation, the housekeeping entropy production
+We referred to Eq. \eqref{eq:sigma_hk} as _housekeeping_ entropy production and then never mentioned why we called it that way. Let us think again how we can turn vector-spin models with weird drive-dependent couplings $J_{ij}(\mathbf{x}_{t})$ into a transformer-like neural network. Doing so will force us, once again, to grapple with nonequilibrium thermodynamics (_*audience now visible annoyed and looking for the exit*_). In the fixed-point interpretation, the housekeeping entropy production
 
 \begin{equation}
   \langle \sigma_{t} \rangle = \sum_{ij} \left(J_{ij}(\mathbf{x}_{t}) - J_{ji}(\mathbf{x}_{t})\right) D_{ij,t}
@@ -247,14 +247,19 @@ We test a stack of spin-transformer modules in a toy femtoscale online learning 
 
 # Discussion and related work
 
+
 ...
 
 # Conclusion
 
 ...
 
-# References
+# Acknowledgements
 
+We acknowledge interesting discussions with GPT 5.5, GPT 5.6, and Claude Opus 4.8. Claude Fable 5 refused to cooperate.
+
+
+# References
 
 A non-exhaustive list of references and inspiration includes:
 
@@ -265,23 +270,18 @@ Miguel Aguilera, S. Amin Moosavi, and Hideaki Shimazaki
 - [Stochastic thermodynamics of learning](https://arxiv.org/abs/1611.09428) by Sebastian Goldt and Udo Seifert
 - [Self-organized fine-tuned response in a driven spin glass](https://dspace.mit.edu/handle/1721.1/130835?show=full) by Jacob Mitchell Gold
 
-
 If you happen to find this work useful, please consider citing it as:
 
 ```
 @article{bal2026,
-  title   = {Entropy Production in Non-Equilibrium Neural Networks},
+  title   = {Entropy Production in Nonequilibrium Neural Networks},
   author  = {Bal, Matthias},
   year    = {2026},
   month   = {?},
-  url     = {https://mcbal.github.io/post/entropy-production-in-non-equilibrium-neural-networks/}
+  url     = {https://mcbal.github.io/post/entropy-production-in-nonequilibrium-neural-networks/}
 }
 ```
-
-# Acknowledgements
-
 
 ---
 
 # Footnotes
-

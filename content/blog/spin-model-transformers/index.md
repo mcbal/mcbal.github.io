@@ -2,11 +2,11 @@
 # Documentation: https://wowchemy.com/docs/managing-content/
 
 title: "Spin-Model Transformers"
-subtitle: "A non-equilibrium statistical mechanics perspective on transformers"
-summary: "A non-equilibrium statistical mechanics perspective on transformers"
+subtitle: "A nonequilibrium statistical mechanics perspective on transformers"
+summary: "A nonequilibrium statistical mechanics perspective on transformers"
 authors:
   - me
-tags: ["Artificial Intelligence", "Associative Memories", "Attention", "Deep Learning", "Ising Models", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Near-Equilibrium Dynamics", "Non-Equilibrium Dynamics", "Spin Glasses", "Spin Models", "Statistical Physics", "Transformers", "Vector-Spin Models"]
+tags: ["Artificial Intelligence", "Associative Memories", "Attention", "Deep Learning", "Ising Models", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Near-Equilibrium Dynamics", "Nonequilibrium Dynamics", "Spin Glasses", "Spin Models", "Statistical Physics", "Transformers", "Vector-Spin Models"]
 categories: []
 date: 2022-06-19T09:28:17+01:00
 lastmod: 2023-12-07T19:36:41+01:00
@@ -40,7 +40,7 @@ In a series of previous [blog posts](https://mcbal.github.io/post/transformers-a
 
 However, both the mean-field message-passing approach of [Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)](https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/) and the saddle-point free-energy approach of [Transformers from Spin Models: Approximate Free Energy Minimization (2021)](https://mcbal.github.io/post/transformers-from-spin-models-approximate-free-energy-minimization/) inherently rely on methods that are only well-defined for spin models with symmetric coupling matrices, whose stochastic dynamics obey detailed balance and converge to a steady-state equilibrium characterized by the Boltzmann distribution. The softmax attention matrix in transformers is famously asymmetric though, so we had better come up with a more convincing approach to establish a correspondence.
 
-To capture spin models with asymmetric coupling matrices, we turn to non-equilibrium spin systems, whose dynamics can be pretty wild yet gentle enough to support regimes where relaxation to a non-equilibrium or near-equilibrium steady state can occur. In the past few decades, dynamical mean-field approaches have been developed for the binary kinetic Ising model, which exhibits non-equilibrium behavior for asymmetric couplings or when parameters are subject to rapid changes.
+To capture spin models with asymmetric coupling matrices, we turn to nonequilibrium spin systems, whose dynamics can be pretty wild yet gentle enough to support regimes where relaxation to a nonequilibrium or near-equilibrium steady state can occur. In the past few decades, dynamical mean-field approaches have been developed for the binary kinetic Ising model, which exhibits nonequilibrium behavior for asymmetric couplings or when parameters are subject to rapid changes.
 
 In this post, we generalize a particular dynamical mean-field approach from binary spins to vector spins and relate the resulting mean-field update equations for the magnetizations to the forward pass of a transformer module. We find that the spin-model structure is rich enough for the update equations to yield residual connections, attention terms, and feed-forward correction terms, motivating a family of physics-inspired transformers.
 
@@ -204,7 +204,7 @@ and we end up with the TAP mean-field equations:
 \boxed{m_{i,t} = \tanh \left( x_{i,t} + \sum_{j} J_{ij} m_{j,t-1} - m_{i,t} \sum_{j} J^{2}_{ij} \left( 1-m^{2}_{j,t-1} \right) \right)} \label{eq:tapm}
 \end{equation}
 
-which includes the so-called Onsager correction term. The mean-field equations obtained above can also be elegantly derived using a Legendre transformation of the generating functional of the set of trajectories of the model, as outlined in e.g. [_Dynamical TAP equations for non-equilibrium Ising spin glasses (2011)_](https://arxiv.org/abs/1103.1044). We can also derive second-order TAP approximations of the correlations
+which includes the so-called Onsager correction term. The mean-field equations obtained above can also be elegantly derived using a Legendre transformation of the generating functional of the set of trajectories of the model, as outlined in e.g. [_Dynamical TAP equations for nonequilibrium Ising spin glasses (2011)_](https://arxiv.org/abs/1103.1044). We can also derive second-order TAP approximations of the correlations
 
 \begin{equation}
 C_{ik,t} = \begin{cases}
@@ -307,7 +307,7 @@ We fix the seed and randomly initialize model parameters $\mathbf{x}$ and $\math
 
 <img src="binary_plot_1.png" width="600px"/>
 
-The left axis shows the individual magnetization trajectories for each spin plotted horizontally while the red line associated to the right axis describes the average of the magnetizations across all spins for each time step. We observe convergence to what looks like a _non-equilibrium / near-equilibrium steady state_ (NESS).
+The left axis shows the individual magnetization trajectories for each spin plotted horizontally while the red line associated to the right axis describes the average of the magnetizations across all spins for each time step. We observe convergence to what looks like a _nonequilibrium / near-equilibrium steady state_ (NESS).
 
 <img src="binary_plot_2.png" width="550px"/>
 
@@ -764,7 +764,7 @@ We first consider the first-order naive mean-field update equations. To visualiz
 
 <img src="vector_plot_2.png" width="300px"/>
 
-The top plot shows the cosine-similarity alignments of individual magnetization trajectories $\mathbf{m}_{i,t}$ compared to respectively $\mathbf{m}_{i,t-1}$ (green, magnetizations at previous time step to track convergence), $\mathbf{m}_{0}$ (yellow, magnetizations at initial time step to track drift from initial conditions), and $\mathbf{x}_{i}$ (blue, time-independent external magnetic fields to track alignment with the "residual stream"). The bottom plot tracks the evolution of the norms of $\mathbf{m}_{i,t}$ during time evolution. From the tracked metrics, we observe convergence to what looks like a _non-equilibrium / near-equilibrium steady state_ (NESS) with magnetizations remaining dynamically stable at the mean-field level.
+The top plot shows the cosine-similarity alignments of individual magnetization trajectories $\mathbf{m}_{i,t}$ compared to respectively $\mathbf{m}_{i,t-1}$ (green, magnetizations at previous time step to track convergence), $\mathbf{m}_{0}$ (yellow, magnetizations at initial time step to track drift from initial conditions), and $\mathbf{x}_{i}$ (blue, time-independent external magnetic fields to track alignment with the "residual stream"). The bottom plot tracks the evolution of the norms of $\mathbf{m}_{i,t}$ during time evolution. From the tracked metrics, we observe convergence to what looks like a _nonequilibrium / near-equilibrium steady state_ (NESS) with magnetizations remaining dynamically stable at the mean-field level.
 
 To compare the naive first-order mean-field update equations to the second-order Thouless-Anderson-Palmer (TAP) ones, we plot the mean magnetization trajectories across all sites and add shading to denote the spread of maximum and minimum values.
 
@@ -816,7 +816,7 @@ where $\boldsymbol{W}_{\boldsymbol{Q}}$ and $\boldsymbol{W}_{\boldsymbol{K}}$ de
 
 <img src="arch_comparison.png" alt="Comparison between vanilla transformer module and spin-transformer module" width="550px"/>
 
-What does the spin-transformer module return? The within-module time evolution is said to converge when the mean magnetizations collectively reach some kind of _non-equilibrium / near-equilibrium steady-state_ (NESS), which is not guaranteed a priori and requires us to make sure the couplings, inverse temperature, and normalizations are sensibly chosen. In fact, it might very well be the case that, for the parameter regimes we would want to consider, the behavior of the vector-spin model is quite equilibrium-like, and this is probably what we want to aim for anyway given that oscillations, instabilities, and divergences are always lurking close by in the perilous phase spaces of these systems. If the within-module time evolution converges, we return the magnetizations $\mathbf{m}_{\mathrm{NESS}} \in \mathbb{R}^{N \times D}$ as module outputs. Instead of time evolving for a number of steps until convergence, we could also try hunting for the NESS directly by assuming it exists and solving for it as if it were a fixed point of the time evolution.
+What does the spin-transformer module return? The within-module time evolution is said to converge when the mean magnetizations collectively reach some kind of _nonequilibrium / near-equilibrium steady-state_ (NESS), which is not guaranteed a priori and requires us to make sure the couplings, inverse temperature, and normalizations are sensibly chosen. In fact, it might very well be the case that, for the parameter regimes we would want to consider, the behavior of the vector-spin model is quite equilibrium-like, and this is probably what we want to aim for anyway given that oscillations, instabilities, and divergences are always lurking close by in the perilous phase spaces of these systems. If the within-module time evolution converges, we return the magnetizations $\mathbf{m}_{\mathrm{NESS}} \in \mathbb{R}^{N \times D}$ as module outputs. Instead of time evolving for a number of steps until convergence, we could also try hunting for the NESS directly by assuming it exists and solving for it as if it were a fixed point of the time evolution.
 
 To wrap up this section, we list a few conceptual similarities and features below to close the gap between vector-spin models and transformer modules:
 
