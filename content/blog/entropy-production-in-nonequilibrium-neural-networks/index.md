@@ -41,17 +41,16 @@ projects: []
 > **✨ GitHub repository:  [`mcbal/neqnn`](https://github.com/mcbal/neqnn) (work in progress)**
 
 
-
 Transformers are powerful driven dynamical systems, but the internal computation in their layers is rarely discussed in terms of nonequilibrium thermodynamics. Building on [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we construct a minimal transformer-like module whose forward pass implements a controllable quench-and-relax process. We characterize its dynamical regimes to elucidate stateless and stateful variations of transformer-like and deep-equilibrium-like architectures and leverage its physics-based architecture to compute differentiable proxies for entropy production. This provides both a scalable laboratory for nonequilibrium many-body dynamics on hardware accelerators and a testable learning hypothesis.
 
-We ask whether module-local ascent on a housekeeping entropy-production proxy, under bounded dynamics and structured input streams, can lead a system to acquire structure-sensitive, predictive dynamics without an externally supplied task loss or end-to-end credit assignment. The risk is that the system finds local dissipative shortcuts: asymmetric attention collapse, self-exciting cycles, or coupling to noise. The bet is that the cheapest way for a bounded local system to keep dissipating is to become predictive, where prediction is a thermodynamic adaptation to ensure continuing support for asymmetric delayed flows. We readily admit that the main motivation for this bet is aesthetic. To move beyond aesthetics, we run numerical experiments.
+We ask whether module-local ascent on a housekeeping entropy-production proxy, under bounded dynamics and structured input streams, can lead a system to acquire structure-sensitive, predictive dynamics without an externally supplied task loss or end-to-end credit assignment. The risk is that the system finds local dissipative shortcuts: asymmetric attention collapse, self-exciting cycles, or coupling to noise. The bet is that, once trivial dissipative shortcuts are bounded or exhausted, persistent temporal structure provides the most reliable support for continuing asymmetric delayed flow. We readily admit that the main motivation for this bet is aesthetic. To move beyond aesthetics, we run numerical experiments.
 
 
 # Driving a spin-model transformer module
 
 In this section we design a minimal spin-model transformer module whose forward pass implements a controllable nonequilibrium quench-and-relax process. We identify three timescales and two dynamical regimes, leading to a natural categorization of possible implementations into stateless and stateful variations of transformer-like and deep-equilibrium-like architectures.
 
-## A minimal controllable highly-adaptive system
+## A minimal controllable drive-conditioned system
 
 In [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/) we showed how to apply dynamical mean-field theory to approximate the time-dependent behavior of asymmetric vector-spin models. We started from a spin system of $N$ vector spins $\mathbf{s}_{i,t} \in \mathbb{R}^{D}$ talking to each other via an $N \times N$ pairwise coupling matrix $J_{ij}$ with the underlying parallel-updates stochastic dynamics characterized by a discrete-time Markov chain transition probability $P(\mathbf{s}_{t} | \mathbf{s}_{t-1})$. External magnetic fields $\mathbf{x}_{i,t} \in \mathbb{R}^{D}$ bias the vector spins and act as local drives.
 
@@ -85,7 +84,8 @@ where $\mathbf{FFN}$ denotes a position-wise feed-forward network, then our earl
 
 where we have pushed down the recurrence into an internal relaxation index $k$. By making the effective drive as well as the couplings depend on the drive $\mathbf{x}_{t}$, a sudden shift $\mathbf{x}_{t} \to \mathbf{x}_{t+1}$ changes both the local fields as well as the interactions and quenches the module into a new instantaneous dynamics[^fn:protocol]. During internal relaxation updates $k$, the drive $\mathbf{x}_{t}$ and the parameters $\boldsymbol{\theta} = \{ \mathbf{W}_{Q}, \mathbf{W}_{K}, \mathbf{FFN} \}$, and therefore the transition rule, are held fixed. (At the stochastic level, the process looks something like $P_{\boldsymbol{\theta}, \mathbf{x}_{t}}(\mathbf{s}_{k+1} | \mathbf{s}_{k})$.)
 
-We end up with a _highly-adaptive system_ that is _dynamically shaped by the drive_. Each vector spin effectively experiences a local mean-field that is the sum of a residual stream drive, a feed-forward-like drive, and attention-like couplings. Importantly, these terms are parameterized and can be be shaped through training: _we can control how the system responds, fluctuates, and relaxes after getting quenched_.
+We end up with a _highly reconfigurable system_ that is _dynamically shaped by the drive_. Each vector spin effectively experiences a local mean-field that is the sum of a residual stream drive, a feed-forward-like drive, and attention-like couplings. Importantly, these terms are parameterized and can be shaped through training: _we can control how the system responds, fluctuates, and relaxes after getting quenched_. Slow parameter updates make this responsive system adaptive.
+
 
 ## Building modules: three clocks, slow plasticity, and two relaxation limits
 
@@ -106,7 +106,7 @@ and clearly state the clocks involved:
 
 The three clocks define three characteristic rates: $\tau_{\mathrm{relax}}$, $\tau_{\mathrm{drive}}$, and $\tau_{\mathrm{learn}}$. Throughout, we assume slow plasticity $\tau_{\mathrm{drive}} \ll \tau_{\mathrm{learn}}$. The relative size of $\tau_{\mathrm{relax}}$ and $\tau_{\mathrm{drive}}$, or, equivalently, the number of internal updates allocated before the next quench, determines the computational regime.
 
-> A deep network is a stack of (untied) modules, which, in our framework, make up a collective of _different_ driven spin systems driving each other sequentially. The layer index does not (have to) correspond to external time nor to internal relaxation time; it is an additional axis labeling the simple feed-forward topology (depth) of the computational graph. For clarity, we drop it in the remainer of this section.
+> A deep network is a stack of (untied) modules, which, in our framework, make up a collective of _different_ driven spin systems driving each other sequentially. The layer index does not (have to) correspond to external time nor to internal relaxation time; it is an additional axis labeling the simple feed-forward topology (depth) of the computational graph. For clarity, we drop it in the remainder of this section.
 
 We build our module-construction intuition around a _quench-and-relax scenario_: when the input drive switches as $\mathbf{x}_{t} \to \mathbf{x}_{t+1}$, the spin system has to adapt to the sudden change. A general post-quench module then looks like
 
@@ -114,7 +114,7 @@ We build our module-construction intuition around a _quench-and-relax scenario_:
   \mathbf{m}_{t, K} = F^{K}_{\boldsymbol{\theta}_{n}} \left( \mathbf{x}_{t}, \mathbf{m}_{t, 0} \right),
 \end{equation}
 
-with two independent design choices: the number of internal relaxation steps $K$ and the initialization $\mathbf{m}_{t, 0}$
+with two independent design choices: the number of internal relaxation steps $K$ (relaxation horizon) and the choice of $\mathbf{m}_{t, 0}$ (initialization policy)
 
 | | Reset or amortized initialization           | Carried initialization                        |
 | -- | --------------------------------- | ----------------------------------------- |
@@ -123,9 +123,9 @@ with two independent design choices: the number of internal relaxation steps $K$
 
 ### Finite-step regime
 
-In this regime, $\tau_{\mathrm{relax}} \sim \tau_{\mathrm{drive}}$ and the relaxation is truncated. Only a small number $K$ of relaxation steps can happen before the drive changes again. The intuition here is madness: the system is perpetually chasing a moving instantaneous NESS but can never reach it. Warm-starting with $\mathbf{m}_{t, 0} = \mathbf{m}_{t-1, K}$ adds persistent recurrence, carrying dynamical state. In this regime, there is no strong separation between drive and relaxation, _but shaping the system's behavior through nudging the parameters $\boldsymbol{\theta}_{n}$ in the outer loop can help with that_.
+In this regime, only $K < \infty$ internal updates are allocated before readout or the next quench. This may reflect genuine competition between relaxation and drive timescales, or simply deliberate computational truncation. The intuition here is that the system tracks a moving family of instantaneous stationary marginals with potentially nonzero lag. Warm-starting with $\mathbf{m}_{t, 0} = \mathbf{m}_{t-1, K}$ adds persistent recurrence, carrying dynamical state. In this regime, there is no strong separation between drive and relaxation, _but shaping the system's behavior through nudging the parameters $\boldsymbol{\theta}_{n}$ in the outer loop can help with that_.
 
-The initial values $\mathbf{m}_{t, 0} = \mathbf{m}_{t-1, K}$ make the module architecture genuinely recurrent and stateful, but with a full context window of hidden states, situating it somewhere in between recurrent neural networks and transformers. Another initialization option is a learned amortized initialization of the post-quench state $\mathbf{m}_{t, 0} = \mathbf{x}_{t}\mathbf{W}_{V}$, which we could call "values". For $K=1$, this initialization makes the forward pass most closely resemble that of a parallel transformer block.
+The initial values $\mathbf{m}_{t, 0} = \mathbf{m}_{t-1, K}$ make the module architecture genuinely recurrent and stateful, but with a full context window of hidden states, situating it somewhere in between recurrent neural networks and transformers. Another option is a learned amortized initializer for post-quench relaxation $\mathbf{m}_{t, 0} = \mathbf{x}_{t}\mathbf{W}_{V}$ which estimates the drive-conditioned response toward which the module should relax. We could call these "values". For $K=1$, this initialization makes the forward pass most closely resemble that of a parallel transformer block.
 
 
 ### Fixed-point regime
@@ -137,7 +137,7 @@ In case of a unique fixed point, the initial values $\mathbf{m}_{t, 0}$ are eras
 
 ## On the connection to transformers
 
-Let us step back for a bit and emphasize that this close resemblance between forward passes acts as a _plausibility bridge_ at this point. It is _not evidence_ that trained transformers literally implement the approximated nonequilibrium thermodynamics scenarios we will cover in the next sections. But the proximity in module architecture space of a minimal spin-model transformer to a class of transformers known to scale does at least suggests that transformers may also admit module-level nonequilibrium interpretations.
+Let us step back for a bit and emphasize that this close resemblance between forward passes acts as a _plausibility bridge_ at this point. It is _not evidence_ that trained transformers literally implement the approximated nonequilibrium thermodynamics scenarios we will cover in the next sections. But the proximity in module architecture space of a minimal spin-model transformer to a class of transformers known to scale does at least suggest that transformers may also admit module-level nonequilibrium interpretations.
 
 > A picture of autoregressive inference from a quench-and-relax perspective: a freshly generated token changes the context window and therefore quenches the stack of modules beginning at the bottom, the modules sequentially relax and then drive the next layer all the way to the top where the final magnetizations get mapped to a probability distribution to sample the next token from. The parameters of the stack of modules have been carefully optimized during successive stages of training to implement useful one-step relaxation.
 
@@ -216,7 +216,7 @@ where
   \boldsymbol{\theta}_{i,t} &= \mathbf{x}_{i,t} + \sum_{j} J_{ij} \mathbf{m}_{j,t-1}.
 \end{align}
 
-The first-order time-delayed correlations $D_{ij,t}$ is a mean-field estimate of how much the fluctuation in one vector spin is transmitted one time step later "into" another spin. Or, put differently, when spin $j$ fluctuates away from its mean at the previous time step $t-1$, how much of that fluctuation shows up as a fluctuation of spin $i$ at the current time step $t$?
+The first-order time-delayed correlations $D_{ij,t}$ are a mean-field estimate of how much the fluctuation in one vector spin is transmitted one time step later "into" another spin. Or, put differently, when spin $j$ fluctuates away from its mean at the previous time step $t-1$, how much of that fluctuation shows up as a fluctuation of spin $i$ at the current time step $t$?
 
 
 ## Waving hands and checking vibes
@@ -246,7 +246,7 @@ We referred to Eq. \eqref{eq:sigma_hk} as _housekeeping_ entropy production and 
   \langle \sigma_{t} \rangle = \beta \sum_{ij} \left(J_{ij}(\mathbf{x}_{t}) - J_{ji}(\mathbf{x}_{t})\right) D_{ij,t}
 \end{equation}
 
-measures instantaneous local irreversibility of the frozen driven system under the clamped drive $\mathbf{x}_{t}$. Physically, the environment pushes on the module with $\mathbf{x}_{t}$ and the module rapidly relaxes to a NESS characterized by $\mathbf{m}^{*}_{t}(\mathbf{x}_{t})$.
+measures instantaneous local irreversibility of the frozen driven system under the clamped drive $\mathbf{x}_{t}$. Physically, the environment pushes on the module with $\mathbf{x}_{t}$ and the module rapidly relaxes toward stationary one-point marginals $\mathbf{m}^{*}_{t}(\mathbf{x}_{t})$ associated with the instantaneous NESS.
 
 As soon as the drive changes $\mathbf{x}_{t-1} \to \mathbf{x}_{t}$, things get hard. If the drive steps are small, we could end up in an adiabatic regime connecting a sequence of (relaxed) NESSs. But in practice the jump is likely never small and there will be excess contributions from the drive changing. So we end up with a process that is genuinely nonstationary and the steady-state expression no longer gives the complete picture in terms of entropy production.
 
