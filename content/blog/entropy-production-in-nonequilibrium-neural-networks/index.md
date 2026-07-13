@@ -42,8 +42,6 @@ projects: []
 
 Transformers are powerful driven dynamical systems, yet their internal computation is rarely discussed in terms of nonequilibrium thermodynamics. Building on [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design a minimal parallel transformer-like module whose forward pass implements a controllable quench-and-relax process. We characterize its dynamical regimes to elucidate a design space of stateless and stateful variations of transformer-like and deep-equilibrium-like architectures and leverage its physics-based architecture to compute differentiable proxies for entropy production. This provides both a scalable laboratory for nonequilibrium many-body dynamics on hardware accelerators and a testable learning hypothesis.
 
-We ask whether module-local ascent on a housekeeping entropy-production proxy, under bounded dynamics and structured input streams, can lead a system to acquire structure-sensitive, predictive dynamics without an externally supplied task loss or end-to-end credit assignment. The risk is that the system finds local dissipative shortcuts: asymmetric attention collapse, self-exciting cycles, or coupling to noise. The bet is that, once trivial dissipative shortcuts are bounded or exhausted, latching onto persistent temporal structure provides the most reliable support for continuing asymmetric delayed flow. We readily admit that the main motivation for this bet is aesthetic. To move beyond aesthetics, we run numerical experiments.
-
 
 # Driving a spin-transformer module
 
@@ -164,7 +162,7 @@ During the quench-and-relax process we hold the input drive $\mathbf{x}_{t}$ fix
   \sigma^{*}_{\mathrm{hk},t} = \beta \sum_{ij} \left(J_{ij}(\mathbf{x}_{t}) - J_{ji}(\mathbf{x}_{t})\right) D^{*}_{ij,t} , \label{eq:sigma_hk}
 \end{equation}
 
-where $D^{*}_{ij,t}$ denote the one-step delayed correlations evaluated at the system's stationary marginals $\mathbf{m}^{*}_{t}(\mathbf{x}_{t})$. Intuitively, this is like
+where $D^{*}_{ij,t}$ denote the one-step delayed correlations evaluated under the stationary one-step joint law. Intuitively, this is like
 
 \begin{equation}
   \sigma^{*}_{\mathrm{hk},t} = \sum_{ij} \left[\operatorname{directionality}\right]_{ij} \times \left[\operatorname{delayed\ flow}\right]_{ij,t}.
@@ -172,7 +170,11 @@ where $D^{*}_{ij,t}$ denote the one-step delayed correlations evaluated at the s
 
 The couplings provide a directional bias; the delayed correlations report whether fluctuations actually propagate along that direction. A fixed point of the magnetizations therefore does not imply equilibrium: it describes stationary averages, not the absence of microscopic currents.
 
-Now we quench again! After changing the input drive abruptly, $\mathbf{x}_{t} \to \mathbf{x}_{t+1}$, the system is still distributed approximately according to its old steady state $\pi_{t}$, while the new transition rule $P_{\boldsymbol{\theta}, \mathbf{x}_{t+1}}(\mathbf{s}_{t+1, k+1} | \mathbf{s}_{t+1, k})$ induced by the new input drive actually favors another steady state $\pi_{t+1}$. The mismatch $D_{\mathrm{KL}}\left(\pi_{t} \lVert \pi_{t+1} \right)$ is a relaxation-irreversibility proxy measuring how far the old response lies from the response required by the new dynamics. The new housekeeping part remains after relaxation while $D_{\mathrm{KL}}\left(\pi_{t} \lVert \pi_{t+1} \right) \to 0$ once the system has caught up.
+Now we quench again! After changing the input drive abruptly, $\mathbf{x}_{t} \to \mathbf{x}_{t+1}$, the system is still distributed approximately according to its old steady state $\pi_{t}$, while the new transition rule $P_{\boldsymbol{\theta}, \mathbf{x}_{t+1}}(\mathbf{s}_{t+1, k+1} | \mathbf{s}_{t+1, k})$ induced by the new input drive actually favors another steady state $\pi_{t+1}$. The mismatch
+\begin{equation}
+M_{t+1, k} = D_{\mathrm{KL}}\left(p_{t+1,k} \lVert \pi_{t+1} \right),
+\end{equation}
+where $p_{t+1,0} = \pi_{t}$ for a fully relaxed carried-state quench, is a relaxation-irreversibility proxy measuring how far the old response lies from the response required by the new dynamics. The new housekeeping part remains after relaxation while $M_{t+1, k} \to 0$ as the actual distribution relaxes to the new stationary distribution.
 
 > A driven spin-transformer module with asymmetric couplings can thus be irreversible in two ways: by **running a nonequilibrium steady state** and by **catching up after its input drive changes**.
 
@@ -181,7 +183,7 @@ Now we quench again! After changing the input drive abruptly, $\mathbf{x}_{t} \t
 To evaluate Eq. \eqref{eq:sigma_hk}, we need stationary one-step delayed correlations $D^{*}_{ij,t}$. To this end, let us first compute a first-order `Plefka[t-1,t]` mean-field approximation of the _transient_ one-step delayed correlations $D_{ij,t,k}$,
 
 \begin{equation}
-  D_{ij,t,k} = \mathbb{E}_{(\mathbf{s}, \mathbf{s'}) \sim p_{t,k-1} P_{\boldsymbol{\theta}, \mathbf{x}_{t}}(\mathbf{s}_{t, k+1} | \mathbf{s}_{t, k})} \left[ \left( \mathbf{s'}_{i} - \mathbf{m}_{i,t,k+1} \right) \cdot \left( \mathbf{s}_{j} - \mathbf{m}_{j,t,k}\right) \right] ,
+  D_{ij,t,k} = \mathbb{E}_{(\mathbf{s}, \mathbf{s}') \sim p_{t,k-1}(\mathbf{s}) P_{\boldsymbol{\theta}, \mathbf{x}_{t}}(\mathbf{s}' | \mathbf{s})} \left[ \left( \mathbf{s}'_{i} - \mathbf{m}_{i,t,k} \right) \cdot \left( \mathbf{s}_{j} - \mathbf{m}_{j,t,k-1}\right) \right] ,
 \end{equation}
 
 Evaluating this expression as we did for the magnetizations in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we end up with the mean-field approximation
@@ -190,7 +192,7 @@ Evaluating this expression as we did for the magnetizations in [Spin-Model Trans
   D_{ij,t,k} \approx \beta J_{ij}(\mathbf{x}_{t}) \operatorname{Tr} \left( \Sigma_{i,t,k} \Sigma_{j,t,k-1} \right),
 \end{align}
 
-where $\Sigma_{i,t,k} = \operatorname{Var} \left[ s_{i,t,k} \right]$ denotes the single-site covariance / susceptibility. The trace captures which directions on the vector-spin sphere are still available to fluctuate. If a spin is weakly magnetized, it has many soft directions. If it is strongly magnetized, many directions are suppressed because the spin is pinned close to its mean direction.
+where $\Sigma_{i,t,k} = \operatorname{Cov} \left[ s_{i,t,k} \right]$ denotes the single-site covariance / susceptibility. The trace captures which directions on the vector-spin sphere are still available to fluctuate. If a spin is weakly magnetized, it has many soft directions. If it is strongly magnetized, many directions are suppressed because the spin is pinned close to its mean direction.
 
 At stationarity, $p_{t,k-1} \to \pi_{t}$ and $\mathbf{m}_{i,t,k} \to \mathbf{m}^{*}_{i,t}$ so that
 
@@ -207,58 +209,30 @@ and the mean-field approximation becomes
 Substituting the large-$D$ approximation from [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/),
 
 \begin{align}
-  \Sigma_{i,t} \approx \frac{\mathbf{1}}{1+\gamma_{i,t}} - \frac{\mathbf{m}_{i,t} \mathbf{m}_{i,t}^{T}}{R^2 \gamma_{i,t}},
+  \Sigma_{i,t} \approx \frac{\mathbf{1}_{D}}{1+\gamma_{i,t}} - \frac{\mathbf{m}_{i,t} \mathbf{m}_{i,t}^{T}}{R^2 \gamma_{i,t}},
 \end{align}
 
 we end up with the explicit expression
 
 \begin{align}
-  D^{*}_{ij,t} = &\frac{\beta J_{ij}(\mathbf{x}_{t})}{1+\gamma_{i,t}} \left(R^2 - \mathbf{m}^{*2}_{j,t} \right) \nonumber\\
-  &- \frac{\beta J_{ij}(\mathbf{x}_{t})}{R^2 \gamma_{i,t} \left( 1 + \gamma_{j,t} \right)} \mathbf{m}^{*2}_{i,t} \nonumber\\
-  &+ \frac{\beta J_{ij}(\mathbf{x}_{t})}{R^4 \gamma_{i,t} \gamma_{j,t}} \left( \mathbf{m}^{*}_{i,t} \cdot \mathbf{m}^{*}_{j,t} \right)^2,
+  D^{*}_{ij,t} = &\frac{\beta J_{ij}(\mathbf{x}_{t}) D}{(1+\gamma^{*}_{i,t})(1+\gamma^{*}_{j,t})} \nonumber\\
+  &- \frac{\beta J_{ij}(\mathbf{x}_{t})}{R^2 \gamma^{*}_{j,t} \left( 1 + \gamma^{*}_{i,t} \right)} \lVert \mathbf{m}^{*}_{j,t} \rVert^2 \nonumber\\
+  &- \frac{\beta J_{ij}(\mathbf{x}_{t})}{R^2 \gamma^{*}_{i,t} \left( 1 + \gamma^{*}_{j,t} \right)} \lVert \mathbf{m}^{*}_{i,t} \rVert^2 \nonumber\\
+  &+ \frac{\beta J_{ij}(\mathbf{x}_{t})}{R^4 \gamma^{*}_{i,t} \gamma^{*}_{j,t}} \left( \mathbf{m}^{*}_{i,t} \cdot \mathbf{m}^{*}_{j,t} \right)^2,
 \end{align}
 
 where
 
 \begin{align}
-  \gamma_{i,t} &= \sqrt{1 + \beta^2 \lVert \mathbf{h}_{i,t} \rVert^2 / R^2 },\\
-  \mathbf{h}_{i,t} &= \mathbf{x}_{i,t} + \mathbf{FFN}\left( \mathbf{x}_{i,t} \right) + \sum_{j} J_{ij} (\mathbf{x}_{t}) \mathbf{m}^{*}_{j,t}.
+  \gamma^{*}_{i,t} &= \sqrt{1 + \beta^2 \lVert \mathbf{h}^{*}_{i,t} \rVert^2 / R^2 },\\
+  \mathbf{h}^{*}_{i,t} &= \mathbf{x}_{i,t} + \mathbf{FFN}\left( \mathbf{x}_{i,t} \right) + \sum_{l} J_{ij} (\mathbf{x}_{t}) \mathbf{m}^{*}_{l,t}.
 \end{align}
 
-> **Waving hands and checking vibes:** Let us try to get a feel for what the final expression looks like using some rough back-of-the-envelope estimations. Assume both vectors $\mathbf{m}^{*}_{i}$ and $\mathbf{m}^{*}_{j}$ have a norm $\mathcal{O}(R)$, then the time-delayed correlations behave approximately like
-\begin{align}
-  D^{*}_{ij,t} \sim \beta J_{ij}(\mathbf{x}_{t}) \cos^2 \alpha_{ij},
-\end{align}
-where $\alpha_{ij}$ denotes the angle between the magnetization vectors. So the entropy production looks approximately like
-\begin{equation}
-  \sigma^{*}_{\mathrm{hk},t} \sim \beta^2 \sum_{ij} \left(J_{ij}^2(\mathbf{x}_{t}) - J_{ij}(\mathbf{x}_{t}) J_{ji}(\mathbf{x}_{t})\right) \cos^2 \alpha_{(i,t)(j,t-1)},
-\end{equation}
-which, in general, is minimized for symmetric coupling matrices or orthogonal embeddings and maximized for fully-asymmetric couplings or (anti-)parallel embeddings.
-But for the softmax attention matrix Eq. \eqref{eq:softmax}, we have additional constraints $J_{ij}(\mathbf{x}_{t}) \geq 0$ as well as a Frobenius norm of $\mathcal{O}(\sqrt{N})$ preventing unbounded growth under maximization. Additionally, imposing a causal mask on the couplings to do autoregressive modeling leads to even more constraints since then the upper triangular part of $J_{ij}(\mathbf{x}_{t})$ is fixed to zero. So it feels like maximizing entropy production for causal softmax couplings promotes some kind of compromise between _sparse attention_ (intuitively, if the upper-triangular part is zero then it is favorable to push most of the lower-triangular elements close to zero as well) and _clustering of embeddings_ (weighted maximization of cosine similarity).
+...
 
 ## Mean-field proxy for nonadiabatic entropy production
 
 Apply von Mises-Fisher KL divergence expressions...
-
-# A learning hypothesis: optimizing entropy production
-
-We could stop here, and use the mean-field entropy-production proxies derived in the previous section as diagnostic evaluation measures or monitoring tools to track the behavior of spin-transformer modules during training and inference. But let us again focus instead on what our framework enables that feels hard to come up with without having access to a nonequilibrium spin-model perspective.
-
-Since these entropy-production proxies are differentiable, we might as well try treating them as module-local loss functions. Sure, you can have an external task steering the optimization process using, for example, a cross-entropy loss. But a truly adapative module should be able to learn to reshape its drive-conditioned steady states online so that its current state lies close to the response required by likely future drives. It should be able to do this locally at the level of module without needing a global backpropagation signal. Once trivial dissipative shortcuts are bounded or exhausted, persistent temporal structure should provide the most reliable support for continuing asymmetric delayed flow.
-
-...
-
-## A module-local learning rule
-
-If we compute the gradient with respect to module parameters of the housekeeping entropy production Eq. \eqref{eq:sigma_hk}, we get
-
-\begin{align}
-  \beta &\sum_{ij} \left(J_{ij}(\mathbf{x}_{t}) - J_{ji}(\mathbf{x}_{t})\right) \mathrm{stop\_gradient} \left( D^{*}_{ij,t} \right) \notag \\
-  & + \beta \sum_{ij} \mathrm{stop\_gradient} \left(J_{ij}(\mathbf{x}_{t}) - J_{ji}(\mathbf{x}_{t})\right) D^{*}_{ij,t}
-\end{align}
-
-
-A temporally antisymmetric Hebbian rule, etc.
 
 
 # Numerical experiments
@@ -271,14 +245,6 @@ A temporally antisymmetric Hebbian rule, etc.
 
 
 # Conclusion and outlook
-
-...
-
-A spin-transformer module is a driven nonequilibrium response system. It receives drives from other systems or the environment, relaxes to a response, and emits magnetizations that perturb those boundaries. State need not be internal to a module; it may reside in the environment or in the closed-loop configuration of coupled modules.
-
-...
-
-Interfacing multiple modules into collectives. Global coherence from local backpropagation. Collectives, loops, and adaptive systems. Open-ended adaptation.
 
 ...
 
