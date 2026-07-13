@@ -45,13 +45,13 @@ Transformers are powerful driven dynamical systems, yet their internal computati
 We ask whether module-local ascent on a housekeeping entropy-production proxy, under bounded dynamics and structured input streams, can lead a system to acquire structure-sensitive, predictive dynamics without an externally supplied task loss or end-to-end credit assignment. The risk is that the system finds local dissipative shortcuts: asymmetric attention collapse, self-exciting cycles, or coupling to noise. The bet is that, once trivial dissipative shortcuts are bounded or exhausted, persistent temporal structure provides the most reliable support for continuing asymmetric delayed flow. We readily admit that the main motivation for this bet is aesthetic. To move beyond aesthetics, we run numerical experiments.
 
 
-# Driving a spin-model transformer module
+# Driving a spin-transformer module
 
-In this section we design a minimal spin-model transformer module whose forward pass implements a controllable nonequilibrium quench-and-relax process. We identify three timescales and two dynamical regimes, leading to a natural categorization of the design space into stateless and stateful variations of transformer-like and deep-equilibrium-like architectures.
+In this section we design a minimal spin-transformer module whose forward pass implements a controllable nonequilibrium quench-and-relax process. We identify three timescales and two dynamical regimes, leading to a natural categorization of the design space into stateless and stateful variations of transformer-like and deep-equilibrium-like architectures.
 
 ## A minimal controllable drive-conditioned system
 
-In [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/) we showed how to apply dynamical mean-field theory to approximate the time-dependent behavior of asymmetric vector-spin models. We started from a spin system of $N$ vector spins $\mathbf{s}_{i,t} \in \mathbb{R}^{D}$ talking to each other via an $N \times N$ pairwise coupling matrix $J_{ij}$ with the underlying parallel-updates stochastic dynamics characterized by a discrete-time Markov chain transition probability $P(\mathbf{s}_{t} | \mathbf{s}_{t-1})$. External magnetic fields $\mathbf{x}_{i,t} \in \mathbb{R}^{D}$ bias the vector spins and act as local drives.
+In [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/) we showed how to apply dynamical mean-field theory to approximate the time-dependent behavior of asymmetric vector-spin models. We started from a spin system of $N$ vector spins $\mathbf{s}_{i,t} \in \mathbb{R}^{D}$ talking to each other via an $N \times N$ pairwise coupling matrix $J_{ij}$ with the underlying parallel-updates stochastic dynamics characterized by a discrete-time Markov chain transition probability $P(\mathbf{s}_{t} | \mathbf{s}_{t-1})$. External magnetic fields $\mathbf{x}_{i,t} \in \mathbb{R}^{D}$ bias the vector spins and act as local drives. We will use the notation $\mathbf{x}_{t} = \{ \mathbf{x}_{i,t} \}^{N}_{i=1}$ to refer to the full-drive matrix instead of the local drive at a single position.
 
 <img src="vector_spins.png" alt="Random Ising model configuration with vector spins" width="250px"/>
 
@@ -81,14 +81,14 @@ where $\mathbf{FFN}$ denotes a position-wise feed-forward network, then our earl
   \mathbf{m}_{i,t,k+1} = \frac{\beta \left( \mathbf{x}_{i,t} + \mathbf{FFN}\left( \mathbf{x}_{i,t} \right) + \sum_{j} J_{ij} (\mathbf{x}_{t}) \mathbf{m}_{j,t,k} \right)}{1+\sqrt{1+\beta^2 \lVert \mathbf{x}_{i,t} + \mathbf{FFN}\left( \mathbf{x}_{i,t} \right) + \sum_{j} J_{ij} (\mathbf{x}_{t}) \mathbf{m}_{j,t,k} \rVert^2 / R^2 }}, \label{eq:paralleltransformer}
 \end{equation}
 
-where we have pushed down the recurrence into an internal relaxation index $k$. By making the effective drive as well as the couplings depend on the drive $\mathbf{x}_{t}$, a sudden shift $\mathbf{x}_{t} \to \mathbf{x}_{t+1}$ changes both the local fields as well as the interactions and quenches the module into a new instantaneous dynamics[^fn:protocol]. During internal relaxation updates $k$, the drive $\mathbf{x}_{t}$ and the parameters $\boldsymbol{\theta} = \{ \mathbf{W}_{Q}, \mathbf{W}_{K}, \mathbf{FFN} \}$, and therefore the transition rule, are held fixed. (At the stochastic level, the process looks something like $P_{\boldsymbol{\theta}, \mathbf{x}_{t}}(\mathbf{s}_{k+1} | \mathbf{s}_{k})$.)
+where we have pushed down the recurrence into an internal relaxation index $k$. By making the effective drive as well as the couplings depend on the drive $\mathbf{x}_{t}$, a sudden shift $\mathbf{x}_{t} \to \mathbf{x}_{t+1}$ changes both the local fields as well as the interactions and quenches the module into a new instantaneous dynamics[^fn:protocol]. During internal relaxation updates $k$, the drive $\mathbf{x}_{t}$ and the parameters $\boldsymbol{\theta} = \{ \mathbf{W}_{Q}, \mathbf{W}_{K}, \mathbf{FFN} \}$, and therefore the transition rule, are held fixed. (At the stochastic level, the process looks something like $P_{\boldsymbol{\theta}, \mathbf{x}_{t}}(\mathbf{s}_{t, k+1} | \mathbf{s}_{t, k})$.)
 
 We end up with a _highly reconfigurable system_ that is _dynamically shaped by the drive_. Each vector spin effectively experiences a local mean-field that is the sum of a residual stream drive, a feed-forward-like drive, and attention-like couplings. Importantly, these terms are _parameterized_ and can be _shaped through training_: we can control how the system responds, fluctuates, and relaxes after getting quenched. Slow parameter updates then make this responsive system adaptive.
 
 
 ## Building modules: three clocks, slow plasticity, and two relaxation limits
 
-Looking at Eq. \eqref{eq:paralleltransformer} we already notice its close resemblance to the forward pass of a [parallel transformer block](https://xn--rss.to/parallel-transformer-blocks.html). To make this more precise, we need to specify _how to implement_ spin-model transformer modules in practice. What is up with this weird internal state and internal relaxation dimension? How can this system even serve as a neural network module?
+Looking at Eq. \eqref{eq:paralleltransformer} we already notice its close resemblance to the forward pass of a [parallel transformer block](https://xn--rss.to/parallel-transformer-blocks.html). To make this more precise, we need to specify _how to implement_ spin-transformer modules in practice. What is up with this weird internal state and internal relaxation dimension? How can this system even serve as a neural network module?
 
 Let us begin by writing the forward pass Eq. \eqref{eq:paralleltransformer} more generally as
 
@@ -136,7 +136,7 @@ In case of a unique fixed point, the initial values $\mathbf{m}_{t, 0}$ are eras
 
 ## On the connection to transformers
 
-Let us step back for a bit and emphasize that this close resemblance between forward passes acts as a _plausibility bridge_ at this point. It is _not evidence_ that trained transformers literally implement the approximated nonequilibrium thermodynamics scenarios we will cover in the next sections. But the proximity in module architecture space of a minimal spin-model transformer to a class of transformers known to scale does at least suggest that transformers may also admit module-level nonequilibrium interpretations.
+Let us step back for a bit and emphasize that this close resemblance between forward passes acts as a _plausibility bridge_ at this point. It is _not evidence_ that trained transformers literally implement the approximated nonequilibrium thermodynamics scenarios we will cover in the next sections. But the proximity in module architecture space of a minimal spin-transformer to a class of transformers known to scale does at least suggest that transformers may also admit module-level nonequilibrium interpretations.
 
 > **A nonequilibrium picture of autoregressive inference from a quench-and-relax perspective:** a freshly generated token changes the context window and therefore quenches the stack of modules beginning at the bottom, the modules consecutively relax and then drive the next module all the way to the top where the final magnetizations get mapped to a probability distribution to sample the next token from. The parameters of the stack of modules have been carefully optimized during successive stages of training to implement useful finite-step relaxation.
 
@@ -152,24 +152,32 @@ We end this section with a cheat sheet mapping concepts between spin-transformer
 | Magnetizations $\mathbf{m}_{i,t}$ | Latent embeddings and output embeddings   |
 
 
-# More physics please: on entropy production and irreversibility
+# Computing differentiable entropy-production proxies
 
-Let us now introduce some physics to get a handle on what driving these out-of-equilibrium systems means.
+We could stop here, pretrain a spin-transformer model using next-token prediction on chunks of text, and compare evaluation metrics to those of compute-matched vanilla transformers. But let us focus instead on what our framework enables that feels hard to come up with _without_ having access to a nonequilibrium spin-model perspective.
+
+In this section, we show how the quench-and-relax process underneath the forward pass of a spin-transformer module relates to notions of _irreversibility_. We add physical context and introduce differentiable entropy production proxies that we can compute at the same mean-field level as the spin systems. These proxies can be used to estimate entropy-production rates for maintaining a nonequilibrium steady state under the current drive as well as the catching-up during relaxation after the drive changes.
+
+
+
+## Two ways to be irreversible
+
+
+## Mean-field proxy for housekeeping entropy production
+
+Let us now introduce some physics to get a handle on what driving these out-of-equilibrium systems means in terms of entropy production and irreversibility. 
 
 ...
-
+frozen-drive nonequilibrium steady state (NESS)
 Maintaining currents under frozen drive versus catching up when the boundary changes.
 
 ...
 
-# An approximation hierarchy: computing differentiable entropy-production proxies
-
-## Mean-field proxy for entropy production
 
 Following [Aguilera et al. (2020)](https://arxiv.org/abs/2002.04309), the housekeeping entropy production for the kinetic Ising model, assuming a nonequilibrium steady state, is given by
 
 \begin{equation}
-  \langle \sigma_{t} \rangle = \beta \sum_{ij} \left(J_{ij} - J_{ji}\right) D_{ij,t} \geq 0, \label{eq:sigma_hk}
+  \langle \sigma_{t} \rangle = \beta \sum_{ij} \left(J_{ij}(\mathbf{x}_{t}) - J_{ji}(\mathbf{x}_{t})\right) D_{ij,t} , \label{eq:sigma_hk}
 \end{equation}
 
 where $J_{ij}$ corresponds to the couplings and $D_{ij,t}$ denotes the time-delayed correlations. Intuitively, this is like
@@ -197,7 +205,7 @@ where $\Sigma_{i,t} = \operatorname{Var} \left[ s_{i,t} \right]$ denotes the sin
 Substituting the large-$D$ approximation
 
 \begin{align}
-  \Sigma_{i,t} \approx \frac{1}{1+\gamma_{i,t}} - \frac{\mathbf{m}_{i,t} \mathbf{m}_{i,t}^{T}}{R^2 \gamma_{i,t}},
+  \Sigma_{i,t} \approx \frac{\mathbb{1}}{1+\gamma_{i,t}} - \frac{\mathbf{m}_{i,t} \mathbf{m}_{i,t}^{T}}{R^2 \gamma_{i,t}},
 \end{align}
 
 we end up with the explicit expression
@@ -218,51 +226,28 @@ where
 The first-order time-delayed correlations $D_{ij,t}$ are a mean-field estimate of how much the fluctuation in one vector spin is transmitted one time step later "into" another spin. Or, put differently, when spin $j$ fluctuates away from its mean at the previous time step $t-1$, how much of that fluctuation shows up as a fluctuation of spin $i$ at the current time step $t$?
 
 
-## Waving hands and checking vibes
-
-Let us try to get a feel for what the entropy production looks like for vector-spin models using some rough back-of-the-envelope estimations. Assume both vectors $\mathbf{m}_{i,t}$ and $\mathbf{m}_{j,t-1}$ have a norm $\mathcal{O}(R)$, then the time-delayed correlations behave approximately like
-
+> **Waving hands and checking vibes:** Let us try to get a feel for what the entropy production looks like for vector-spin models using some rough back-of-the-envelope estimations. Assume both vectors $\mathbf{m}_{i,t}$ and $\mathbf{m}_{j,t-1}$ have a norm $\mathcal{O}(R)$, then the time-delayed correlations behave approximately like
 \begin{align}
   D_{ij,t} \sim \beta J_{ij} \cos^2 \alpha_{(i,t)(j,t-1)},
 \end{align}
-
 where $\alpha_{(i,t)(j,t-1)}$ denotes the angle between the magnetization vectors. So the entropy production looks approximately like
-
 \begin{equation}
   \langle \sigma_{t} \rangle \sim \beta^2 \sum_{ij} \left(J_{ij}^2 - J_{ij} J_{ji}\right) \cos^2 \alpha_{(i,t)(j,t-1)},
 \end{equation}
-
 which, in general, is minimized for symmetric coupling matrices or orthogonal embeddings and maximized for fully-asymmetric couplings or (anti-)parallel embeddings.
-
 But for the softmax attention matrix Eq. \eqref{eq:softmax}, we have additional constraints $J_{ij} \geq 0$ as well as a Frobenius norm of $\mathcal{O}(\sqrt{N})$ preventing unbounded growth under maximization. Additionally, imposing a causal mask on the couplings to do autoregressive modeling leads to even more constraints since then the upper triangular part of $J_{ij}$ is fixed to zero. So it feels like maximizing entropy production for causal softmax couplings promotes some kind of compromise between _sparse attention_ (intuitively, if the upper-triangular part is zero then it is favorable to push most of the lower-triangular elements close to zero as well) and _clustering of embeddings_ (weighted maximization of cosine similarity).
 
+## Mean-field proxy for nonadiabatic entropy production
 
-## Entropy production decompositions
-
-We referred to Eq. \eqref{eq:sigma_hk} as _housekeeping_ entropy production and then never mentioned why we called it that way. Let us think again how we can turn vector-spin models with weird drive-dependent couplings $J_{ij}(\mathbf{x}_{t})$ into a transformer-like neural network. Doing so will force us, once again, to grapple with nonequilibrium thermodynamics (_*audience now visible annoyed and looking for the exit*_). In the fixed-point interpretation, the housekeeping entropy production
-
-\begin{equation}
-  \langle \sigma_{t} \rangle = \beta \sum_{ij} \left(J_{ij}(\mathbf{x}_{t}) - J_{ji}(\mathbf{x}_{t})\right) D_{ij,t}
-\end{equation}
-
-measures instantaneous local irreversibility of the frozen driven system under the clamped drive $\mathbf{x}_{t}$. Physically, the environment pushes on the module with $\mathbf{x}_{t}$ and the module rapidly relaxes toward stationary one-point marginals $\mathbf{m}^{*}_{t}(\mathbf{x}_{t})$ associated with the instantaneous NESS.
-
-As soon as the drive changes $\mathbf{x}_{t-1} \to \mathbf{x}_{t}$, things get hard. If the drive steps are small, we could end up in an adiabatic regime connecting a sequence of (relaxed) NESSs. But in practice the jump is likely never small and there will be excess contributions from the drive changing. So we end up with a process that is genuinely nonstationary and the steady-state expression no longer gives the complete picture in terms of entropy production.
-
-...
 
 
 # A learning hypothesis: optimizing entropy production
 
-We can use the mean-field entropy-production proxies derived in the previous section as diagnostic evaluation metrics to track system behavior during training and inference. But since they are fully differentiable...
+We could stop here, and use the mean-field entropy-production proxies derived in the previous section as diagnostic evaluation measures or monitoring tools to track the behavior of spin-transformer modules during training and inference. But let us again focus instead on what our framework enables that feels hard to come up with without having access to a nonequilibrium spin-model perspective.
+
+Since these entropy-production proxies are differentiable, we might as well try treating them as module-local loss functions. Sure, you can have an external task steering the optimization process using, for example, a cross-entropy loss. But a truly adapative module should be able to learn to reshape its drive-conditioned steady states online so that its current state lies close to the response required by likely future drives. Once trivial dissipative shortcuts are bounded or exhausted, persistent temporal structure should provide the most reliable support for continuing asymmetric delayed flow.
 
 ...
-
-Learning reshapes the family of drive-conditioned steady states so that the state produced under the current drive lies close to the steady-state response required by likely future drives.
-
-...
-
-A system anticipates its environment when its current irreversible dynamics prepare the state distribution for probable subsequent boundary conditions.
 
 
 # Numerical experiments
@@ -273,11 +258,12 @@ A system anticipates its environment when its current irreversible dynamics prep
 
 ## Closed-loop adaptive behavior
 
+
 # Conclusion and outlook
 
 ...
 
-Each module is a driven nonequilibrium response system. It receives boundary conditions from other systems or the environment, relaxes to a response, and emits magnetizations that perturb those boundaries. Memory need not be internal to a module; it may reside in the environment or in the closed-loop configuration of coupled modules.
+A spin-transformer module is a driven nonequilibrium response system. It receives drives from other systems or the environment, relaxes to a response, and emits magnetizations that perturb those boundaries. State need not be internal to a module; it may reside in the environment or in the closed-loop configuration of coupled modules.
 
 ...
 
@@ -287,7 +273,7 @@ Interfacing multiple modules into collectives. Global coherence from local backp
 
 # Acknowledgements
 
-We acknowledge interesting back-and-forth discussions with Claude Opus 4.8, GPT 5.5, and GPT 5.6. Claude Fable 5 initially refused to respond, but after adding these acknowledgements to the draft, stating it had refused to respond, it did decide to engage.
+We acknowledge interesting back-and-forth discussions with Claude Opus 4.8, GPT 5.5, and GPT 5.6. Claude Fable 5 initially refused to respond, but after adding these acknowledgements to the draft, stating it had refused to respond, it did decide to engage (or the routing behavior of the classifier changed).
 
 
 # References
