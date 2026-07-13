@@ -12,9 +12,14 @@
 {{ $anchor := $image_params.focal_point | default "Center" }}
 {{ $fill_image := .config.fill_image | default true }}
 {{ $showDate := .config.show_date | default true }}
+{{ $showLastmod := false }}
+{{ if reflect.IsMap .page }}
+  {{ $showLastmod = eq (index .page "id") "blog" }}
+{{ end }}
 {{ $showReadTime := .config.show_read_time | default true }}
 {{ $showReadMore := .config.show_read_more | default true }}
 {{ $hasMeta := or $showDate $showReadTime $showReadMore }}
+{{ $dateFormat := site.Params.hugoblox.locale.date_format | default "Jan 2, 2006" }}
 {{ $index := .index }}
 {{ $isEvent := eq $item.Type "events" }}
 {{ $event_dates := "" }}
@@ -188,9 +193,12 @@
             {{ if $isEvent }}
             <span class="hidden sm:inline whitespace-nowrap">{{ $event_dates }}</span>
             {{ else }}
-            <time class="hidden sm:inline whitespace-nowrap" datetime="{{ $item.Date.Format "2006-01-02" }}">
-              {{ $item.Date | time.Format (site.Params.hugoblox.locale.date_format | default "Jan 2, 2006") }}
-            </time>
+            <span class="hidden sm:inline whitespace-nowrap">
+              <time datetime="{{ $item.Date.Format "2006-01-02" }}">{{ $item.Date | time.Format $dateFormat }}</time>
+              {{- if and $showLastmod $item.Lastmod (ne ($item.Lastmod.Format "2006-01-02") ($item.Date.Format "2006-01-02")) }}
+                <span aria-hidden="true"> → </span><span class="sr-only">Last updated </span><time datetime="{{ $item.Lastmod.Format "2006-01-02" }}">{{ $item.Lastmod | time.Format $dateFormat }}</time>
+              {{- end }}
+            </span>
             {{ end }}
           {{ end }}
           {{ if and $showDate $showReadTime }}
