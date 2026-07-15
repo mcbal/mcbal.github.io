@@ -1,0 +1,27 @@
+
+We ask whether module-local ascent on a housekeeping entropy-production proxy, under bounded dynamics and structured input streams, can lead a system to acquire structure-sensitive, predictive dynamics without an externally supplied task loss or end-to-end credit assignment. The risk is that the system finds local dissipative shortcuts: asymmetric attention collapse, self-exciting cycles, or coupling to noise. The bet is that, once trivial dissipative shortcuts are bounded or exhausted, latching onto persistent temporal structure provides the most reliable support for continuing asymmetric delayed flow. We readily admit that the main motivation for this bet is aesthetic. To move beyond aesthetics, we run numerical experiments.
+
+
+\begin{align}
+  D^{*}_{ij,t} = &\frac{\beta J_{ij}(\mathbf{x}_{t})}{1+\gamma_{i,t}} \left(R^2 - \mathbf{m}^{*2}_{j,t} \right) \nonumber\\
+  &- \frac{\beta J_{ij}(\mathbf{x}_{t})}{R^2 \gamma_{i,t} \left( 1 + \gamma_{j,t} \right)} \mathbf{m}^{*2}_{i,t} \nonumber\\
+  &+ \frac{\beta J_{ij}(\mathbf{x}_{t})}{R^4 \gamma_{i,t} \gamma_{j,t}} \left( \mathbf{m}^{*}_{i,t} \cdot \mathbf{m}^{*}_{j,t} \right)^2,
+\end{align}
+
+where
+
+\begin{align}
+  \gamma_{i,t} &= \sqrt{1 + \beta^2 \lVert \mathbf{h}_{i,t} \rVert^2 / R^2 },\\
+  \mathbf{h}_{i,t} &= \mathbf{x}_{i,t} + \mathbf{FFN}\left( \mathbf{x}_{i,t} \right) + \sum_{l} J_{ij} (\mathbf{x}_{t}) \mathbf{m}^{*}_{l,t}.
+\end{align}
+
+> **Waving hands and checking vibes:** Let us try to get a feel for what the final expression looks like using some rough back-of-the-envelope estimations. Assume both vectors $\mathbf{m}^{*}_{i}$ and $\mathbf{m}^{*}_{j}$ have a norm $\mathcal{O}(R)$, then the time-delayed correlations behave approximately like
+\begin{align}
+  D^{*}_{ij,t} \sim \beta J_{ij}(\mathbf{x}_{t}) \cos^2 \alpha_{ij},
+\end{align}
+where $\alpha_{ij}$ denotes the angle between the magnetization vectors. So the entropy production looks approximately like
+\begin{equation}
+  \sigma^{*}_{\mathrm{hk},t} \sim \beta^2 \sum_{ij} \left(J_{ij}^2(\mathbf{x}_{t}) - J_{ij}(\mathbf{x}_{t}) J_{ji}(\mathbf{x}_{t})\right) \cos^2 \alpha_{(i,t)(j,t-1)},
+\end{equation}
+which, in general, is minimized for symmetric coupling matrices or orthogonal embeddings and maximized for fully-asymmetric couplings or (anti-)parallel embeddings.
+But for the softmax attention matrix Eq. \eqref{eq:softmax}, we have additional constraints $J_{ij}(\mathbf{x}_{t}) \geq 0$ as well as a Frobenius norm of $\mathcal{O}(\sqrt{N})$ preventing unbounded growth under maximization. Additionally, imposing a causal mask on the couplings to do autoregressive modeling leads to even more constraints since then the upper triangular part of $J_{ij}(\mathbf{x}_{t})$ is fixed to zero. So it feels like maximizing entropy production for causal softmax couplings promotes some kind of compromise between _sparse attention_ (intuitively, if the upper-triangular part is zero then it is favorable to push most of the lower-triangular elements close to zero as well) and _clustering of embeddings_ (weighted maximization of cosine similarity).

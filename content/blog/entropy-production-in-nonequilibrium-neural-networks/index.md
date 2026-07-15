@@ -40,13 +40,13 @@ projects: []
 
 > **✨ GitHub repository:  [`mcbal/neqnn`](https://github.com/mcbal/neqnn) (work in progress)**
 
-Transformers are powerful driven dynamical systems, yet their internal computation is rarely discussed in terms of nonequilibrium thermodynamics. Building on the dynamical mean-field theory for vector-spin models introduced in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design a minimal parallel transformer-like module whose forward pass implements a controllable quench-and-relax process.
+Transformers are powerful driven dynamical systems, yet their internal computation is rarely discussed in terms of nonequilibrium thermodynamics. Building on the dynamical mean-field theory for vector-spin models introduced in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design a minimal parallel transformer-like module whose forward pass implements a controllable quench-and-relax process. We characterize its dynamical regimes to elucidate a design space of stateless and stateful variations of transformer-like and deep-equilibrium-like architectures and leverage its physics-based architecture to compute differentiable proxies for housekeeping entropy production and post-quench relaxation mismatch.
 
-We characterize its dynamical regimes to elucidate a design space of stateless and stateful variations of transformer-like and deep-equilibrium-like architectures and leverage its physics-based architecture to compute differentiable proxies for housekeeping entropy production and post-quench relaxation mismatch. Our framework provides both a scalable laboratory for nonequilibrium many-body dynamics on hardware accelerators and a testable learning hypothesis.
+The spin-transformer module separates fast state relaxation, changing external drive, and slow parameter learning inside one computable module, making the trade-off between memory, responsiveness, stationary circulation, and adaptation measurable. Our framework provides both a scalable laboratory for nonequilibrium many-body dynamics on modern accelerators and a testable learning hypothesis.
 
-We explore whether a module-local combination of (1) maximizing a housekeeping entropy-production proxy, (2) predicting the next observation-conditioned steady state before the observation arrives, and (3) relaxing locally under the actual observation to correct the prediction and generate a rich teaching signal, can lead a system to acquire structure-sensitive, predictive dynamics without an externally supplied task loss or end-to-end credit assignment. Interestingly, the same neural network can be used as a teacher and as a predictor.
+We explore whether a self-supervised module-local protocol in latent space of (1) predicting the next drive-conditioned steady state before the new drive arrives, and (2) relaxing under the actually observed drive to minimize the estimated post-quench relaxation mismatch, can lead a system to acquire structure-sensitive, predictive dynamics without an externally supplied task loss or global end-to-end credit assignment.
 
-The risk is that the system finds local dissipative shortcuts: asymmetric attention collapse, self-exciting cycles, or coupling to noise. The bet is that, once trivial dissipative shortcuts are bounded or exhausted, latching onto persistent temporal structure while anticipating the next drive-conditioned response to relax to provides an informative local learning signal. We readily admit that the main motivation for this bet is aesthetic. To move beyond aesthetics, we run numerical experiments.
+The risk is that the system finds local dissipative shortcuts: asymmetric attention collapse, self-exciting cycles, or coupling to noise. The bet is that, once trivial dissipative shortcuts are bounded, patched, or exhausted, latching onto temporal structure by anticipating the next drive-conditioned response provides a sufficiently informative local learning signal. We readily admit that the main motivation for this bet is aesthetic. To move beyond aesthetics, we run numerical experiments.
 
 
 # Driving a spin-transformer module
@@ -87,7 +87,9 @@ where $\mathbf{FFN}$ denotes a position-wise feed-forward network, then our earl
 
 where we have pushed down the recurrence into an internal relaxation index $k$ as we reserve $t$ for changes in the external drive. By making the effective drive as well as the couplings depend on the drive $\mathbf{x}_{t}$, a sudden shift $\mathbf{x}_{t} \to \mathbf{x}_{t+1}$ changes both the local fields as well as the interactions and quenches the module into a new instantaneous dynamics[^fn:protocol]. During internal relaxation updates $k$, the drive $\mathbf{x}_{t}$ and the parameters $\boldsymbol{\theta} = \{ \mathbf{W}_{Q}, \mathbf{W}_{K}, \mathbf{FFN} \}$, and therefore the transition rule, are held fixed. (At the stochastic level, the process looks something like $P_{\boldsymbol{\theta}, \mathbf{x}_{t}}(\mathbf{s}_{t, k+1} | \mathbf{s}_{t, k})$.)
 
-We end up with a _highly reconfigurable system_ that is _dynamically shaped by the drive_. Each vector spin effectively experiences a local mean-field that is the sum of a residual stream drive, a feed-forward-like drive, and attention-like couplings. Importantly, these terms are _parameterized_ and can be _shaped through training_: we can control how the system responds, fluctuates, and relaxes after getting quenched. Slow parameter updates then make this responsive system adaptive.
+We end up with a _highly reconfigurable system_ that is _dynamically shaped by the drive_. It is these dynamic drive dependencies that enable encoding subtle correlational structures, even though the system is treated only at mean-field level. Each vector spin effectively experiences a local mean-field that is the sum of a residual stream drive, a feed-forward-like drive, and attention-like couplings. Importantly, these terms contain _parameters_ that can be _shaped through training_: we can _control how the system responds_, fluctuates, and relaxes after getting quenched. Slow parameter updates then make this responsive system adaptive.
+
+> Note that all results in this post are based on the transformer-like architecture derived from a simple first-order `Plefka[t-1,t]` mean-field approximation built around independent models at times $t−1$ and $t$. This is of course not the only possible approximation choice. Different mean-field ansätze will lead to different architectures.
 
 
 ## Building modules: three clocks, slow plasticity, and two relaxation limits
@@ -121,8 +123,8 @@ with two independent design choices: the number of internal relaxation steps $K$
 
 | | Reset or amortized initialization           | Carried initialization                        |
 | -- | --------------------------------- | ----------------------------------------- |
-| **Finite-step regime with $K < \infty$** | finite-depth, stateless, transformer-like module | recurrent stateful module |
-| **Fixed-point regime where $K \to \infty$** | implicit or deep-equilibrium-like (DEQ) module   | identical if the fixed point is unique; path-dependent if mean-field branches coexist                   |
+| **Finite-step regime with $K < \infty$** | finite-depth, stateless, **transformer-like** module | recurrent stateful module |
+| **Fixed-point regime where $K \to \infty$** | implicit or **deep-equilibrium-like** (DEQ) module   | identical if the fixed point is unique; path-dependent if mean-field branches coexist                   |
 
 ### Finite-step regime
 
@@ -140,7 +142,7 @@ In case of a unique fixed point, the initial values $\mathbf{m}_{t, 0}$ are eras
 
 Let us step back for a bit and emphasize that this close resemblance between forward passes acts as a _plausibility bridge_ at this point. It is _not evidence_ that trained transformers literally implement the approximated nonequilibrium thermodynamics scenarios we will cover in the next sections. But the proximity in module architecture space of a minimal spin-transformer to a class of transformers known to scale does at least suggest that transformers may also admit module-level nonequilibrium interpretations.
 
-> **A nonequilibrium picture of autoregressive inference from a quench-and-relax perspective:** a freshly generated token changes the context window and therefore quenches the stack of modules beginning at the bottom, the module relaxes and then drives the next module consecutively all the way to the top where the final magnetizations get mapped to a probability distribution to sample the next token from. The parameters of the stack of modules have been carefully optimized during successive stages of training to implement useful finite-step relaxation.
+> **A nonequilibrium picture of autoregressive inference from a quench-and-relax perspective:** a freshly generated token changes the context window and therefore quenches the stack of modules beginning at the bottom, the module relaxes and then drives the next module consecutively all the way to the top where the final magnetizations get mapped to a probability distribution to sample the next token from. The parameters of the stack of modules have been carefully optimized during successive stages of training to implement useful one-step relaxation.
 
 Even on their own, spin-transformer modules have merit since they turn transformer-like neural networks into computational laboratories for nonequilibrium dynamics that can be executed on modern accelerators at scale. This makes it possible to study large, high-dimensional systems with structured input-dependent couplings, nonstationary data streams, and slowly adapting parameters rather than staying close to analytically tractable toy models. The resulting observables remain mean-field approximations, and must be calibrated against exact stochastic systems at small scale. But once calibrated, the framework offers a route to computational experiments on collective adaptation and irreversible organisation in regimes that are otherwise difficult to access.
 
@@ -156,19 +158,19 @@ We end this section with a cheat sheet mapping concepts between spin-transformer
 
 # Computing differentiable entropy-production proxies
 
-We could stop here, pretrain a spin-transformer model using next-token prediction on chunks of text, and compare evaluation metrics to those of compute-matched vanilla transformers. But let us focus instead on what our framework enables that feels hard to come up with _without_ having access to a nonequilibrium spin-model perspective.
+We could stop here, pretrain a spin-transformer model using next-token prediction on chunks of text, and compare evaluation metrics to those of compute-matched vanilla transformers. But that would be pretty boring. Let us focus instead on what our framework enables that feels hard to come up with _without_ having access to a nonequilibrium spin-model perspective.
 
 In this section, we show how the quench-and-relax process behind the forward pass of a spin-transformer module relates to notions of _irreversibility_. We add just[^fn:lit] enough physical context to introduce differentiable entropy production proxies that we can compute at the same mean-field level as the spin system.
 
 ## Two ways to be irreversible
 
-During the quench-and-relax process we hold the input drive $\mathbf{x}_{t}$ fixed and let the spin system settle. Its average magnetizations $\mathbf{m}_{t}$ may stop changing, but its microscopic dynamics need not become reversible. Asymmetric couplings can sustain circulating probability currents when forward sequences of spin configurations remain more likely than their backward step reversals. We call this source of irreversibility _steady-state irreversibility_. Its entropy-production rate is the running cost of maintaining a nonequilibrium steady state under the current input drive. We can estimate this "housekeeping" entropy production from asymmetric couplings and delayed correlations,
+During the quench-and-relax process we hold the input drive $\mathbf{x}_{t}$ fixed and let the spin system settle. Its average magnetizations $\mathbf{m}_{t}$ may stop changing, but its microscopic dynamics need not become reversible. Asymmetric couplings can sustain circulating probability currents when forward sequences of spin configurations remain more likely than their backward step reversals. We call this source of irreversibility _steady-state irreversibility_. Its entropy-production rate is the running cost of maintaining a nonequilibrium steady state under the current input drive. For our system, we can estimate this "housekeeping" entropy production from asymmetric couplings and delayed correlations,
 
 \begin{equation}
   \sigma^{*}_{\mathrm{hk},t} = \beta \sum_{ij} \left(J_{ij}(\mathbf{x}_{t}) - J_{ji}(\mathbf{x}_{t})\right) D^{*}_{ij,t} , \label{eq:sigma_hk}
 \end{equation}
 
-where $D^{*}_{ij,t}$ denote the one-step delayed correlations evaluated under the stationary one-step joint law. Intuitively, this is like
+where $D^{*}_{ij,t}$ denote the one-step delayed correlations evaluated under the stationary one-step joint. Intuitively, this is like
 
 \begin{equation}
   \sigma^{*}_{\mathrm{hk},t} = \sum_{ij} \left[\operatorname{directionality}\right]_{ij} \times \left[\operatorname{delayed\ flow}\right]_{ij,t}.
@@ -182,7 +184,7 @@ M_{t+1, k} = D_{\mathrm{KL}}\left(p_{t+1,k} \lVert \pi_{t+1} \right),
 \end{equation}
 where $p_{t+1,0} = \pi_{t}$ for a fully relaxed carried-state quench, is a relaxation-irreversibility proxy measuring how far the old response lies from the response required by the new dynamics. The new housekeeping part remains after relaxation while $M_{t+1, k} \to 0$ as the actual distribution relaxes to the new stationary distribution.
 
-> A driven spin-transformer module with asymmetric couplings can thus be irreversible in two ways: by **running a nonequilibrium steady state** and by **catching up after its input drive changes**.
+> A driven spin-transformer module with asymmetric couplings can thus be irreversible in two ways in the quench-and-relax process: the cost of **"running"** a nonequilibrium steady state after relaxation and the **"catching up"** during relaxation after its input drive changes.
 
 ## Mean-field proxy for housekeeping entropy production
 
@@ -218,13 +220,13 @@ Substituting the large-$D$ approximation from [Spin-Model Transformers (2023)](h
   \Sigma_{i,t} \approx \frac{\mathbf{1}_{D}}{1+\gamma_{i,t}} - \frac{\mathbf{m}_{i,t} \mathbf{m}_{i,t}^{T}}{R^2 \gamma_{i,t}},
 \end{align}
 
-we end up with the explicit expression
+we end up with the $(i \leftrightarrow j)$-symmetric explicit expression
 
 \begin{align}
-  D^{*}_{ij,t} = &\frac{\beta J_{ij}(\mathbf{x}_{t}) D}{(1+\gamma^{*}_{i,t})(1+\gamma^{*}_{j,t})} \nonumber\\
-  &- \frac{\beta J_{ij}(\mathbf{x}_{t})}{R^2 \gamma^{*}_{j,t} \left( 1 + \gamma^{*}_{i,t} \right)} \lVert \mathbf{m}^{*}_{j,t} \rVert^2 \nonumber\\
-  &- \frac{\beta J_{ij}(\mathbf{x}_{t})}{R^2 \gamma^{*}_{i,t} \left( 1 + \gamma^{*}_{j,t} \right)} \lVert \mathbf{m}^{*}_{i,t} \rVert^2 \nonumber\\
-  &+ \frac{\beta J_{ij}(\mathbf{x}_{t})}{R^4 \gamma^{*}_{i,t} \gamma^{*}_{j,t}} \left( \mathbf{m}^{*}_{i,t} \cdot \mathbf{m}^{*}_{j,t} \right)^2,
+  C^{*}_{ij,t} = \operatorname{Tr} \left( \Sigma^{*}_{i,t} \Sigma^{*}_{j,t} \right) = &\frac{D}{(1+\gamma^{*}_{i,t})(1+\gamma^{*}_{j,t})} \nonumber\\
+  &- \frac{\lVert \mathbf{m}^{*}_{j,t} \rVert^2}{R^2 \gamma^{*}_{j,t} \left( 1 + \gamma^{*}_{i,t} \right)} \nonumber\\
+  &- \frac{\lVert \mathbf{m}^{*}_{i,t} \rVert^2}{R^2 \gamma^{*}_{i,t} \left( 1 + \gamma^{*}_{j,t} \right)} \nonumber\\
+  &+ \frac{\left( \mathbf{m}^{*}_{i,t} \cdot \mathbf{m}^{*}_{j,t} \right)^2}{R^4 \gamma^{*}_{i,t} \gamma^{*}_{j,t}},
 \end{align}
 
 where
@@ -234,16 +236,105 @@ where
   \mathbf{h}^{*}_{i,t} &= \mathbf{x}_{i,t} + \mathbf{FFN}\left( \mathbf{x}_{i,t} \right) + \sum_{l} J_{ij} (\mathbf{x}_{t}) \mathbf{m}^{*}_{l,t}.
 \end{align}
 
-...
+Since $\gamma^{*} \sim O(1)$, the one-step delayed correlations $D^{*}_{ij,t}$ are dominated by a large angle-independent isotropic contribution $O(D)$ with the other three terms being $O(1)$. The housekeeping entropy production proxy becomes
+
+\begin{equation}
+  \sigma^{*}_{\mathrm{hk},t} \approx \beta^2 \sum_{ij} \left(J_{ij}(\mathbf{x}_{t}) - J_{ji}(\mathbf{x}_{t})\right) J_{ij}(\mathbf{x}_{t}) C^{*}_{ij,t} ,
+\end{equation}
+
+or, using the symmetry of $C^{*}_{ij,t}$,
+
+\begin{equation}
+  \sigma^{*}_{\mathrm{hk},t} \approx \frac{\beta^2}{2} \sum_{ij} \left(J_{ij}(\mathbf{x}_{t}) - J_{ji}(\mathbf{x}_{t})\right)^2 C^{*}_{ij,t} .
+\end{equation}
+
+For unconstrained couplings, the first-order stationary proxy measures squared coupling nonreciprocity, weighted by how strongly the fluctuation spaces of the two sites overlap. Under a strict causal mask, reciprocal off-diagonal pairs are forbidden by construction, and the same expression reduces to a susceptibility-weighted squared norm of the causal attention weights, closely related to attention concentration rather than learned antisymmetry.
+
 
 ## Mean-field proxy for nonadiabatic entropy production
 
-Apply von Mises-Fisher KL divergence expressions...
+The natural distribution for a directional variable $\mathbf u$ on the unit hypersphere $S^{D-1}$ is the von Mises–Fisher distribution,
+
+\begin{equation}q(\mathbf u\mid\boldsymbol\mu,\kappa)=C_D(\kappa)\exp\left(\kappa,\boldsymbol\mu^\top\mathbf u\right),\end{equation}
+
+where $\boldsymbol\mu$ is a unit vector giving the mean direction and $\kappa\geq 0$ is the concentration. For two such distributions $q_a=q(\boldsymbol\mu_a,\kappa_a)$ and $q_b=q(\boldsymbol\mu_b,\kappa_b)$, the KL divergence is
+
+\begin{equation}D_{\mathrm{KL}}(q_a\Vert q_b)=\log\frac{C_D(\kappa_a)}{C_D(\kappa_b)}+A_D(\kappa_a)\left(\kappa_a-\kappa_b\boldsymbol\mu_a^\top\boldsymbol\mu_b\right),\end{equation}
+
+with
+
+\begin{equation}A_D(\kappa)=\frac{I_{D/2}(\kappa)}{I_{D/2-1}(\kappa)}.\end{equation}
+
+The divergence therefore measures both a mismatch in concentration and a mismatch in direction.
+
+In the vector-spin model, the spins have fixed radius $R$, so we write $\mathbf s=R\mathbf u$. The single-site conditional distribution under an effective field $\mathbf h$ is
+
+\begin{equation}q(\mathbf s\mid\mathbf h)\propto\exp\left(\beta,\mathbf h^\top\mathbf s\right)=\exp\left(\beta R\lVert\mathbf h\rVert,\frac{\mathbf h^\top}{\lVert\mathbf h\rVert}\mathbf u\right).\end{equation}
+
+Its vMF parameters are therefore
+
+\begin{equation}\boldsymbol\mu_{\mathbf h}=\frac{\mathbf h}{\lVert\mathbf h\rVert},\qquad \kappa_{\mathbf h}=\beta R\lVert\mathbf h\rVert.\end{equation}
+
+Thus $\boldsymbol\mu$ is not the effective field itself, but its normalized direction. Likewise, the concentration is not generally $\beta$: it combines inverse temperature, spin radius, and field magnitude. Only in the special case $R=1$ and $\lVert\mathbf h\rVert=1$ do we obtain $\boldsymbol\mu=\mathbf h$ and $\kappa=\beta$. The corresponding mean magnetization is
+
+\begin{equation}\mathbf m(\mathbf h)=R A_D(\kappa_{\mathbf h})\boldsymbol\mu_{\mathbf h}.\end{equation}
+
+For the spin-transformer module, the effective field at site $i$, external step $t$, and internal relaxation step $k$ is
+
+\begin{equation}\mathbf h_{i,t,k}=\mathbf x_{i,t}+\operatorname{FFN}(\mathbf x_{i,t})+\sum_j J_{ij}(\mathbf x_t)\mathbf m_{j,t,k-1}.\end{equation}
+
+Each mean-field state therefore defines a factorized vMF approximation,
+
+\begin{equation}q_{t,k}(\mathbf s)=\prod_i q\left(\mathbf s_i\mid\boldsymbol\mu_{i,t,k},\kappa_{i,t,k}\right),\end{equation}
+
+with
+
+\begin{equation}\boldsymbol\mu_{i,t,k}=\frac{\mathbf h_{i,t,k}}{\lVert\mathbf h_{i,t,k}\rVert},\qquad \kappa_{i,t,k}=\beta R\lVert\mathbf h_{i,t,k}\rVert.\end{equation}
+
+If $q_t^\star$ denotes the corresponding frozen-drive fixed-point distribution, the post-quench mean-field mismatch can be monitored through
+
+\begin{equation}M_{t,k}^{\mathrm{MF}}=D_{\mathrm{KL}}\left(q_{t,k}\Vert q_t^\star\right)=\sum_i D_{\mathrm{KL}}\left(q_{i,t,k}\Vert q_{i,t}^\star\right).\end{equation}
+
+This quantity compares the system’s current directional and concentration state with the stationary mean-field response associated with the current drive. It approaches zero as the mean-field state relaxes to that fixed point. In the zero-field case, $\kappa=0$ and the vMF distribution is uniform, so its mean direction is irrelevant.
+
+Explicitly, the single-site contribution comparing the current state $q_{i,t,k}$ with the frozen-drive fixed-point state $q_{i,t}^{\star}$ is
+
+\begin{equation}D_{\mathrm{KL}}\left(q_{i,t,k}\Vert q_{i,t}^{\star}\right)=\log\frac{C_D(\kappa_{i,t,k})}{C_D(\kappa_{i,t}^{\star})}+A_D(\kappa_{i,t,k})\left(\kappa_{i,t,k}-\kappa_{i,t}^{\star}(\boldsymbol\mu_{i,t,k})^\top\boldsymbol\mu_{i,t}^{\star}\right).\end{equation}
+
+Substituting $\boldsymbol\mu_{\mathbf h}=\mathbf h/\lVert\mathbf h\rVert$ and $\kappa_{\mathbf h}=\beta R\lVert\mathbf h\rVert$ gives the equivalent effective-field expression
+
+\begin{equation}D_{\mathrm{KL}}\left(q_{\mathbf h_a}\Vert q_{\mathbf h_b}\right)=\log\frac{C_D(\beta R\lVert\mathbf h_a\rVert)}{C_D(\beta R\lVert\mathbf h_b\rVert)}+\beta R A_D(\beta R\lVert\mathbf h_a\rVert)\left(\lVert\mathbf h_a\rVert-\frac{\mathbf h_a^\top\mathbf h_b}{\lVert\mathbf h_a\rVert}\right).\end{equation}
+
+Here $\mathbf h_a$ parameterizes the distribution in the first argument of the KL divergence and $\mathbf h_b$ parameterizes the reference distribution in the second argument. The original vMF form above remains well defined when $\mathbf h_a=\mathbf 0$, in which case $\kappa_a=0$ and its mean direction is irrelevant.
+
+In the large-vector-dimension limit, we again set $R^2=D/2-1$ and introduce
+
+\begin{equation}\gamma_{\mathbf h}=\sqrt{1+\frac{\beta^2\lVert\mathbf h\rVert^2}{R^2}}.\end{equation}
+
+Using the leading large-$D$ magnetization response $\mathbf m_{\mathbf h}\approx\beta\mathbf h/(1+\gamma_{\mathbf h})$, the KL divergence becomes
+
+\begin{equation}D_{\mathrm{KL}}^{D\to\infty}\left(q_{\mathbf h_a}\Vert q_{\mathbf h_b}\right)\approx\frac{\beta^2\left(\lVert\mathbf h_a\rVert^2-\mathbf h_a^\top\mathbf h_b\right)}{1+\gamma_{\mathbf h_a}}+R^2\left(\gamma_{\mathbf h_b}-\gamma_{\mathbf h_a}-\log\frac{1+\gamma_{\mathbf h_b}}{1+\gamma_{\mathbf h_a}}\right).\end{equation}
+
+The same expression can be written entirely in terms of the corresponding magnetizations. The large-$D$ response can be inverted as
+
+\begin{equation}
+\mathbf{h}\approx\frac{2R^2}{\beta\left(R^2-\lVert\mathbf{m}\rVert^2\right)}\mathbf{m},\qquad \lVert\mathbf{m}\rVert < R. \end{equation}
+
+Substitution gives the magnetization-only form
+
+\begin{equation}D_{\mathrm{KL}}^{D\to\infty}\left(q_{\mathbf m_a}\Vert q_{\mathbf m_b}\right)\approx R^2\log\frac{R^2-\lVert\mathbf m_b\rVert^2}{R^2-\lVert\mathbf m_a\rVert^2}+\frac{2R^2\left(\lVert\mathbf m_b\rVert^2-\mathbf m_a^\top\mathbf m_b\right)}{R^2-\lVert\mathbf m_b\rVert^2}.\end{equation}
+
+For the post-quench relaxation considered here, $\mathbf m_a=\mathbf m_{i,t,k}$ is the current magnetization and $\mathbf m_b=\mathbf m_{i,t}^{\star}$ is the instantaneous fixed-point magnetization. The full factorized mean-field mismatch is therefore
+
+\begin{equation}M_{t,k}^{\mathrm{MF}}\approx\sum_i\left[R^2\log\frac{R^2-\lVert\mathbf m_{i,t}^{\star}\rVert^2}{R^2-\lVert\mathbf m_{i,t,k}\rVert^2}+\frac{2R^2\left(\lVert\mathbf m_{i,t}^{\star}\rVert^2-\mathbf m_{i,t,k}^\top\mathbf m_{i,t}^{\star}\right)}{R^2-\lVert\mathbf m_{i,t}^{\star}\rVert^2}\right].\end{equation}
+
+This expression is asymmetric, as required for a KL divergence. It vanishes when $\mathbf m_{i,t,k}=\mathbf m_{i,t}^{\star}$ at every site and penalizes both differences in magnetization norm and angular misalignment with the frozen-drive fixed-point response.
+
 
 
 # A local self-supervised learning rule
 
-In this section, we show how the quench-and-relax picture also point to a local self-supervised learning rule. Instead of adding a separate prediction network, we use the same relaxation dynamics of the spin-transformer module forward pass both to anticipate the next response and to incorporate the next observation. Prediction and then correcting-the-prediction are two runs of the same spin dynamics under different clamping patterns, only the source and timing of the drives change.
+In this section, we show how the quench-and-relax intuition points to a local self-supervised learning rule. Instead of adding a separate prediction network, we use the same relaxation dynamics of the spin-transformer module forward pass to both anticipate the next response and to incorporate the next observation. Prediction and then correcting-the-prediction are two runs of the same spin dynamics under different clamping patterns where only the source and timing of the drives change.
 
 
 ## A module-local prediction-and-relaxation protocol
@@ -256,7 +347,7 @@ Before the next observation is available, we construct a predictive drive
 
 \begin{equation}\mathbf{x}^{-}_{t+1\mid t},\end{equation}
 
-containing only information available at time \(t\). For a rolling context window, this could be the shifted current context with the not-yet-observed positions masked, nulled, or left unclamped. In a closed-loop setting, it may additionally contain the action applied at time \(t\). Constructing this drive is an interface protocol, not a separate learned predictor.
+containing only information available at time \(t\). For a rolling context window, this could be the shifted current context with the not-yet-observed positions masked, nulled, or left unclamped. In a closed-loop setting, it may additionally contain the action applied at time \(t\). Constructing this drive is an _interface protocol_, not a separate learned predictor.
 
 Starting from the current response \(\mathbf{m}^{*}_{t}\), we apply the same module dynamics for a finite prediction horizon \(K_{\mathrm{pred}}\):
 
@@ -278,21 +369,17 @@ At the stochastic level, let \(\widehat{p}_{t+1\mid t}\) denote the distribution
 
 \begin{equation}M^{-}_{t+1}=D_{\mathrm{KL}}\left(\widehat{p}_{t+1\mid t}\,\middle\|\,\pi_{t+1}\right).\end{equation}
 
-This is the same kind of mismatch used to characterize post-quench relaxation, except that the initial distribution is no longer simply the previous steady state \(\pi_t\). It is now a learned prediction generated by the module's own finite-step dynamics:
+This is the same kind of mismatch we used in the previous section to characterize post-quench relaxation, except that the initial distribution is now a learned prediction generated by the module's own finite-step dynamics. At the mean-field level, the corresponding local learning objective can be approximated using the single-site von Mises--Fisher marginals associated with the predictive and corrected magnetizations:
 
-\begin{equation}p_{t+1,0}=\widehat{p}_{t+1\mid t}\qquad\text{rather than}\qquad p_{t+1,0}=\pi_t.\end{equation}
+\begin{equation}\mathcal{L}^{\mathrm{pred}}_{t}=\sum_iD_{\mathrm{KL}}\left[q_i\left(\mathbf{s}_i;\mathbf{m}^{-}_{i,t+1}\right)\,\middle\|\,\operatorname{sg}q_i\left(\mathbf{s}_i;\mathbf{m}^{*}_{i,t+1}\right)\right],\end{equation}
 
-At the mean-field level, the corresponding local learning objective can be approximated using the single-site von Mises--Fisher marginals associated with the predictive and corrected magnetizations:
+where \(\operatorname{sg}\) denotes stop-gradient. The fixed-point response under the newly observed drive acts as a self-supervised target, while gradients are applied only through the finite-step prediction computed before that drive was available.
 
-\begin{equation}\mathcal{L}^{\mathrm{pred}}_{t}=\sum_iD_{\mathrm{KL}}\left[q_i\left(\mathbf{s}_i;\mathbf{m}^{-}_{i,t+1}\right)\,\middle\|\,\operatorname{sg}q_i\left(\mathbf{s}_i;\mathbf{m}^{*}_{i,t+1}\right)\right].\end{equation}
-
-Here, \(\operatorname{sg}\) denotes stop-gradient. The fixed-point response under the newly observed drive acts as a self-supervised target, while gradients are applied only through the finite-step prediction computed before that drive was available.
-
-Because the mean-field approximation factorizes over sites, the objective supplies a local teaching signal for every spin position or module:
+Because the mean-field approximation factorizes over sites, the objective supplies a local teaching signal for every spin position:
 
 \begin{equation}\mathcal{L}^{\mathrm{pred}}_{i,t}=D_{\mathrm{KL}}\left[q_i\left(\mathbf{s}_i;\mathbf{m}^{-}_{i,t+1}\right)\,\middle\|\,\operatorname{sg}q_i\left(\mathbf{s}_i;\mathbf{m}^{*}_{i,t+1}\right)\right].\end{equation}
 
-The target is local in module index and in external time: a module is trained using its own corrected response at the next drive step, without propagating gradients through a long sequence of earlier drive changes. Nevertheless, the corrected target may contain the result of globally coupled relaxation through the other spin positions.
+A module is trained using its own corrected response at the next drive step, without propagating gradients through a long sequence of earlier drive changes. Nevertheless, the corrected target may contain the result of globally coupled relaxation through the other spin positions.
 
 The resulting protocol is
 
@@ -304,13 +391,7 @@ The outer optimizer then updates the parameters on the slow clock,
 
 This objective does more than train the module to reach its own same-drive fixed point quickly. The predictive state is computed before \(\mathbf{x}_{t+1}\) is known, while the target is generated after the environment supplies genuinely new information. The module is therefore trained to use its existing state and dynamics to anticipate the effect of the next drive.
 
-There is one important design constraint. If the prediction phase holds the drive fixed at \(\mathbf{x}_t\), then
-
-\begin{equation}F_{\boldsymbol{\theta}_{n}}\left(\mathbf{x}_{t},\mathbf{m}^{*}_{t}\right)=\mathbf{m}^{*}_{t},\end{equation}
-
-and the system cannot evolve because it is already at a fixed point. Prediction therefore requires releasing, masking, shifting, or otherwise changing some part of the drive before \(\mathbf{x}_{t+1}\) arrives. This change is not an additional neural network; it specifies which environmental variables are clamped and which variables the spin system is being asked to predict.
-
-The prediction phase should generally remain finite-step rather than itself being taken to a fixed point. Finite-step evolution retains information about the carried state and gives the external clock a computational role. By contrast, relaxing to a unique prediction-phase fixed point could erase temporal information and reduce the predictor to a stationary input-conditioned response.
+> If the prediction phase holds the drive fixed at \(\mathbf{x}_t\), then $F_{\boldsymbol{\theta}_{n}}\left(\mathbf{x}_{t},\mathbf{m}^{*}_{t}\right)=\mathbf{m}^{*}_{t}$, and the system cannot evolve because it is already at a fixed point. Prediction therefore requires releasing, masking, shifting, or otherwise changing some part of the drive before \(\mathbf{x}_{t+1}\) arrives. This change is not an additional neural network; it specifies which environmental variables are clamped and which variables the spin system is being asked to predict. The prediction phase should also generally remain finite-step rather than itself being taken to a fixed point. Finite-step evolution retains information about the carried state and gives the external clock a computational role. By contrast, relaxing to a unique prediction-phase fixed point could erase temporal information and reduce the predictor to a stationary input-conditioned response.
 
 
 ## A collective prediction-and-relaxation protocol
