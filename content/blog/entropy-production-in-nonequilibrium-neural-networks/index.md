@@ -11,7 +11,7 @@ authors:
 tags: ["Artificial Intelligence", "Associative Memories", "Attention", "Cybernetics", "Deep Learning", "Dynamical Systems", "Entropy Production", "Ising Models", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Near-Equilibrium Dynamics", "Nonequilibrium Dynamics", "Quench Dynamics", "Relaxation", "Self-Organizing Computational Stability", "Statistical Physics", "Steady State", "Stochastic Thermodynamics", "Transformers", "Vector-Spin Models"]
 categories: []
 date: 2026-02-02T09:28:17+01:00
-lastmod: 2026-07-13T08:30:41+01:00
+lastmod: 2026-07-15T08:30:41+01:00
 featured: false
 draft: false
 toc: true
@@ -40,7 +40,13 @@ projects: []
 
 > **✨ GitHub repository:  [`mcbal/neqnn`](https://github.com/mcbal/neqnn) (work in progress)**
 
-Transformers are powerful driven dynamical systems, yet their internal computation is rarely discussed in terms of nonequilibrium thermodynamics. Building on [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design a minimal parallel transformer-like module whose forward pass implements a controllable quench-and-relax process. We characterize its dynamical regimes to elucidate a design space of stateless and stateful variations of transformer-like and deep-equilibrium-like architectures and leverage its physics-based architecture to compute differentiable proxies for entropy production. This provides both a scalable laboratory for nonequilibrium many-body dynamics on hardware accelerators and a testable learning hypothesis.
+Transformers are powerful driven dynamical systems, yet their internal computation is rarely discussed in terms of nonequilibrium thermodynamics. Building on the dynamical mean-field theory for vector-spin models introduced in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design a minimal parallel transformer-like module whose forward pass implements a controllable quench-and-relax process.
+
+We characterize its dynamical regimes to elucidate a design space of stateless and stateful variations of transformer-like and deep-equilibrium-like architectures and leverage its physics-based architecture to compute differentiable proxies for housekeeping entropy production and post-quench relaxation mismatch. Our framework provides both a scalable laboratory for nonequilibrium many-body dynamics on hardware accelerators and a testable learning hypothesis.
+
+We explore whether a module-local combination of (1) maximizing a housekeeping entropy-production proxy, (2) predicting the next observation-conditioned steady state before the observation arrives, and (3) relaxing locally under the actual observation to correct the prediction and generate a rich teaching signal, can lead a system to acquire structure-sensitive, predictive dynamics without an externally supplied task loss or end-to-end credit assignment. Interestingly, the same neural network can be used as a teacher and as a predictor.
+
+The risk is that the system finds local dissipative shortcuts: asymmetric attention collapse, self-exciting cycles, or coupling to noise. The bet is that, once trivial dissipative shortcuts are bounded or exhausted, latching onto persistent temporal structure while anticipating the next drive-conditioned response to relax to provides an informative local learning signal. We readily admit that the main motivation for this bet is aesthetic. To move beyond aesthetics, we run numerical experiments.
 
 
 # Driving a spin-transformer module
@@ -233,6 +239,83 @@ where
 ## Mean-field proxy for nonadiabatic entropy production
 
 Apply von Mises-Fisher KL divergence expressions...
+
+
+# A local self-supervised learning rule
+
+In this section, we show how the quench-and-relax picture also point to a local self-supervised learning rule. Instead of adding a separate prediction network, we use the same relaxation dynamics of the spin-transformer module forward pass both to anticipate the next response and to incorporate the next observation. Prediction and then correcting-the-prediction are two runs of the same spin dynamics under different clamping patterns, only the source and timing of the drives change.
+
+
+## A module-local prediction-and-relaxation protocol
+
+Assume that the module has relaxed under the current drive \(\mathbf{x}_t\), producing fixed-point magnetizations
+
+\begin{equation}\mathbf{m}^{*}_{t}=\lim_{K\rightarrow\infty}F^{K}_{\boldsymbol{\theta}_{n}}\left(\mathbf{x}_{t},\mathbf{m}_{t,0}\right).\end{equation}
+
+Before the next observation is available, we construct a predictive drive
+
+\begin{equation}\mathbf{x}^{-}_{t+1\mid t},\end{equation}
+
+containing only information available at time \(t\). For a rolling context window, this could be the shifted current context with the not-yet-observed positions masked, nulled, or left unclamped. In a closed-loop setting, it may additionally contain the action applied at time \(t\). Constructing this drive is an interface protocol, not a separate learned predictor.
+
+Starting from the current response \(\mathbf{m}^{*}_{t}\), we apply the same module dynamics for a finite prediction horizon \(K_{\mathrm{pred}}\):
+
+\begin{equation}\mathbf{m}^{-}_{t+1}=F^{K_{\mathrm{pred}}}_{\boldsymbol{\theta}_{n}}\left(\mathbf{x}^{-}_{t+1\mid t},\mathbf{m}^{*}_{t}\right).\end{equation}
+
+The superscript \({-}\) indicates that this state is computed before observing the new drive \(\mathbf{x}_{t+1}\). It is the response that the existing spin dynamics predict from the information available at time \(t\).
+
+When the next observation arrives, it supplies the actual drive \(\mathbf{x}_{t+1}\) and quenches the system again. Starting from the predictive state, the module relaxes according to
+
+\begin{align}\mathbf{m}^{+}_{t+1,k+1}&=F_{\boldsymbol{\theta}_{n}}\left(\mathbf{x}_{t+1},\mathbf{m}^{+}_{t+1,k}\right),\\\mathbf{m}^{+}_{t+1,0}&=\mathbf{m}^{-}_{t+1},\end{align}
+
+until it reaches
+
+\begin{equation}\mathbf{m}^{*}_{t+1}=\lim_{K\rightarrow\infty}F^{K}_{\boldsymbol{\theta}_{n}}\left(\mathbf{x}_{t+1},\mathbf{m}^{-}_{t+1}\right).\end{equation}
+
+The same parameterized couplings, feed-forward field, and mean-field response function are therefore used in both phases. Prediction and correction differ only in the drive presented to the system and in the number of internal relaxation steps allocated.
+
+At the stochastic level, let \(\widehat{p}_{t+1\mid t}\) denote the distribution represented by the predictive state \(\mathbf{m}^{-}_{t+1}\), and let \(\pi_{t+1}\) denote the instantaneous stationary distribution selected after the actual drive \(\mathbf{x}_{t+1}\) is applied. A natural predictive mismatch is then
+
+\begin{equation}M^{-}_{t+1}=D_{\mathrm{KL}}\left(\widehat{p}_{t+1\mid t}\,\middle\|\,\pi_{t+1}\right).\end{equation}
+
+This is the same kind of mismatch used to characterize post-quench relaxation, except that the initial distribution is no longer simply the previous steady state \(\pi_t\). It is now a learned prediction generated by the module's own finite-step dynamics:
+
+\begin{equation}p_{t+1,0}=\widehat{p}_{t+1\mid t}\qquad\text{rather than}\qquad p_{t+1,0}=\pi_t.\end{equation}
+
+At the mean-field level, the corresponding local learning objective can be approximated using the single-site von Mises--Fisher marginals associated with the predictive and corrected magnetizations:
+
+\begin{equation}\mathcal{L}^{\mathrm{pred}}_{t}=\sum_iD_{\mathrm{KL}}\left[q_i\left(\mathbf{s}_i;\mathbf{m}^{-}_{i,t+1}\right)\,\middle\|\,\operatorname{sg}q_i\left(\mathbf{s}_i;\mathbf{m}^{*}_{i,t+1}\right)\right].\end{equation}
+
+Here, \(\operatorname{sg}\) denotes stop-gradient. The fixed-point response under the newly observed drive acts as a self-supervised target, while gradients are applied only through the finite-step prediction computed before that drive was available.
+
+Because the mean-field approximation factorizes over sites, the objective supplies a local teaching signal for every spin position or module:
+
+\begin{equation}\mathcal{L}^{\mathrm{pred}}_{i,t}=D_{\mathrm{KL}}\left[q_i\left(\mathbf{s}_i;\mathbf{m}^{-}_{i,t+1}\right)\,\middle\|\,\operatorname{sg}q_i\left(\mathbf{s}_i;\mathbf{m}^{*}_{i,t+1}\right)\right].\end{equation}
+
+The target is local in module index and in external time: a module is trained using its own corrected response at the next drive step, without propagating gradients through a long sequence of earlier drive changes. Nevertheless, the corrected target may contain the result of globally coupled relaxation through the other spin positions.
+
+The resulting protocol is
+
+\begin{align}\text{current response:}\qquad\mathbf{m}^{*}_{t}&=\operatorname{sg} \left( \operatorname{FP}_{\boldsymbol{\theta}_{n}}\left(\mathbf{x}_{t},\mathbf{m}_{t,0}\right)\right),\\[1mm]\text{finite-step prediction:}\qquad\mathbf{m}^{-}_{t+1}&=F^{K_{\mathrm{pred}}}_{\boldsymbol{\theta}_{n}}\left(\mathbf{x}^{-}_{t+1\mid t},\mathbf{m}^{*}_{t}\right),\\[1mm]\text{observation-conditioned correction:}\qquad\mathbf{m}^{*}_{t+1}&=\operatorname{sg}\left(\operatorname{FP}_{\boldsymbol{\theta}_{n}}\left(\mathbf{x}_{t+1},\mathbf{m}^{-}_{t+1}\right)\right),\\[1mm]\text{local learning:}\qquad\mathcal{L}^{\mathrm{pred}}_{t}&=\sum_iD_{\mathrm{KL}}\left[q_i\left(\mathbf{m}^{-}_{i,t+1}\right)\,\middle\|\,\operatorname{sg}q_i\left(\mathbf{m}^{*}_{i,t+1}\right)\right].\end{align}
+
+The outer optimizer then updates the parameters on the slow clock,
+
+\begin{equation}\boldsymbol{\theta}_{n+1}=\boldsymbol{\theta}_{n}-\eta\nabla_{\boldsymbol{\theta}_{n}}\mathcal{L}^{\mathrm{pred}}_{t}.\end{equation}
+
+This objective does more than train the module to reach its own same-drive fixed point quickly. The predictive state is computed before \(\mathbf{x}_{t+1}\) is known, while the target is generated after the environment supplies genuinely new information. The module is therefore trained to use its existing state and dynamics to anticipate the effect of the next drive.
+
+There is one important design constraint. If the prediction phase holds the drive fixed at \(\mathbf{x}_t\), then
+
+\begin{equation}F_{\boldsymbol{\theta}_{n}}\left(\mathbf{x}_{t},\mathbf{m}^{*}_{t}\right)=\mathbf{m}^{*}_{t},\end{equation}
+
+and the system cannot evolve because it is already at a fixed point. Prediction therefore requires releasing, masking, shifting, or otherwise changing some part of the drive before \(\mathbf{x}_{t+1}\) arrives. This change is not an additional neural network; it specifies which environmental variables are clamped and which variables the spin system is being asked to predict.
+
+The prediction phase should generally remain finite-step rather than itself being taken to a fixed point. Finite-step evolution retains information about the carried state and gives the external clock a computational role. By contrast, relaxing to a unique prediction-phase fixed point could erase temporal information and reduce the predictor to a stationary input-conditioned response.
+
+
+## A collective prediction-and-relaxation protocol
+
+A module's boundary is its gradient boundary.
 
 
 # Numerical experiments
