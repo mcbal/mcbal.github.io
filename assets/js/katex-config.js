@@ -1,5 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   const labels = new Map();
+  const equationLabels = new Map();
+
+  const equationId = (label) => `equation-${label}`;
 
   const collectLabels = (root) => {
     const text = root.textContent;
@@ -18,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const label = labelMatch[1];
         if (!labels.has(label)) {
           labels.set(label, equationNumber);
+          equationLabels.set(label, equationNumber);
         }
       }
       equationNumber += 1;
@@ -48,13 +52,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const nodes = [];
     while (walker.nextNode()) nodes.push(walker.currentNode);
     for (const node of nodes) {
-      node.nodeValue = node.nodeValue
-        .replace(/\\eqref\{([^}]+)\}/g, (_match, label) => renderReference(label, true))
-        .replace(/\\ref\{([^}]+)\}/g, (_match, label) => renderReference(label, false));
+      const fragment = document.createDocumentFragment();
+      const reference = /\\(eq)?ref\{([^}]+)\}/g;
+      let lastIndex = 0;
+      let match;
+
+      while ((match = reference.exec(node.nodeValue)) !== null) {
+        fragment.append(node.nodeValue.slice(lastIndex, match.index));
+
+        const [, eqref, label] = match;
+        const number = renderReference(label, Boolean(eqref));
+        if (labels.has(label)) {
+          const link = document.createElement("a");
+          link.href = `#${equationId(label)}`;
+          link.className = "equation-reference";
+          link.textContent = number;
+          link.setAttribute("aria-label", `Equation ${labels.get(label)}`);
+          fragment.append(link);
+        } else {
+          fragment.append(number);
+        }
+
+        lastIndex = reference.lastIndex;
+      }
+
+      fragment.append(node.nodeValue.slice(lastIndex));
+      node.replaceWith(fragment);
     }
   };
-
-  replaceTextReferences(document.body);
 
   window.renderMathInElement(document.body, {
     delimiters: [
@@ -71,26 +96,51 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/\\DeclareMathOperator\*?\{\\argmin\}\{arg\\,min\}/g, "")
       .replace(/\\argmin/g, "\\operatorname*{arg\\,min}")
       .replace(/\\label\{[^}]+\}/g, "")
-      .replace(/\\eqref\{([^}]+)\}/g, (_match, label) => `\\text{${renderReference(label, true)}}`)
-      .replace(/\\ref\{([^}]+)\}/g, (_match, label) => `\\text{${renderReference(label, false)}}`),
+      .replace(/\\eqref\{([^}]+)\}/g, (_match, label) => labels.has(label)
+        ? `\\href{#${equationId(label)}}{\\text{${renderReference(label, true)}}}`
+        : `\\text{${renderReference(label, true)}}`)
+      .replace(/\\ref\{([^}]+)\}/g, (_match, label) => labels.has(label)
+        ? `\\href{#${equationId(label)}}{\\text{${renderReference(label, false)}}}`
+        : `\\text{${renderReference(label, false)}}`),
+    trust: (context) => context.command === "\\href" && context.url.startsWith("#equation-"),
     throwOnError: false,
   });
 
+  replaceTextReferences(document.body);
+
   const displayMath = document.querySelectorAll(".katex-display");
+  for (const [label, equationNumber] of equationLabels) {
+    const equation = displayMath[equationNumber - 1];
+    if (equation) equation.id = equationId(label);
+  }
+
   const updateMathOverflow = (element) => {
     const renderedMath = element.querySelector(".katex-html");
     if (!renderedMath) return;
 
-    const range = document.createRange();
-    range.selectNodeContents(renderedMath);
-    const mathBounds = range.getBoundingClientRect();
+    // Measure KaTeX's default centered layout. In the scrolling layout the tag
+    // is made static, which would otherwise make subsequent measurements lie.
+    element.classList.remove("is-overflowing");
+
     const containerBounds = element.getBoundingClientRect();
-    const tolerance = 2;
+    const tag = renderedMath.querySelector(".tag");
+    const tagBounds = tag?.getBoundingClientRect();
+    const equationBounds = Array.from(renderedMath.querySelectorAll(".base"))
+      .map((base) => base.getBoundingClientRect());
+    const safetyMargin = 12;
+
+    const touchesTag = tagBounds && equationBounds.some((bounds) => (
+      bounds.right + safetyMargin > tagBounds.left
+        && bounds.left < tagBounds.right + safetyMargin
+    ));
+    const approachesEdge = equationBounds.some((bounds) => (
+      bounds.left < containerBounds.left + safetyMargin
+        || bounds.right > containerBounds.right - safetyMargin
+    ));
 
     element.classList.toggle(
       "is-overflowing",
-      mathBounds.left < containerBounds.left - tolerance
-        || mathBounds.right > containerBounds.right + tolerance,
+      approachesEdge || touchesTag,
     );
   };
 

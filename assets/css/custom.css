@@ -42,6 +42,7 @@ body {
 }
 
 .prose .katex-display {
+  scroll-margin-top: calc(var(--navbar-height) + 1rem);
   max-width: 100%;
   overflow-x: clip;
   overflow-y: hidden;
