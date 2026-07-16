@@ -1,0 +1,22 @@
+{
+  "name": "mcbal",
+  "short_name": "mcbal",
+  "description": "Matthias Bal's personal website and technical blog on machine learning, statistical physics, and computational modeling.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
