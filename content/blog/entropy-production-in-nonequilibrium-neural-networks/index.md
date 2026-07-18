@@ -173,7 +173,7 @@ M_{t+1, k} = D_{\mathrm{KL}}\left(p_{t+1,k} \lVert \pi_{t+1} \right),\label{eq:v
 
 is a relaxation-irreversibility proxy measuring post-quench relaxation mismatch. During relaxation under a fixed transition rule, its decrease can be related to _nonadiabatic entropy production_. The new housekeeping part remains after relaxation while $M_{t+1, k} \to 0$ as the actual distribution relaxes to the new stationary distribution.
 
-> A driven spin-transformer module with asymmetric couplings can thus be irreversible in two ways in the quench-and-relax process: the cost of **"running"** a nonequilibrium steady state after relaxation and the **"catching up"** during relaxation after its input drive changes.
+> A driven spin-transformer module with asymmetric couplings can thus be irreversible in two ways in the quench-and-relax process: the cost of **"running"** a nonequilibrium steady state after relaxation and the **"catching up"** during relaxation after its input drive changes. Housekeeping entropy production measures sustained asymmetric circulation under a fixed drive, mismatch measures the relaxation still required after a drive change.
 
 ## Mean-field proxy for housekeeping entropy production
 
@@ -183,9 +183,7 @@ Evaluating Eq. \eqref{eq:sigma_hk} at the mean-field level (see Appendix A) lead
   \sigma^{\star}_{\mathrm{hk},t} \approx \frac{\beta^2}{2} \sum_{ij} \left(J_{ij}(\mathbf{X}_{t}) - J_{ji}(\mathbf{X}_{t})\right)^2 C^{\star}_{ij,t} ,
 \end{equation}
 
-where $C^{\star}_{ij,t} = \operatorname{Tr} \left( \Sigma^{\star}_{i,t} \Sigma^{\star}_{j,t} \right) \geq 0$ with $\Sigma_{i,t,k} = \operatorname{Cov} \left[ s_{i,t,k} \right]$ denoting the single-site covariances / susceptibilities. The trace captures which directions on the vector-spin sphere are still available to fluctuate. If a spin is weakly magnetized, it has many soft directions. If it is strongly magnetized, many directions are suppressed because the spin is pinned close to its mean direction.
-
-For unconstrained couplings, the proxy measures squared coupling nonreciprocity, weighted by how strongly the fluctuation spaces of the two sites overlap. Under a strict causal mask, reciprocal off-diagonal pairs are forbidden by construction, and the same expression reduces to a susceptibility-weighted squared norm of the causal attention weights, measuring attention concentration rather than learned antisymmetry.
+where $C^{\star}_{ij,t} = \operatorname{Tr} \left( \Sigma^{\star}_{i,t} \Sigma^{\star}_{j,t} \right) \geq 0$ with $\Sigma_{i,t,k} = \operatorname{Cov} \left[ s_{i,t,k} \right]$ denoting the single-site covariances / susceptibilities. For unconstrained couplings, the proxy measures squared coupling nonreciprocity, weighted by how strongly the fluctuation spaces of the two sites overlap. Under a strict causal mask, reciprocal off-diagonal pairs are forbidden by construction, and the same expression reduces to a susceptibility-weighted squared norm of the causal attention weights, measuring attention concentration rather than learned antisymmetry.
 
 
 ## Mean-field proxy for post-quench relaxation mismatch
