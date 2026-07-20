@@ -78,7 +78,7 @@ and a _parameterized position-wise non-linear drive-dependent field_ $f_{\boldsy
 
 By making the effective drive as well as the couplings depend on the drive $\mathbf{X}_{t}$, a sudden shift $\mathbf{X}_{t} \to \mathbf{X}_{t+1}$ changes both the local fields as well as the interactions and quenches the system into a new instantaneous dynamics[^fn:protocol]. During internal relaxation iterations, the drive $\mathbf{X}_{t}$ and the parameters $\boldsymbol{\theta} = \{ \mathbf{W}_{Q}, \mathbf{W}_{K}, \boldsymbol{\theta}_{\mathrm{FFN}} \}$ are held fixed.
 
-> **Approximation stack:** At the stochastic level, the process looks something like $P_{\boldsymbol{\theta}, \mathbf{X}_{t}}(\mathbf{S}_{t, k+1} | \mathbf{S}_{t, k}) = \prod^{N}_{i=1} \frac{\operatorname{exp}\left[\beta \mathbf{s}_{j,t,k+1} \cdot \mathbf{h}_{i,t,k} \right]}{Z\left(\mathbf{h}_{i,t,k}\right)}$ with effective field $\mathbf{h}_{i,t,k} = \mathbf{x}_{i,t} + f_{\boldsymbol{\theta}_{\mathrm{FFN}}}\left( \mathbf{x}_{i,t} \right) + \sum_{j} J_{ij} (\mathbf{X}_{t}) \mathbf{s}_{j,t,k}$ and single-site normalization constant $Z\left(\mathbf{h}\right)$. The product-form kernel assumes parallel, conditionally independent site updates. An asynchronous spin process would need a different kernel and should not be conflated with this one. The stochastic process is the thermodynamic object, and the magnetization recurrence used as the neural-network module is a Plefka mean-field approximation to its one-point dynamics. In the next sections, we will, among other quantities, discuss deterministic mean-field fixed-point magnetizations $\mathbf{M}^{\star}_{t}(\mathbf{X}_{t})$ which approximate one-point marginals of the stochastic steady state $\pi_{\mathbf{X_{t}}}$. It is useful to keep these levels of approximation in the back of your mind.
+> **Approximation stack:** At the stochastic level, the process looks something like $P_{\boldsymbol{\theta}, \mathbf{X}_{t}}(\mathbf{S}_{t, k+1} | \mathbf{S}_{t, k}) = \prod^{N}_{i=1} \frac{\operatorname{exp}\left[\beta \mathbf{s}_{i,t,k+1} \cdot \mathbf{h}_{i,t,k} \right]}{Z\left(\mathbf{h}_{i,t,k}\right)}$ with effective field $\mathbf{h}_{i,t,k} = \mathbf{x}_{i,t} + f_{\boldsymbol{\theta}_{\mathrm{FFN}}}\left( \mathbf{x}_{i,t} \right) + \sum_{j} J_{ij} (\mathbf{X}_{t}) \mathbf{s}_{j,t,k}$ and single-site normalization constant $Z\left(\mathbf{h}\right)$. The product-form kernel assumes parallel, conditionally independent site updates. An asynchronous spin process would need a different kernel and should not be conflated with this one. The stochastic process is the thermodynamic object, and the magnetization recurrence used as the neural-network module is a Plefka mean-field approximation to its one-point dynamics. In the next sections, we will, among other quantities, discuss deterministic mean-field fixed-point magnetizations $\mathbf{M}^{\star}_{t}(\mathbf{X}_{t})$ which approximate one-point marginals of the stochastic steady state $\pi_{\mathbf{X_{t}}}$. It is useful to keep these levels of approximation in the back of your mind.
 
 We end up with a _highly reconfigurable system_ that is _dynamically shaped by the drive_. These drive dependencies enable the mean-field system to encode subtle correlational structures. The system's _parameters_ can be _shaped through training_ in an outer optimization loop to make an already responsive system adaptive by controlling how the system responds, fluctuates, and relaxes after a quench.
 
@@ -128,7 +128,7 @@ In this regime, $\tau_{\mathrm{relax}} \ll \tau_{\mathrm{drive}}$ so we consider
 
 In case of a unique fixed point, the initial values $\mathbf{M}_{t, 0}$ are erased, and the module is stateless. But the deterministic mean-field equations may admit multiple stable fixed-point branches or basins. Warm-starting with $\mathbf{M}_{t, 0} = \mathbf{M}^{\star}_{t-1}$ can then produce path-dependent branch selection and hysteresis behavior.
 
-> The fixed-point regime has a simple sufficient stability condition that is directly related to the module's fluctuations. The Jacobian eigenvalues of the radial mean-field update map $\phi_{\beta}$ introduced in Eq. \eqref{eq:paralleltransformer} reveal that the map is globally contractive whenever $\beta/2<1$ for a nonnegative row-stochastic attention matrix. (For other couplings, a additional coupling norm factor appears.) In this regime the frozen drive selects a unique fixed point. Above the threshold, convergence may still occur, but uniqueness, absence of cycles, and initialization independence are no longer guaranteed.
+> The fixed-point regime has a simple sufficient stability condition that is directly related to the module's fluctuations. One can show that the Jacobian eigenvalues of the radial mean-field update map $\phi_{\beta}$ introduced in Eq. \eqref{eq:paralleltransformer} reveal that the map is globally contractive whenever $\rho_{t} = \beta J_{t} /2<1$ with $J_{t} = \operatorname{max}_{i}\sum_{j}\left|J_{ij,t}\right|$. (For non-scalar couplings, a operator coupling norm factor appears instead.) In this regime the frozen drive selects a unique fixed point. For $\rho_{t} \geq 1$, convergence may still occur, but uniqueness, absence of cycles, and initialization independence are no longer guaranteed.
 
 
 ## On the connection to transformers
@@ -137,13 +137,14 @@ The resemblance to a transformer forward pass should be understood as a _plausib
 
 We end this section with a cheat sheet mapping concepts between spin-model transformer modules and transformer modules.
 
-| spin-model transformer module           | Transformer module                        |
+| Spin-model analogue           | Transformer component                        |
 | --------------------------------- | ----------------------------------------- |
 | Local drives $\mathbf{x}_{i,t}$   | Module input    |
 | "The drive" $\mathbf{X}_{t}$      | Current context window                    |
 | Saturation of magnetization map $\varphi_{\beta}$   | Bounded response nonlinearity; analogous to normalization or gating                    |
 | Parameterized couplings $J_{ij}$  | Attention matrix                          |
 | Learned amortized initializer $\mathbf{M}_{t, 0} = \mathbf{X}_{t}\mathbf{W}_{V}$  | Amortized initial state; analogous to a value stream                          |
+| Head-specific coupling matrices $J^{(h)}(\mathbf{X}_{t})$ acting on separate subspaces or parallel vector-spin systems  | Multihead attention                          |
 | Magnetizations $\mathbf{m}_{i,t}$ | Internal state and module output   |
 
 
