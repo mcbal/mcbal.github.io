@@ -2,8 +2,8 @@
 # Documentation: https://wowchemy.com/docs/managing-content/
 
 title: "Nonequilibrium Dynamics in Spin-Model Transformers"
-subtitle: "A design space for quench-and-relax architectures, with an entropy budget"
-summary: "A design space for quench-and-relax architectures, with an entropy budget"
+subtitle: "A design space for controllable quench-and-relax architectures"
+summary: "A design space for controllable quench-and-relax architectures"
 aliases:
   - /post/entropy-production-in-non-equilibrium-neural-networks/
   - /post/entropy-production-in-nonequilibrium-neural-networks/
@@ -399,7 +399,6 @@ For the post-quench relaxation considered here, $\mathbf m_a=\mathbf m_{i,t,k}$ 
 
 This expression is asymmetric, as required for a KL divergence. It vanishes when $\mathbf m_{i,t,k}=\mathbf m_{i,t}^{\star}$ at every site and penalizes both differences in magnetization norm and angular misalignment with the frozen-drive fixed-point response.
 
----
 
 # Footnotes
 

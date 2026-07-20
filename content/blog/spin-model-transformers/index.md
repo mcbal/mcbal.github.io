@@ -1302,7 +1302,6 @@ which evaluates to
 
 and can be used to calculate derivatives of the conditional distribution \eqref{eq:pcondaltvector}.
 
----
 
 # Footnotes
 

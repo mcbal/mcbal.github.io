@@ -164,3 +164,26 @@ body {
 .prose .appendix-details[open] {
   padding-bottom: 1.25rem;
 }
+
+/* The typography preset gives h1 no top margin while spacing smaller
+   headings progressively farther away. Keep section spacing hierarchical. */
+.article-content > h1:not(:first-child) {
+  margin-top: 3rem;
+}
+
+/* A thematic break already supplies its own vertical separation. */
+.article-content > hr + h1 {
+  margin-top: 0;
+}
+
+.article-content > h2:not(:first-child) {
+  margin-top: 2.5rem;
+}
+
+.article-content > h3:not(:first-child) {
+  margin-top: 2rem;
+}
+
+.article-content > h4:not(:first-child) {
+  margin-top: 1.5rem;
+}
