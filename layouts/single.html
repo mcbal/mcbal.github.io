@@ -334,7 +334,7 @@
       </div>
       {{ end }}
 
-      <div class="prose prose-slate lg:prose-lg dark:prose-invert" data-pagefind-body>
+      <div class="article-content prose prose-slate lg:prose-lg dark:prose-invert" data-pagefind-body>
         {{ with .Section }}
           <span data-pagefind-filter="type" style="display:none;">{{ . }}</span>
         {{ end }}
@@ -343,6 +343,9 @@
         {{ end }}
         {{ .Content }}
       </div>
+
+      {{ $appendix_js := resources.Get "js/appendix-collapse.js" | minify | fingerprint }}
+      <script src="{{ $appendix_js.RelPermalink }}" integrity="{{ $appendix_js.Data.Integrity }}" defer></script>
 
       <div class="container mx-auto prose prose-slate lg:prose-lg dark:prose-invert mt-5">
         {{ .Scratch.Set "invert_pager" true }}

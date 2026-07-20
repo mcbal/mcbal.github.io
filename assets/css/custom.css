@@ -121,3 +121,46 @@ body {
 .prose code:not(:where(pre *))::after {
   content: none !important;
 }
+
+.prose .appendix-details {
+  margin: 2.5rem 0 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  padding: 0 1.25rem;
+}
+
+.dark .prose .appendix-details {
+  border-color: #334155;
+  background: #1e293b;
+}
+
+.prose .appendix-summary {
+  cursor: pointer;
+  color: #0f172a;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.35;
+  padding: 1rem 0;
+}
+
+.dark .prose .appendix-summary {
+  color: #f1f5f9;
+}
+
+.prose .appendix-summary::marker {
+  color: var(--color-primary-600);
+}
+
+.prose .appendix-heading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.prose .appendix-details[open] {
+  padding-bottom: 1.25rem;
+}
