@@ -41,7 +41,7 @@ projects: []
 
 > **✨ GitHub repository:  [`mcbal/neqnn`](https://github.com/mcbal/neqnn) (work in progress)**
 
-Transformers are powerful driven dynamical systems, yet their internal computation is rarely discussed in terms of nonequilibrium thermodynamics. Building on the dynamical mean-field theory framework developed in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design a minimal parallel transformer-like module whose forward pass implements a controllable quench-and-relax process, separating out fast state relaxation, changing external drive, and slow parameter learning.
+Transformers are powerful driven dynamical systems, yet their internal computation is rarely discussed in terms of nonequilibrium thermodynamics. Building on the dynamical mean-field theory framework developed in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design a minimal parallel transformer-like module whose forward pass performs one or more mean-field updates following a drive quench, separating out fast state relaxation, changing external drive, and slow parameter learning.
 
 We characterize the spin-model transformer module's dynamical regimes to map out a design space of stateless and stateful variations of transformer-like and deep-equilibrium-like architectures and leverage its spin-model backing to compute differentiable proxies for housekeeping entropy production and post-quench relaxation mismatch. The spin-model transformer module acts as a controllable laboratory in which architectural dynamics, irreversibility diagnostics, and candidate local learning protocols can be studied together.
 
@@ -52,7 +52,7 @@ In this section we design a minimal spin-model transformer module whose forward 
 
 ## A minimal controllable drive-conditioned system
 
-> In [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/) we showed how to apply dynamical mean-field theory to approximate the time-dependent behavior of asymmetric vector-spin models. We started from a spin system of $N$ vector spins $\mathbf{s}_{i,t} \in \mathbb{R}^{D}$ talking to each other via an $N \times N$ pairwise coupling matrix $J_{ij}$ with the underlying parallel-updates stochastic dynamics characterized by a discrete-time Markov chain transition probability. External magnetic fields $\mathbf{x}_{i,t} \in \mathbb{R}^{D}$ bias the vector spins and act as local drives. We use the notation $\mathbf{X}_{t} \in \mathbb{R}^{N \times D}$ and $\mathbf{M}_{t,k} \in \mathbb{R}^{N \times D}$ to refer to matrices of stacked vectors.
+> In [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/) we showed how to apply dynamical mean-field theory to approximate the time-dependent behavior of asymmetric vector-spin models. We started from a spin system of $N$ vector spins $\mathbf{s}_{i,t} \in \mathbb{R}^{D}$ talking to each other via an $N \times N$ pairwise coupling matrix $J_{ij}$ with the underlying synchronous parallel-updates stochastic dynamics characterized by a discrete-time Markov chain transition probability. External magnetic fields $\mathbf{x}_{i,t} \in \mathbb{R}^{D}$ bias the vector spins and act as local drives. We use the notation $\mathbf{X}_{t} \in \mathbb{R}^{N \times D}$ and $\mathbf{M}_{t,k} \in \mathbb{R}^{N \times D}$ to refer to matrices of stacked vectors.
 
 <img src="vector_spins.png" alt="Random Ising model configuration with vector spins" width="250px"/>
 
@@ -78,7 +78,7 @@ and a _parameterized position-wise non-linear drive-dependent field_ $f_{\boldsy
 
 By making the effective drive as well as the couplings depend on the drive $\mathbf{X}_{t}$, a sudden shift $\mathbf{X}_{t} \to \mathbf{X}_{t+1}$ changes both the local fields as well as the interactions and quenches the system into a new instantaneous dynamics[^fn:protocol]. During internal relaxation iterations, the drive $\mathbf{X}_{t}$ and the parameters $\boldsymbol{\theta} = \{ \mathbf{W}_{Q}, \mathbf{W}_{K}, \boldsymbol{\theta}_{\mathrm{FFN}} \}$ are held fixed.
 
-> **Approximation stack:** At the stochastic level, the process looks something like $P_{\boldsymbol{\theta}, \mathbf{X}_{t}}(\mathbf{s}_{t, k+1} | \mathbf{s}_{t, k})$. In the next sections, we will, among other quantities, discuss deterministic mean-field fixed-point magnetizations $\mathbf{M}^{\star}_{t}(\mathbf{X}_{t})$ which approximate one-point marginals of the stochastic steady state $\pi_{\mathbf{X_{t}}}$. It is useful to keep these levels of approximation in the back of your mind.
+> **Approximation stack:** At the stochastic level, the process looks something like $P_{\boldsymbol{\theta}, \mathbf{X}_{t}}(\mathbf{S}_{t, k+1} | \mathbf{S}_{t, k}) = \prod^{N}_{i=1} \frac{\operatorname{exp}\left[\beta \mathbf{s}_{j,t,k+1} \cdot \mathbf{h}_{i,t,k} \right]}{Z\left(\mathbf{h}_{i,t,k}\right)}$ with effective field $\mathbf{h}_{i,t,k} = \mathbf{x}_{i,t} + f_{\boldsymbol{\theta}_{\mathrm{FFN}}}\left( \mathbf{x}_{i,t} \right) + \sum_{j} J_{ij} (\mathbf{X}_{t}) \mathbf{s}_{j,t,k}$ and single-site normalization constant $Z\left(\mathbf{h}\right)$. The product-form kernel assumes parallel, conditionally independent site updates. An asynchronous spin process would need a different kernel and should not be conflated with this one. The stochastic process is the thermodynamic object, and the magnetization recurrence used as the neural-network module is a Plefka mean-field approximation to its one-point dynamics. In the next sections, we will, among other quantities, discuss deterministic mean-field fixed-point magnetizations $\mathbf{M}^{\star}_{t}(\mathbf{X}_{t})$ which approximate one-point marginals of the stochastic steady state $\pi_{\mathbf{X_{t}}}$. It is useful to keep these levels of approximation in the back of your mind.
 
 We end up with a _highly reconfigurable system_ that is _dynamically shaped by the drive_. These drive dependencies enable the mean-field system to encode subtle correlational structures. The system's _parameters_ can be _shaped through training_ in an outer optimization loop to make an already responsive system adaptive by controlling how the system responds, fluctuates, and relaxes after a quench.
 
@@ -120,13 +120,16 @@ with two independent design choices: the number of internal relaxation steps $K$
 
 In this regime, only $K < \infty$ internal updates are allocated before the next quench, which may reflect genuine competition between relaxation and drive timescales, or simply deliberate computational truncation as in recent looped and recursive-reasoning approaches. The intuition here is that the system tracks a moving family of instantaneous stationary marginals with potentially nonzero lag. In this regime, there can be no strong separation between drive and relaxation if approaching the steady state takes more than $K$ steps. But, since the module is controllable, the outer loop can nudge the module's parameters $\boldsymbol{\theta}_{n}$ towards more efficient and useful relaxation.
 
-The initialization $\mathbf{M}_{t, 0} = \mathbf{M}_{t-1, K}$ makes the module architecture genuinely recurrent and stateful, but with a full context window of hidden states, situating it somewhere in between recurrent neural networks and transformers. Another option is to warm-start with a learned amortized initializer $\mathbf{M}_{t, 0} = \mathbf{X}_{t}\mathbf{W}_{V}$ for the post-quench relaxation, which estimates the drive-conditioned response to which the module should relax. If weinterpret these initializations as a _value stream_, then, for $K=1$, the forward pass looks like a parallel transformer block.
+The initialization $\mathbf{M}_{t, 0} = \mathbf{M}_{t-1, K}$ makes the module architecture genuinely recurrent and stateful, but with a full context window of hidden states, situating it somewhere in between recurrent neural networks and transformers. Another option is to warm-start with a learned amortized initializer $\mathbf{M}_{t, 0} = \mathbf{X}_{t}\mathbf{W}_{V}$ for the post-quench relaxation, which estimates the drive-conditioned response to which the module should relax. If we interpret these initializations as a _value stream_, then, for $K=1$, the forward pass looks like a parallel transformer block.
 
 ### Fixed-point regime
 
 In this regime, $\tau_{\mathrm{relax}} \ll \tau_{\mathrm{drive}}$ so we consider $\mathbf{X}_{t}$ clamped and let $K \to \infty$ until the deterministic mean-field equations converge to fixed-point magnetizations $\mathbf{M}^{\star}_{t}(\mathbf{X}_{t})$ compatible with the frozen drive $\mathbf{X}_{t}$. These values approximate the mean-field marginals of the frozen-drive nonequilibrium steady state (NESS). The intuition here is that the clamped input fixes an instantaneous stochastic transition rule. Although its one-point marginals become stationary, asymmetric couplings can sustain probability currents and positive entropy production beneath those stationary marginals.
 
 In case of a unique fixed point, the initial values $\mathbf{M}_{t, 0}$ are erased, and the module is stateless. But the deterministic mean-field equations may admit multiple stable fixed-point branches or basins. Warm-starting with $\mathbf{M}_{t, 0} = \mathbf{M}^{\star}_{t-1}$ can then produce path-dependent branch selection and hysteresis behavior.
+
+> The fixed-point regime has a simple sufficient stability condition that is directly related to the module's fluctuations. The Jacobian eigenvalues of the radial mean-field update map $\phi_{\beta}$ introduced in Eq. \eqref{eq:paralleltransformer} reveal that the map is globally contractive whenever $\beta/2<1$ for a nonnegative row-stochastic attention matrix. (For other couplings, a additional coupling norm factor appears.) In this regime the frozen drive selects a unique fixed point. Above the threshold, convergence may still occur, but uniqueness, absence of cycles, and initialization independence are no longer guaranteed.
+
 
 ## On the connection to transformers
 
@@ -170,15 +173,15 @@ Now we quench again. After changing the input drive abruptly, $\mathbf{X}_{t} \t
 \Delta_{t+1, k} = D_{\mathrm{KL}}\left(p_{t+1,k} \lVert \pi_{t+1} \right),\label{eq:vmfkl}
 \end{equation}
 
-is a relaxation-irreversibility proxy measuring post-quench relaxation mismatch. During relaxation under a fixed transition rule, its decrease can be related to _nonadiabatic entropy production_. The new housekeeping part remains after relaxation while $\Delta_{t+1, k} \to 0$ as the actual distribution relaxes to the new stationary distribution.
+measures how far the current distribution remains from the stationary distribution selected by the new frozen drive. The new housekeeping part remains after relaxation while $\Delta_{t+1, k} \to 0$ as the actual distribution relaxes to the new stationary distribution. At the exact Markov-process level, its decrease under a fixed transition rule is associated with nonadiabatic entropy production. Below, we replace both distributions by factorized mean-field approximations and use the resulting quantity as a diagnostic of post-quench lag.
 
-A driven spin-model transformer module with asymmetric couplings can thus be irreversible in two ways in the quench-and-relax process: the cost of **"running"** a nonequilibrium steady state after relaxation and the **"catching up"** during relaxation after its input drive changes. Housekeeping entropy production measures sustained asymmetric circulation under a fixed drive while mismatch measures the relaxation still required after a drive change.
+A driven spin-model transformer module with asymmetric couplings can thus be approximately measured in two ways during the quench-and-relax process: the cost of **"running"** a nonequilibrium steady state after relaxation and the **"catching up"** during relaxation after its input drive changes. Housekeeping entropy production measures sustained asymmetric circulation under a fixed drive while mismatch measures the relaxation still required after a drive change.
 
-> Intuitively, every quench-and-relax cycle we have an "entropy budget"
+> **Allocating budgets:** Intuitively (at the level of the exact dynamics, not necessarily at the mean-field level), every quench-and-relax cycle has an "entropy budget"
 \begin{equation}
-\Sigma_{\mathrm{cycle}} \approx \sum^{K}_{k=1} \sigma_{\mathrm{tot},t,k} = \underbrace{\sum^{K}_{k=1} \sigma_{\mathrm{hk},t,k}}_{\text{rent, transient state}} +  \underbrace{\left( \Delta_{t,0} - \Delta_{t,K} \right)}_{\text{moving costs}}
+\Sigma_{\mathrm{cycle}} \approx \sum^{K}_{k=1} \sigma_{\mathrm{tot},t,k} = \underbrace{\sum^{K}_{k=1} \sigma_{\mathrm{hk},t,k}}_{\text{rent, transient rate}} +  \underbrace{\left( \Delta_{t,0} - \Delta_{t,K} \right)}_{\text{moving costs}}
 \end{equation}
-where the transient housekeeping $\sigma_{\mathrm{hk},t,k} = \sigma_{\mathrm{tot},t,k} - (\Delta_{t,k} - \Delta_{t,k+1})$. The neural-network modules defined in the corners of the design space of the previous section allocate this "entropy budget" differently depending on the number of internal relaxation steps. The DEQ corner ($K \to \infty$) fully pays off the "moving costs" every cycle and then just pays rent. The transformer corner ($K=1$ with amortized initialization) barely pays rent and then runs a permanent nonadiabatic deficit by chasing a moving target. With a carried state, we can potentially reduce the opening balance of the next cyle.
+where the transient housekeeping $\sigma_{\mathrm{hk},t,k} = \sigma_{\mathrm{tot},t,k} - (\Delta_{t,k} - \Delta_{t,k+1})$ can be obtained from the transient delayed correlations $D_{ij,t,k}$ (see Appendix A). The neural-network modules defined in the corners of the design space of the previous section allocate this "entropy budget" differently depending on the number of internal relaxation steps. The DEQ corner ($K \to \infty$) fully pays off the "moving costs" every cycle and then just pays rent. The transformer corner ($K=1$ with amortized initialization) barely pays rent and then carries residual mismatch into the next drive change. Looping layers pays off moving costs. With a carried state or a well-tuned amortized initializer, we can potentially reduce the opening balance of the next cycle.
 
 
 ## Mean-field proxy for housekeeping entropy production
@@ -219,7 +222,22 @@ Prediction and correction are two runs of the same dynamics under different clam
 ## Closed-loop adaptive behavior
 
 
+# Discussion and related work
+
+**Stochastic thermodynamics of driven steady states:** ...
+
+**Dynamical mean-field theory for asymmetric spin systems:** ...
+
+**Recurrent-depth and implicit neural computation:** ...
+
+**Prediction, physical learning, and driven adaptation:** ...
+
+
 # Conclusion and outlook
+...
+
+Use the mismatch measure $\Delta_{t, k}$ as a halting signal: relaxing until mismatch drops below threshold turns the relaxation horizon $K$ into adaptive test-time compute.
+
 ...
 
 The same protocol extends naturally to collections of modules. A detached output from one module can serve as a time-dependent boundary condition for another, so modules can alternately act as system and environment. This would turn the single-module prediction–correction cycle into a sequence of local quenches through a layered or recurrent collective. We leave that extension until the behavior of the single-module objective is understood.
@@ -246,11 +264,11 @@ If you happen to find this work useful, please consider citing it as:
 
 ```
 @article{bal2026,
-  title   = {Entropy Production in Nonequilibrium Neural Networks},
+  title   = {Nonequilibrium Dynamics in Spin-Model Transformers},
   author  = {Bal, Matthias},
   year    = {2026},
   month   = {?},
-  url     = {https://mcbal.github.io/post/entropy-production-in-nonequilibrium-neural-networks/}
+  url     = {https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/}
 }
 ```
 
