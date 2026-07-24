@@ -12,7 +12,7 @@ authors:
 tags: ["Artificial Intelligence", "Associative Memories", "Attention", "Cybernetics", "Deep Learning", "Dynamical Systems", "Entropy Production", "Ising Models", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Near-Equilibrium Dynamics", "Nonequilibrium Dynamics", "Quench Dynamics", "Relaxation", "Self-Organizing Computational Stability", "Statistical Physics", "Steady State", "Stochastic Thermodynamics", "Transformers", "Vector-Spin Models"]
 categories: []
 date: 2026-02-02T09:28:17+01:00
-lastmod: 2026-07-20T08:30:41+01:00
+lastmod: 2026-07-24T08:30:41+01:00
 featured: false
 draft: false
 toc: true
@@ -41,9 +41,9 @@ projects: []
 
 > **✨ GitHub repository:  [`mcbal/neqnn`](https://github.com/mcbal/neqnn) (work in progress)**
 
-Transformers are powerful driven dynamical systems, yet their internal computation is rarely discussed in terms of nonequilibrium thermodynamics. Building on the dynamical mean-field theory framework developed in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design a minimal parallel transformer-like module whose forward pass performs one or more mean-field updates following a drive quench, separating out fast state relaxation, changing external drive, and slow parameter learning.
+Transformers are powerful driven dynamical systems, yet their internal computation is rarely discussed in terms of nonequilibrium thermodynamics. Building on a dynamical mean-field theory framework developed for vector-spin models in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design a minimal parallel transformer-like module whose forward pass performs one or more mean-field updates following a drive quench, separating out the processes of fast state relaxation, changing external drive, and slow parameter learning.
 
-We characterize the spin-model transformer module's dynamical regimes to map out a design space of stateless and stateful variations of transformer-like and deep-equilibrium-like architectures and leverage its spin-model backing to compute differentiable proxies for housekeeping entropy production and post-quench relaxation mismatch. The spin-model transformer module acts as a controllable laboratory in which architectural dynamics, irreversibility diagnostics, and candidate local learning protocols can be studied together.
+We characterize the module's dynamical regimes to map out a design space of stateless and stateful variations of transformer-like and deep-equilibrium-like architectures and leverage its spin-model backing to compute differentiable proxies for housekeeping entropy production and post-quench relaxation mismatch. In this way, a spin-model transformer module can act as a mean-field nonequilibrium laboratory in which architectural dynamics, irreversibility diagnostics, and candidate (online) local learning protocols can be studied together. We run numerical experiments to validate the mean-field proxies and explore recurrent stateful architectures.
 
 
 # Driving a spin-model transformer module
@@ -62,7 +62,7 @@ Our vector-spin system of interest is defined by a first-order `Plefka[t-1,t]`[^
   \mathbf{m}_{i,t,k+1} = \varphi_{\beta} \left( \mathbf{h}_{i,t,k} \right) = \frac{\beta \mathbf{h}_{i,t,k}}{1+\sqrt{1+\beta^2 \lVert \mathbf{h}_{i,t,k} \rVert^2 / R^2 }}, \label{eq:paralleltransformer}
 \end{equation}
 
-where $\beta$ denotes the inverse temperature and $R^2=D/2 -1$ is a natural large-$D$ hyperspherical length scale[^fn:largedlim]. The effective field
+where $\beta$ denotes the inverse temperature and $R^2=D/2 -1$ is a length scale choice in the large-$D$ approximation[^fn:largedlim]. The effective field
 
 \begin{equation}
 \mathbf{h}_{i,t,k} = \mathbf{x}_{i,t} + f_{\boldsymbol{\theta}_{\mathrm{FFN}}}\left( \mathbf{x}_{i,t} \right) + \sum_{j} J_{ij} (\mathbf{X}_{t}) \mathbf{m}_{j,t,k}
@@ -113,7 +113,7 @@ with two independent design choices: the number of internal relaxation steps $K$
 
 | | Reset or amortized initialization           | Carried initialization                        |
 | -- | --------------------------------- | ----------------------------------------- |
-| **Finite-step regime with $K < \infty$** | finite-depth, stateless, **transformer-like** module | recurrent stateful module |
+| **Finite-step regime with $K < \infty$** | finite-depth, stateless, **transformer-like** module | **recurrent stateful module** |
 | **Fixed-point regime where $K \to \infty$** | implicit or **deep-equilibrium-like** (DEQ) module   | identical if the fixed point is unique; path-dependent if mean-field branches coexist                   |
 
 ### Finite-step regime
@@ -133,28 +133,28 @@ In case of a unique fixed point, the initial values $\mathbf{M}_{t, 0}$ are eras
 
 ## On the connection to transformers
 
-The resemblance to a transformer forward pass should be understood as a _plausibility bridge_, not as evidence that trained transformers literally implement the nonequilibrium thermodynamics developed below. In the spin-model transformer module, a change in context quenches a drive-dependent transition rule; one or a few relaxation steps give a finite-depth transformer-like computation, while convergence gives an implicit or deep-equilibrium-like module. The practical value of this correspondence is that it turns transformer-shaped architectures into accelerator-friendly laboratories for driven many-body dynamics with structured, learnable couplings. Their mean-field observables must first be calibrated against exact stochastic systems at small scale, but the architectural mapping provides a route to controlled experiments beyond analytically tractable toy models.
+The resemblance to a transformer forward pass should be understood as a _plausibility bridge_, not as evidence that trained transformers literally implement the nonequilibrium thermodynamics picture developed in this post. In a spin-model transformer module, a change in context quenches a drive-dependent transition rule, then one or a few relaxation steps give a finite-depth transformer-like computation, while convergence gives an implicit or deep-equilibrium-like module. The practical value of this correspondence is that it turns transformer-shaped architectures into accelerator-friendly laboratories for driven many-body dynamics with structured, learnable couplings. Their mean-field observables must first be calibrated against exact stochastic systems at small scale, but the architectural mapping provides a route to controlled experiments beyond analytically tractable toy models.
 
 We end this section with a cheat sheet mapping concepts between spin-model transformer modules and transformer modules.
 
 | Spin-model analogue           | Transformer component                        |
 | --------------------------------- | ----------------------------------------- |
-| Local drives $\mathbf{x}_{i,t}$   | Module input    |
+| Local drives $\mathbf{x}_{i,t}$   | Module inputs    |
 | "The drive" $\mathbf{X}_{t}$      | Current context window                    |
 | Saturation of magnetization map $\varphi_{\beta}$   | Bounded response nonlinearity; analogous to normalization or gating                    |
 | Parameterized couplings $J_{ij}$  | Attention matrix                          |
-| Learned amortized initializer $\mathbf{M}_{t, 0} = \mathbf{X}_{t}\mathbf{W}_{V}$  | Amortized initial state; analogous to a value stream                          |
+| Learned amortized initializer $\mathbf{M}_{t, 0} = \mathbf{X}_{t}\mathbf{W}_{V}$  | Amortized initial state analogous to _values_ in QKV attention                         |
 | Head-specific coupling matrices $J^{(h)}(\mathbf{X}_{t})$ acting on separate subspaces or parallel vector-spin systems  | Multihead attention                          |
-| Magnetizations $\mathbf{m}_{i,t}$ | Internal state and module output   |
+| Magnetizations $\mathbf{m}_{i,t}$ | Internal state and module outputs   |
 
 
 # Steady-state circulation and post-quench mismatch
 
-In this section, we show how the quench-and-relax process behind the forward pass of a spin-model transformer module relates to notions of _irreversibility_. We add just[^fn:lit] enough physical context to introduce and motivate differentiable proxies for housekeeping entropy production and post-quench relaxation mismatch, which we can compute at the same mean-field level as the spin-system dynamics.
+In this section, we show how the quench-and-relax process behind the forward pass of a spin-model transformer module relates to notions of _irreversibility_. We provide just[^fn:lit] enough physical context to introduce and motivate differentiable proxies for housekeeping entropy production and post-quench relaxation mismatch, both of which we can compute at the same mean-field level as the spin-model dynamics.
 
 ## Quench-and-relax protocol
 
-During relaxation after a quench we hold the input drive $\mathbf{X}_{t}$ fixed and let the spin system settle. The average magnetizations $\mathbf{M}_{t}$ may stop changing, but its microscopic dynamics need not become reversible. Asymmetric couplings can sustain circulating probability currents when forward sequences of spin configurations remain more likely than their backward step reversals. We call this source of irreversibility _steady-state irreversibility_. Its entropy-production rate is the running cost of maintaining a nonequilibrium steady state under the current input drive. For our system, we can estimate this "housekeeping" entropy production from asymmetric couplings and delayed correlations (a vector-spin translation of [Aguilera et al., 2020](https://arxiv.org/abs/2002.04309)),
+During relaxation after a quench we hold the input drive $\mathbf{X}_{t}$ fixed and let the spin system settle. The average magnetizations $\mathbf{M}_{t}$ may stop changing, but its microscopic dynamics need not become reversible. Indeed, asymmetric couplings can sustain circulating probability currents when forward sequences of spin configurations remain more likely than their backward step reversals. We call this source of irreversibility _steady-state irreversibility_. Its entropy-production rate is the running cost of maintaining a nonequilibrium steady state under the current input drive. For our system, we can estimate this "housekeeping" entropy production from asymmetric couplings and delayed correlations (a vector-spin generalization of [Aguilera et al., 2020](https://arxiv.org/abs/2002.04309)),
 
 \begin{equation}
   \sigma^{\star}_{\mathrm{hk},t} = \beta \sum_{ij} \left(J_{ij}(\mathbf{X}_{t}) - J_{ji}(\mathbf{X}_{t})\right) D^{\star}_{ij,t} , \label{eq:sigma_hk}
@@ -174,11 +174,11 @@ Now we quench again. After changing the input drive abruptly, $\mathbf{X}_{t} \t
 \Delta_{t+1, k} = D_{\mathrm{KL}}\left(p_{t+1,k} \lVert \pi_{t+1} \right),\label{eq:vmfkl}
 \end{equation}
 
-measures how far the current distribution remains from the stationary distribution selected by the new frozen drive. The new housekeeping part remains after relaxation while $\Delta_{t+1, k} \to 0$ as the actual distribution relaxes to the new stationary distribution. At the exact Markov-process level, its decrease under a fixed transition rule is associated with nonadiabatic entropy production. Below, we replace both distributions by factorized mean-field approximations and use the resulting quantity as a diagnostic of post-quench lag.
+measures how far the current distribution remains from the stationary distribution selected by the new frozen drive. The new housekeeping part remains after relaxation while $\Delta_{t+1, k} \to 0$ as the actual distribution relaxes to the new stationary distribution. At the exact Markov-process level, its decrease under a fixed transition rule is associated with _nonadiabatic entropy production_. Below, we replace both distributions by factorized mean-field approximations and use the resulting KL-divergence as a diagnostic of post-quench lag.
 
 A driven spin-model transformer module with asymmetric couplings can thus be approximately measured in two ways during the quench-and-relax process: the cost of **"running"** a nonequilibrium steady state after relaxation and the **"catching up"** during relaxation after its input drive changes. Housekeeping entropy production measures sustained asymmetric circulation under a fixed drive while mismatch measures the relaxation still required after a drive change.
 
-> **Allocating budgets:** Intuitively (at the level of the exact dynamics, not necessarily at the mean-field level), every quench-and-relax cycle has an "entropy budget"
+> **An exercise in handfwaving and allocating entropy budgets:** Intuitively (at the level of the exact dynamics, not necessarily at the mean-field level), every quench-and-relax cycle has an "entropy budget"
 \begin{equation}
 \Sigma_{\mathrm{cycle}} \approx \sum^{K}_{k=1} \sigma_{\mathrm{tot},t,k} = \underbrace{\sum^{K}_{k=1} \sigma_{\mathrm{hk},t,k}}_{\text{rent, transient rate}} +  \underbrace{\left( \Delta_{t,0} - \Delta_{t,K} \right)}_{\text{moving costs}}
 \end{equation}
@@ -187,25 +187,27 @@ where the transient housekeeping $\sigma_{\mathrm{hk},t,k} = \sigma_{\mathrm{tot
 
 ## Mean-field proxy for housekeeping entropy production
 
-Evaluating Eq. \eqref{eq:sigma_hk} at the mean-field level (see Appendix A) leads to
+Evaluating Eq. \eqref{eq:sigma_hk} at the mean-field level (see [Appendix A](#appendix-a-mean-field-delayed-correlations-and-housekeeping-entropy-production)) leads to
 
 \begin{equation}
   \sigma^{\star}_{\mathrm{hk},t} \approx \frac{\beta^2}{2} \sum_{ij} \left(J_{ij}(\mathbf{X}_{t}) - J_{ji}(\mathbf{X}_{t})\right)^2 C^{\star}_{ij,t} ,
 \end{equation}
 
-where $C^{\star}_{ij,t} = \operatorname{Tr} \left( \Sigma^{\star}_{i,t} \Sigma^{\star}_{j,t} \right) \geq 0$ with $\Sigma_{i,t,k} = \operatorname{Cov} \left[ s_{i,t,k} \right]$ denoting the single-site covariances / susceptibilities. The latter is dominated by a $O(D)$ contribution that is angle-independent, so the proxy may mostly reflect coupling magnitudes and susceptibility rather than representational geometry, which is captured in subleading $O(1)$ terms. For unconstrained couplings, the proxy measures squared coupling nonreciprocity, weighted by how strongly the fluctuation spaces of the two sites overlap. Under strict _causal masking_, however, _pairwise nonreciprocity is largely enforced by the architecture_. The proxy then behaves more like a susceptibility-weighted attention-concentration statistic than a measurement of learned antisymmetry.
+where $C^{\star}_{ij,t} = \operatorname{Tr} \left( \Sigma^{\star}_{i,t} \Sigma^{\star}_{j,t} \right) \geq 0$ with $\Sigma_{i,t,k} = \operatorname{Cov} \left[ s_{i,t,k} \right]$ denoting the single-site covariances / susceptibilities. The latter is dominated by a $O(D)$ contribution that is angle-independent, so the proxy reflects mostly coupling magnitudes and susceptibility rather than representational geometry, which is captured in subleading $O(1)$ terms. For unconstrained couplings, the proxy measures squared coupling nonreciprocity, weighted by how strongly the fluctuation spaces of the two sites overlap. Under strict _causal masking_, however, _pairwise nonreciprocity is largely enforced by the architecture_. The proxy then behaves more like a susceptibility-weighted attention-concentration statistic rather than a measurement of learned asymmetry.
 
 
 ## Mean-field proxy for post-quench relaxation mismatch
 
-To evaluate Eq. \eqref{eq:vmfkl}, we use the fact that the mean-field vector-spin model machinery is built on the von Mises-Fisher distribution (see Appendix B), leading to the full factorized mean-field mismatch
+To evaluate Eq. \eqref{eq:vmfkl}, we use the fact that the mean-field vector-spin model machinery is built on the von Mises-Fisher distribution (see [Appendix B](#appendix-b-the-von-mises-fisher-distribution-kullback-leibler-divergence)), leading to the full factorized mean-field mismatch
 
 \begin{equation}\Delta_{t,k}^{\mathrm{MF}}\approx\sum_i\left[R^2\log\frac{R^2-\lVert\mathbf m_{i,t}^{\star}\rVert^2}{R^2-\lVert\mathbf m_{i,t,k}\rVert^2}+\frac{2R^2\left(\lVert\mathbf m_{i,t}^{\star}\rVert^2-\mathbf m_{i,t,k}\cdot\mathbf m_{i,t}^{\star}\right)}{R^2-\lVert\mathbf m_{i,t}^{\star}\rVert^2}\right],\end{equation}
 
-where $\mathbf m_{i,t,k}$ is the current magnetization and $\mathbf m_{i,t}^{\star}$ is the instantaneous fixed-point magnetization. The expression vanishes when $\mathbf m_{i,t,k}=\mathbf m_{i,t}^{\star}$ at every site and penalizes both differences in magnetization norm and angular misalignment with the frozen-drive fixed-point response.
+where $\mathbf m_{i,t,k}$ is the current magnetization and $\mathbf m_{i,t}^{\star}$ is the target instantaneous fixed-point magnetization. The expression vanishes when $\mathbf m_{i,t,k}=\mathbf m_{i,t}^{\star}$ at every site and penalizes both differences in magnetization norm and angular misalignment with the frozen-drive fixed-point response.
 
 
 # Numerical experiments
+
+In this section, we implement and test our framework in toy scenarios. First, we delineate where the mean-field approximation can be trusted by comparing mean-field quantitites to their respective sampled estimates from simulations of the stochastic dynamics of the vector-spin model. Next, we probe and measure the behavior of the transformer-like spin-model transformer module to make sure its forward and backward passes are robust in terms of signal propagation and run a toy autoregressive language modeling pretraining experiment. Finally, we take a look at the recurrent stateful flavor of the architecture in an toy online learning setup, where at every external timestep $t$ the model can rely on a full context window of hidden states.
 
 ## Mean-field proxy fidelity
 
@@ -227,11 +229,20 @@ Prediction and correction are two runs of the same dynamics under different clam
 
 **Stochastic thermodynamics of driven steady states:** ...
 
+- [Three detailed fluctuation theorems](https://arxiv.org/abs/0911.2666v2) by Massimiliano Esposito and Christian Van den Broeck
+
 **Dynamical mean-field theory for asymmetric spin systems:** ...
+
+- [A unifying framework for mean-field theories of asymmetric kinetic Ising systems](https://arxiv.org/abs/2002.04309) by 
+Miguel Aguilera, S. Amin Moosavi, and Hideaki Shimazaki
 
 **Recurrent-depth and implicit neural computation:** ...
 
 **Prediction, physical learning, and driven adaptation:** ...
+
+- [Self-organized fine-tuned response in a driven spin glass](https://dspace.mit.edu/handle/1721.1/130835?show=full) by Jacob Mitchell Gold
+
+- [The thermodynamics of prediction](https://arxiv.org/abs/1203.3271) by Susanne Still, David A. Sivak, Anthony J. Bell, and Gavin E. Crooks
 
 
 # Conclusion and outlook
@@ -253,14 +264,6 @@ We acknowledge interesting back-and-forth discussions with Claude Opus 4.8, Clau
 
 # References
 
-A non-exhaustive list of references and inspiration includes:
-
-- [A unifying framework for mean-field theories of asymmetric kinetic Ising systems](https://arxiv.org/abs/2002.04309) by 
-Miguel Aguilera, S. Amin Moosavi, and Hideaki Shimazaki
-- [The thermodynamics of prediction](https://arxiv.org/abs/1203.3271) by Susanne Still, David A. Sivak, Anthony J. Bell, and Gavin E. Crooks
-- [Three detailed fluctuation theorems](https://arxiv.org/abs/0911.2666v2) by Massimiliano Esposito and Christian Van den Broeck
-- [Self-organized fine-tuned response in a driven spin glass](https://dspace.mit.edu/handle/1721.1/130835?show=full) by Jacob Mitchell Gold
-
 If you happen to find this work useful, please consider citing it as:
 
 ```
@@ -268,7 +271,7 @@ If you happen to find this work useful, please consider citing it as:
   title   = {Nonequilibrium Dynamics in Spin-Model Transformers},
   author  = {Bal, Matthias},
   year    = {2026},
-  month   = {?},
+  month   = {July},
   url     = {https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/}
 }
 ```
@@ -429,4 +432,4 @@ This expression is asymmetric, as required for a KL divergence. It vanishes when
 
 [^fn:protocol]: In this case, it is more accurate to call the drive $\mathbf{X}_{t}$ an external protocol parameter configuring the instantaneous dynamics.
 
-[^fn:lit]: We deliberately focus on our quench-and-relax use case because the nonequilibrium thermodynamics literature is, frankly, quite confusing at times and a daunting terminological minefield.
+[^fn:lit]: We deliberately focus on our simple quench-and-relax use case because the nonequilibrium thermodynamics literature is very nuanced and, quite frankly, a daunting terminological minefield.
