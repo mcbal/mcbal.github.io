@@ -128,7 +128,7 @@ In this regime, $\tau_{\mathrm{relax}} \ll \tau_{\mathrm{drive}}$ so we consider
 
 In case of a unique fixed point, the initial values $\mathbf{M}_{t, 0}$ are erased, and the module is stateless. But the deterministic mean-field equations may admit multiple stable fixed-point branches or basins. Warm-starting with $\mathbf{M}_{t, 0} = \mathbf{M}^{\star}_{t-1}$ can then produce path-dependent branch selection and hysteresis behavior.
 
-> The fixed-point regime has a simple sufficient stability condition that is directly related to the module's fluctuations. One can show that the Jacobian eigenvalues of the radial mean-field update map $\phi_{\beta}$ introduced in Eq. \eqref{eq:paralleltransformer} reveal that the map is globally contractive whenever $\rho_{t} = \beta J_{t} /2<1$ with $J_{t} = \operatorname{max}_{i}\sum_{j}\left|J_{ij,t}\right|$. (For non-scalar couplings, a operator coupling norm factor appears instead.) In this regime the frozen drive selects a unique fixed point. For $\rho_{t} \geq 1$, convergence may still occur, but uniqueness, absence of cycles, and initialization independence are no longer guaranteed.
+> The fixed-point regime has a simple sufficient stability condition that is directly related to the module's fluctuations. One can show that the Jacobian eigenvalues of the radial mean-field update map $\phi_{\beta}$ introduced in Eq. \eqref{eq:paralleltransformer} reveal that the map is globally contractive whenever $\rho_{t} = \beta J_{t} /2<1$ with $J_{t} = \operatorname{max}_{i}\sum_{j}\left|J_{ij,t}\right|$. (For row-stochastic positive softmax attention, we have $rho_{t} = \beta / 2$. For non-scalar couplings, an operator coupling norm factor appears instead.) In this regime the frozen drive selects a unique fixed point. For $\rho_{t} \geq 1$, convergence may still occur, but uniqueness, absence of cycles, and initialization independence are no longer guaranteed.
 
 
 ## On the connection to transformers
@@ -207,7 +207,7 @@ where $\mathbf m_{i,t,k}$ is the current magnetization and $\mathbf m_{i,t}^{\st
 
 # Numerical experiments
 
-In this section, we implement and test our framework in toy scenarios. First, we delineate where the mean-field approximation can be trusted by comparing mean-field quantitites to their respective sampled estimates from simulations of the stochastic dynamics of the vector-spin model. Next, we probe and measure the behavior of the transformer-like spin-model transformer module to make sure its forward and backward passes are robust in terms of signal propagation and run a toy autoregressive language modeling pretraining experiment. Finally, we take a look at the recurrent stateful flavor of the architecture in an toy online learning setup, where at every external timestep $t$ the model can rely on a full context window of hidden states.
+In this section, we implement and test our framework in toy scenarios. First, we delineate where the mean-field approximation can be trusted by comparing mean-field quantities to their respective sampled estimates from simulations of the stochastic dynamics of the vector-spin model. Next, we probe and measure the behavior of the transformer-like spin-model transformer module to make sure its forward and backward passes are robust in terms of signal propagation and run a toy autoregressive language modeling pretraining experiment. Finally, we take a look at the recurrent stateful flavor of the architecture in a toy online learning setup, where at every external timestep $t$ the model can rely on a full context window of hidden states.
 
 ## Mean-field proxy fidelity
 
@@ -257,11 +257,6 @@ The same protocol extends naturally to collections of modules. A detached output
 ...
 
 
-# Acknowledgements
-
-We acknowledge interesting back-and-forth discussions with GPT 5.5,Claude Opus 4.8, Claude Fable 5, GPT 5.6, and Claude Opus 5.
-
-
 # References
 
 If you happen to find this work useful, please consider citing it as:
@@ -271,7 +266,7 @@ If you happen to find this work useful, please consider citing it as:
   title   = {Nonequilibrium Dynamics in Spin-Model Transformers},
   author  = {Bal, Matthias},
   year    = {2026},
-  month   = {July},
+  month   = {?},
   url     = {https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/}
 }
 ```
