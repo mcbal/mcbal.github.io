@@ -41,9 +41,9 @@ projects: []
 
 > **✨ GitHub repository:  [`mcbal/neqnn`](https://github.com/mcbal/neqnn) (work in progress)**
 
-Transformers are powerful driven dynamical systems, yet their internal computation is rarely discussed in terms of nonequilibrium thermodynamics. Building on a dynamical mean-field theory framework developed for vector-spin models in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design a minimal parallel transformer-like module whose forward pass performs one or more mean-field updates following a drive quench, separating out the processes of fast state relaxation, changing external drive, and slow parameter learning.
+Transformers are powerful driven dynamical systems, yet their internal computation is rarely discussed in terms of nonequilibrium thermodynamics. Building on the dynamical mean-field theory framework developed for vector-spin models in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design a minimal parallel transformer-like module whose forward pass performs one or more mean-field updates following a drive quench, separating out the processes of fast state relaxation, changing external drive, and slow parameter learning.
 
-We characterize the module's dynamical regimes to map out a design space of stateless and stateful variations of transformer-like and deep-equilibrium-like architectures and leverage its spin-model backing to compute differentiable proxies for housekeeping entropy production and post-quench relaxation mismatch. In this way, a spin-model transformer module can act as a mean-field nonequilibrium laboratory in which architectural dynamics, irreversibility diagnostics, and candidate (online) local learning protocols can be studied together. We run numerical experiments to validate the mean-field proxies and explore recurrent stateful architectures.
+We characterize the module's dynamical regimes to map out a design space of stateless and stateful variations of transformer-like and deep-equilibrium-like architectures and leverage its spin-model backing to compute differentiable proxies for housekeeping entropy production and post-quench relaxation mismatch. A spin-model transformer module can thus act as a mean-field nonequilibrium laboratory in which architectural dynamics, irreversibility diagnostics, and candidate (online) local learning protocols can be explored together. We run numerical experiments to validate the mean-field proxies, and explore recurrent stateful architectures.
 
 
 # Driving a spin-model transformer module
@@ -178,7 +178,7 @@ measures how far the current distribution remains from the stationary distributi
 
 A driven spin-model transformer module with asymmetric couplings can thus be approximately measured in two ways during the quench-and-relax process: the cost of **"running"** a nonequilibrium steady state after relaxation and the **"catching up"** during relaxation after its input drive changes. Housekeeping entropy production measures sustained asymmetric circulation under a fixed drive while mismatch measures the relaxation still required after a drive change.
 
-> **An exercise in handfwaving and allocating entropy budgets:** Intuitively (at the level of the exact dynamics, not necessarily at the mean-field level), every quench-and-relax cycle has an "entropy budget"
+> **An exercise in handwaving and allocating entropy budgets:** Intuitively (at the level of the exact dynamics, not necessarily at the mean-field level), every quench-and-relax cycle has an "entropy budget"
 \begin{equation}
 \Sigma_{\mathrm{cycle}} \approx \sum^{K}_{k=1} \sigma_{\mathrm{tot},t,k} = \underbrace{\sum^{K}_{k=1} \sigma_{\mathrm{hk},t,k}}_{\text{rent, transient rate}} +  \underbrace{\left( \Delta_{t,0} - \Delta_{t,K} \right)}_{\text{moving costs}}
 \end{equation}
@@ -259,7 +259,7 @@ The same protocol extends naturally to collections of modules. A detached output
 
 # Acknowledgements
 
-We acknowledge interesting back-and-forth discussions with Claude Opus 4.8, Claude Fable 5, GPT 5.5, and GPT 5.6.
+We acknowledge interesting back-and-forth discussions with GPT 5.5,Claude Opus 4.8, Claude Fable 5, GPT 5.6, and Claude Opus 5.
 
 
 # References
