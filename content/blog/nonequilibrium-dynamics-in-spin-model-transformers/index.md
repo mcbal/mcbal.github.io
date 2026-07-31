@@ -12,7 +12,7 @@ authors:
 tags: ["Artificial Intelligence", "Associative Memories", "Attention", "Cybernetics", "Deep Learning", "Dynamical Systems", "Entropy Production", "Ising Models", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Near-Equilibrium Dynamics", "Nonequilibrium Dynamics", "Quench Dynamics", "Relaxation", "Self-Organizing Computational Stability", "Statistical Physics", "Steady State", "Stochastic Thermodynamics", "Transformers", "Vector-Spin Models"]
 categories: []
 date: 2026-02-02T09:28:17+01:00
-lastmod: 2026-07-24T08:30:41+01:00
+lastmod: 2026-07-31T08:30:41+01:00
 featured: false
 draft: false
 toc: true
@@ -41,9 +41,9 @@ projects: []
 
 > **✨ GitHub repository:  [`mcbal/neqnn`](https://github.com/mcbal/neqnn) (work in progress)**
 
-Transformers are powerful driven dynamical systems, yet their internal computation is rarely discussed in terms of nonequilibrium thermodynamics. Building on the dynamical mean-field theory framework developed for vector-spin models in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design a minimal parallel transformer-like module whose forward pass performs one or more mean-field updates following a drive quench, separating out the processes of fast state relaxation, changing external drive, and slow parameter learning.
+Transformers are powerful driven dynamical systems, yet their internal computation is rarely discussed in terms of nonequilibrium thermodynamics. Building on the dynamical mean-field theory framework developed for vector-spin models in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design a minimal parallel transformer-like module whose forward pass performs one or more mean-field update steps following a drive quench, separating out the processes of fast state relaxation, changing external drive, and slow parameter learning. We characterize the module's quench-and-relax regimes to map out a design space of stateless and stateful variations of transformer-like and deep-equilibrium-like architectures.
 
-We characterize the module's dynamical regimes to map out a design space of stateless and stateful variations of transformer-like and deep-equilibrium-like architectures and leverage its spin-model backing to compute differentiable proxies for housekeeping entropy production and post-quench relaxation mismatch. A spin-model transformer module can thus act as a mean-field nonequilibrium laboratory in which architectural dynamics, irreversibility diagnostics, and candidate (online) local learning protocols can be explored together. We run numerical experiments to validate the mean-field proxies, and explore recurrent stateful architectures.
+Leveraging the spin-model interpretation, we compute differentiable proxies for housekeeping entropy production and post-quench relaxation mismatch at the same mean-field level as the spin-model dynamics. A spin-model transformer module thus acts as a nonequilibrium laboratory where mean-field dynamics, irreversibility diagnostics, and candidate (online) local learning protocols can be explored simultaneously. Modules patched together into a model enable complex, time-dependent collective computation where outputs (magnetizations) from one module serve as a boundary conditions (drives) for another. To go beyond aesthetics, we run numerical experiments to (1) validate the mean-field approximation, (2) train a toy autoregressive language model, and (3) explore a family of recurrent stateful architectures suggested by the framework.
 
 
 # Driving a spin-model transformer module
@@ -52,7 +52,7 @@ In this section we design a minimal spin-model transformer module whose forward 
 
 ## A minimal controllable drive-conditioned system
 
-> In [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/) we showed how to apply dynamical mean-field theory to approximate the time-dependent behavior of asymmetric vector-spin models. We started from a spin system of $N$ vector spins $\mathbf{s}_{i,t} \in \mathbb{R}^{D}$ talking to each other via an $N \times N$ pairwise coupling matrix $J_{ij}$ with the underlying synchronous parallel-updates stochastic dynamics characterized by a discrete-time Markov chain transition probability. External magnetic fields $\mathbf{x}_{i,t} \in \mathbb{R}^{D}$ bias the vector spins and act as local drives. We use the notation $\mathbf{X}_{t} \in \mathbb{R}^{N \times D}$ and $\mathbf{M}_{t,k} \in \mathbb{R}^{N \times D}$ to refer to matrices of stacked vectors.
+> In [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/) we showed how to apply dynamical mean-field theory to approximate the time-dependent behavior of asymmetric vector-spin models. We started from a spin system of $N$ vector spins $\mathbf{s}_{i,t} \in \mathbb{R}^{D}$ talking to each other via an $N \times N$ pairwise coupling matrix $J_{ij}$ with the underlying synchronous parallel-updates stochastic dynamics characterized by a discrete-time Markov chain transition probability. External magnetic fields $\mathbf{x}_{i,t} \in \mathbb{R}^{D}$ bias the vector spins and act as local drives. We use the notation $\mathbf{A} \in \mathbb{R}^{N \times D}$ to refer to matrices of stacked vectors $\mathbf{a}_{i} \in \mathbb{R}^{D}$.
 
 <img src="vector_spins.png" alt="Random Ising model configuration with vector spins" width="250px"/>
 
