@@ -1,0 +1,35 @@
+{{- $src := .Get "src" -}}
+{{- $alt := .Get "alt" | default "" -}}
+{{- $caption := .Get "caption" | default "" -}}
+{{- $image := .Page.Resources.GetMatch $src -}}
+{{- $imageURL := $src -}}
+{{- with $image -}}
+  {{- $imageURL = .RelPermalink -}}
+{{- end -}}
+{{- $label := $alt | default $caption | default "figure" -}}
+
+<figure class="article-lightbox-figure">
+  <a
+    class="article-lightbox-trigger"
+    href="{{ $imageURL }}"
+    data-lightbox
+    data-lightbox-caption="{{ $caption | plainify }}"
+    aria-label="Enlarge image: {{ $label }}"
+    aria-haspopup="dialog"
+  >
+    <img
+      src="{{ $imageURL }}"
+      alt="{{ $alt }}"
+      {{- with $image }}
+      width="{{ .Width }}"
+      height="{{ .Height }}"
+      {{- end }}
+      loading="lazy"
+      decoding="async"
+    >
+    <span class="article-lightbox-hint" aria-hidden="true">Click to enlarge</span>
+  </a>
+  {{- with $caption }}
+  <figcaption>{{ . | markdownify }}</figcaption>
+  {{- end }}
+</figure>

@@ -346,6 +346,8 @@
 
       {{ $appendix_js := resources.Get "js/appendix-collapse.js" | minify | fingerprint }}
       <script src="{{ $appendix_js.RelPermalink }}" integrity="{{ $appendix_js.Data.Integrity }}" defer></script>
+      {{ $lightbox_js := resources.Get "js/image-lightbox.js" | minify | fingerprint }}
+      <script src="{{ $lightbox_js.RelPermalink }}" integrity="{{ $lightbox_js.Data.Integrity }}" defer></script>
 
       <div class="container mx-auto prose prose-slate lg:prose-lg dark:prose-invert mt-5">
         {{ .Scratch.Set "invert_pager" true }}

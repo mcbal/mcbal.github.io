@@ -12,7 +12,7 @@ authors:
 tags: ["Artificial Intelligence", "Associative Memories", "Attention", "Cybernetics", "Deep Learning", "Dynamical Systems", "Entropy Production", "Ising Models", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Near-Equilibrium Dynamics", "Nonequilibrium Dynamics", "Quench Dynamics", "Relaxation", "Self-Organizing Computational Stability", "Statistical Physics", "Steady State", "Stochastic Thermodynamics", "Transformers", "Vector-Spin Models"]
 categories: []
 date: 2026-02-02T09:28:17+01:00
-lastmod: 2026-07-31T08:30:41+01:00
+lastmod: 2026-08-04T08:30:41+01:00
 featured: false
 draft: false
 toc: true
@@ -39,11 +39,11 @@ projects: []
 
 # Introduction
 
-> **✨ GitHub repository:  [`mcbal/neqnn`](https://github.com/mcbal/neqnn) (work in progress)**
+> **✨ GitHub repository:  [`mcbal/neqnn`](https://github.com/mcbal/neqnn)**
 
-Transformers are powerful driven dynamical systems, yet their internal computation is rarely discussed in terms of nonequilibrium thermodynamics. Building on the dynamical mean-field theory framework developed for vector-spin models in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design a minimal parallel transformer-like module whose forward pass performs one or more mean-field update steps following a drive quench, separating out the processes of fast state relaxation, changing external drive, and slow parameter learning. We characterize the module's quench-and-relax regimes to map out a design space of stateless and stateful variations of transformer-like and deep-equilibrium-like architectures.
+Transformers are powerful driven dynamical systems, yet their internal computation is not often discussed in terms of nonequilibrium thermodynamics. Building on the dynamical mean-field theory framework developed for vector-spin models in [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we design a minimal parallel transformer-like module whose forward pass performs one or more mean-field update steps following a drive quench, separating out the processes of fast state relaxation, changing external drive, and slow parameter learning. We characterize the module's quench-and-relax regimes to map out a design space of stateless and stateful variations of transformer-like and deep-equilibrium-like architectures.
 
-Leveraging the spin-model interpretation, we compute differentiable proxies for housekeeping entropy production and post-quench relaxation mismatch at the same mean-field level as the spin-model dynamics. A spin-model transformer module thus acts as a nonequilibrium laboratory where mean-field dynamics, irreversibility diagnostics, and candidate (online) local learning protocols can be explored simultaneously. Modules patched together into a model enable complex, time-dependent collective computation where outputs (magnetizations) from one module serve as a boundary conditions (drives) for another. To go beyond aesthetics, we run numerical experiments to (1) validate the mean-field approximation, (2) train a toy autoregressive language model, and (3) explore a family of recurrent stateful architectures suggested by the framework.
+Leveraging the spin-model interpretation, we compute differentiable proxies for housekeeping entropy production and post-quench relaxation mismatch at the same mean-field level as the spin-model dynamics. A spin-model transformer module thus acts as a nonequilibrium laboratory where mean-field dynamics, irreversibility diagnostics, and candidate (online) local learning protocols can be explored simultaneously. Modules patched together into models enable complex, time-dependent collective computation where the outputs (magnetizations) of one module serve as boundary conditions (drives) for another. We run numerical experiments to (1) validate the mean-field approximation, (2) train a toy autoregressive language model, and (3) explore a family of recurrent stateful architectures suggested by the framework.
 
 
 # Driving a spin-model transformer module
@@ -207,54 +207,130 @@ where $\mathbf m_{i,t,k}$ is the current magnetization and $\mathbf m_{i,t}^{\st
 
 # Numerical experiments
 
-In this section, we implement and test our framework in toy scenarios. First, we delineate where the mean-field approximation can be trusted by comparing mean-field quantities to their respective sampled estimates from simulations of the stochastic dynamics of the vector-spin model. Next, we probe and measure the behavior of the transformer-like spin-model transformer module to make sure its forward and backward passes are robust in terms of signal propagation and run a toy autoregressive language modeling pretraining experiment. Finally, we take a look at the recurrent stateful flavor of the architecture in a toy online learning setup, where at every external timestep $t$ the model can rely on a full context window of hidden states.
+In this section, we implement and test our framework in toy scenarios. First, we delineate where the mean-field approximation can be trusted by comparing mean-field quantities to their respective sampled estimates from simulations of the stochastic dynamics of the vector-spin model. Next, we probe and measure the behavior of a transformer-like spin-model transformer module to make sure its forward and backward passes are robust in terms of signal propagation and run a toy autoregressive language modeling training experiment. Finally, we take a look at the recurrent stateful flavor of the architecture in a toy online learning setup, where at every external timestep $t$ the model can make use of a context window full of hidden states.
 
-## Mean-field proxy fidelity
+## Mean-field approximation and proxy fidelity
 
-## Probing and measuring a spin-model transformer module
+We simulate $N=64$ vector spins wobbling about on spheres of radius $R=\sqrt{D/2-1}$, using a dense asymmetric coupling matrix obtained by applying a row-wise softmax to Gaussian random entries[^fn:fidelityquench]. The external fields have independent, random orientations but equal norm at every site. To control the overal strength of the drive, we introduce the parameter $u=\beta\lVert x\rVert/R$ as a homogeneous dimensionless drive amplitude. We stress that both of these random initializations do not reflect the couplings and external fields actually observed when the system would be exposed to structured data and trained as as neural network module. But they give a useful estimate of what happens at the stationary point.
 
-Do these dynamical quantities reveal anything useful about how such a system learns or adapts under a changing drive? Does mismatch drop because the module anticipates the response to new boundary conditions, or because the response landscape becomes dull and easy to predict?
+We sweep the symmetric grid $(u,\beta)\in[0.5,0.75,1,1.5,2]$ for a few values of the vector dimension $D$ to obtain steady-state "phase diagrams" for the magnetizations, the one-step delayed correlations, and the housekeeping entropy production. Each heatmap cell below reports the larger of the noise-corrected relative mean-field error and its Monte Carlo sampling[^fn:mcsampling] floor. Let us first compare the mean-field approximation to the exact stochastic dynamics.
 
-## Can relaxation supply a learning signal?
+{{< lightbox
+  src="fidelity_mean_field.png"
+  alt=""
+  caption=""
+>}}
 
-The spin-model transformer module defines a driven nonequilibrium module and two measurable aspects of its dynamics: sustained circulation under a fixed drive and relaxation following a change in the drive. Neither quantity, by itself, specifies a unique or useful learning rule. In particular, many different prediction, clamping, and parameter-update protocols could be built around the same dynamics.
+We observe that steady-state magnetizations are accurately captured, while the one-step delayed correlations have upwards of a $10\%$ discrepancy, as expected for a simple `Plefka[t-1,t]` approximation. Yet the housekeeping entropy production is remarkably accurate, which is strange since it is computed from the delayed correlations. We suspect that this is due to the fact that the entropy production projects the delayed-correlation matrix onto essentially the direction aligned with $J-J^{T}$, where the signal lives but the error largely does not.
 
-Prediction and correction are two runs of the same dynamics under different clamping patterns: relax under a drive constructed before the next observation and you have a prediction; relax under the observed drive and you have a target. There are many ways to set up the interface protocols, and we suspect most of them collapse into trivially predictable dynamics.
+As expected for a high-temperature expansion, the Plefka approximation deteriorates as $\beta$ increases for fixed $u$, while stronger pinning (larger drive strength $u$) partially stabilizes it. Put differently, this is the competition between the drive and the interactions. If the drive dominates, then we are in an easy regime and responses are pretty much aligned with the drive. If the drive is small and interactions dominate, then mean-field will start struggling. This balancing act might be familiar to practitioners who have tuned the relative strength of residuals in neural networks.
+
+Let us now check the next rung in the approximation ladder and compare the mean-field quantities to the large-$D$ approximations[^fn:largedlim] we use in practice.
+
+{{< lightbox
+  src="fidelity_large_d.png"
+  alt=""
+  caption=""
+>}}
+
+We observe that the closed-form large-$D$ approximation quickly converges to the exact finite-$D$ mean-field quantities, with errors roughly scaling as $O(1/D)$. The temporal-factorization error of the simple `Plefka[t-1,t]` mean-field closure persists, as expected. Near $(u,\beta)=(1,1)$, the delayed-correlation discrepancy converges to approximately $11\%$, while magnetization remains accurate at the percent level.
 
 
-## Closed-loop adaptive behavior
+## Toy autoregressive language-model training
+
+Having convinced ourselves that we can more or less trust the mean-field equations, let us now train a small autoregresssive language model to do character-level next-token prediction on _The Brothers Karamazov_. This exercise should feel very familiar, and that is exactly the point: if we claim that the transformer-like architecture in the design space (one-step update + amortized initializer) looks pretty much like a parallel transformer block, it also better behave like one in real training scenarios.
+
+We build a simple autoregressive language by stacking causal finite-step modules with a linear readout on top to map final-layer magnetizations to logits.
+
+```python
+class LanguageModel(nn.Module):
+    def __init__(
+        self,
+        vocab: int,
+        dim: int,
+        depth: int,
+        heads: int,
+    ):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab, dim)
+        self.layers = nn.ModuleList(
+            SpinModelTransformerModule(
+                dim=dim,
+                num_heads=heads,
+                num_steps=1,          # K=1 (finite-step relaxation, no steady state)
+                init="amortized",     # amortized initializer (~ values)
+                input_mode="field" if layer_index == 0 else "magnetization",
+                beta=1.0,
+                causal=True,
+                qk_bias=True,
+                rope=True,
+            )
+            for layer_index in range(depth)
+        )
+        self.readout = nn.Sequential(nn.RMSNorm(dim), nn.Linear(dim, vocab, bias=False))
+        # make sure the initial embeddings are sensibly scaled
+        with torch.no_grad():
+            vectors = self.embedding.weight.view(vocab, heads, dim // heads)
+            vectors.copy_(self.layers[0].radius_head * F.normalize(vectors, dim=-1))
+
+    def forward(self, token_ids: Tensor):
+        x = self.embedding(token_ids)
+        for layer_index, layer in enumerate(self.layers):
+            x = layer(x).magnetizations
+        return self.readout(x)
+
+```
+
+> **On stability and depth:** An interesting implementation detail is the module's `input_mode`, which is related to pre-norm normalization conventions and the stability of the forward and backwards passes. We treat token embeddings presented to the first layer as physical fields added as residuals to the update step. In subsequent layer, the inputs are instead the conjugate fields corresponding to the magnetizations of the previous layer. Why do we do this? Because the residual stream is a shared communication bus, and we should try to keep it open. If we would pass magnetizations $\mathbf{m}_{\mathrm{out}} = \varphi_{\beta} \left( \mathbf{m}_{in} + \Delta_{\mathbf{h}} \right)$ between modules, then the contractiveness of the response map $\varphi_{\beta}$ would lead to signal attenuation with depth and its Jacobian to gradients dying, even for $\Delta_{\mathbf{h}}=\mathbf{0}$. If we instead propagate $\mathbf{m}_{\mathrm{out}} = \varphi_{\beta} ( \varphi^{-1}_{\beta} (\mathbf{m}_{in}) + \Delta_{\mathbf{h}} )$ then $\mathbf{m}_{\mathrm{out}} = \mathbf{m}_{in}$ for $\Delta_{\mathbf{h}}=\mathbf{0}$, where $\varphi^{-1}_{\beta} (\mathbf{m}_{in})$ denotes the conjugate field required to sustain $\mathbf{m}_{in}$. For the large-$D$ response the inverse is analytic inside the open magnetization ball:
+\begin{equation}
+\varphi^{-1}_{\beta}\left(\mathbf{m}\right) = \frac{2 \mathbf{m}}{\beta \left(1 - \lVert m \rVert^2 / R^2\right)},   \quad \lVert m\rVert < R.
+\end{equation}
 
 
-# Discussion and related work
+We trained 3-, 6-, 12-, and 24-layer versions[^fn:layers] of the model with of `dim=128` and `num_heads=4` to test stability, and observed smooth convergence.
 
-**Stochastic thermodynamics of driven steady states:** ...
+{{< lightbox
+  src="language_model_training.png"
+  alt=""
+  caption=""
+>}}
 
-- [Three detailed fluctuation theorems](https://arxiv.org/abs/0911.2666v2) by Massimiliano Esposito and Christian Van den Broeck
+During training, we generated fixed-seed top-k samples. _Alyosha remembers love_.
 
-**Dynamical mean-field theory for asymmetric spin systems:** ...
+<img src="language_model_samples.gif" alt="Alyosha remembers love" width="100%"/>
 
-- [A unifying framework for mean-field theories of asymmetric kinetic Ising systems](https://arxiv.org/abs/2002.04309) by 
-Miguel Aguilera, S. Amin Moosavi, and Hideaki Shimazaki
+We checked the competition between terms in the update equation after training. Feed-forward and attention terms remain competitive, and the residual grows with depth like in pre-norm transformers. This input-norm growth is not felt by the feed-forward and attention terms since they see normalized inputs. Recall from the stability-and-depth sidestep above that these growing residuals are harmless effective fields $\mathbf{h}$ associated to bounded magnetizations $\mathbf{m} = \varphi_{\beta} \left(\mathbf{h}\right)$ whose norms never exceed $R$. These could saturate, but we did not observe that during these runs. We verified that later layers kept on contributing significant directional changes to the vectors in anticipation of the logits readout.
 
-**Recurrent-depth and implicit neural computation:** ...
+{{< lightbox
+  src="language_model_fields.png"
+  alt=""
+  caption=""
+>}}
 
-**Prediction, physical learning, and driven adaptation:** ...
+We also logged the evolution of average housekeeping entropy production associated to the instantaneous steady-state fixed points at every layer and a one-step relaxation mismatch variation between the initial guess $\mathbf{M}_{t, 0} = \mathbf{X}_{t}\mathbf{W}_{V}$ and the $K=1$ relaxed state as target instead of the instantaneous steady-state fixed point. We observe that the average housekeeping entropy production gradually rises during training after an initial drop. The relaxation mismatch shows, among many other things probably, the $\mathbf{W}_{V}$ parameters adapting: the Dostoevsky drive quickly shapes the initial random couplings, leading to an increased mismatch between the initial guess and the relaxed state. The gap then shrinks but starts growing again, with different trends for the first layer, middle layers, and last layer. More work is needed to develop and stress test these proxies and determine their value (if any).
 
-- [Self-organized fine-tuned response in a driven spin glass](https://dspace.mit.edu/handle/1721.1/130835?show=full) by Jacob Mitchell Gold
+{{< lightbox
+  src="language_model_proxies.png"
+  alt=""
+  caption=""
+>}}
 
-- [The thermodynamics of prediction](https://arxiv.org/abs/1203.3271) by Susanne Still, David A. Sivak, Anthony J. Bell, and Gavin E. Crooks
+Finally, we studied the effect of increasing the final-layer relaxation time $K$ post-training from $1$ to $2$, $4$, and $\infty$ (fixed point) and observed significant positive cross-entropy penalties. This suggests that, at least for the final layer, the amortized initializers (_values_) can be understood as _learned transient control states specifically targeting the one-step relaxation_. The cross-entropy loss does not push the state to move close to the instantaneous steady-state fixed point of the module nor does the relaxation mismatch between the relaxed state and the instantaneous steady state go to zero. Instead, the modules are incentivized to learn a useful finite-step nonequilibrium transient. Transformers are comfortably _away from equilibrium_.
+
+
+
+## Toy recurrent stateful application
+
+Having verified that the transformer-like architecture behaves as expected, let us focus on the recurrent stateful quadrant of the design space.
+
+...
 
 
 # Conclusion and outlook
-...
 
-Use the mismatch measure $\Delta_{t, k}$ as a halting signal: relaxing until mismatch drops below threshold turns the relaxation horizon $K$ into adaptive test-time compute.
+In this post, we have further refined the connection between mean-field vector-spin models and transformer-like neural networks as introduced in [Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)](https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/). We have shown how to build neural-network modules around a quench-and-relax protocol applied to driven nonequilibrium spin systems.
 
-...
-
-The same protocol extends naturally to collections of modules. A detached output from one module can serve as a time-dependent boundary condition for another, so modules can alternately act as system and environment. This would turn the single-module prediction–correction cycle into a sequence of local quenches through a layered or recurrent collective. We leave that extension until the behavior of the single-module objective is understood.
-
-...
+We discussed two measurable aspects of its dynamics: sustained circulation under a fixed drive and relaxation following a change in the drive. Neither quantity, by itself, specifies a unique or useful learning rule. Many different prediction, clamping, and parameter-update protocols could be built around these dynamics. Do these dynamical quantities reveal anything useful about how such a system learns or adapts under a changing drive? Does memory require transient states and finite-step relaxation? Do we really have to restrict ourselves to a sequential stack of layers? Does mismatch drop because the module anticipates the response to new boundary conditions, or because the response landscape becomes dull and easy to predict? Can we use the mismatch proxy as a halting signal for adaptive test-time compute? Or maybe something else entirely?
 
 
 # References
@@ -262,14 +338,27 @@ The same protocol extends naturally to collections of modules. A detached output
 If you happen to find this work useful, please consider citing it as:
 
 ```
-@article{bal2026,
+@article{bal2026neqnn,
   title   = {Nonequilibrium Dynamics in Spin-Model Transformers},
   author  = {Bal, Matthias},
   year    = {2026},
-  month   = {?},
+  month   = {August},
   url     = {https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/}
 }
 ```
+
+**Relevant literature:** stochastic thermodynamics of driven steady states; dynamical mean-field theory for asymmetric spin systems; recurrent-depth and implicit neural computation; prediction, physical learning, and driven adaptation
+
+
+**A non-exhaustive list of references and inspiration includes:**
+
+- [A unifying framework for mean-field theories of asymmetric kinetic Ising systems](https://arxiv.org/abs/2002.04309) by 
+Miguel Aguilera, S. Amin Moosavi, and Hideaki Shimazaki
+- [Three detailed fluctuation theorems](https://arxiv.org/abs/0911.2666v2) by Massimiliano Esposito and Christian Van den Broeck
+- [Self-organized fine-tuned response in a driven spin glass](https://dspace.mit.edu/handle/1721.1/130835?show=full) by Jacob Mitchell Gold
+- [The thermodynamics of prediction](https://arxiv.org/abs/1203.3271) by Susanne Still, David A. Sivak, Anthony J. Bell, and Gavin E. Crooks
+
+
 
 # Appendices
 
@@ -428,3 +517,9 @@ This expression is asymmetric, as required for a KL divergence. It vanishes when
 [^fn:protocol]: In this case, it is more accurate to call the drive $\mathbf{X}_{t}$ an external protocol parameter configuring the instantaneous dynamics.
 
 [^fn:lit]: We deliberately focus on our simple quench-and-relax use case because the nonequilibrium thermodynamics literature is very nuanced and, quite frankly, a daunting terminological minefield.
+
+[^fn:fidelityquench]: In the spirit of this post, this corresponds to one quenched coupling realization rather than a disorder-averaged result.
+
+[^fn:mcsampling]: At every sampled point, we ran five independent replicates, each containing 32 Markov chains initialized uniformly on the spin sphere. After 120 burn-in updates, we collected 300 synchronous updates per chain using the exact von Mises-Fisher conditional distribution. Thus, each replicate pooled 9,600 post-burn-in observations per site. Magnetizations and connected one-step delayed correlations were accumulated online without storing trajectories.
+
+[^fn:layers]: A deeper version with 48 layers was also tried and remained stable, but was obviously overkill for this task.

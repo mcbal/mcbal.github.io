@@ -41,6 +41,138 @@ body {
   margin-right: auto;
 }
 
+.prose .article-lightbox-figure {
+  margin: 2rem 0;
+}
+
+.prose a.article-lightbox-trigger {
+  position: relative;
+  display: block;
+  cursor: zoom-in;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  text-decoration: none;
+}
+
+.prose a.article-lightbox-trigger:hover {
+  text-decoration: none;
+}
+
+.prose .article-lightbox-trigger img {
+  margin: 0;
+}
+
+.article-lightbox-hint {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  border-radius: 9999px;
+  background: rgb(15 23 42 / 0.85);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  opacity: 0;
+  padding: 0.5rem 0.75rem;
+  transform: translateY(0.25rem);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.article-lightbox-trigger:hover .article-lightbox-hint,
+.article-lightbox-trigger:focus-visible .article-lightbox-hint {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.article-lightbox-trigger:focus-visible {
+  outline: 3px solid var(--color-primary-500);
+  outline-offset: 3px;
+}
+
+.image-lightbox {
+  box-sizing: border-box;
+  width: 100vw;
+  max-width: none;
+  height: 100vh;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  padding: clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 4rem) clamp(1rem, 4vw, 3rem);
+}
+
+.image-lightbox[open] {
+  display: grid;
+  place-items: center;
+}
+
+.image-lightbox::backdrop {
+  background: rgb(2 6 23 / 0.92);
+  backdrop-filter: blur(3px);
+}
+
+.image-lightbox-content {
+  display: grid;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0;
+  place-items: center;
+}
+
+.image-lightbox-image {
+  display: block;
+  max-width: 100%;
+  max-height: calc(100vh - 9rem);
+  object-fit: contain;
+}
+
+.image-lightbox-caption {
+  max-width: 75rem;
+  margin-top: 0.75rem;
+  color: #e2e8f0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.image-lightbox-close {
+  position: fixed;
+  z-index: 1;
+  top: max(0.75rem, env(safe-area-inset-top));
+  right: max(0.75rem, env(safe-area-inset-right));
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  cursor: pointer;
+  border: 1px solid rgb(255 255 255 / 0.35);
+  border-radius: 9999px;
+  background: rgb(15 23 42 / 0.8);
+  color: #fff;
+  font-size: 2rem;
+  line-height: 1;
+  place-items: center;
+}
+
+.image-lightbox-close:hover {
+  background: rgb(51 65 85 / 0.95);
+}
+
+.image-lightbox-close:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+.image-lightbox-open {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article-lightbox-hint {
+    transition: none;
+  }
+}
+
 .prose .katex-display {
   scroll-margin-top: calc(var(--navbar-height) + 1rem);
   max-width: 100%;
