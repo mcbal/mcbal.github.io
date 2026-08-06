@@ -42,9 +42,7 @@ projects: []
 
 > **✨ GitHub repository:  [`mcbal/neqnn`](https://github.com/mcbal/neqnn)**
 
-Transformers are powerful driven dynamical systems, yet their internal computation is not often discussed in terms of nonequilibrium thermodynamics. Building on [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we construct a minimal parallel transformer-like module whose forward pass performs one or more mean-field update steps following a drive quench. Our framework turns relaxation horizon and state initialization into architectural controls, disentangling the axes of fast state relaxation, changing external drive, and slow parameter learning. We characterize the module's quench-and-relax regimes to map out a design space of stateless and stateful variations of transformer-like and deep-equilibrium-like architectures.
-
-Leveraging the spin-model interpretation, we compute differentiable proxies for housekeeping entropy production and post-quench relaxation mismatch at the same mean-field level as the spin-model dynamics. A spin-model transformer module thus acts as a nonequilibrium laboratory where mean-field dynamics, irreversibility diagnostics, and candidate (online) local learning protocols can be explored simultaneously. Modules patched together into models enable complex, time-dependent collective computation where the outputs (magnetizations) of one module serve as boundary conditions (drives) for another. We run numerical experiments to assess the mean-field approximation and then study the behavior of a transformer-shaped architecture training in a toy autoregressive language modeling setting.
+Transformers are powerful driven dynamical systems, yet their internal computation is not often discussed in terms of nonequilibrium thermodynamics. Building on [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/), we construct a minimal parallel transformer-like module from the mean-field dynamics of a driven stochastic spin system. This separates external drive changes, internal frozen-protocol relaxation, network depth, and slow learning into distinct architectural controls, while providing calibratable diagnostics of irreversibility and post-quench lag. We run numerical experiments to assess the mean-field approximation and then study the behavior of a transformer-shaped architecture in a toy language-model stack.
 
 
 # Driving a spin-model transformer module
@@ -121,7 +119,7 @@ with two independent design choices: the number of internal relaxation steps $K$
 
 In this regime, only $K < \infty$ internal updates are allocated before the next quench, which may reflect genuine competition between relaxation and drive timescales, or simply deliberate computational truncation. The intuition here is that the system tracks a moving family of instantaneous stationary marginals. In this regime, there can be no strong separation between drive and relaxation if approaching the steady state takes more than $K$ steps. But, since the module is controllable, the outer loop can nudge the module's parameters $\boldsymbol{\theta}_{n}$ towards more efficient and useful relaxation.
 
-Increasing $K$ repeats the mean-field update while holding the drive-conditioned fields and couplings fixed. This _differs_ from what most universal, looped, and recurrent-depth transformers do. They feed evolving hidden states back through the same block and therefore recompute their effective drives and couplings using the same parameters. We can model these architectures in our framework as a succession of "inner" quenches where the same parametrized system's response becomes part of its own future boundary condition. Repeated blocks define a trajectory through a sequence of self-generated protocols, with one relaxation step between "inner" quenches. 
+Increasing $K$ is mathematically related to recurrent or implicit-depth computation, but physically distinct from architectures that recompute their effective interactions from the evolving hidden state. We can model these architectures in our framework as a succession of "inner" quenches where the same parametrized system's response becomes part of its own future boundary condition. Repeated blocks define a trajectory through a sequence of self-generated protocols, with one relaxation step between "inner" quenches. 
 
 The initialization $\mathbf{M}_{t, 0} = \mathbf{M}_{t-1, K}$ makes the module architecture genuinely recurrent and stateful, but with a full context window of hidden states, situating it somewhere in between recurrent neural networks and transformers. Another option is to warm-start with a learned initializer $\mathbf{M}_{t, 0} = \mathbf{X}_{t}\mathbf{W}_{V}$ for the post-quench relaxation. If we interpret these learned initializations as _values_, then, for $K=1$, the forward pass looks like a parallel transformer block.
 
@@ -157,7 +155,7 @@ In this section, we show how the quench-and-relax process behind the forward pas
 
 ## Quench-and-relax protocol
 
-During relaxation after a quench we hold the input drive $\mathbf{X}_{t}$ fixed and let the spin system settle. The average magnetizations $\mathbf{M}_{t}$ may stop changing, but its microscopic dynamics need not become reversible. Indeed, asymmetric couplings can sustain circulating probability currents when forward sequences of spin configurations remain more likely than their backward step reversals. We call this source of irreversibility _steady-state irreversibility_. Its entropy-production rate is the running cost of maintaining a nonequilibrium steady state under the current input drive. For our system, we can estimate this "housekeeping" entropy production from asymmetric couplings and delayed correlations (a vector-spin generalization of [Aguilera et al., 2020](https://arxiv.org/abs/2002.04309)),
+During relaxation after a quench we hold the input drive $\mathbf{X}_{t}$ fixed and let the spin system settle. The average magnetizations $\mathbf{M}_{t}$ may stop changing, but the system's microscopic dynamics need not become reversible. Indeed, asymmetric couplings can sustain circulating probability currents when forward sequences of spin configurations remain more likely than their backward step reversals. We call this source of irreversibility _steady-state irreversibility_. Its entropy-production rate is the running cost of maintaining a nonequilibrium steady state under the current input drive. For our system, we can estimate this "housekeeping" entropy production from asymmetric couplings and delayed correlations (a vector-spin generalization of [Aguilera et al., 2020](https://arxiv.org/abs/2002.04309)),
 
 \begin{equation}
   \sigma^{\star}_{\mathrm{hk},t} = \beta \sum_{ij} \left(J_{ij}(\mathbf{X}_{t}) - J_{ji}(\mathbf{X}_{t})\right) D^{\star}_{ij,t} , \label{eq:sigma_hk}
@@ -179,13 +177,13 @@ Now we quench again. After changing the input drive abruptly, $\mathbf{X}_{t} \t
 
 measures how far the current distribution remains from the stationary distribution selected by the new frozen drive. The new housekeeping part remains after relaxation while $\Delta_{t+1, k} \to 0$ as the actual distribution relaxes to the new stationary distribution. At the exact Markov-process level, its decrease under a fixed transition rule is associated with _nonadiabatic entropy production_. Below, we replace both distributions by factorized mean-field approximations and use the resulting KL-divergence as a diagnostic of post-quench lag.
 
-A driven spin-model transformer module with asymmetric couplings can thus be approximately measured in two ways during the quench-and-relax process: the cost of **"running"** a nonequilibrium steady state after relaxation and the **"catching up"** during relaxation after its input drive has changed. Housekeeping entropy production measures sustained asymmetric circulation under a fixed drive while mismatch measures the relaxation still required after a drive change.
+A driven spin-model transformer module with asymmetric couplings can thus be diagnosed approximately in two complementary ways during the quench-and-relax process: the cost of **"running"** a nonequilibrium steady state after relaxation and the **"catching up"** during relaxation after its input drive has changed. Housekeeping entropy production measures sustained asymmetric circulation under a fixed drive while mismatch measures the relaxation still required after a drive change.
 
 > **An exercise in handwaving and allocating entropy budgets:** Intuitively (at the level of the exact dynamics, not necessarily at the mean-field level), every quench-and-relax cycle has an "entropy budget"
 \begin{equation}
 \Sigma_{\mathrm{cycle}} \approx \sum^{K}_{k=1} \sigma_{\mathrm{tot},t,k} = \underbrace{\sum^{K}_{k=1} \sigma_{\mathrm{hk},t,k}}_{\text{rent, transient rate}} +  \underbrace{\left( \Delta_{t,0} - \Delta_{t,K} \right)}_{\text{moving costs}}
 \end{equation}
-where the transient housekeeping $\sigma_{\mathrm{hk},t,k} = \sigma_{\mathrm{tot},t,k} - (\Delta_{t,k} - \Delta_{t,k+1})$ can be obtained from the transient delayed correlations $D_{ij,t,k}$ (see Appendix A). The neural-network modules defined in the corners of the design space of the previous section allocate this "entropy budget" differently depending on the number of internal relaxation steps. The DEQ corner ($K \to \infty$) fully pays off the "moving costs" every cycle and then just pays rent. The transformer corner ($K=1$ with learned initialization) barely pays rent and then carries residual mismatch into the next drive change. Looping layers pays off moving costs. With a carried state or a well-tuned learned initializer, we can potentially reduce the opening balance of the next cycle.
+where the transient housekeeping $\sigma_{\mathrm{hk},t,k} = \sigma_{\mathrm{tot},t,k} - (\Delta_{t,k} - \Delta_{t,k+1})$ can be obtained from the transient delayed correlations $D_{ij,t,k}$ (see Appendix A). The neural-network modules defined in the corners of the design space of the previous section allocate this "entropy budget" differently depending on the number of internal relaxation steps. The DEQ corner ($K \to \infty$) fully pays off the "moving costs" every cycle and then just pays rent. The transformer corner ($K=1$ with learned initialization) barely pays rent and then carries residual mismatch into the next drive change. Additional frozen-protocol relaxation pays down the moving costs. This should not be conflated with protocol-updating recurrence, where feeding the response back through the module defines a new effective quench. With a carried state or a well-tuned learned initializer, we can potentially reduce the opening balance of the next cycle.
 
 
 ## Mean-field proxy for housekeeping entropy production
@@ -196,12 +194,12 @@ Evaluating Eq. \eqref{eq:sigma_hk} at the mean-field level (see [Appendix A](#ap
   \sigma^{\star}_{\mathrm{hk},t} \approx \frac{\beta^2}{2} \sum_{ij} \left(J_{ij}(\mathbf{X}_{t}) - J_{ji}(\mathbf{X}_{t})\right)^2 C^{\star}_{ij,t} ,
 \end{equation}
 
-where $C^{\star}_{ij,t} = \operatorname{Tr} \left( \Sigma^{\star}_{i,t} \Sigma^{\star}_{j,t} \right) \geq 0$ with $\Sigma_{i,t,k} = \operatorname{Cov} \left[ s_{i,t,k} \right]$ denoting the single-site covariances / susceptibilities. The latter is dominated by a $O(D)$ contribution that is angle-independent, so the proxy reflects mostly coupling magnitudes and susceptibility rather than representational geometry, which is captured in subleading $O(1)$ terms. For unconstrained couplings, the proxy measures squared coupling nonreciprocity, weighted by how strongly the fluctuation spaces of the two sites overlap. Under strict _causal masking_, however, _pairwise nonreciprocity is largely enforced by the architecture_. The proxy then behaves more like a susceptibility-weighted attention-concentration statistic rather than a measurement of learned asymmetry.
+where $C^{\star}_{ij,t} = \operatorname{Tr} \left( \Sigma^{\star}_{i,t} \Sigma^{\star}_{j,t} \right) \geq 0$ with $\Sigma_{i,t,k} = \operatorname{Cov} \left[ s_{i,t,k} \right]$ denoting the single-site covariances / susceptibilities. The latter is dominated by an $O(D)$ contribution that is angle-independent, so the proxy reflects mostly coupling magnitudes and susceptibility rather than representational geometry, which is captured in subleading $O(1)$ terms. For unconstrained couplings, the proxy measures squared coupling nonreciprocity, weighted by how strongly the fluctuation spaces of the two sites overlap. Under strict _causal masking_, however, _pairwise nonreciprocity is largely enforced by the architecture_. The proxy then behaves more like a susceptibility-weighted attention-concentration statistic rather than a measurement of learned asymmetry.
 
 
 ## Mean-field proxy for post-quench relaxation mismatch
 
-To evaluate Eq. \eqref{eq:vmfkl}, we use the fact that the mean-field vector-spin model machinery is built on the von Mises-Fisher distribution (see [Appendix B](#appendix-b-the-von-mises-fisher-distribution-kullback-leibler-divergence)), leading to the full factorized mean-field mismatch
+To evaluate Eq. \eqref{eq:vmfkl}, we use the fact that the mean-field vector-spin model machinery is built on the von Mises-Fisher distribution (see [Appendix B](#appendix-b-the-von-mises-fisher-distribution-kullback-leibler-divergence)), leading to the the closed-form large-$D$ approximation to the factorized mean-field mismatch
 
 \begin{equation}\Delta_{t,k}^{\mathrm{MF}}\approx\sum_i\left[R^2\log\frac{R^2-\lVert\mathbf m_{i,t}^{\star}\rVert^2}{R^2-\lVert\mathbf m_{i,t,k}\rVert^2}+\frac{2R^2\left(\lVert\mathbf m_{i,t}^{\star}\rVert^2-\mathbf m_{i,t,k}\cdot\mathbf m_{i,t}^{\star}\right)}{R^2-\lVert\mathbf m_{i,t}^{\star}\rVert^2}\right],\end{equation}
 
@@ -224,7 +222,7 @@ To control the overall strength of the drive, we introduce the parameter $u=\bet
   caption="Calibration maps comparing mean-field approximation against exact stochastic dynamics for magnetizations, one-step delayed correlations, and housekeeping entropy production across drive amplitude and inverse temperature."
 >}}
 
-We observe that steady-state magnetizations are accurately captured, while the one-step delayed correlations have upwards of a 10% discrepancy, as expected for a first-order `Plefka[t-1,t]` approximation. Yet the housekeeping entropy production is remarkably accurate, which is surprising since it is computed from the delayed correlations[^fn:entprodacc]. We think this robustness might be because the first-order `Plefka[t-1,t]` approximation is more accurate in the time-antisymmetric sector than in the time-symmetric sector, and the entropy production expression is blind to those symmetric errors.
+We observe that steady-state magnetizations are accurately captured, while the one-step delayed correlations show discrepancies of roughly 10% or more, as expected for a first-order `Plefka[t-1,t]` approximation. Yet the housekeeping entropy production is remarkably accurate, which is surprising since it is computed from the delayed correlations[^fn:entprodacc]. One possible explanation for this robustness is that the leading approximation preserves the time-antisymmetric component selected by $J-J^{T}$, even when the full delayed-correlation matrix remains imperfect.
 
 As expected for a high-temperature expansion, the Plefka mean-field approximation deteriorates as $\beta$ increases for fixed $u$, while stronger pinning (larger drive strength $u$) partially stabilizes it. Intuitively, this is the competition between the drive and the interactions. If the drive dominates, then we are in an easy regime and responses are pretty much aligned with the drive. If the drive is small and interactions dominate, then mean-field will start struggling. (This balancing act might be familiar to practitioners who have tuned the relative strength of residuals in neural networks.)
 
@@ -232,8 +230,8 @@ Let us now check the next rung in the approximation ladder and compare the mean-
 
 {{< lightbox
   src="fidelity_large_d.png"
-  alt=""
-  caption=""
+  alt="Relative discrepancy between exact finite-D mean-field quantities and their closed-form large-D approximations. The large-D error falls rapidly with dimension, while the separate temporal-factorization error visible in the preceding figure remains."
+  caption="Relative discrepancy between exact finite-$D$ mean-field quantities and their closed-form large-$D$ approximations. The large-$D$ error falls rapidly with dimension, while the separate temporal-factorization error visible in the preceding figure remains."
 >}}
 
 We observe that the closed-form large-$D$ approximation quickly converges to the exact finite-$D$ mean-field quantities, with errors roughly scaling as $O(1/D)$. The temporal-factorization error of the simple `Plefka[t-1,t]` mean-field closure persists, as expected. Near the operating regime $(u,\beta)=(1,1)$, the delayed-correlation discrepancy converges to approximately 11%, while magnetization remains accurate at the percent level.
@@ -245,7 +243,7 @@ Having calibrated the approximation stack in a controlled random system, let us 
 
 ### The architecture
 
-We build a simple autoregressive language by stacking causal finite-step modules with a final map from final-layer magnetizations to logits:
+We build a simple autoregressive language model by stacking causal finite-step modules with a final map from final-layer magnetizations to logits:
 
 ```python
 class LanguageModel(nn.Module):
@@ -280,7 +278,7 @@ class LanguageModel(nn.Module):
 
     def forward(self, token_ids: Tensor):
         x = self.embedding(token_ids)
-        for layer_index, layer in enumerate(self.layers):
+        for layer in self.layers:
             x = layer(x).magnetizations
         return self.to_logits(x)
 
@@ -288,7 +286,7 @@ class LanguageModel(nn.Module):
 
 ### On stability and depth
 
-An salient implementation detail is the module's `input_mode`, which is related to pre-norm normalization conventions and the stability of the forward and backwards passes. We treat token embeddings presented to the first layer as physical fields added as residuals to the update step. In subsequent layers, the inputs are instead treated as conjugate fields of the magnetizations of the previous layer. Why do we do this? Because the residual stream is a shared communication bus, and we should try to keep it open and flowing. If we decided to pass magnetizations between modules like $\mathbf{m}_{\mathrm{out}} = \varphi_{\beta} \left( \mathbf{m}_{in} + \Delta_{\mathbf{h}} \right)$, then the contractiveness of the response map $\varphi_{\beta}$ would lead to signal attenuation with depth and its Jacobian to gradients dying, even for $\Delta_{\mathbf{h}}=\mathbf{0}$. If we instead propagate signal like $\mathbf{m}_{\mathrm{out}} = \varphi_{\beta} ( \varphi^{-1}_{\beta} (\mathbf{m}_{in}) + \Delta_{\mathbf{h}} )$ then $\mathbf{m}_{\mathrm{out}} = \mathbf{m}_{in}$ for $\Delta_{\mathbf{h}}=\mathbf{0}$, where $\varphi^{-1}_{\beta} (\mathbf{m}_{in})$ denotes the conjugate field required to sustain $\mathbf{m}_{in}$. Luckily, for the large-$D$ response, the inverse map of Eq. \eqref{eq:paralleltransformer} is analytic inside the open magnetization ball:
+A salient implementation detail is the module's `input_mode`, which is related to pre-norm normalization conventions and the stability of the forward and backward passes. We treat token embeddings presented to the first layer as physical fields added as residuals to the update step. In subsequent layers, the inputs are instead treated as conjugate fields of the magnetizations of the previous layer. Why do we do this? Because the residual stream is a shared communication bus, and we should try to keep it open and flowing. If we decided to pass magnetizations between modules like $\mathbf{m}_{\mathrm{out}} = \varphi_{\beta} \left( \mathbf{m}_{in} + \Delta_{\mathbf{h}} \right)$, then the contractiveness of the response map $\varphi_{\beta}$ would attenuate both signals and gradients with depth, even for $\Delta_{\mathbf{h}}=\mathbf{0}$. If we instead propagate signal like $\mathbf{m}_{\mathrm{out}} = \varphi_{\beta} ( \varphi^{-1}_{\beta} (\mathbf{m}_{in}) + \Delta_{\mathbf{h}} )$ then $\mathbf{m}_{\mathrm{out}} = \mathbf{m}_{in}$ for $\Delta_{\mathbf{h}}=\mathbf{0}$, where $\varphi^{-1}_{\beta} (\mathbf{m}_{in})$ denotes the conjugate field required to sustain $\mathbf{m}_{in}$. Luckily, for the large-$D$ response, the inverse map of Eq. \eqref{eq:paralleltransformer} is analytic inside the open magnetization ball:
 \begin{equation}
 \varphi^{-1}_{\beta}\left(\mathbf{m}\right) = \frac{2 \mathbf{m}}{\beta \left(1 - \lVert \mathbf{m} \rVert^2 / R^2\right)},   \quad \lVert \mathbf{m} \rVert < R.
 \end{equation}
@@ -299,8 +297,8 @@ We trained 3-, 6-, 12-, and 24-layer versions[^fn:layers] of the model with `seq
 
 {{< lightbox
   src="language_model_training.png"
-  alt=""
-  caption=""
+  alt="Left: held-out character-level cross-entropy for 3–24-layer models, with corpus n-gram baselines. Right: global gradient norm before and after clipping. All tested depths optimize smoothly without persistent clipping or gradient collapse."
+  caption="Left: held-out character-level cross-entropy for 3–24-layer models, with corpus n-gram baselines. Right: global gradient norm before and after clipping. All tested depths optimize smoothly without persistent clipping or gradient collapse."
 >}}
 
 During training, we generated fixed-seed top-k samples. _Alyosha remembers love_.
@@ -313,11 +311,11 @@ We checked the competition between terms in the update equation after training. 
 
 {{< lightbox
   src="language_model_fields.png"
-  alt="Final field decomposition at the end of training across depth"
-  caption="Final field decomposition at the end of training across depth"
+  alt="Final field decomposition at the end of training across depth: all three terms remain active."
+  caption="Final field decomposition at the end of training across depth: all three terms remain active."
 >}}
 
-This input-norm growth is not felt by the feed-forward and attention terms since they see normalized inputs. Recall from the stability-and-depth sidestep above that these growing residuals are harmless effective fields $\mathbf{h}$ associated to bounded magnetizations $\mathbf{m} = \varphi_{\beta} \left(\mathbf{h}\right)$ whose norms never exceed $R$. These could saturate, but we did not observe that during these runs. We also verified that later layers kept on contributing significant directional changes to the vectors in anticipation of the logits readout.
+This input-norm growth is not felt by the feed-forward and attention terms since they see normalized inputs. Recall from the stability-and-depth sidestep above that these growing residuals are harmless effective fields $\mathbf{h}$ associated with bounded magnetizations $\mathbf{m} = \varphi_{\beta} \left(\mathbf{h}\right)$ whose norms never exceed $R$. These could saturate, but we did not observe that during these runs. We also verified that later layers kept on contributing significant directional changes to the vectors in anticipation of the logits readout.
 
 {{< lightbox
   src="language_model_state_and_update_geometry.png"
@@ -327,44 +325,47 @@ This input-norm growth is not felt by the feed-forward and attention terms since
 
 ### Measuring the frozen-drive steady-state irreversibility proxy
 
-To demonstrate proxy instrumentation, we also logged the evolution of average frozen-drive steady-state irreversibility associated to the instantaneous steady-state fixed points at every layer. We observe that the proxy gradually rises and stabilizes during training after an initial drop.
+To demonstrate proxy instrumentation, we also logged the evolution of average frozen-drive steady-state irreversibility associated with the instantaneous steady-state fixed points at every layer. We observe that the proxy gradually rises and stabilizes during training after an initial drop.
 
 {{< lightbox
   src="language_model_proxy.png"
-  alt="Frozen-drive steady-state irreversibility during traing across depth"
-  caption="Frozen-drive steady-state irreversibility during traing across depth"
+  alt="Batched-averaged frozen-drive steady-state irreversibility during training across depth"
+  caption="Batched-averaged frozen-drive steady-state irreversibility during training across depth"
 >}}
 
-This experiment validates that these quantities are measurable during training, but not that they are currently useful for it in this context. Indeed, the steady-state irreversibility above is measured at the hypothetical continuation of each layer towards its frozen-drive fixed point. Away from stationarity, the steady-state cancellation used to derive the current formula Eq. \eqref{eq:sigma_hk} no longer holds and things get considerably more complicated. Even though the modules never visit their fixed points when run at $K=1$, there might still be a connection because the same update equation determines both the first step and the eventual frozen-drive steady state. We keep yapping, but are the modules even incentivized during training to approach their fixed points?
+This experiment demonstrates that the frozen-drive irreversibility proxy can be instrumented throughout training. Its quantitative fidelity for the learned, structured couplings is not established by this plot. Indeed, the steady-state irreversibility above is measured at the hypothetical continuation of each layer towards its frozen-drive fixed point. Away from stationarity, the steady-state cancellation used to derive the current formula Eq. \eqref{eq:sigma_hk} no longer holds and things get considerably more complicated. Even though the modules never visit their fixed points when run at $K=1$, there might still be a connection because the same update equation determines both the first step and the eventual frozen-drive steady state.
+
+So the instrumentation is available, but the more basic question is whether training has any incentive to approach these frozen-drive fixed points at all.
 
 
 ## Training at $K=1$ selects a nonequilibrium transient
 
-Let us focus on the 6-layer model and test the effect on the loss when increasing $K$ to 2, 4, and $\infty$ at inference time evaluated on same subset of validation batches. We find that approaching the module's fixed point leads to significant positive loss penalties, both for individual layers and when jointly increasing $K$ across all layers. Additional internal relaxation does not guarantee convergence toward a better answer in this setup: the $K=1$ outputs are not underconverged approximations of their respective layers' fixed points. 
+Let us focus on the 6-layer model and test the effect on the loss when increasing $K$ to 2, 4, and $\infty$ at inference time evaluated on the same subset of validation batches. We find that approaching the module's fixed point leads to substantial positive loss penalties, both for individual layers and when jointly increasing $K$ across all layers. For the one-layer-at-a-time interventions, increasing $K$ follows that layer's frozen-protocol relaxation path. The joint intervention is cumulative: changing earlier-layer outputs also changes the downstream protocols, so it measures the end-to-end consequence of relaxing the whole stack rather than one common relaxation trajectory. Additional internal relaxation does not guarantee convergence toward a better answer in this setup. The $K=1$ outputs are not underconverged approximations of their respective layers' fixed points. 
 
 {{< lightbox
   src="language_model_relaxation_intervention.png"
-  alt="Frozen-protocol relaxation interventions."
-  caption="Frozen-protocol relaxation interventions at inference time for $K=1,2,4,\infty$. Left: Final layer across a few checkpoints during training. Right: Final checkpoint interventions at all layers individually (and jointly)."
+  alt="Additional relaxation after K=1. Left: final-layer interventions across training checkpoints. Right: one-layer-at-a-time interventions at the final checkpoint. Extra local relaxation moves states toward their frozen-drive fixed points while, increasingly over training and across layers, raising held-out loss. The joint inset is a cumulative whole-stack intervention and also changes downstream protocols."
+  caption="Additional relaxation after K=1. Left: final-layer interventions across training checkpoints. Right: one-layer-at-a-time interventions at the final checkpoint. Extra local relaxation moves states toward their frozen-drive fixed points while, increasingly over training and across layers, raising held-out loss. The joint inset is a cumulative whole-stack intervention and also changes downstream protocols."
 >}}
 
-Since the model was trained at $K=1$, it is perhaps not surprising that relaxing for more iterations at inference time can hurt, even though all these relaxations lie along the same well-defined relaxation trajectory. But there is an interesting hypothesis here provided by the spin-model framework: maybe training at finite $K$ makes use of nonequilibrium transient states. Since relaxation horizon is an architectural control, a module trained at $K=1$ can specialize its computation to the finite-time state rather than trying to reach a fixed point that is perhaps not a good place for where it wants to go.
+Since the model was trained at $K=1$, it is perhaps not surprising that relaxing for more iterations at inference time can hurt, even though each one-layer intervention lies along that layer's well-defined frozen-protocol relaxation trajectory. But there is an interesting hypothesis here provided by the spin-model framework: maybe training at finite $K$ makes use of nonequilibrium transient states. Since relaxation horizon is an architectural control, a module trained at $K=1$ can specialize its computation to the finite-time state rather than trying to reach a fixed point that is perhaps not a good place for where it wants to go.
 
-To poke at this hypothesis, let us focus on the learned values at $K=1$, which are initializer states for the update equation, and find out what they are up to. If we intervene at every layer individually while leaving all other layers unaffected by replacing the learned values with controls like the residual, all-zeros, or shuffled values, we find that, across layers, the values are tuned for the task-relevant one-step transition, not for fixed-point proximity.
+To poke at this hypothesis, let us focus on the learned values at $K=1$, which are initializer states for the update equation, and find out what they are up to. We intervene at every layer individually, while leaving all other layers unaffected, by replacing the learned values with controls like the residual, all-zeros, or shuffled values. Across layers, we find that the learned values are tuned for the task-relevant one-step transition, not for fixed-point proximity.
 
 {{< lightbox
   src="language_model_initializer_causal.png"
-  alt=""
-  caption=""
+  alt="One frozen update from alternative initial states. Residual initialization begins closer to the fixed point but performs worse on the learned task, while shuffling the learned values disrupts task performance without producing a corresponding improvement in fixed-point proximity. The learned initializer is task-aligned rather than merely fixed-point-seeking."
+  caption="One frozen update from alternative initial states. Residual initialization begins closer to the fixed point but performs worse on the learned task, while shuffling the learned values disrupts task performance without producing a corresponding improvement in fixed-point proximity. The learned initializer is task-aligned rather than merely fixed-point-seeking."
 >}}
 
-Again, a trained initializer working better than untrained substitutes is expected. But the interesting parts are that (1) starting from the residual lands much closer to the fixed point after one step, yet performs worse, (2) learned values remain farther from the fixed point, yet give the best task result, and (3) shuffled values approximately preserve the distance to the fixed point but break its alignment with the current drive and routing so performance worsens. Learned values amortize the search for a good one-step task-conditioned control state across the dataset. So it seems like spin-model transformers surf comfortably away from equilibrium, and perhaps even need to.
+Again, a trained initializer working better than untrained substitutes is expected. But the suggestive parts are that (1) starting from the residual lands much closer to the fixed point after one step, yet performs worse, (2) learned values remain farther from the fixed point, yet give the best task result, and (3) shuffled values approximately preserve the distance to the fixed point but break its alignment with the current drive and routing so performance decreases. The learned values therefore provide a task-conditioned starting state for one frozen update. In this trained stack, fixed-point proximity is not the objective, and the useful computation is the transient.
+
 
 # Conclusion and outlook
 
 In this post, we have further refined the connection between mean-field vector-spin models and transformer-like neural networks as introduced in [Deep Implicit Attention: A Mean-Field Theory Perspective on Attention Mechanisms (2021)](https://mcbal.github.io/post/deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms/). We have shown how to build neural-network modules around a quench-and-relax protocol applied to simple mean-field approximations of driven nonequilibrium asymmetric vector-spin systems. We also discussed two measurable aspects of their dynamics: steady-state circulation under a fixed drive and post-quench relaxation following a change in the drive. Numerical experiments suggested that learning in these systems can exploit controlled nonequilibrium transients rather than approximate fixed-point computation.
 
-It would be interesting to consider the possible prediction, clamping, and parameter-update protocols that could be built around these dynamics, including temporal Hebbian-like learning rules. Do the proxies we defined reveal anything useful about how such systems learn or adapt under changing drives? Can we use mismatch proxies as a halting signal for adaptive test-time compute? To what other architectures do less simple mean-field approximations lead? Do useful models always rely on transient states and finite-step relaxation? How does the recurrent stateful module quadrant of the design space behave in practice?
+It would be interesting to consider the possible prediction, clamping, and parameter-update protocols that could be built around these dynamics, including temporal Hebbian-like learning rules. Do the proxies we defined reveal anything useful about how such systems learn or adapt under changing drives? Can we use mismatch proxies as a halting signal for adaptive test-time compute? To what other architectures do less simple mean-field approximations lead? Do useful models always rely on transient states and finite-step relaxation? What changes when state is carried between quenches or modules drive one another?
 
 
 # References
@@ -533,7 +534,7 @@ Substitution gives the magnetization-only form
 
 \begin{equation}D_{\mathrm{KL}}^{D\to\infty}\left(q_{\mathbf m_a}\Vert q_{\mathbf m_b}\right)\approx R^2\log\frac{R^2-\lVert\mathbf m_b\rVert^2}{R^2-\lVert\mathbf m_a\rVert^2}+\frac{2R^2\left(\lVert\mathbf m_b\rVert^2-\mathbf m_a\cdot\mathbf m_b\right)}{R^2-\lVert\mathbf m_b\rVert^2}.\end{equation}
 
-For the post-quench relaxation considered here, $\mathbf m_a=\mathbf m_{i,t,k}$ is the current magnetization and $\mathbf m_b=\mathbf m_{i,t}^{\star}$ is the instantaneous fixed-point magnetization. The full factorized mean-field mismatch is therefore
+For the post-quench relaxation considered here, $\mathbf m_a=\mathbf m_{i,t,k}$ is the current magnetization and $\mathbf m_b=\mathbf m_{i,t}^{\star}$ is the instantaneous fixed-point magnetization. The corresponding large-$D$ factorized mismatch is therefore
 
 \begin{equation}\Delta_{t,k}^{\mathrm{MF}}\approx\sum_i\left[R^2\log\frac{R^2-\lVert\mathbf m_{i,t}^{\star}\rVert^2}{R^2-\lVert\mathbf m_{i,t,k}\rVert^2}+\frac{2R^2\left(\lVert\mathbf m_{i,t}^{\star}\rVert^2-\mathbf m_{i,t,k}\cdot\mathbf m_{i,t}^{\star}\right)}{R^2-\lVert\mathbf m_{i,t}^{\star}\rVert^2}\right].\end{equation}
 
@@ -544,7 +545,7 @@ This expression is asymmetric, as required for a KL divergence. It vanishes when
 
 [^fn:plefka]: A first-order expansion around the non-interacting system between consecutive (internal relaxation) time slices. See [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/).
 
-[^fn:largedlim]: The large-$D$ approximation gets rid of dealing with the modified Bessel functions originating from the [von Mises-Fisher distribution](https://en.wikipedia.org/wiki/Von_Mises%E2%80%93Fisher_distribution) used in the ansatz for the decoupled mean magnetizations. It is mainly motivated by the empirical fact that the embedding dimensions in modern neural networks _are_ large. See [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/#magnetizations-and-limit-of-large-vector-dimension) for full details.
+[^fn:largedlim]: The large-$D$ approximation avoids repeated evaluation of modified Bessel functions originating from the [von Mises-Fisher distribution](https://en.wikipedia.org/wiki/Von_Mises%E2%80%93Fisher_distribution) used in the ansatz for the decoupled mean magnetizations. It is mainly motivated by the empirical fact that the embedding dimensions in modern neural networks _are_ large. See [Spin-Model Transformers (2023)](https://mcbal.github.io/post/spin-model-transformers/#magnetizations-and-limit-of-large-vector-dimension) for full details.
 
 [^fn:couplings]: A drive-dependent coupling rule turns a fixed-size $N \times N$ coupling matrix into a parameterized rule that supports variable system size, drive-conditioned routing, and a way to scale system size without learning new explicit parameters. Softmax attention is a convenient choice for a bounded positive row-stochastic coupling rule. Other possible choices include additive or multiplicative combinations with slower base coupling parameters $\mathbf{J}^{0}$ that are drive-independent, leading to a system with persistent interactions in the absence of a drive.
 
@@ -552,11 +553,11 @@ This expression is asymmetric, as required for a KL divergence. It vanishes when
 
 [^fn:lit]: We deliberately focus on our simple quench-and-relax use case because the nonequilibrium thermodynamics literature is very nuanced and, quite frankly, a daunting terminological minefield.
 
-[^fn:entropyproduction]: We are talking about the entropy production associated to the module's explicit stochastic parent dynamics. This is not about hardware energy consumption or physical dissipation.
+[^fn:entropyproduction]: We are talking about the entropy production associated with the module's explicit stochastic parent dynamics. This is not about hardware energy consumption or physical dissipation.
 
 [^fn:fidelityquench]: In the spirit of this post, this corresponds to one quenched coupling realization rather than a disorder-averaged result. We also fix $N$ and do not look at scaling in $N$ because (1) the control variable is really an effective $N_{\mathrm{eff}}$ determined by the concentration of the couplings, which, for our purposes, will be learned anyway and training might just ensure $N_{\mathrm{eff}} \sim O(1)$, (2) we expect that increasing effective connectivity should systematically improve one-point mean-field fidelity, while relative errors in the vanishing pairwise correlations probably will not disappear in the first-order approximation considered in this post, and (3) practical applications like causal attention have early rows with only a small number of available predecessors by construction, so their effective system size remains small even for large sequence length.
 
-[^fn:random]: Averaging more random realizations would establish typicality and steady-state behavior only within this artificial random ensemble. Future work should instead compare simulated and mean-field apprxomations using the kind of fields and couplings emerging from training on structured data.
+[^fn:random]: Averaging more random realizations would establish typicality and steady-state behavior only within this artificial random ensemble. Future work should instead compare simulated and mean-field approximations using the kind of fields and couplings emerging from training on structured data.
 
 [^fn:mcsampling]: At every sampled point, we ran five independent replicates, each containing 32 Markov chains initialized uniformly on the spin sphere. After 120 burn-in updates, we collected 300 synchronous updates per chain using the exact von Mises-Fisher conditional distribution. Thus, each replicate pooled 9,600 post-burn-in observations per site. Magnetizations and connected one-step delayed correlations were accumulated online without storing trajectories.
 
