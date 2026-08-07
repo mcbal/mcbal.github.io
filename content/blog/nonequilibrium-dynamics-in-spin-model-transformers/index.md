@@ -38,6 +38,8 @@ projects: []
 
 ---
 
+> **✨ TL;DR:** We construct a transformer-shaped module from the mean-field dynamics of a driven asymmetric vector-spin system, turning its forward pass into a controllable quench-and-relax process with explicit drive, relaxation, and learning timescales. This yields a design space spanning finite-step transformer-like, recurrent stateful, and fixed-point/DEQ-like computation, together with mean-field proxies for steady-state irreversibility and post-quench relaxation. Numerical experiments calibrate these approximations against stochastic simulations and show that, in a toy language model trained with a short relaxation horizon, useful computation is found in task-relevant nonequilibrium transients rather than in approaching the corresponding frozen-drive fixed points.
+
 
 # Introduction
 
@@ -293,12 +295,12 @@ A salient implementation detail is the module's `input_mode`, which is related t
 
 ### The loss goes down...
 
-We trained 3-, 6-, 12-, and 24-layer versions[^fn:layers] of the model with `seq_len=128`, `dim=128`, `num_heads=4`, and `dim_head=32`, and observed smooth convergence.
+We trained 3-, 6-, 12-, and 24-layer versions[^fn:layers] of the model with `seq_len=128`, `dim=128`, `num_heads=4`, and `dim_head=32`, and observed smooth, stable convergence.
 
 {{< lightbox
   src="language_model_training.png"
   alt="Left: Training loss character-level cross-entropy for 3–24-layer models, with corpus n-gram baselines. Right: Global gradient norm before and after clipping. All tested depths optimize smoothly without persistent clipping or gradient collapse."
-  caption="Left: Training loss character-level cross-entropy for 3–24-layer models, with corpus n-gram baselines. Right: Global gradient norm before and after clipping. All tested depths optimize smoothly without persistent clipping or gradient collapse."
+  caption="Left: Training loss character-level cross-entropy for 3–24-layer models, with corpus n-gram baselines. Right: Global gradient norm before and after clipping."
 >}}
 
 During training, we generated fixed-seed top-k samples. _Alyosha remembers love_.
