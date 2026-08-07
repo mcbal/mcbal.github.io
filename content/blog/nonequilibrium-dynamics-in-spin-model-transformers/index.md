@@ -315,7 +315,7 @@ We checked the competition between terms in the update equation after training. 
   caption="Final field decomposition at the end of training across depth: all three terms remain active."
 >}}
 
-This input-norm growth is not felt by the feed-forward and attention terms since they see normalized inputs. Recall from the stability-and-depth sidestep above that these growing residuals are harmless effective fields $\mathbf{h}$ associated with bounded magnetizations $\mathbf{m} = \varphi_{\beta} \left(\mathbf{h}\right)$ whose norms never exceed $R$. These could saturate, but we did not observe that during these runs. We also verified that later layers kept on contributing significant directional changes to the vectors in anticipation of the logits readout.
+This residual-norm growth is not felt by the feed-forward and attention terms since they see normalized inputs. Recall from the stability-and-depth paragraph above that these growing residuals are effective fields $\mathbf{h}$ associated with bounded magnetizations $\mathbf{m} = \varphi_{\beta} \left(\mathbf{h}\right)$ whose norms never exceed $R$. These could saturate, but we did not observe that during these runs. We also verified that later layers kept on contributing significant directional changes to the vectors in anticipation of the logits readout.
 
 {{< lightbox
   src="language_model_state_and_update_geometry.png"
@@ -325,7 +325,7 @@ This input-norm growth is not felt by the feed-forward and attention terms since
 
 ### Measuring the frozen-drive steady-state irreversibility proxy
 
-To demonstrate proxy instrumentation, we also logged the evolution of average frozen-drive steady-state irreversibility associated with the instantaneous steady-state fixed points at every layer. We observe that the proxy gradually rises and stabilizes during training after an initial drop.
+To demonstrate proxy instrumentation, we also logged the evolution of average frozen-drive steady-state irreversibility associated with the instantaneous steady-state fixed points for every layer. We observe that the proxy gradually rises and stabilizes during training after an initial drop.
 
 {{< lightbox
   src="language_model_proxy.png"
@@ -333,24 +333,26 @@ To demonstrate proxy instrumentation, we also logged the evolution of average fr
   caption="Batched-averaged frozen-drive steady-state irreversibility during training across depth"
 >}}
 
-This experiment demonstrates that the frozen-drive irreversibility proxy can be instrumented throughout training. Its quantitative fidelity for the learned, structured couplings is not established by this plot. Indeed, the steady-state irreversibility above is measured at the hypothetical continuation of each layer towards its frozen-drive fixed point. Away from stationarity, the steady-state cancellation used to derive the current formula Eq. \eqref{eq:sigma_hk} no longer holds and things get considerably more complicated. Even though the modules never visit their fixed points when run at $K=1$, there might still be a connection because the same update equation determines both the first step and the eventual frozen-drive steady state.
+This experiment demonstrates that the frozen-drive irreversibility proxy can be measured throughout training. Its quantitative fidelity for the learned, structured couplings is not established by this plot. Also, the steady-state irreversibility above is measured at the hypothetical continuation of each layer towards its frozen-drive fixed point. Away from stationarity, the steady-state cancellation used to derive the housekeeping entropy production formula Eq. \eqref{eq:sigma_hk} no longer holds and things get considerably more complicated. Even though the modules never visit their fixed points when run at $K=1$, there might still be a relation because the same update equation determines both the first step and the eventual frozen-drive steady state.
 
 So the instrumentation is available, but the more basic question is whether training has any incentive to approach these frozen-drive fixed points at all.
 
 
 ## Training at $K=1$ selects a nonequilibrium transient
 
-Let us focus on the 6-layer model and test the effect on the loss when increasing $K$ to 2, 4, and $\infty$ at inference time evaluated on the same subset of validation batches. We find that approaching the module's fixed point leads to substantial positive loss penalties, both for individual layers and when jointly increasing $K$ across all layers. For the one-layer-at-a-time interventions, increasing $K$ follows that layer's frozen-protocol relaxation path. The joint intervention is cumulative: changing earlier-layer outputs also changes the downstream protocols, so it measures the end-to-end consequence of relaxing the whole stack rather than one common relaxation trajectory. Additional internal relaxation does not guarantee convergence toward a better answer in this setup. The $K=1$ outputs are not underconverged approximations of their respective layers' fixed points. 
+Let us focus on the 6-layer model and test the end-to-end loss effect when increasing $K$ to 2, 4, and $\infty$ for layer $\ell$ at inference time. This intervention measures the network's sensitivity to moving layer $\ell$ farther along its local relaxation path, including how downstream layers respond to that now-slightly-off-distribution representation.
+
+In a one-layer-at-a-time intervention, the manipulated layer $\ell$ follows its original frozen-protocol relaxation trajectory because its incoming representation is unchanged. Its altered output nevertheless changes the drives and couplings of all subsequent layers, so the resulting loss penalty should be understood as an end-to-end downstream response rather than a strictly local effect. The joint intervention compounds such direct relaxation changes throughout the stack. Only the final-layer intervention is fully clean with respect to the task loss, since there are no subsequent spin-model layers whose protocols are changed.
 
 {{< lightbox
   src="language_model_relaxation_intervention.png"
-  alt="Additional relaxation after K=1. Left: final-layer interventions across training checkpoints. Right: one-layer-at-a-time interventions at the final checkpoint. Extra local relaxation moves states toward their frozen-drive fixed points while, increasingly over training and across layers, raising held-out loss. The joint inset is a cumulative whole-stack intervention and also changes downstream protocols."
-  caption="Additional relaxation after K=1. Left: final-layer interventions across training checkpoints. Right: one-layer-at-a-time interventions at the final checkpoint. Extra local relaxation moves states toward their frozen-drive fixed points while, increasingly over training and across layers, raising held-out loss. The joint inset is a cumulative whole-stack intervention and also changes downstream protocols."
+  alt="Additional relaxation after K=1 measuring the network's end-to-end sensitivity to moving a layer farther along its local relaxation path. Left: Final-layer interventions across training checkpoints measure sensitivity to extra relaxation during training. Right: One-layer-at-a-time interventions at the final checkpoint. Extra local relaxation moves states toward their frozen-drive fixed points while, increasingly over training and across layers, raising the downstream held-out loss."
+  caption="Additional relaxation after K=1 measuring the network's end-to-end sensitivity to moving a layer farther along its local relaxation path. Left: Final-layer interventions across training checkpoints measure sensitivity to extra relaxation during training. Right: One-layer-at-a-time interventions at the final checkpoint. Extra local relaxation moves states toward their frozen-drive fixed points while, increasingly over training and across layers, raising the downstream held-out loss."
 >}}
 
-Since the model was trained at $K=1$, it is perhaps not surprising that relaxing for more iterations at inference time can hurt, even though each one-layer intervention lies along that layer's well-defined frozen-protocol relaxation trajectory. But there is an interesting hypothesis here provided by the spin-model framework: maybe training at finite $K$ makes use of nonequilibrium transient states. Since relaxation horizon is an architectural control, a module trained at $K=1$ can specialize its computation to the finite-time state rather than trying to reach a fixed point that is perhaps not a good place for where it wants to go.
+In all cases, we find that additional internal relaxation does not guarantee convergence toward a better answer: the $K=1$ finite-step module outputs are not underconverged approximations of their respective layers' fixed points. Since the model was trained at $K=1$, it is perhaps not surprising that relaxing for more iterations at inference time can hurt performance, even though each layer intervention lies along that layer's well-defined frozen-protocol relaxation trajectory. But there is an interesting hypothesis here provided by the spin-model framework: maybe training at finite $K$ makes use of nonequilibrium transient states. Since relaxation horizon is an architectural control, a module trained at $K=1$ can specialize its computation to the finite-time state rather than trying to reach a fixed point that is perhaps not the right place for where it needs to go.
 
-To poke at this hypothesis, let us focus on the learned values at $K=1$, which are initializer states for the update equation, and find out what they are up to. We intervene at every layer individually, while leaving all other layers unaffected, by replacing the learned values with controls like the residual, all-zeros, or shuffled values. Across layers, we find that the learned values are tuned for the task-relevant one-step transition, not for fixed-point proximity.
+To poke at this hypothesis, let us focus on the learned values at $K=1$, which are initializer states for the update equation. We intervene on one layer at a time while leaving the parameters and update rules of all other layers unchanged. As before in the relaxation interventions, the altered outputs nevertheless change the drives and couplings encountered downstream. We replace the learned values with controls like the residual, all-zeros, or shuffled values. Across layers, we find that the learned values are tuned for task-relevant one-step transitions, not for fixed-point proximity.
 
 {{< lightbox
   src="language_model_initializer_causal.png"
@@ -358,7 +360,7 @@ To poke at this hypothesis, let us focus on the learned values at $K=1$, which a
   caption="One frozen update from alternative initial states. Residual initialization begins closer to the fixed point but performs worse on the learned task, while shuffling the learned values disrupts task performance without producing a corresponding improvement in fixed-point proximity. The learned initializer is task-aligned rather than merely fixed-point-seeking."
 >}}
 
-Again, a trained initializer working better than untrained substitutes is expected. But the suggestive parts are that (1) starting from the residual lands much closer to the fixed point after one step, yet performs worse, (2) learned values remain farther from the fixed point, yet give the best task result, and (3) shuffled values approximately preserve the distance to the fixed point but break its alignment with the current drive and routing so performance decreases. Learned values amortize the search for a good one-step task-conditioned starting state across the dataset. In this trained stack, fixed-point proximity is not the objective, and useful computation is found in the transient.
+Again, a trained initializer working better than untrained substitutes is expected. But the suggestive pieces of information are that (1) starting from the residual lands much closer to the fixed point after one step, yet performs worse, (2) learned values remain farther from the fixed point, yet give the best task result, and (3) shuffled values approximately preserve the distance to the fixed point but break its alignment with the current drive and routing so performance decreases. Intuitively, learned values amortize the search for a good one-step task-conditioned starting state from inputs, across the dataset. In this trained stack, fixed-point proximity is not the objective, and useful computation is found in the transient.
 
 
 # Conclusion and outlook
@@ -495,7 +497,7 @@ For the spin-model transformer module, the effective field at site $i$, external
 
 Each mean-field state therefore defines a factorized vMF approximation,
 
-\begin{equation}q_{t,k}(\mathbf s)=\prod_i q\left(\mathbf s_i\mid\boldsymbol\mu_{i,t,k},\kappa_{i,t,k}\right),\end{equation}
+\begin{equation}q_{t,k+1}(\mathbf s)=\prod_i q\left(\mathbf s_i\mid\boldsymbol\mu_{i,t,k},\kappa_{i,t,k}\right),\end{equation}
 
 with
 
