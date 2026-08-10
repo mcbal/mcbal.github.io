@@ -13,7 +13,7 @@ authors:
 tags: ["Artificial Intelligence", "Associative Memories", "Attention", "Cybernetics", "Deep Learning", "Dynamical Systems", "Entropy Production", "Ising Models", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Near-Equilibrium Dynamics", "Nonequilibrium Dynamics", "Quench Dynamics", "Relaxation", "Self-Organizing Computational Stability", "Statistical Physics", "Steady State", "Stochastic Thermodynamics", "Transformers", "Vector-Spin Models"]
 categories: []
 date: 2026-02-02T09:28:17+01:00
-lastmod: 2026-08-10T16:30:41+01:00
+lastmod: 2026-08-10T17:30:41+01:00
 featured: false
 draft: false
 toc: true
@@ -158,7 +158,7 @@ The resemblance to a transformer forward pass should be understood as a _plausib
 
 {{< lightbox
   src="nonequilibrium_dynamics_tikz.png"
-  alt="Summary of nonequilibrium dynamics in spin-model transfomers: drive quench, relaxation dynamics, and design space."
+  alt="Summary of nonequilibrium dynamics in spin-model transfomers: drive quench, mean-field relaxation dynamics, and design space."
   caption=""
 >}}
 
