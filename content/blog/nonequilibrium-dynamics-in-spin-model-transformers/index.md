@@ -38,7 +38,7 @@ projects: []
 
 ---
 
-> <strong>✨ TL;DR:</strong> We design a transformer-shaped module built around relaxation steps of a driven disordered spin system after an input "quench". Taking one step $\approx$ a parallel transformer block, taking $\infty$ steps $\approx$ a deep-equilibrium module. Training a toy language model shows that the one-step modules use unconverged transients, and do not approach their fixed points.
+> <strong>✨ TL;DR:</strong> We design a transformer-shaped module built around relaxation steps of a driven disordered spin system after an input "quench". Taking one learned-initialization step $\approx$ a parallel transformer block, taking $\infty$ steps $\approx$ a deep-equilibrium module. Training a toy language model shows that the one-step modules use unconverged transients, and do not approach their fixed points.
 
 ---
 
@@ -199,7 +199,7 @@ A driven spin-model transformer module with asymmetric couplings can thus be dia
 \begin{equation}
 \Sigma_{\mathrm{cycle}} \approx \sum^{K}_{k=1} \sigma_{\mathrm{tot},t,k} = \underbrace{\sum^{K}_{k=1} \sigma_{\mathrm{hk},t,k}}_{\text{rent, transient rate}} +  \underbrace{\left( \Delta_{t,0} - \Delta_{t,K} \right)}_{\text{moving costs}}
 \end{equation}
-where the transient housekeeping $\sigma_{\mathrm{hk},t,k} = \sigma_{\mathrm{tot},t,k} - (\Delta_{t,k} - \Delta_{t,k+1})$. [Appendix B](#appendix-b-mean-field-delayed-correlations-and-housekeeping-entropy-production) supplies the corresponding transient delayed-correlation approximation; the simple housekeeping expression is recovered after taking the stationary limit. The neural-network modules defined in the corners of the design space of the previous section allocate this "entropy budget" differently depending on the number of internal relaxation steps. The DEQ corner ($K \to \infty$) fully pays off the "moving costs" every cycle and then just pays rent. The transformer corner ($K=1$ with learned initialization) barely pays rent and then carries residual mismatch into the next drive change. Additional frozen-protocol relaxation pays down the moving costs. This should not be conflated with protocol-updating recurrence, where feeding the response back through the module defines a new effective quench. With a carried state or a well-tuned learned initializer, we can potentially reduce the opening balance of the next cycle.
+where the transient housekeeping $\sigma_{\mathrm{hk},t,k} = \sigma_{\mathrm{tot},t,k} - (\Delta_{t,k} - \Delta_{t,k+1})$. [Appendix B](#appendix-b-mean-field-delayed-correlations-and-housekeeping-entropy-production) supplies the corresponding transient delayed-correlation approximation; the simple housekeeping expression is recovered after taking the stationary limit. The neural-network modules defined in the corners of the design space of the previous section allocate this "entropy budget" differently depending on the number of internal relaxation steps. The DEQ corner ($K \to \infty$) fully pays off the "moving costs" every cycle and then just pays rent. The transformer corner ($K=1$ with learned initialization) barely pays rent and then does not relax the residual mismatch away. Additional frozen-protocol relaxation pays down the moving costs. This should not be conflated with protocol-updating recurrence, where feeding the response back through the module defines a new effective quench. With a carried state or a well-tuned learned initializer, we can potentially reduce the opening balance of the next cycle.
 
 
 ## Mean-field proxy for housekeeping entropy production
@@ -344,8 +344,8 @@ To demonstrate proxy instrumentation, we also logged the evolution of average fr
 
 {{< lightbox
   src="language_model_proxy.png"
-  alt="Batched-averaged frozen-drive steady-state irreversibility during training across depth. Its quantitative fidelity for the learned, structured couplings is not established by this plot."
-  caption="Batched-averaged frozen-drive steady-state irreversibility during training across depth. Its quantitative fidelity for the learned, structured couplings is not established by this plot."
+  alt="Batch-averaged frozen-drive steady-state irreversibility during training across depth. Its quantitative fidelity for the learned, structured couplings is not established by this plot."
+  caption="Batch-averaged frozen-drive steady-state irreversibility during training across depth. Its quantitative fidelity for the learned, structured couplings is not established by this plot."
 >}}
 
 This experiment demonstrates that the frozen-drive irreversibility proxy can be measured throughout training. Notably, the steady-state irreversibility above is measured at the hypothetical continuation of each layer towards its frozen-drive fixed point. Away from stationarity, the steady-state cancellation used to derive the housekeeping entropy production formula Eq. \eqref{eq:sigma_hk} no longer holds and things get considerably more complicated. Even though the modules never visit their fixed points when run at $K=1$, there might still be a relation because the same update equation determines both the first step and the eventual frozen-drive steady state.
@@ -365,7 +365,7 @@ In a one-layer-at-a-time intervention, the manipulated layer $\ell$ follows its 
   caption="Additional relaxation after K=1 measuring the network's end-to-end sensitivity to moving a layer farther along its local relaxation path. Left: Final-layer interventions across training checkpoints measure sensitivity to extra relaxation during training. Right: One-layer-at-a-time interventions at the final checkpoint. Extra local relaxation moves states toward their frozen-drive fixed points while, increasingly over training and across layers, raising the downstream held-out loss."
 >}}
 
-In all cases, we find that additional internal relaxation does not guarantee convergence toward a better answer: the $K=1$ finite-step module outputs are not underconverged approximations of their respective layers' fixed points. Since the model was trained at $K=1$, it is perhaps not surprising that relaxing for more iterations at inference time can hurt performance, even though each layer intervention lies along that layer's well-defined frozen-protocol relaxation trajectory. But there is an interesting hypothesis here provided by the spin-model framework: maybe training at finite $K$ makes use of nonequilibrium transient states. Since relaxation horizon is an architectural control, a module trained at $K=1$ can specialize its computation to the finite-time state rather than trying to reach a fixed point that is perhaps not the right place for where it needs to go.
+In all cases, we find that additional internal relaxation does not guarantee convergence toward a better answer: the $K=1$ finite-step module outputs are not underconverged approximations of their respective layers' fixed points. Since the model was trained at $K=1$, it is perhaps not surprising that relaxing for more iterations at inference time can hurt performance, even though each layer intervention lies along that layer's well-defined frozen-protocol relaxation trajectory. But there is an interesting hypothesis here provided by the spin-model framework: maybe training at finite $K$ makes use of nonequilibrium transient states. Since relaxation horizon is an architectural control, a module trained at $K=1$ can specialize its computation to the finite-time state rather than trying to reach a fixed point that is perhaps not where it needs to go.
 
 To poke at this hypothesis, let us focus on the learned values at $K=1$, which are initializer states for the update equation. We intervene on one layer at a time while leaving the parameters and update rules of all other layers unchanged. As before in the relaxation interventions, the altered outputs nevertheless change the drives and couplings encountered downstream. We replace the learned values with controls like the residual, all-zeros, or shuffled values. Across layers, we find that the learned values are tuned for task-relevant one-step transitions, not for fixed-point proximity.
 
@@ -420,7 +420,7 @@ Miguel Aguilera, S. Amin Moosavi, and Hideaki Shimazaki
 | Symbol | Meaning |
 |---|---|
 | **State & geometry** | |
-| $\mathbf{s}_{i,t}\in\mathbb{R}^D$ | Vector spin at site $i$, external time $t$ |
+| $\mathbf{s}_{i,t,k}\in\mathbb{R}^D$ | Vector spin at site $i$, external time $t$, relaxation step $k$ |
 | $\mathbf{m}_{i,t,k}$ | Magnetization (spin expectation value) at relaxation step $k$ |
 | $\mathbf{h}_{i,t,k}$ | Effective field acting on site $i$ |
 | $N, D$ | Number of sites (spins); vector-spin dimension |
@@ -497,7 +497,7 @@ where
 
 \begin{align}
   \gamma^{\star}_{i,t} &= \sqrt{1 + \beta^2 \lVert \mathbf{h}^{\star}_{i,t} \rVert^2 / R^2 },\\
-  \mathbf{h}^{\star}_{i,t} &= \mathbf{x}_{i,t} + f\left( \mathbf{x}_{i,t} \right) + \sum_{l} J_{il} (\mathbf{X}_{t}) \mathbf{m}^{\star}_{l,t}.
+  \mathbf{h}^{\star}_{i,t} &= \mathbf{x}_{i,t} + f_{\theta_{\text{FFN}}} \left( \mathbf{x}_{i,t} \right) + \sum_{l} J_{il} (\mathbf{X}_{t}) \mathbf{m}^{\star}_{l,t}.
 \end{align}
 
 Since $\gamma^{\star} \sim O(1)$, the one-step delayed correlations $D^{\star}_{ij,t}$ are dominated by a large angle-independent isotropic contribution $O(D)$ with the other three terms being $O(1)$. The housekeeping entropy production proxy in the `Plefka[t-1,t]` approximation becomes
