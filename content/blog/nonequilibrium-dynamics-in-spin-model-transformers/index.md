@@ -93,7 +93,7 @@ contains a _parameterized drive-conditioned coupling rule_[^fn:couplings]
   \mathbf{J} (\mathbf{X}_{t}) = \mathrm{softmax}\left( \alpha \mathbf{X}_{t} \boldsymbol{W}_{Q} \boldsymbol{W}_{K}^{T} \mathbf{X}_{t}^{T} \right), \label{eq:softmax}
 \end{equation}
 
-and a _parameterized position-wise non-linear drive-conditioned field_ $f_{\boldsymbol{\theta}_{\mathrm{FFN}}}\left( \mathbf{x}_{i,t} \right)$ added to the local drive $\mathbf{x}_{i,t}$. Each vector spin effectively experiences a local mean-field that is the sum of a residual stream drive, a feed-forward-like drive, and attention-like couplings. The time index $t$ tracks changes in the external drive while $k$ indexes an internal relaxation step.
+and a _parameterized position-wise non-linear drive-conditioned field_ $f_{\boldsymbol{\theta}_{\mathrm{FFN}}}\left( \mathbf{x}_{i,t} \right)$ added to the local drive $\mathbf{x}_{i,t}$. The latter can be motivated as a learnable self-correction term in the style of the Thouless–Anderson–Palmer (TAP) approach. Each vector spin effectively experiences a local mean-field that is the sum of a residual stream drive, a feed-forward-like drive, and attention-like couplings. The time index $t$ tracks changes in the external drive while $k$ indexes an internal relaxation step.
 
 By making the effective drive as well as the couplings depend on the drive $\mathbf{X}_{t}$, a sudden shift $\mathbf{X}_{t} \to \mathbf{X}_{t+1}$ changes both the local fields as well as the interactions and quenches the system into a new instantaneous dynamics[^fn:protocol]. During internal relaxation iterations, the drive $\mathbf{X}_{t}$ and the parameters $\boldsymbol{\theta} = \{ \mathbf{W}_{Q}, \mathbf{W}_{K}, \boldsymbol{\theta}_{\mathrm{FFN}} \}$ are held fixed.
 
