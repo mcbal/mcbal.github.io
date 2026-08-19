@@ -36,7 +36,7 @@ projects: []
 
 ---
 
-> **✨ Update (November 2021):** Please consider reading [Transformers Are Secretly Collectives of Spin Systems](https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/) for an arguably more comprehensive approach towards understanding transformers from a physics perspective.
+> **✨ Update (August 2026):** For the fuller picture, read [Nonequilibrium Dynamics in Spin-Model Transformers](/post/nonequilibrium-dynamics-in-spin-model-transformers/), which develops this early energy-based view into a more comprehensive framework built around driven mean-field dynamics, relaxation, and controllable computation.
 
 
 # Introduction

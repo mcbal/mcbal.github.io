@@ -32,7 +32,7 @@ projects: []
 
 ---
 
-> **✨ Update (April 2023):** Consider reading [Spin-Model Transformers: A Physics-Inspired Class of Transformer Modules](https://mcbal.github.io/post/spin-model-transformers/) where we continue building on the intuition of probing a spin system to engineer its collective response but get rid of the assumption of symmetric coupling matrices by shifting focus from equilibrium free energies to dynamical mean-field approximations of non-equilibrium vector-spin models.
+> **✨ Update (August 2026):** For the latest and most comprehensive version of this idea, read [Nonequilibrium Dynamics in Spin-Model Transformers](/post/nonequilibrium-dynamics-in-spin-model-transformers/), which develops the spin-system intuition into a concrete design space for driven dynamics, relaxation, stability, and control.
 
 
 # Introduction

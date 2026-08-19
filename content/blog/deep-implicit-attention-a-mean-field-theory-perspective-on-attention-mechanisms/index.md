@@ -32,12 +32,12 @@ projects: []
 
 ---
 
-> **✨ Update (November 2021):** Consider reading [Transformers Are Secretly Collectives of Spin Systems](https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/) for a high-level overview of some of the ideas outlined in this post.
+> **✨ Update (August 2026):** For a more complete development of this collective-response perspective, read [Nonequilibrium Dynamics in Spin-Model Transformers](/post/nonequilibrium-dynamics-in-spin-model-transformers/), which situates the mean-field intuition within a quench-and-relax framework for nonequilibrium dynamics.
 
 
 # Introduction
 
-> **✨ Code: A reference PyTorch implementation of the ideas outlined in this blog post is available in the repository [`mcbal/deep-implicit-attention`](https://github.com/mcbal/deep-implicit-attention). Comments welcome.**
+> **✨ Code:** A reference PyTorch implementation of the ideas outlined in this blog post is available in the repository [`mcbal/deep-implicit-attention`](https://github.com/mcbal/deep-implicit-attention). Comments welcome.
 
 To explore progress beyond the cage of softmax attention, we have previously looked at energy-based perspectives on attention mechanisms:
 

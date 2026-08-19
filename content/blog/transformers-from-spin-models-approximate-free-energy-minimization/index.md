@@ -31,10 +31,7 @@ projects: []
 
 ---
 
----
-
-> **✨ Update (November 2021):** Consider reading [Transformers Are Secretly Collectives of Spin Systems](https://mcbal.github.io/post/transformers-are-secretly-collectives-of-spin-systems/) for a high-level overview of some of the ideas outlined in this post.
-
+> **✨ Update (August 2026):** For a more developed framework, read [Nonequilibrium Dynamics in Spin-Model Transformers](/post/nonequilibrium-dynamics-in-spin-model-transformers/), which moves beyond the equilibrium free-energy assumptions used here and replaces them with a broader account of driven relaxation and nonequilibrium computation.
 
 # Introduction
 

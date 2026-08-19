@@ -30,6 +30,7 @@ image:
 projects: []
 ---
 
+> **✨ Update (August 2026):** If the energy-landscape intuition here is useful, continue with [Nonequilibrium Dynamics in Spin-Model Transformers](/post/nonequilibrium-dynamics-in-spin-model-transformers/), which turns that static picture into a broader framework for driven, controllable quench-and-relax computation.
 
 # Introduction
 

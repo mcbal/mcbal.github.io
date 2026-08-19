@@ -30,9 +30,12 @@ image:
 projects: []
 ---
 
-# Introduction
+> **✨ Update (August 2026):** For the most complete treatment of this framework, read [Nonequilibrium Dynamics in Spin-Model Transformers](/post/nonequilibrium-dynamics-in-spin-model-transformers/), which carries the vector-spin construction forward into a broader study of quench protocols, relaxation, stability, and controllable nonequilibrium dynamics.
 
 > ✨ **TL;DR:** _We interpret and implement transformer modules as driven, disordered vector-spin models whose response behavior can be shaped by learning parameterized interactions, gradually steering a cascade of near-equilibrium steady-state magnetizations towards solving a given objective. Using dynamical mean-field theory, we show that a first-order approximation of the update equations for the magnetizations reproduces residual and attention terms. Going to second-order adds explicit expressions for feed-forward-like correction terms that are fully determined by the mean-field structure of the underlying spin model. By blending ideas from deep learning and statistical mechanics, we hope our work can help open up broader interdisciplinary bridges to improve our understanding of learning and generalization in transformer neural networks._
+
+
+# Introduction
 
 > ✨ **GitHub repository: [`mcbal/spin-model-transformers`](https://github.com/mcbal/spin-model-transformers)**
 
