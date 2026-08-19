@@ -5,12 +5,12 @@ name:
   display: Matthias Bal
   given: Matthias
   family: Bal
-postnominals: []
+postnominals: PhD
 status:
   icon: ""
 role:
 email: matthiascbal@gmail.com
-bio: AI/ML engineer with a background in physics.
+bio: AI/ML engineer with a background in physics and biotech
 
 affiliations: []
 
@@ -28,7 +28,7 @@ links:
     url: https://scholar.google.be/citations?user=vjYY0bMAAAAJ&hl=en
 
 interests:
-  - Machine learning, deep learning, and anything but AI
+  - Machine learning, deep learning, and artificial intelligence
   - Statistical physics, many-body systems, and tensor networks
   - Literature, language, and the stories we tell ourselves
 

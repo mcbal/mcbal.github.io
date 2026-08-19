@@ -71,6 +71,14 @@ markup:
     startLevel: 1
     endLevel: 6
 security:
+  exec:
+    allow:
+      - "^(dart-)?sass$"
+      - "^go$"
+      - "^git$"
+      - "^node$"
+      - "^postcss$"
+      - "^tailwindcss$"
   _merge: deep
 sitemap:
   _merge: deep

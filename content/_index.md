@@ -71,6 +71,6 @@ sections:
           light: "#ffffff"
           dark: "#ffffff"
       spacing:
-        padding: ["3rem", "0", "2rem", "0"]
+        padding: ["2rem", "0", "1rem", "0"]
 
 ---

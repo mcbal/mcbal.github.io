@@ -19,7 +19,7 @@ hugoblox:
     # Schema.org type for structured data
     type: person                        # person | organization | local_business
     # Short tagline displayed on your site
-    tagline: "Machine learning engineer with a background in physics"
+    tagline: "AI/ML engineer with a background in physics and biotech"
     # Site meta description for search engines and social sharing
     description: "Matthias Bal's personal website and technical blog on machine learning, statistical physics, and computational modeling."
     # Social accounts (used for meta tags like Twitter Cards)
