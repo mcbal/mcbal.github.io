@@ -147,7 +147,7 @@
   {{ end }}
 {{ end }}
 
-<div class="relative min-h-[72vh] flex items-center justify-center overflow-hidden">
+<div class="relative flex items-center justify-center overflow-hidden">
   
   {{/* Background Effects - only visible in dark mode */}}
   <div class="absolute inset-0 pointer-events-none dark:block hidden">
@@ -166,7 +166,7 @@
     <div class="absolute bottom-1/4 -right-20 w-80 h-80 bg-secondary-100 rounded-full blur-3xl"></div>
   </div>
 
-  <div class="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-14 {{ if eq $style "centered" }}text-center{{ end }}">
+  <div class="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8 {{ if eq $style "centered" }}text-center{{ end }}">
     
     {{ if eq $style "split" }}
     {{/* Split layout with avatar on side */}}

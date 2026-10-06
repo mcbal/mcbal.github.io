@@ -5,31 +5,6 @@ date: 2026-06-17
 type: landing
 
 sections:
-  - block: collection
-    id: blog
-    content:
-      title: Recent Posts
-      subtitle: "Notes on attention, energy landscapes, spin systems, and neural dynamics"
-      filters:
-        folders:
-          - blog
-        exclude_featured: false
-      count: 5
-      order: desc
-      archive:
-        enable: true
-        text: "Browse all posts"
-        link: "/blog/"
-    design:
-      view: card
-      columns: 3
-      background:
-        color:
-          light: "#ffffff"
-          dark: "#ffffff"
-      spacing:
-        padding: ["3rem", "0", "2rem", "0"]
-
   - block: dev-hero
     id: about
     content:
@@ -71,6 +46,31 @@ sections:
           light: "#ffffff"
           dark: "#ffffff"
       spacing:
-        padding: ["2rem", "0", "1rem", "0"]
+        padding: ["1rem", "0", "0", "0"]
+
+  - block: collection
+    id: blog
+    content:
+      title: Recent Posts
+      subtitle: "Notes on attention, energy landscapes, spin systems, and neural dynamics"
+      filters:
+        folders:
+          - blog
+        exclude_featured: false
+      count: 6
+      order: desc
+      archive:
+        enable: true
+        text: "Browse all posts"
+        link: "/blog/"
+    design:
+      view: article-grid
+      columns: 3
+      background:
+        color:
+          light: "#ffffff"
+          dark: "#ffffff"
+      spacing:
+        padding: ["1rem", "0", "2rem", "0"]
 
 ---
