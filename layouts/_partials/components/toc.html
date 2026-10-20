@@ -3,7 +3,7 @@
 {{- $toc := .Params.toc | default true -}}
 
 {{/* UI Text */}}
-{{- $on_this_page := T "on_this_page" }}
+{{- $on_this_page := "Contents" }}
 {{- $edit_this_page := T "edit_page" }}
 
 <nav class="hb-toc order-last hidden w-64 shrink-0 xl:block print:hidden px-4" aria-label="table of contents">
@@ -102,9 +102,10 @@
     };
 
     const setActive = () => {
+      const activationPoint = window.innerHeight / 2;
       let active = headings[0].id;
       for (const heading of headings) {
-        if (heading.getBoundingClientRect().top <= 112) {
+        if (heading.getBoundingClientRect().top <= activationPoint) {
           active = heading.id;
         } else {
           break;
@@ -130,6 +131,7 @@
 
     setActive();
     window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
     window.addEventListener("hashchange", requestUpdate);
   });
 </script>

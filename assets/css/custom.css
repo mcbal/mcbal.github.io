@@ -297,6 +297,22 @@ body {
   padding-bottom: 1.25rem;
 }
 
+/* Keep article headings smaller than the post title at every viewport size. */
+.article-content.prose h1 {
+  font-size: 1.875rem;
+  line-height: 1.2;
+}
+
+.article-content.prose h2 {
+  font-size: 1.5rem;
+  line-height: 1.333333;
+}
+
+.article-content.prose h3 {
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
 /* The typography preset gives h1 no top margin while spacing smaller
    headings progressively farther away. Keep section spacing hierarchical. */
 .article-content > h1:not(:first-child) {
