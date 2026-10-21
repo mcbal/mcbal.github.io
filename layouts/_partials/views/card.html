@@ -186,10 +186,7 @@
             <span class="hidden sm:inline opacity-40">•</span>
           {{ end }}
           {{ if $showReadTime }}
-            {{ $content := $item.Content | plainify }}
-            {{ $words := len (split $content " ") }}
-            {{ $readTime := div $words 200 }}
-            {{ if lt $readTime 1 }}{{ $readTime = 1 }}{{ end }}
+            {{ $readTime := partial "functions/reading_time" $item }}
             <span class="hidden sm:inline whitespace-nowrap">{{ $readTime }} {{ i18n "minute_read" }}</span>
           {{ end }}
         </div>

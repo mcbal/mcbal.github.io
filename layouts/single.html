@@ -145,7 +145,7 @@
         {{ if ne .Params.reading_time false }}
         <span class="mx-1">·</span>
         <span class="mx-1">
-          {{ .ReadingTime }} {{ i18n "minute_read" }}
+          {{ partial "functions/reading_time" . }} {{ i18n "minute_read" }}
         </span>
         {{ end }}
         </div>

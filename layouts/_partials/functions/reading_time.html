@@ -1,0 +1,31 @@
+{{- /* Exclude appendix sections, resuming at the next peer or higher heading.
+     Work with rendered headings so code examples and inline mentions still count. */ -}}
+{{- $content := "" -}}
+{{- $appendixLevel := 0 -}}
+{{- $hasAppendix := false -}}
+{{- $sections := split (replaceRE `(?i)(<h[1-6][\s>])` "\x00${1}" .Content) "\x00" -}}
+{{- range $sections -}}
+  {{- $heading := "" -}}
+  {{- range findRE `(?is)^<h[1-6]\b[^>]*>.*?</h[1-6]\s*>` . 1 -}}
+    {{- $heading = . -}}
+  {{- end -}}
+  {{- with $heading -}}
+    {{- $level := int (substr . 2 1) -}}
+    {{- if and (gt $appendixLevel 0) (le $level $appendixLevel) -}}
+      {{- $appendixLevel = 0 -}}
+    {{- end -}}
+    {{- if and (eq $appendixLevel 0) (or (findRE `(?i)^appendi(?:x|ces)(?:\s|:|$)` (plainify . | htmlUnescape | strings.TrimSpace)) (findRE `(?i)\bid=["']appendices["']` .)) -}}
+      {{- $appendixLevel = $level -}}
+      {{- $hasAppendix = true -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if eq $appendixLevel 0 -}}
+    {{- $content = printf "%s%s" $content . -}}
+  {{- end -}}
+{{- end -}}
+{{- $minutes := .ReadingTime -}}
+{{- if $hasAppendix -}}
+  {{- /* Match Hugo's default rate of 212 words per minute, rounded up. */ -}}
+  {{- $minutes = int (math.Ceil (div (float (countwords (plainify $content | htmlUnescape))) 212.0)) -}}
+{{- end -}}
+{{- return (math.Max 1 $minutes | int) -}}
