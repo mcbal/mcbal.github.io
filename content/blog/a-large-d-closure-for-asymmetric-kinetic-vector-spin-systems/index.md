@@ -20,7 +20,7 @@ toc: true
 image:
   caption: ""
   focal_point: ""
-  preview_only: true
+  preview_only: false
 
 # Projects (optional).
 #   Associate this post with one or more of your projects.
@@ -56,11 +56,11 @@ We send $D\to\infty$ at fixed $N$, $J$, $\beta>0$ and $\beta\lVert\mathbf x_i\rV
 
 ## High-dimensional vMF geometry
 
-In units of the spin radius, the geometry stays simple as $D\to\infty$. With $\kappa\propto D$, typical vMF samples occupy a thin ring at a fixed latitude around the field direction, with the mean at its center (Figure 1, [Appendix A](#appendix-a-the-geometry-of-a-high-dimensional-vmf)).
+In units of the spin radius, the geometry stays simple as we let $D\to\infty$. With $\kappa\propto D$, typical vMF samples occupy a thin ring at a fixed latitude around the field direction, with the mean at its center (Figure 1(a), [Appendix A](#appendix-a-the-geometry-of-a-high-dimensional-vmf)).
 
 > 💡 **Why a ring?** The field favors alignment, but the sphere offers far more room to wiggle sideways. With $\kappa \propto D$, these effects balance out at a fixed latitude. Increasing $D$ narrows that latitude without eliminating the transverse wobble: the noise stays large, but its length becomes predictable.
 
-The fluctuation $\delta\mathbf s=\mathbf s-\mathbf m$ has squared length $O(D)$, spread over $D-1$ transverse directions, while its variance along any unit direction is $O(1)$. It is nearly perpendicular to the mean, so $\lVert\mathbf m\rVert^2+\lVert\delta\mathbf s\rVert^2\simeq R^2$. Independent transverse fluctuations are nearly orthogonal, so _their squared lengths add when summed_. Increasing $D$ sharpens the ring without shrinking its radius.
+The fluctuation $\delta\mathbf s=\mathbf s-\mathbf m$ has squared length $O(D)$, spread over $D-1$ transverse directions, while its variance along any unit direction is $O(1)$. It is nearly perpendicular to the mean, so $\lVert\mathbf m\rVert^2+\lVert\delta\mathbf s\rVert^2\simeq R^2$. Independent transverse fluctuations are nearly orthogonal, so _their squared lengths add when summed_. Increasing $D$ sharpens the ring without shrinking its radius (Figure 1(b)).
 
 {{< lightbox
   src="ring.png"
@@ -139,11 +139,10 @@ Both terms can be $O(D)$. The useful large-$D$ fact is that the squared norm con
 
 > 💡 **Predictable geometry.** Field lengths depend only on spin–spin and drive–spin overlaps. These start concentrated. Each update changes their typical values smoothly, while fresh noise adds only $O(D^{-1/2})$ fluctuations to normalized overlaps. Concentration therefore carries forward for any fixed number of updates, even as shared inputs correlate the spins ([Appendix C](#appendix-c-concentration-and-closure)).
 
-This works at fixed couplings and site count, without requiring many weak inputs. Correlated spins can have predictable overlaps too.
 
 ## A deterministic gain
 
-We now evaluate the same gain function at the typical squared length, $a_i\equiv g(r_i^2)$:
+We now evaluate the same gain function at the field's typical squared length, $a_i\equiv g(r_i^2)$, so that
 
 \begin{equation}
 \mathbf s_i'\simeq a_i\mathbf h_i+\boldsymbol\epsilon_i,
@@ -152,11 +151,13 @@ We now evaluate the same gain function at the typical squared length, $a_i\equiv
 \label{eq:linear}
 \end{equation}
 
-> 💡 **Normalize by the full length.** At strong fields, $\varphi_\beta(\mathbf h)\simeq R\mathbf h/\lVert\mathbf h\rVert$. The denominator concentrates at $r_i$, while the numerator averages to $\bar{\mathbf h}_i$. Thus $\mathbf m_i'\simeq R\bar{\mathbf h}_i/r_i$. Mean field divides by $\lVert\bar{\mathbf h}_i\rVert$ instead, missing the extra length supplied by noise.
-
 Here $\boldsymbol\epsilon_i=\mathbf s_i'-\boldsymbol\mu_D(\mathbf h_i)$ is the fresh sampling noise. Its conditional mean is zero, so it is uncorrelated with the past; conditional independence across sites also makes distinct sites' fresh noises uncorrelated. Its expected squared length is $2R^2/(1+\gamma_i)$ to leading order.
 
-With a deterministic gain, the update is linear in the old fluctuations. Taking expectations and expected dot products of the fluctuations gives, with $A=\mathrm{diag}(a)$,
+Because the gain decreases with squared field norm, including $v_i$ lowers the gain. At the same current mean field, the closure therefore predicts a shorter next mean in the same direction. Over later updates, the changed balance between drive and feedback can also change the direction.
+
+> 💡 **Normalizing by the full length.** At strong fields, $\varphi_\beta(\mathbf h)\simeq R\mathbf h/\lVert\mathbf h\rVert$. The denominator concentrates at $r_i$, while the numerator averages to $\bar{\mathbf h}_i$. Thus $\mathbf m_i'\simeq R\bar{\mathbf h}_i/r_i$. Mean field divides by $\lVert\bar{\mathbf h}_i\rVert$ instead, missing the extra length supplied by noise.
+
+With a deterministic gain, the update is linear in the old fluctuations. Taking expectations and expected dot products of the fluctuations, with $A=\mathrm{diag}(a)$, we find
 
 \begin{equation}
 \boxed{
@@ -168,22 +169,20 @@ D_{ij}&=a_i(JC)_{ij}.
 \label{eq:closure}
 \end{equation}
 
-Here $D_{ij}=\mathbb E[\delta\mathbf s_i'\cdot\delta\mathbf s_j]$ is the one-step delayed covariance. Old noise passes through $AJ$; fresh noise supplies the diagonal term in $C'$ and contributes nothing to $D_{ij}$. These are leading-order moment equations, requiring no Gaussian assumption on the field.
+Here $D_{ij}=\mathbb E[\delta\mathbf s_i'\cdot\delta\mathbf s_j]$ is the one-step delayed covariance. Old noise passes through $AJ$; fresh noise supplies the diagonal term in $C'$ and contributes nothing to $D_{ij}$. These are leading-order moment equations, requiring no Gaussian assumption on the field. The computational cost is $O(N^2D+N^3)$ due to the dense covariance update, but [can be reduced](#carrying-noise-instead-of-a-matrix) to $O(N^2D+kN^2)$ by carrying along $k$ noise channels.
 
-The recursion preserves the sphere identity exactly:
+The recursion also preserves the sphere identity exactly:
 
 \begin{equation}
 \lVert\mathbf m_i'\rVert^2+C_{ii}'
 =a_i^2r_i^2+\frac{2R^2}{1+\gamma_i}=R^2.
 \end{equation}
 
-Whatever the mean loses in squared length is gained by the noise. Scalar couplings let us follow this balance using traces alone, without $D\times D$ covariance blocks. In units of $R$, the equations have no explicit $D$; a dense step costs $O(N^2D+N^3)$.
+Whatever the mean loses in squared length is gained by the noise. Scalar couplings let us follow this balance using traces alone, without $D\times D$ covariance blocks.
 
 ## What mean field misses
 
-Because the gain decreases with squared field norm, including $v_i$ lowers the gain. At the same current mean field, the closure therefore predicts a shorter next mean in the same direction. Over later updates, the changed balance between drive and feedback can also change the direction.
-
-From a product start, only the individual input variances contribute:
+**Sharp attention.** From a product start, only the individual input variances contribute:
 
 \begin{equation}
 v_i=\sum_jJ_{ij}^2\left(R^2-\lVert\mathbf m_{0,j}\rVert^2\right)
@@ -192,9 +191,9 @@ v_i=\sum_jJ_{ij}^2\left(R^2-\lVert\mathbf m_{0,j}\rVert^2\right)
 \label{eq:first}
 \end{equation}
 
-For nonnegative rows summing to one, $N_{\mathrm{eff}}$ ranges from 1 for a single input to $N$ for uniform weights. Diffuse weights suppress independent input noise; concentrated weights retain it.
+For couplings with nonnegative rows summing to one (like `softmax`), $N_{\mathrm{eff}}$ ranges from 1 for a single input to $N$ for uniform weights. Diffuse attention suppresses independent input noise and sharp attention retains it.
 
-After an update, sites reading the same inputs acquire covariance. This shared noise feeds back into $v_i$ and contributes to delayed correlations:
+**Shared inputs.** After an update, sites reading the same inputs acquire covariance. This shared noise feeds back into $v_i$ and contributes to delayed correlations:
 
 \begin{equation}
 D_{ij}=\underbrace{a_iJ_{ij}C_{jj}}_{\text{direct}}
@@ -229,10 +228,10 @@ Mean field instead levels off at about 23% for mean overlaps and 20% for delayed
 {{< lightbox
   src="fieldnorm.png"
   alt="Squared field norms at one site for D = 64 and 1024. The distribution narrows around the closure's prediction, well above the mean-field value."
-  caption="**Figure 3.** Squared field norm entering the first update at the most concentrated site. Mean field retains only $\lVert\bar{\mathbf h}_i\rVert^2$, about a third of the typical value. Adding $v_i$ locates the center of the distribution, whose width scales as $D^{-1/2}$."
+  caption="**Figure 3.** Squared field norm entering the first update at the site with the sharpest attention ($N_{\mathrm{eff}}\approx1$). Mean field retains only $\lVert\bar{\mathbf h}_i\rVert^2$, about a third of the typical value. Adding $v_i$ locates the center of the distribution, whose width scales as $D^{-1/2}$."
 >}}
 
-## Concentrated weights and shared inputs
+## Sharp attention and shared inputs
 
 A causal mask lets us vary $N_{\mathrm{eff}}$ across sites in one run. After one update at $D=256$, the mean-field error falls from 29% for single-input rows to 3% at $N_{\mathrm{eff}}\approx20$, while the closure stays near 0.4%. The deterministic gap between the two predictions accounts for nearly all of the mean-field error: the missing field length is the main effect.
 
@@ -242,7 +241,7 @@ A causal mask lets us vary $N_{\mathrm{eff}}$ across sites in one run. After one
   caption="**Figure 4.** (a) Per-site mean error after one update under a causal mask ($D=256$). Crosses: the gap between mean field and the closure. (b) Errors after four updates with identical row weights, scattered over columns or placed on common inputs ($D=64$)."
 >}}
 
-For a one-step module with a product initializer, the correction needs only one extra pass with squared weights over the initializer's per-site variance, with `gamma0` evaluated in the initializer fields:
+For a one-step module with a product initializer, the correction to naive mean field needs only one extra pass with squared weights over the initializer's per-site variance, with `gamma0` evaluated in the initializer fields:
 
 ```python
 H = X + J @ M
@@ -252,7 +251,7 @@ gamma = np.sqrt(1 + beta**2 * ((H * H).sum(-1) + v) / R2)
 M_next = beta * H / (1 + gamma)[:, None]
 ```
 
-One can think of this as a variance-aware `RMSNorm`: the normalizer includes the field's noise variance.
+One can think of this corrected response as a variance-aware `RMSNorm` where the normalizer includes the field's noise variance.
 
 After several updates, shared inputs matter too. Keeping each row's weights fixed but moving the large weights onto common columns raises the cross-site contribution to $v_i$ from 1.5% to 37%. Mean field then misses mean overlaps by 76% and delayed correlations by 96%. The diagonal closure reduces the former to 19% but leaves the latter unchanged; the full closure keeps both errors near 5%. The same ordering holds when varying $\beta$ or $u$ separately, with the largest gaps at weak drive.
 
@@ -264,11 +263,11 @@ At a fixed point, write $B=AJ$. If $\rho(B)<1$, the covariance is
 C^\star=\sum_{k\geq0}B^k\,\mathrm{diag}\!\left(\frac{2R^2}{1+\gamma}\right)(B^k)^\top.
 \end{equation}
 
-Each term is fresh noise propagated through earlier updates. To check whether the closure remains accurate after relaxation, we use $N=64$ with diffuse ($N_{\mathrm{eff}}\approx28$) and concentrated ($N_{\mathrm{eff}}\approx4$) couplings. Stationary references are time averages after burn-in; these runs use one initialization and check drift in the means.
+Each term is fresh noise propagated through earlier updates. To check whether the closure remains accurate after relaxation, we use $N=64$ with diffuse ($N_{\mathrm{eff}}\approx28$) and sharp ($N_{\mathrm{eff}}\approx4$) couplings. Stationary references are time averages after burn-in; these runs use one initialization and check drift in the means.
 
 {{< lightbox
   src="relaxation.png"
-  alt="Errors along relaxation for diffuse and concentrated couplings at D = 64 and 256, settling near their stationary values by K of about 16."
+  alt="Errors along relaxation for diffuse and sharp couplings at D = 64 and 256, settling near their stationary values by K of about 16."
   caption="**Figure 5.** Errors from $K=1$ to 100, with stationary estimates at $\infty$. Solid: $D=256$. Dashed: $D=64$."
 >}}
 
@@ -283,7 +282,7 @@ This also explains the previous post's roughly 11% delayed-correlation gap at $(
 | 256 | 11% | 12% | 0.53% |
 | 1024 | 12% | 12% | 0.13% |
 
-Large $D$ can still mean quite large. At $(u,\beta)=(0.5,2)$, the closure's mean-overlap error is 89%, 20% and 1.2% at $D=16$, 64 and 1024. The corresponding errors in the mean vectors are 30%, 7% and 0.4%.
+The required $D$ can still be quite large in practice, which matters when $D$ is set by the head dimension. At $(u,\beta)=(0.5,2)$, the closure's mean-overlap error is 89%, 20% and 1.2% at $D=16$, 64 and 1024. The corresponding errors in the mean vectors are 30%, 7% and 0.4%.
 
 ## Carrying noise instead of a matrix
 
@@ -300,7 +299,7 @@ Z'=A\big(Y+J\,\mathrm{diag}(\sqrt{\mathbf b})\,\Xi\big),\qquad
 b_i'=\frac{2R^2}{1+\gamma_i},
 \end{equation}
 
-where $\Xi$ has independent standard Gaussian entries. Fresh noise stays diagonal until the couplings mix it across sites. Conditional on the current sketch, this reproduces the closure's covariance update in expectation; later gains depend on sampled noise, so the full trajectory is not unbiased ([Appendix D](#appendix-d-the-sampled-closure)). Evolution costs $O(N^2D+kN^2)$ without storing a dense covariance matrix.
+where $\Xi$ has independent standard Gaussian entries. Fresh noise stays diagonal until the couplings mix it across sites. Conditional on the current state, this reproduces the closure's covariance update in expectation; later gains depend on sampled noise, so the full trajectory is not unbiased ([Appendix D](#appendix-d-the-sampled-closure)). Evolution costs $O(N^2D+kN^2)$ without storing a dense covariance matrix.
 
 The entropy-production panel uses $\beta\sum_{ij}(J_{ij}-J_{ji})D_{ij}$. At stationarity this is housekeeping entropy production; during relaxation it serves only as a diagnostic.
 
@@ -334,7 +333,7 @@ D=\mathrm{diag}(\chi)JC,
 \qquad \chi_i=\beta\int\!\mathcal Dz\,\left\{1-\tanh^2\!\left[\beta\left(\bar h_i+\sqrt{\Delta_i}\,z\right)\right]\right\}.
 \end{equation}
 
-This has the same matrix form as our delayed covariance, with a Gaussian-averaged susceptibility $\chi_i$ replacing the radial gain $a_i$. Their Gaussian-field argument uses the large-$N$, fully asymmetric setting. Here concentration across vector components makes the radial response reduce to a gain at $\lVert\bar{\mathbf h}_i\rVert^2+v_i$, at fixed $N$ and $J$, without requiring Gaussian fields.
+This has the same matrix form as our delayed covariance, with a Gaussian-averaged susceptibility $\chi_i$ replacing the radial gain $a_i$. Their Gaussian-field argument uses the large-$N$, fully asymmetric setting. Here concentration across vector components makes the radial response reduce to a gain at $\lVert\bar{\mathbf h}_i\rVert^2+v_i$, at fixed $N$ and $J$, without requiring Gaussian fields or assumptions on the coupling statistics.
 
 [Huang and Kabashima (2014)](https://arxiv.org/abs/1310.5003) retain correlations between Gaussian local fields, using their full covariance $JCJ^\top$. The variance above becomes $\Delta_i=(JCJ^\top)_{ii}$: the same shared-noise contribution that enters $v_i$ here. Their Gaussian treatment also recovers the delayed-covariance relation without expanding in small cross-field correlations.
 
@@ -345,11 +344,11 @@ The length constraint also connects this construction to [equilibrium large-comp
 
 # Conclusion and outlook
 
-Large $D$ makes the field's length predictable while retaining the noise that contributes to it. Evaluating the gain at that length closes the means and covariance traces, capturing both norm inflation and shared inputs. The argument applies at fixed finite time; the numerical checks show roughly $1/D$ errors through relaxation and at the tested stationary states.
+We have shown how large $D$ makes the field's length predictable while retaining the noise that contributes to it. Evaluating the gain at that length closes the means and covariance traces, capturing the effects of both norm inflation and shared inputs. The argument applies at fixed finite time, and numerical checks show roughly $1/D$ errors through relaxation and at the tested stationary states.
 
-For a one-step module, the correction costs one extra pass with squared weights. For several steps, sampled noise channels make the covariance practical to carry, with few channels sufficient for means and the entropy-production proxy in these runs. The immediate learning question is whether this changes trained behavior, or whether training absorbs the mean-field error.
+For a one-step module built on these update equations, the correction costs one extra attention-like pass with squared weights. For several steps, sampled noise channels make the covariance practical to carry, with few channels sufficient for means and the entropy-production proxy in these runs. The immediate learning question is whether this changes trained behavior, or whether training in practice absorbs the mean-field error.
 
-Stacking raises a further choice. Layers driven by the preceding layer's means can reuse this closure. Passing sampled spins onward also passes their noise: vector maps reshape it, and queries and keys can make the couplings fluctuate. [Appendix E](#appendix-e-the-signal-subspace) shows why traces alone then lose useful information about directions. The next step is to test how much directional information a learned stack actually needs.
+Stacking modules raises a further choice. Layers driven by the preceding layer's means can reuse this closure. Passing sampled spins onward also passes their noise: vector maps reshape it, and queries and keys can make the couplings fluctuate. [Appendix E](#appendix-e-the-signal-subspace) shows why traces alone then lose useful information about directions. The next step is to test how much directional information a learned stack actually needs.
 
 
 # Acknowledgements
@@ -563,7 +562,7 @@ K_{ij}=\frac{\langle\mathbf S_i\cdot\mathbf S_j\rangle}{m},
 
 where $\Lambda$ contains one multiplier per site enforcing its length constraint ([Lee, Dhar and Young, 2004](https://arxiv.org/abs/cond-mat/0408073)). Our recursion likewise follows a correlation matrix under local length constraints, but describes synchronous dynamics with possibly asymmetric couplings.
 
-Local constraints also distinguish this limit from a spherical model with one global constraint ([Hastings, 1999](https://arxiv.org/abs/cond-mat/9906186)), whose Langevin dynamics can be solved exactly ([Cugliandolo and Dean, 1995](https://arxiv.org/abs/cond-mat/9502075)). The component and thermodynamic limits need not commute. Here the overlaps compare physical sites, rather than replicas, and the finite-time argument makes no claim about a glass phase.
+Local constraints also distinguish this limit from a spherical model with one global constraint ([Hastings, 1999](https://arxiv.org/abs/cond-mat/9906186)). The spherical Sherrington–Kirkpatrick model, for example, admits an exact solution of its Langevin dynamics ([Cugliandolo and Dean, 1995](https://arxiv.org/abs/cond-mat/9502075)). The component and thermodynamic limits need not commute. Here the overlaps compare physical sites, rather than replicas, and the finite-time argument makes no claim about a glass phase.
 
 ### Units and initialization
 
