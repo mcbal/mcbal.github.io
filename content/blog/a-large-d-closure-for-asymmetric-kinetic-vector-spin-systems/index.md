@@ -9,7 +9,7 @@ authors:
 tags: ["Artificial Intelligence", "Attention", "Closure", "Deep Learning", "Dynamical Systems", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Nonequilibrium Dynamics", "Statistical Physics", "Steady State", "Stochastic Thermodynamics", "Transformers", "Vector-Spin Models"]
 categories: []
 date: 2026-10-20T22:28:17+01:00
-lastmod: 2026-10-20T22:28:17+01:00
+lastmod: 2026-10-21T11:28:17+01:00
 featured: false
 draft: false
 toc: true
