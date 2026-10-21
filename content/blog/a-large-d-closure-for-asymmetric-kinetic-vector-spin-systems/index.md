@@ -9,7 +9,7 @@ authors:
 tags: ["Artificial Intelligence", "Attention", "Closure", "Deep Learning", "Dynamical Systems", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Nonequilibrium Dynamics", "Statistical Physics", "Steady State", "Stochastic Thermodynamics", "Transformers", "Vector-Spin Models"]
 categories: []
 date: 2026-10-20T22:28:17+01:00
-lastmod: 2026-10-21T11:28:17+01:00
+lastmod: 2026-10-21T11:54:17+01:00
 featured: false
 draft: false
 toc: true
@@ -49,9 +49,7 @@ P(\mathbf S'\mid\mathbf S)=\prod_i\frac{e^{\beta\,\mathbf s_i'\cdot\mathbf h_i}}
 \qquad \mathbf h_i=\mathbf x_i+\sum_jJ_{ij}\mathbf s_j,
 \end{equation}
 
-where $\beta$ denotes the inverse temperature. Each conditional distribution is a [von Mises–Fisher (vMF) distribution](https://en.wikipedia.org/wiki/Von_Mises%E2%80%93Fisher_distribution), with mean direction $\hat{\mathbf h}_i$ and concentration parameter $\kappa_i=\beta R\lVert\mathbf h_i\rVert$.
-
-We send $D\to\infty$ at fixed $N$, $J$, $\beta>0$ and $\beta\lVert\mathbf x_i\rVert/R$. Drives of length $O(\sqrt D)$ can then compete with the interaction field, and conditional concentrations $\kappa_i$ are $O(D)$. Spins start independently across sites, each in a vMF distribution with a prescribed mean.
+where $\beta$ denotes the inverse temperature. Each conditional distribution is a [von Mises–Fisher (vMF) distribution](https://en.wikipedia.org/wiki/Von_Mises%E2%80%93Fisher_distribution), with mean direction $\hat{\mathbf h}_i$ and concentration parameter $\kappa_i=\beta R\lVert\mathbf h_i\rVert$. We send $D\to\infty$ at fixed $N$, $J$, $\beta>0$ and preserve $\beta\lVert\mathbf x_i\rVert/R$. Drives of length $O(\sqrt D)$ can then compete with the interaction field, and conditional concentrations $\kappa_i$ are $O(D)$. Spins start independently across sites, each in a vMF distribution with a prescribed mean.
 
 
 ## High-dimensional vMF geometry
@@ -155,8 +153,6 @@ Here $\boldsymbol\epsilon_i=\mathbf s_i'-\boldsymbol\mu_D(\mathbf h_i)$ is the f
 
 Because the gain decreases with squared field norm, including $v_i$ lowers the gain. At the same current mean field, the closure therefore predicts a shorter next mean in the same direction. Over later updates, the changed balance between drive and feedback can also change the direction.
 
-> 💡 **Normalizing by the full length.** At strong fields, $\varphi_\beta(\mathbf h)\simeq R\mathbf h/\lVert\mathbf h\rVert$. The denominator concentrates at $r_i$, while the numerator averages to $\bar{\mathbf h}_i$. Thus $\mathbf m_i'\simeq R\bar{\mathbf h}_i/r_i$. Mean field divides by $\lVert\bar{\mathbf h}_i\rVert$ instead, missing the extra length supplied by noise.
-
 With a deterministic gain, the update is linear in the old fluctuations. Taking expectations and expected dot products of the fluctuations, with $A=\mathrm{diag}(a)$, we find
 
 \begin{equation}
@@ -182,7 +178,7 @@ Whatever the mean loses in squared length is gained by the noise. Scalar couplin
 
 ## What mean field misses
 
-**Sharp attention.** From a product start, only the individual input variances contribute:
+**Norm inflation.** Since $g$ decreases with squared field norm, including $v_i$ lowers the gain. At the same current mean field, this lowers the next magnetization norm without changing its direction. Over subsequent updates, the altered balance between drive and feedback can also change the direction. From a product start, only the individual input variances contribute:
 
 \begin{equation}
 v_i=\sum_jJ_{ij}^2\left(R^2-\lVert\mathbf m_{0,j}\rVert^2\right)
@@ -193,7 +189,9 @@ v_i=\sum_jJ_{ij}^2\left(R^2-\lVert\mathbf m_{0,j}\rVert^2\right)
 
 For couplings with nonnegative rows summing to one (like `softmax`), $N_{\mathrm{eff}}$ ranges from 1 for a single input to $N$ for uniform weights. Diffuse attention suppresses independent input noise and sharp attention retains it.
 
-**Shared inputs.** After an update, sites reading the same inputs acquire covariance. This shared noise feeds back into $v_i$ and contributes to delayed correlations:
+> 💡 **Normalizing by the full length.** At strong fields, $\varphi_\beta(\mathbf h)\simeq R\mathbf h/\lVert\mathbf h\rVert$. The denominator concentrates at $r_i$, while the numerator averages to $\bar{\mathbf h}_i$. Thus $\mathbf m_i'\simeq R\bar{\mathbf h}_i/r_i$. Mean field divides by $\lVert\bar{\mathbf h}_i\rVert$ instead, missing the extra length supplied by noise.
+
+**Shared inputs.** After an update, sites reading the same inputs acquire equal-time covariance. This shared noise feeds back into $v_i$ and contributes to delayed correlations:
 
 \begin{equation}
 D_{ij}=\underbrace{a_iJ_{ij}C_{jj}}_{\text{direct}}
@@ -273,7 +271,7 @@ Each term is fresh noise propagated through earlier updates. To check whether th
 
 In these runs, errors settle by $K\approx16$ rather than growing with time. The stationary error still decreases with $D$: for diffuse couplings, the closure's delayed-correlation error falls from 5.1% at $D=64$ to 1.2% at $D=256$.
 
-This also explains the previous post's roughly 11% delayed-correlation gap at $(u,\beta)=(1,1)$. Keeping norm inflation alone leaves the gap; carrying shared covariance makes it shrink with $D$:
+This also explains [the previous post's roughly 11% delayed-correlation gap](https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/#mean-field-approximation-and-proxy-fidelity) at $(u,\beta)=(1,1)$. Keeping norm inflation alone leaves the gap; carrying shared covariance makes it shrink with $D$:
 
 | $D$ | mean field | diagonal $C$ | full closure |
 |---|---|---|---|
@@ -353,7 +351,7 @@ Stacking modules raises a further choice. Layers driven by the preceding layer's
 
 # Acknowledgements
 
-The author (M.B.) would like to thank Á. Poc-López and M. Aguilera for fruitful discussions. Claude Opus 5.5 and GPT-6 Astra were used for brainstorming, research design, coding, writing assistance, figure generation, and adversarial reviewing. The author (M.B.) takes full responsibility for any remaining slop.
+The author (M.B.) would like to thank Á. Poc-López and M. Aguilera for stimulating discussions. This project was an experiment in agentic research with human steering. Claude Opus 5.5 and GPT-6 Astra were used for brainstorming, research design, coding, writing assistance, figure generation, and adversarial reviewing. The author (M.B.) takes full responsibility for any remaining slop.
 
 # References
 
