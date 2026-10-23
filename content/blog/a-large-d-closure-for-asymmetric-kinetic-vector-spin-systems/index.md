@@ -9,7 +9,7 @@ authors:
 tags: ["Artificial Intelligence", "Attention", "Closure", "Deep Learning", "Dynamical Systems", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Nonequilibrium Dynamics", "Statistical Physics", "Steady State", "Stochastic Thermodynamics", "Transformers", "Vector-Spin Models"]
 categories: []
 date: 2026-10-20T22:28:17+01:00
-lastmod: 2026-10-22T8:54:17+01:00
+lastmod: 2026-10-23T10:54:17+01:00
 featured: false
 draft: false
 toc: true
@@ -34,7 +34,7 @@ projects: []
 
 > **✨ Code: [`mcbal/large-d-closure`](https://github.com/mcbal/large-d-closure)**
 
-In [previous](https://mcbal.github.io/post/spin-model-transformers/) [posts](https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/), we introduced transformer-like modules built around dynamical mean-field descriptions of driven stochastic vector spins wobbling about on hyperspheres. Even though the resulting parallel transformer blocks [behaved well as part of a toy language model](https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/#training-a-toy-autoregressive-language-model), naive mean-field observables showed [persistent errors compared to exact sampling of the stochastic system](https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/#mean-field-approximation-and-proxy-fidelity), especially in delayed correlations and at lower temperatures, even as the vector dimension grew. Rather than going to higher-order mean-field approximations, we ask whether just increasing the vector-spin dimension can on its own yield a more faithful approximation for a fixed realization of couplings and drives.
+In [previous](https://mcbal.github.io/post/spin-model-transformers/) [posts](https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/), we introduced transformer-like modules built around dynamical mean-field descriptions of driven stochastic vector spins wobbling about on hyperspheres. Even though the resulting parallel transformer blocks [behaved well as part of a toy language model](https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/#training-a-toy-autoregressive-language-model), naive mean-field observables showed [persistent errors compared to exact sampling of the stochastic system](https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/#mean-field-approximation-and-proxy-fidelity), especially in delayed correlations and at lower temperatures, even as the vector dimension grew. Rather than going to higher-order mean-field approximations, we ask whether just increasing the vector-spin dimension can _on its own_ yield a more faithful approximation for a fixed realization of couplings and drives.
 
 Physically, each vector spin responds to a field made up of a local drive plus its neighbors selected by the couplings. Mean field averages the neighbors before applying the response, which ignores important fluctuations on the hypersphere. We find that the large-$D$ limit makes these noise contributions predictable, and that taking them into account yields a _closure_: a set of recurrence relations for means and covariance traces at equal and consecutive times. We find numerically that errors fall off roughly as $1/D$, and situate our closure as a large-$D$ vector-spin version of [Mézard and Sakellariou (2011)](https://arxiv.org/abs/1103.3433)'s binary-spin approach.
 
@@ -42,7 +42,7 @@ Physically, each vector spin responds to a field made up of a local drive plus i
 
 ## Stochastic model dynamics
 
-Consider $N$ spins $\mathbf s_i\in\mathbb R^D$ of length $R$, with $R^2=D/2-1$[^fn:radiusconvention] and $D>2$. Fixed scalar couplings $J_{ij}$ mix the spins, and fixed fields $\mathbf x_i$ drive them. The couplings may be asymmetric, and we do not assume anything about their statistics. All sites are updated in parallel, independently:
+Consider $N$ spins $\mathbf s_i\in\mathbb R^D$ of length $R$, with $R^2=D/2-1$[^fn:radiusconvention] and $D>2$. Fixed scalar couplings $J_{ij}$ mix the spins, and fixed fields $\mathbf x_i$ drive them. The couplings may be asymmetric, and we do not assume anything about their statistics. All sites are updated independently conditional on the current state:
 
 \begin{equation}
 P(\mathbf S'\mid\mathbf S)=\prod_i\frac{e^{\beta\,\mathbf s_i'\cdot\mathbf h_i}}{\mathcal Z(\mathbf h_i)},
@@ -51,7 +51,7 @@ P(\mathbf S'\mid\mathbf S)=\prod_i\frac{e^{\beta\,\mathbf s_i'\cdot\mathbf h_i}}
 
 where $\beta > 0$ denotes the inverse temperature. The local conditional distribution at each site is a [von Mises–Fisher (vMF) distribution](https://en.wikipedia.org/wiki/Von_Mises%E2%80%93Fisher_distribution), with mean direction $\hat{\mathbf h}_i$ and concentration parameter $\kappa_i=\beta R\lVert\mathbf h_i\rVert$. We will send $D\to\infty$ at fixed $N$, $J_{ij}$, and $\beta$, holding the ratio $\beta\lVert\mathbf x_i\rVert/R$ approximately fixed. Drives of length $O(\sqrt D)$ can then compete with the interaction field, and conditional concentrations $\kappa_i$ are $O(D)$. We will find out soon why these scale choices are important.
 
-It is important to remember that, across stochastic trajectories, the spins, and therefore the fields, fluctuate. The intuition for a single trajectory is that the update happens in two steps. Spins start independently across sites, each in a vMF distribution with a prescribed mean. First the current spins determine the fields, which are then used to condition the vMF distributions to sample the next spins from, and so on.
+> **Fluctuating spins.** It is important to remember that, across stochastic trajectories, the spins, and therefore the fields, fluctuate. Spins start independently across sites, each in a vMF distribution with a prescribed mean. The intuition for a single trajectory is that the update happens in two steps. First the current spins determine the fields, which are then used to condition the vMF distributions to sample the next spins from, and so on.
 
 ## High-dimensional vMF geometry
 
@@ -60,17 +60,17 @@ The conditional vMF distributions are tuned so that $\kappa\propto D$, which mea
 {{< lightbox
   src="ring.png"
   alt="Left: a sphere with a thin ring at a fixed latitude around the field direction; the mean sits at the ring's center, and mean, fluctuation and spin form a right triangle. Right: alignment densities for D = 8, 64 and 512, narrowing around the norm of the mean."
-  caption="**Figure 1.** (a) Typical samples occupy a thin ring around the field direction. Mean, fluctuation and spin form a right triangle to leading order. (b) Alignment densities at $\beta\lVert\mathbf h\rVert/R=2$ narrow as $D^{-1/2}$ around $\lVert\mathbf m\rVert/R$. The point marked 'mode' maximizes the density on the sphere, not the alignment marginal."
+  caption="**Figure 1.** (a) Typical samples occupy a thin ring around the field direction. Mean, fluctuation and spin form a right triangle to leading order. (b) Alignment densities at $\beta\lVert\mathbf h\rVert/R=2$ narrow as $D^{-1/2}$ around the limiting mean alignment $\lVert\mathbf m\rVert/R$ at $D\to\infty$ (dotted). The point marked 'mode' maximizes the density on the sphere, not the alignment marginal."
 >}}
 
-A fluctuation $\delta\mathbf s=\mathbf s-\mathbf m$ has squared length $O(D)$, spread out mainly over $D-1$ transverse directions, with $O(1)$ variance along any unit direction. It is nearly perpendicular to the mean, so $\lVert\mathbf m\rVert^2+\lVert\delta\mathbf s\rVert^2\simeq R^2$. Even though the low-dimensional cartoon above suggests otherwise, independent transverse fluctuations along the ring are actually nearly orthogonal, which means _their squared lengths approximately add up_.
+A fluctuation $\delta\mathbf s=\mathbf s-\mathbf m$ has squared length $O(D)$, spread out mainly over $D-1$ transverse directions, with $O(1)$ variance along any unit direction (see [Appendix B](#appendix-b-covariance-of-a-vmf-spin)). It is nearly perpendicular to the mean, so $\lVert\mathbf m\rVert^2+\lVert\delta\mathbf s\rVert^2\simeq R^2$. Even though the low-dimensional cartoon suggests otherwise, independent transverse fluctuations along the ring are actually nearly orthogonal, so _their squared lengths approximately add up_.
 
 ## Single-spin response
 
 For a given field $\mathbf h$, the exact conditional vMF mean of the next spin is $\boldsymbol\mu_D(\mathbf h)=R A_D(\kappa)\hat{\mathbf h}$, where $A_D(\kappa)=I_{D/2}(\kappa)/I_{D/2-1}(\kappa)$ is a ratio of modified Bessel functions. To get rid of Bessel functions, we consider its leading large-$D$ form
 
 \begin{equation}
-\boldsymbol\mu_\infty(\mathbf h)=g(\lVert\mathbf h\rVert^2)\,\mathbf h,
+\boldsymbol\mu_D(\mathbf h) \simeq g(\lVert\mathbf h\rVert^2)\,\mathbf h,
 \label{eq:response}
 \end{equation}
 
@@ -81,7 +81,7 @@ g(r^2)=\frac{\beta}{1+\gamma(r^2)},
 \qquad \gamma(r^2)=\sqrt{1+\beta^2r^2/R^2}.
 \end{equation}
 
-This coincides with the response map $\varphi_\beta$ used in [Spin-Model Transformers](https://mcbal.github.io/post/spin-model-transformers/). Its gain differs from the exact one $\boldsymbol\mu_D(\mathbf h)$ by a relative $O(1/D)$.
+This coincides with the response map $\varphi_\beta$ used in [Spin-Model Transformers](https://mcbal.github.io/post/spin-model-transformers/). Its gain differs from the exact $\boldsymbol\mu_D(\mathbf h)$ by a relative $O(1/D)$.
 
 We will use the following two properties of the single-spin response in what follows: (1) the gain function depends only on the field norm, and (2) the sphere geometry fixes the conditional variance,
 
@@ -91,12 +91,18 @@ We will use the following two properties of the single-spin response in what fol
 \simeq\frac{2R^2}{1+\gamma}.
 \end{equation}
 
-We refer to [Appendix B](#appendix-b-single-spin-moments) for exact directional covariances.
-
+[Appendix B](#appendix-b-covariance-of-a-vmf-spin) gives the full covariance. It also shows that, to leading order, the gain is $\beta$ times the variance $\tau$ along any transverse direction, $g\simeq\beta\tau$: how strongly a spin follows its field and how much it wobbles sideways are the same quantity.
 
 # The large-D closure
 
-We now have all ingredients to start building towards the closure. Let us first decompose the fluctuating spin into $\mathbf s_i=\mathbf m_i+\delta\mathbf s_i$ where $\mathbf m_i=\mathbb E\left[\mathbf s_i\right]$ with expectations are over spin dynamics at fixed $J$ and $\mathbf x$. The field splits similarly into its mean and fluctuation,
+We now have all ingredients to start building towards the closure. Let us first decompose the fluctuating spin into $\mathbf s_i=\mathbf m_i+\delta\mathbf s_i$, with $\mathbf m_i=\mathbb E\left[\mathbf s_i\right]$, where expectations are over spin dynamics at fixed $J$ and $\mathbf x$. We collect the equal-time covariance traces in an $N\times N$ matrix $C$. Each entry is the trace over vector components of the $D\times D$ cross-covariance matrix:
+
+\begin{equation}
+C_{ij}=\operatorname{tr}\mathbb E\!\left[\delta\mathbf s_i\delta\mathbf s_j^\top\right]
+=\mathbb E\!\left[\delta\mathbf s_i\cdot\delta\mathbf s_j\right].
+\end{equation}
+
+The field splits similarly into its mean and fluctuation,
 
 \begin{equation}
 \mathbf h_i=\bar{\mathbf h}_i+\boldsymbol\eta_i,
@@ -113,7 +119,7 @@ Naive mean field drops $\boldsymbol\eta_i$ and replaces the average of the respo
 with the response to the average field
 
 \begin{equation}
-\mathbf m_i'=\boldsymbol\mu_\infty(\bar{\mathbf h}_i).
+\mathbf m_i'=\boldsymbol\mu_D(\bar{\mathbf h}_i).
 \label{eq:mf}
 \end{equation}
 
@@ -127,7 +133,7 @@ So what is the length of the typical field? Let us split off the noise,
 \lVert\mathbf h_i\rVert^2=\lVert\bar{\mathbf h}_i\rVert^2+2\,\bar{\mathbf h}_i\cdot\boldsymbol\eta_i+\lVert\boldsymbol\eta_i\rVert^2.
 \end{equation}
 
-The noise is spread over all $D$ directions, with $O(1)$ variance along any one of them. The cross term therefore averages to zero and fluctuates by $O(\sqrt D)$. The squared noise length, which we assume is a sum of $D$ comparable contributions, has a mean of order $D$ and fluctuates around it by $O(\sqrt D)$. Mean field and noise add like Pythagoras, just like in Figure 1:
+We know the noise is spread over all $D$ directions, with $O(1)$ variance along any one of them. The cross term therefore averages to zero and fluctuates by $O(\sqrt D)$. The squared noise length, which we assume is a sum of $D$ comparable contributions, has a mean of order $D$ and fluctuates around it by $O(\sqrt D)$. The squared lengths of the mean-field and noise vectors add up just like in Figure 1:
 
 \begin{equation}
 \mathbb E\lVert\mathbf h_i\rVert^2
@@ -141,14 +147,13 @@ Even though both $\lVert\bar{\mathbf h}_i\rVert^2$ and $v_i$ can be $O(D)$, the 
 \operatorname{std}\!\left(\frac{\lVert\mathbf h_i\rVert^2}{R^2}\right)=O(D^{-1/2}),
 \end{equation}
 
-Figure 2 checks this numerically with samples of the squared field norm for a site in a simulated $N=256$ system. The field-norm distribution clearly narrows around $r_i^2$, and _not_ around the mean-field value $\lVert\bar{\mathbf h}_i\rVert^2$.
+Figure 2 checks this numerically with samples of the squared field norm for a site in a simulated system with $N=256$ vector spins. The field-norm distribution clearly narrows around $r_i^2$, and _not_ around the mean-field value $\lVert\bar{\mathbf h}_i\rVert^2$.
 
 {{< lightbox
   src="fieldnorm.png"
   alt="Squared field norms at one site for D = 64 and 1024. The distribution narrows around the closure's prediction, well above the mean-field value."
-  caption="**Figure 2.** Squared field norm entering the first update at the site with the sharpest attention ($N_{\mathrm{eff},i}=1/\sum_jJ_{ij}^2\approx1$), from the same system simulated in [Figure 3](#convergence-in-d). Mean field retains only $\lVert\bar{\mathbf h}_i\rVert^2$, which boils down to only about a third of the typical value at this site. Adding $v_i$ locates the center of the distribution, whose width scales as $D^{-1/2}$."
+  caption="**Figure 2.** Squared field norm entering the first update at the site with the sharpest attention ($N_{\mathrm{eff},i}=1/\sum_jJ_{ij}^2\approx1$), extracted from the same system simulated in [Figure 3](#convergence-in-d). Mean field retains only $\lVert\bar{\mathbf h}_i\rVert^2$, which boils down to only about a third of the typical value at this site. Adding $v_i$ locates the center of the distribution, whose width scales as $D^{-1/2}$."
 >}}
-
 
 ## A deterministic gain...
 
@@ -158,18 +163,18 @@ Recall that each spin is drawn from a ring around the conditional mean that poin
 \boldsymbol\mu_D(\mathbf h_i)\simeq g(\lVert\mathbf h_i\rVert^2)\,\mathbf h_i.
 \end{equation}
 
-The field's direction fluctuates, but its squared length concentrates around $r_i^2$, so the gain (which only depends on the norm) becomes effectively deterministic in the large $D$ regime. We approximate the gain by the same number across realizations,
+The field's direction fluctuates, but its squared length concentrates around $r_i^2$, so the gain $g$, which only depends on the norm, becomes effectively deterministic in the large $D$ regime. We can approximate it by
 
 \begin{equation}
 a_i=g(r_i^2)=\frac{\beta}{1+\gamma_i},
 \qquad \gamma_i=\sqrt{1+\beta^2r_i^2/R^2}.
 \end{equation}
 
-This makes the mean response a simple deterministic rescaling of the field.
+This makes the mean response a simple _deterministic_ rescaling of the field.
 
 ## ... and a lot of noise
 
-The next spin is approximately[^fn:residual]
+The next spin is then approximately[^fn:residual]
 
 \begin{equation}
 \mathbf s_i'\simeq
@@ -183,22 +188,24 @@ Here $\boldsymbol\eta_i=\sum_jJ_{ij}\delta\mathbf s_j$ is the noise already pres
 
 What remains is the next fluctuation, $\delta\mathbf s_i'\simeq a_i\boldsymbol\eta_i+\boldsymbol\epsilon_i$. Pairing two of these gives the next covariance traces, and pairing one with a current fluctuation gives the one-step delayed covariance $\mathcal D_{ij}=\mathbb E[\delta\mathbf s_i'\cdot\delta\mathbf s_j]$:
 
-\begin{align}
+\begin{equation}
+\begin{aligned}
 C_{ij}'&\simeq a_ia_j\,\mathbb E[\boldsymbol\eta_i\cdot\boldsymbol\eta_j]
 +a_i\,\mathbb E[\boldsymbol\eta_i\cdot\boldsymbol\epsilon_j]
 +a_j\,\mathbb E[\boldsymbol\epsilon_i\cdot\boldsymbol\eta_j]
 +\mathbb E[\boldsymbol\epsilon_i\cdot\boldsymbol\epsilon_j],\\
 \mathcal D_{ij}&\simeq a_i\,\mathbb E[\boldsymbol\eta_i\cdot\delta\mathbf s_j]
 +\mathbb E[\boldsymbol\epsilon_i\cdot\delta\mathbf s_j].
-\end{align}
+\end{aligned}
+\end{equation}
 
-The two kinds of noise contribute differently.
+The two kinds of noise contribute differently:
 
 **Propagated noise.** Mixing the old fluctuations through $J$ gives $\mathbb E[\boldsymbol\eta_i\cdot\boldsymbol\eta_j]=\sum_{kl}J_{ik}J_{jl}C_{kl}=(JCJ^\top)_{ij}$ and $\mathbb E[\boldsymbol\eta_i\cdot\delta\mathbf s_j]=(JC)_{ij}$. The gains then rescale these by $a_ia_j$ and $a_i$.
 
-**Fresh noise.** Given the old spins, $\boldsymbol\epsilon_i$ has zero mean, while $\boldsymbol\eta_j$ and $\delta\mathbf s_j$ are fixed. Every term pairing fresh noise with old fluctuations therefore vanishes, and only propagated noise correlates with the current state. Each site also draws independently, so $\mathbb E[\boldsymbol\epsilon_i\cdot\boldsymbol\epsilon_j]=0$ for $i\neq j$: fresh noise adds only to the diagonal.
+**Fresh noise.** Given the old spins, $\boldsymbol\epsilon_i$ has zero mean, while $\boldsymbol\eta_j$ and $\delta\mathbf s_j$ are fixed. Every term pairing fresh noise with old fluctuations therefore vanishes, and only propagated noise correlates with the current state. Each site also draws independently, so $\mathbb E[\boldsymbol\epsilon_i\cdot\boldsymbol\epsilon_j]=0$ for $i\neq j$. Fresh noise only adds to the diagonal.
 
-The sphere fixes how much fresh noise to add. Every new spin has squared length $R^2$, so $\mathbb E\lVert\boldsymbol\epsilon_i\rVert^2=R^2-\mathbb E\lVert\boldsymbol\mu_D(\mathbf h_i)\rVert^2$ exactly. The conditional mean has typical squared length $a_i^2r_i^2$, so we approximate the remaining variance by
+But then how much fresh noise should we add to the diagonal? The underlying spherical geometry fixes this. Every new spin has squared length $R^2$, which means we have $\mathbb E\lVert\boldsymbol\epsilon_i\rVert^2=R^2-\mathbb E\lVert\boldsymbol\mu_D(\mathbf h_i)\rVert^2$ exactly. The conditional mean has typical squared length $a_i^2r_i^2$, so we approximate the remaining variance by
 
 \begin{equation}
 b_i\equiv R^2-a_i^2r_i^2=\frac{2R^2}{1+\gamma_i}.
@@ -212,7 +219,7 @@ C_{ii}'\simeq\underbrace{a_i^2v_i}_{\text{propagated noise variance}}+\underbrac
 
 ## Closure equations
 
-Combining these pieces, with $A=\mathrm{diag}(a)$, gives the update equations
+Combining these pieces, with $A=\mathrm{diag}(a)$, gives the full closure equations:
 
 \begin{equation}
 \boxed{
@@ -224,7 +231,7 @@ C'&=AJCJ^\top A+\mathrm{diag}(b),\\
 \label{eq:closure}
 \end{equation}
 
-These equations preserve the spin's squared length:
+As a quick check, note that the equations preserve the spin's squared length:
 
 \begin{equation}
 \lVert\mathbf m_i'\rVert^2+C_{ii}'
@@ -234,7 +241,9 @@ These equations preserve the spin's squared length:
 
 ## What mean field misses
 
-**Norm inflation.** Including $v_i$ lowers the gain, shortening the next mean at a given mean field. Later updates can also change its direction. From a product start, only individual input variances contribute:
+Now that we have an idea of the effect of the noise, we can precisely pinpoint the failure modes of naive mean-field and how the closure addresses them. 
+
+**Norm inflation.** Including $v_i$ lowers the gain, shortening the next mean at a given mean field. Later updates can also change its direction. From a product start, only individual input variances contribute, so
 
 \begin{equation}
 v_i=\sum_jJ_{ij}^2\left(R^2-\lVert\mathbf m_{0,j}\rVert^2\right)
@@ -243,9 +252,9 @@ v_i=\sum_jJ_{ij}^2\left(R^2-\lVert\mathbf m_{0,j}\rVert^2\right)
 \label{eq:first}
 \end{equation}
 
-For couplings with nonnegative rows summing to one (like `softmax`), $N_{\mathrm{eff}}$ ranges from 1 for a single input to $N$ for uniform weights. Diffuse attention suppresses independent input noise and sharp attention retains it.
+For couplings with nonnegative rows summing to one (like `softmax`), $N_{\mathrm{eff}}$ ranges from 1 for a single input to $N$ for uniform weights. Diffuse attention suppresses independent input noise, while sharp attention retains it, so increasing $D$ alone need not make mean field accurate. Transformer-like applications need to maintain accuracy across both regimes.
 
-**Shared inputs.** After an update, sites reading the same inputs acquire equal-time covariance. This shared noise feeds back into $v_i$ and contributes to delayed correlations:
+**Shared inputs.** After an update, sites talking to the same inputs acquire equal-time covariance. This shared noise feeds back into $v_i$ and contributes to the delayed correlations:
 
 \begin{equation}
 \mathcal D_{ij}=\underbrace{a_iJ_{ij}C_{jj}}_{\text{direct}}
@@ -257,29 +266,71 @@ The shared term can matter even when $J_{ij}$ is small. With nonnegative $J$ and
 
 # Numerical checks
 
-We compare exact vMF sampling with naive mean field, diagonal-$C$ closure and full closure. The diagonal version retains norm inflation while dropping shared noise. Mean-field delayed correlations use the previous post's linear-response approximation.
+We now compare exact vMF sampling with three different recursive update equations. Each propagates its own means through the mean field $\bar{\mathbf h}_i=\mathbf x_i+\sum_jJ_{ij}\mathbf m_j$ and the gain $g$ of Eq. \eqref{eq:response}. They differ in the input noise $v_i$ the gain sees, and in the covariance they carry.
 
-Spins start independently in vMF initializer fields. Drives have random directions and strength $\beta\lVert\mathbf x_i\rVert/R=u$. Couplings are a row-wise $\mathrm{softmax}(\alpha G)$ of a fixed Gaussian matrix: increasing $\alpha$ focuses the weights on fewer inputs. Unless stated otherwise, $\beta=2$ and $u=1$.
+**Naive mean field** ignores input noise and carries no covariance. For delayed correlations, we use the previous post's linear-response approximation, built from the single-spin covariances $\Sigma(\mathbf h)$ of [Appendix B](#appendix-b-covariance-of-a-vmf-spin):
 
-Errors are relative Frobenius errors corrected for Monte Carlo noise.[^fn:numerics] Mean errors compare overlaps $\mathbf m_i\cdot\mathbf m_j/R^2$ and $\mathbf x_i\cdot\mathbf m_j/R^2$, except where vector errors are stated, including Figure 4(a). Delayed-correlation errors compare $\mathcal D_{ij}/R^2$. Open markers indicate errors unresolved by sampling.
+\begin{equation}
+\boxed{
+\begin{aligned}
+v_i&=0,\\
+a_i&=g(\lVert\bar{\mathbf h}_i\rVert^2+v_i),
+\qquad \mathbf m_i'=a_i\bar{\mathbf h}_i,\\
+C_{ij}'&=0\quad(i\neq j),\\
+\mathcal D_{ij}&=\beta J_{ij}\operatorname{tr}\bigl[\Sigma(\bar{\mathbf h}_i)\,\Sigma_j\bigr].
+\end{aligned}}
+\end{equation}
+
+Here $\Sigma_j$ is the covariance of the current spin $j$, evaluated at the mean field that produced it.
+
+**Diagonal closure** keeps norm inflation from independent input noise, but drops shared noise by keeping only the diagonal of $C$:
+
+\begin{equation}
+\boxed{
+\begin{aligned}
+v_i&=\textstyle\sum_jJ_{ij}^2C_{jj},\\
+a_i&=g(\lVert\bar{\mathbf h}_i\rVert^2+v_i),
+\qquad \mathbf m_i'=a_i\bar{\mathbf h}_i,\\
+C_{ii}'&=a_i^2v_i+b_i,
+\qquad C_{ij}'=0\quad(i\neq j),\\
+\mathcal D_{ij}&=a_iJ_{ij}C_{jj}.
+\end{aligned}}
+\end{equation}
+
+**Full closure** is Eq. \eqref{eq:closure}, which carries the dense covariance:
+
+\begin{equation}
+\boxed{
+\begin{aligned}
+v_i&=(JCJ^\top)_{ii},\\
+a_i&=g(\lVert\bar{\mathbf h}_i\rVert^2+v_i),
+\qquad \mathbf m_i'=a_i\bar{\mathbf h}_i,\\
+C'&=AJCJ^\top A+\mathrm{diag}(b),\\
+\mathcal D&=AJC.
+\end{aligned}}
+\end{equation}
+
+In both closures, $b_i=2R^2/(1+\gamma_i)$, with $\gamma_i$ evaluated at the same field length as $a_i$. A product start has diagonal $C$, so the two closures give the same means and delayed correlations at the first update. They separate once shared inputs correlate the spins. We use $K$ to label the number of iterations.
+
+**Initialization and parameters.** Spins start independently in vMF initializer fields. Drives have random directions and strength $\beta\lVert\mathbf x_i\rVert/R=u$. Couplings are a row-wise $\mathrm{softmax}(\alpha G)$ of a fixed Gaussian matrix: increasing $\alpha$ focuses the weights on fewer inputs. Unless stated otherwise, $\beta=2$ and $u=1$.
+
+**Relative errors.** Errors are relative Frobenius errors corrected for Monte Carlo noise.[^fn:numerics] Mean errors compare overlaps $\mathbf m_i\cdot\mathbf m_j/R^2$ and $\mathbf x_i\cdot\mathbf m_j/R^2$, except where vector errors are stated, including Figure 4(a). Delayed-correlation errors compare $\mathcal D_{ij}/R^2$. In Figure 3, open markers indicate errors unresolved by sampling.
 
 ## Convergence in D
 
-We first fix $N=256$ and $\alpha=3$, giving $N_{\mathrm{eff}}\approx7.5$ on average, and increase $D$ from 16 to 1024.
+We first fix $N=256$ and $\alpha=3$, giving $N_{\mathrm{eff}}\approx7.5$ on average, and increase $D$ from 16 to 1024 to sweep across the vector dimension, see Figure 3.
 
 {{< lightbox
   src="convergence.png"
   alt="Relative error against exact sampling versus D after one and four updates. Mean-field errors level off; resolved closure errors fall roughly as 1/D."
-  caption="**Figure 3.** Errors after $K=1$ (top) and $K=4$ (bottom) updates. The [sampled closure](#carrying-noise-instead-of-a-matrix) replaces the dense covariance by $k=16$ random noise channels. From a product start, the diagonal and sampled closures give the same means and $\mathcal D_{ij}$ as the full closure at $K=1$. The equal-time column compares off-diagonal $C_{ij}/R^2$, which mean field and the diagonal closure set to zero. Open markers: the error interval includes zero. Dotted: $1/D$."
+  caption="**Figure 3.** Errors after $K=1$ (top) and $K=4$ (bottom) updates. The [sampled closure](#k--1-carrying-noise-instead-of-a-matrix) replaces the dense covariance by $k=16$ random noise channels. From a product start, the diagonal and sampled closures give the same means and $\mathcal D_{ij}$ as the full closure at $K=1$. The equal-time column compares off-diagonal $C_{ij}/R^2$, which mean field and the diagonal closure set to zero. Open markers: the error interval includes zero. Dotted: $1/D$."
 >}}
 
-The closure's resolved errors fall roughly as $1/D$. After four updates, its delayed-correlation error drops from 7% at $D=16$ to 0.25% at $D=512$; at $D=1024$ sampling no longer resolves it.
-
-At four updates, mean-field errors plateau near 23% for mean overlaps and 20% for delayed correlations. Diagonal $C$ fixes most of the mean error but leaves a 17% delayed-correlation error from shared noise.
+The closure's resolved errors fall roughly as $1/D$. After four updates, its delayed-correlation error drops from 7% at $D=16$ to 0.25% at $D=512$; at $D=1024$ sampling no longer resolves it. At four updates, mean-field errors plateau near 23% for mean overlaps and 20% for delayed correlations. Diagonal $C$ fixes most of the mean error but leaves a 17% delayed-correlation error from shared noise.
 
 ## Norm inflation and shared inputs
 
-A causal mask varies $N_{\mathrm{eff}}$ across sites. After one update at $D=256$, the mean-field error falls from 29% for single-input rows to 3% at $N_{\mathrm{eff}}\approx20$, while the closure stays near 0.4%. The gap between the predictions accounts for nearly all of the mean-field error.
+We now pinpoint the failure modes of naive mean field by enforcing a causal mask on the couplings. This effectively varies the number of nonzero interactions $N_{\mathrm{eff}}$ across sites in a single system. After one update at $D=256$, the mean-field error falls from 29% for single-input rows to 3% at $N_{\mathrm{eff}}\approx20$, while the closure stays near 0.4%. The gap on the left in Figure 4(a) between the predictions accounts for nearly all of the mean-field error.
 
 {{< lightbox
   src="mechanisms.png"
@@ -287,25 +338,19 @@ A causal mask varies $N_{\mathrm{eff}}$ across sites. After one update at $D=256
   caption="**Figure 4.** (a) Per-site mean error after one update under a causal mask ($D=256$). Upper series: $\beta=2$; lower, faded: $\beta=1$. Crosses: the gap between mean field and the closure. (b) Errors after four updates with identical row weights, scattered over columns (faded) or placed on common inputs (solid) ($D=64$)."
 >}}
 
-After several updates, shared inputs matter too. Keeping each row's weights fixed but moving the large weights onto common columns raises the cross-site contribution to $v_i$ from 1.5% to 37%. Mean field then misses mean overlaps by 76% and delayed correlations by 96%. The diagonal closure reduces the former to 19% but leaves the latter unchanged; the full closure keeps both errors near 5%. The same ordering holds when varying $\beta$ or $u$ separately, with the largest gaps at weak drive.
+After several updates, shared inputs matter too (see Figure 4(b)). Keeping each coupling row's weights fixed but moving the large weights onto common columns raises the cross-site contribution to $v_i$ from 1.5% to 37%. Mean field then misses mean overlaps by 76% and delayed correlations by 96%. The diagonal closure reduces the former to 19% but leaves the latter unchanged. The full closure keeps both errors near 5%. The same ordering holds when varying $\beta$ or $u$ separately, with the largest gaps at weak drive.
 
 ## The stationary state
 
-At a fixed point, write $B=AJ$. If $\rho(B)<1$, the covariance is
-
-\begin{equation}
-C^\star=\sum_{n\geq0}B^n\,\mathrm{diag}\!\left(\frac{2R^2}{1+\gamma}\right)(B^n)^\top.
-\end{equation}
-
-Each term is propagated fresh noise. The series assumes self-consistent fixed-point gains; convergence of the coupled recursion requires a separate check. We test relaxation at $N=64$ with diffuse ($N_{\mathrm{eff}}\approx28$) and sharp ($N_{\mathrm{eff}}\approx4$) couplings. Stationary references use time averages after burn-in from one initialization. Means from the two halves of each averaging window agree within sampling noise.
+So far we have only considered one-step ($K=1$) and four-step ($K=4$) iterations to assess the accuracy of the closure. Let us now look at long-time relaxation behavior of the dynamics. We test relaxation in a $N=64$ system with diffuse ($N_{\mathrm{eff}}\approx28$) and sharp ($N_{\mathrm{eff}}\approx4$) couplings. Stationary references use time averages after burn-in from one initialization. For the recursions, we iterate 3000 updates, after which their means change by less than $10^{-16}$ per update.
 
 {{< lightbox
   src="relaxation.png"
   alt="Errors along relaxation for diffuse and sharp couplings at D = 64 and 256, settling near their stationary values by K of about 16."
-  caption="**Figure 5.** Errors from $K=1$ to 100, with stationary estimates at $\infty$. Solid: $D=256$. Dashed: $D=64$."
+  caption="**Figure 5.** Errors from iterations $K=1$ to $K=100$, with stationary estimates at $\infty$. To compare the large-$D$ trend we plot $D=64$ (dashed, open markers at $\infty$) and $D=256$ (solid, filled markers at $\infty$)."
 >}}
 
-In these runs, errors settle by $K\approx16$ rather than growing with time. The stationary error still decreases with $D$: for diffuse couplings, the closure's delayed-correlation error falls from 5.1% at $D=64$ to 1.2% at $D=256$.
+In these runs, errors settle by $K\approx16$ rather than growing with time. The stationary error decreases with $D$: for diffuse couplings, the closure's delayed-correlation error falls from 5.1% at $D=64$ to 1.2% at $D=256$.
 
 For the previous post's diffuse-coupling ensemble at $(u,\beta)=(1,1)$, shared covariance resolves [the persistent 11% delayed-correlation gap](https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/#mean-field-approximation-and-proxy-fidelity):
 
@@ -318,13 +363,30 @@ For the previous post's diffuse-coupling ensemble at $(u,\beta)=(1,1)$, shared c
 
 Full closure is slightly worse than diagonal $C$ at $D=16$, but improves with $D$.
 
-Accuracy depends strongly on drive strength. At $(u,\beta)=(0.5,2)$, the closure's mean-overlap errors are 89%, 20% and 1.2% at $D=16$, 64 and 1024; mean-vector errors are 30%, 7% and 0.4%. These tests use random couplings; trained modules need checks at their chosen dimension and operating regime.
-
 # Practical versions
 
-## A one-step correction
+The attentive reader will have noticed the computational cost of the full closure. Updating the means costs $O(N^2D)$, like attention, but propagating the dense covariance through $JCJ^\top$ costs $O(N^3)$ per update. There are at least two ways around this:
+- For a single update from a product start ($K=1$), the covariance is still diagonal, so the correction costs no more than naive mean field.
+- For several updates ($K > 1$), we can carry a few random noise channels per site instead of the full matrix, since the means only read the diagonal $v_i=(JCJ^\top)_{ii}$.
 
-From a product initializer, the correction needs one extra pass with squared weights over per-site variances (Eq. \eqref{eq:first}). For drives `X` and initializer fields `F0` of shape `(N, D)`, couplings `J` of shape `(N, N)` and `R2` $=R^2$:
+## K=1: A one-step correction
+
+From a product start, the spins are independent vMF samples, each in its own initializer field $\mathbf f_j$. In the previous post's transformer module, for example, these are the values: $\mathbf f_j$ is the $j$-th row of $\mathbf XW_V$. The single-spin response fixes the initial means and variances of the spins:
+
+\begin{equation}
+\mathbf m_{0,j}=g(\lVert\mathbf f_j\rVert^2)\,\mathbf f_j,
+\qquad C_{jj}=R^2-\lVert\mathbf m_{0,j}\rVert^2\simeq\frac{2R^2}{1+\gamma(\lVert\mathbf f_j\rVert^2)}.
+\end{equation}
+
+Because $C$ is still diagonal, the first update needs only one extra pass with squared weights over these variances (Eq. \eqref{eq:first}):
+
+\begin{equation}
+\bar{\mathbf h}_i=\mathbf x_i+\sum_jJ_{ij}\mathbf m_{0,j},
+\qquad v_i=\sum_jJ_{ij}^2C_{jj},
+\qquad \mathbf m_i'=g(\lVert\bar{\mathbf h}_i\rVert^2+v_i)\,\bar{\mathbf h}_i.
+\end{equation}
+
+Naive mean field is the same update with $v_i=0$. In code, with drives `X` of shape `(N, D)`, initializer fields `F0` of shape `(N, D)`, couplings `J` of shape `(N, N)`, and `R2` $=R^2$:
 
 ```python
 gamma0 = np.sqrt(1 + beta**2 * (F0 * F0).sum(-1) / R2)
@@ -336,37 +398,34 @@ gamma = np.sqrt(1 + beta**2 * ((H * H).sum(-1) + v) / R2)
 M_next = beta * H / (1 + gamma)[:, None]
 ```
 
-This resembles `RMSNorm` with the field's noise variance included in the normalizer.
+Zooming out, this resembles an `RMSNorm`-like normalization with the field's noise variance included in the normalizer.
 
-## Carrying noise instead of a matrix
+## K > 1: Carrying noise instead of a matrix
 
-The dense update costs $O(N^2D+N^3)$. Carrying $k$ random noise channels per site reduces this to $O(N^2D+kN^2)$. Represent the covariance as
+Carrying $k$ random noise channels per site reduces the cost of an update from $O(N^2D+N^3)$ to $O(N^2D+kN^2)$. We represent the covariance as
 
 \begin{equation}
 \hat C=\mathrm{diag}(\mathbf b)+\frac1kZZ^\top,\qquad Z\in\mathbb R^{N\times k},
 \end{equation}
 
-with the fresh variance $\mathbf b$ kept analytic. Set $Y=JZ$ and $v_i=\sum_jJ_{ij}^2b_j+\lVert Y_i\rVert^2/k$, compute the gains as before, and update
+and keep the fresh variance $\mathbf b$ analytic. Set $Y=JZ$ and $v_i=\sum_jJ_{ij}^2b_j+\lVert Y_i\rVert^2/k$, compute the gains as before, and update
 
 \begin{equation}
 Z'=A\big(Y+J\,\mathrm{diag}(\sqrt{\mathbf b})\,\Xi\big),\qquad
 b_i'=\frac{2R^2}{1+\gamma_i},
 \end{equation}
 
-where $\Xi$ has independent standard Gaussian entries. Fresh noise stays diagonal until the couplings mix it across sites. Conditional on the current state, this reproduces the closure's covariance update in expectation; later gains depend on sampled noise, so the full trajectory is not unbiased ([Appendix D](#appendix-d-the-sampled-closure)).
+where $\Xi$ has independent standard Gaussian entries. Fresh noise stays diagonal until the couplings mix it across sites. Conditional on the current state, this reproduces the closure's covariance update in expectation. Later gains depend on sampled noise, so the full trajectory is not unbiased (see [Appendix D](#appendix-d-the-sampled-closure)).
 
-We also test $\sigma=\beta\sum_{ij}(J_{ij}-J_{ji})\mathcal D_{ij}$, an aggregate sensitive to asymmetric delayed correlations. At stationarity this is housekeeping entropy production; during relaxation it is only a diagnostic.
+Next to the means and delayed correlations, we also include the aggregate measure $\sigma=\beta\sum_{ij}(J_{ij}-J_{ji})\mathcal D_{ij}$, which, at stationarity, corresponds to the housekeeping entropy production. During relaxation it is only a diagnostic.
 
 {{< lightbox
   src="sketch.png"
   alt="Sampled-closure errors against the full closure versus channel count k, for mean overlaps, delayed correlations and entropy production, with and without stationary time averaging."
-  caption="**Figure 6.** Errors of the sampled closure against the full closure, at $D=64$ and $\alpha=3$. Solid: $N=1024$. Dashed: $N=256$. Dotted, for reference: the full closure's own error against exact sampling."
+  caption="**Figure 6.** Errors of the sampled closure against the full closure, at $D=64$ and $\alpha=3$. Solid: $N=1024$. Dashed: $N=256$. Dotted, for reference: the full closure's own error against exact sampling after $K=4$ updates at $N=1024$."
 >}}
 
-Four channels give mean-overlap errors 3–6 times smaller than the closure's own error against exact sampling. For entropy production $\sigma$, four channels suffice at $N=1024$; at $N=256$, sixteen are needed to fall below the closure's error. Errors fall roughly as $k^{-1/2}$.
-
-Individual delayed correlations are harder: their relative error is about $2/\sqrt{k}$, requiring $k\sim10^4$ to match the closure here. At stationarity, averaging over 200 updates cuts this error about fourteenfold in these runs, bringing $k\approx64$–$256$ into reach of the closure's accuracy.
-
+We observe errors falling roughly as $k^{-1/2}$. Four channels already give mean-overlap errors 3–6 times smaller than the closure's own error against exact sampling. Individual delayed correlations are harder: their relative error is about $2/\sqrt{k}$, requiring $k\sim10^4$ to match the closure here. At stationarity, averaging over 200 updates cuts this error about fourteenfold in these runs, bringing $k\approx64$–$256$ into reach of the closure's $K=4$ accuracy.
 
 # Relation to other closures
 
@@ -387,27 +446,27 @@ where $H_i$ is the external field and $z\sim\mathcal N(0,1)$. Their delayed-cova
 \qquad \chi_i=\beta\,\mathbb E_z\left\{1-\tanh^2\!\left[\beta\left(\bar h_i+\sqrt{\Delta_i}\,z\right)\right]\right\}.
 \end{equation}
 
-The matrix form matches ours, with a Gaussian-averaged susceptibility $\chi_i$ replacing the radial gain $a_i$. Their argument uses large $N$ and fully asymmetric couplings; ours uses component concentration at fixed $N$ and $J$.
+The matrix form matches ours, with a Gaussian-averaged susceptibility $\chi_i$ replacing the radial gain $a_i$. Their argument uses large $N$ and fully asymmetric couplings; ours uses component concentration at fixed $N$ and $J$. 
 
-[Huang and Kabashima (2014)](https://arxiv.org/abs/1310.5003) keep the correlations between Gaussian local fields, so the variance becomes $\Delta_i=(JCJ^\top)_{ii}$: the same shared-noise contribution that enters $v_i$ here.
+[Huang and Kabashima (2014)](https://arxiv.org/abs/1310.5003) keep the correlations between Gaussian local fields, so the variance becomes $\Delta_i=(JCJ^\top)_{ii}$ which matches the shared-noise contribution that enters $v_i$ in our framework.
 
-[Aguilera et al. (2021)](https://arxiv.org/abs/2002.04309) place Gaussian-field and TAP ([Roudi and Hertz, 2011](https://arxiv.org/abs/1103.1044)) approximations within a common Plefka framework, expanding around tractable reference dynamics. A large vector dimension at fixed couplings is a different limit; a direct comparison with second-order Plefka for vector spins remains to be done.
-
-The length constraint also links this construction to [equilibrium large-component spin glasses](https://arxiv.org/abs/cond-mat/0408073), where one multiplier per site enforces each spin's length.
-
+[Aguilera et al. (2021)](https://arxiv.org/abs/2002.04309) place Gaussian-field and TAP ([Roudi and Hertz, 2011](https://arxiv.org/abs/1103.1044)) approximations within a common Plefka framework, expanding around tractable reference dynamics. Our large vector dimension at fixed couplings is a different limit, and a direct comparison with second-order Plefka for vector spins remains to be done.
 
 # Conclusion and outlook
 
-Noise adds field length that naive mean field discards. At large $D$, that length becomes predictable, closing the equations for the means and covariance traces. The finite-time argument gives a leading approximation; numerical errors fall roughly as $1/D$, but can remain substantial at small $D$ or weak drive.
+In this post, we looked at the behavior of driven vector spins on hyperspheres at fixed couplings and scaled drive strength, as their dimension $D$ grows. In our numerical tests, mean-field errors do not vanish in this limit, but level off at a nonzero plateau. What changes in high dimensions is the structure of the noise. Conditional vMF fluctuations have a squared length comparable to that of the mean, but are nearly orthogonal to it, so their squared lengths add.
 
-The one-step correction costs one pass with squared weights. Repeated updates need shared covariance; a few sampled channels suffice for means and entropy production in these runs. Whether this improves trained behavior or training absorbs the mean-field error remains open.
+The local fields inherit this structure: input noise contributes a variance $v_i$ that can be of order $D$, while the squared field norm concentrates around $\lVert\bar{\mathbf h}_i\rVert^2+v_i$. Since the single-spin gain depends only on the field norm, it becomes effectively deterministic at large $D$. Evaluating the response gain at the full field length, and propagating the covariance that determines $v_i$, yields a closure for the means and the equal-time and delayed covariance traces.
 
-Layers driven by preceding means can reuse the closure, including after learned mixing of heads. Passing sampled spins onward requires tracking how projections reshape their noise; sample-dependent queries and keys also make the couplings fluctuate.
+Numerically, closure errors fall roughly as $1/D$ over the first few updates, and keep improving with $D$ in the stationary states we tested. In the [previous post's ensemble](https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/), the closure reduces the persistent stationary delayed-correlation error of mean field from 12% to 0.13% at $D=1024$. For a single update from independent spins, the correction requires one extra weighted sum of input variances, using squared attention weights. For repeated updates, a few random noise channels already approximate mean overlaps accurately, while individual delayed correlations require more channels or time averaging. At small $D$ or weak drive, errors can still be large.
 
+Now does any of this matter for learning or neural network architecture design? Does the correction improve trained modules, or does training simply absorb the mean-field error? The underlying stochastic system does give us a way to explore modules that sample spins instead of propagating means. Computing couplings from those samples would then make the interactions fluctuate too, while passing covariances between layers could preserve information that a mean-only description discards. Finally, can the token-level vMF distributions provide useful, calibrated predictive uncertainty?
 
 # Acknowledgements
 
-The author (M.B.) would like to thank Á. Poc-López and M. Aguilera for stimulating discussions. This project was a personal experiment in agentic research with substantial human steering. Claude Opus 5.5 and GPT-6 Astra participated in brainstorming, experimental design, coding, writing assistance, figure generation, and multiple rounds of adversarial reviewing. Tactical decisions were impressive, strategic manoeuvres proved harder and required significant steering. The author (M.B.) takes full responsibility for any remaining slop.
+The author (M.B.) would like to thank Á. Poc-López and M. Aguilera for stimulating discussions.
+
+**AI tool use.** This project was a personal experiment in agentic research with human steering. Claude Opus 5.5 and GPT-6 Astra participated in brainstorming, experimental design, coding, writing assistance, figure generation, and multiple rounds of adversarial reviewing using their respective native coding harnesses. Tactical decisions were impressive, but strategic manoeuvres and taking leaps proved much harder than expected, requiring significant steering. Getting the models to write a coherent technical blog post intended for a human audience was not successful. The author (M.B.) takes full responsibility for any remaining slop and bad writing.
 
 # References
 
@@ -452,7 +511,7 @@ t_\star=\frac{\kappa}{D/2+\sqrt{D^2/4+\kappa^2}},
 \qquad \operatorname{std}(t)\simeq\frac{1-t_\star^2}{\sqrt{D(1+t_\star^2)}}.
 \end{equation}
 
-The exact mean alignment is $A_D(\kappa)=t_\star+O(1/D)$. With $\kappa=\beta R\lVert\mathbf h\rVert$ and $R^2=D/2-1$, this recovers $t_\star\simeq\lVert\boldsymbol\mu_\infty(\mathbf h)\rVert/R$. The most likely latitude stays away from the pole, even though the pole maximizes the density per unit area.
+The exact mean alignment is $A_D(\kappa)=t_\star+O(1/D)$. With $\kappa=\beta R\lVert\mathbf h\rVert$ and $R^2=D/2-1$, this recovers $t_\star\simeq\lVert\boldsymbol\mu_D(\mathbf h)\rVert/R$. The most likely latitude stays away from the pole, even though the pole maximizes the density per unit area.
 
 The transverse length remains finite, but its projection onto any fixed unit vector has standard deviation at most $1/\sqrt{D-1}$. For $n$ independent samples,
 
@@ -460,11 +519,9 @@ The transverse length remains finite, but its projection onto any fixed unit vec
 \mathbb E\lVert\bar{\mathbf u}\rVert^2=A_D(\kappa)^2+\frac{1-A_D(\kappa)^2}{n}.
 \end{equation}
 
-Averaging divides the noise's expected squared length by $n$; increasing $D$ at fixed $n$ leaves it unchanged.
+Averaging divides the noise's expected squared length by $n$; as $D$ grows at fixed $n$ and $\kappa/D$, that expected squared length approaches a nonzero limit.
 
-Conditioning $\mathcal N(\boldsymbol\nu,\sigma^2I)$ on radius $R$ gives a vMF law with $\kappa=R\lVert\boldsymbol\nu\rVert/\sigma^2$. Normalizing a Gaussian sample generally gives a different law.
-
-## Appendix B: Single-spin moments
+## Appendix B: Covariance of a vMF spin
 
 For $\kappa=\beta R\lVert\mathbf h\rVert$, the exact mean is $\boldsymbol\mu_D=R A_D(\kappa)\hat{\mathbf h}$. The covariance separates into transverse and longitudinal parts:
 
@@ -497,7 +554,7 @@ Every directional variance stays $O(1)$. The longitudinal variance is smaller by
 
 ## Appendix C: Why the field norm concentrates
 
-Fix $N$, $J$, $\beta$ and the number of updates, take drives of length $O(R)$, and start from independent vMF spins. Every field length is a linear combination of the overlaps
+Fix $N$, $J$, $\beta$ and the number of updates, take drives of length $O(R)$, and start from independent vMF spins. Every squared field length is determined by the overlaps
 
 \begin{equation}
 Q_{ij}=\frac{\mathbf s_i\cdot\mathbf s_j}{R^2},
@@ -532,7 +589,14 @@ Q_{ij}'=\frac{\boldsymbol\mu_D(\mathbf h_i)\cdot\boldsymbol\mu_D(\mathbf h_j)}{R
 +\frac{\boldsymbol\mu_D(\mathbf h_i)\cdot\boldsymbol\epsilon_j+\boldsymbol\epsilon_i\cdot\boldsymbol\mu_D(\mathbf h_j)+\boldsymbol\epsilon_i\cdot\boldsymbol\epsilon_j}{R^2}.
 \end{equation}
 
-The noise term has conditional variance $O(1/D)$, by the same calculation as for independent spins, with the conditional means in place of $\mathbf m_i$. The conditional mean is a function of the current overlaps: the response is a field-norm-dependent gain times the field, and $\mathbf h_i\cdot\mathbf h_j/R^2$ is a linear combination of overlaps, like the field length above. Overlaps are bounded, and on this bounded range the function has bounded derivatives, uniformly in $D$. A function with bounded derivatives of variables with variance $O(1/D)$ also has variance $O(1/D)$. By the law of total variance,
+The noise term has conditional variance $O(1/D)$, by the same calculation as for independent spins, with the conditional means in place of $\mathbf m_i$. To control the conditional mean, write the leading gain in terms of the normalized squared field length:
+
+\begin{equation}
+G(q)=\frac{\beta}{1+\sqrt{1+\beta^2q}},
+\qquad q_i=\frac{\lVert\mathbf h_i\rVert^2}{R^2}.
+\end{equation}
+
+Up to a uniform $O(1/D)$ correction on the bounded field range, the conditional mean of $Q_{ij}'$ is $G(q_i)G(q_j)\,\mathbf h_i\cdot\mathbf h_j/R^2$. Both $G$ and its derivative are bounded for $q\geq0$. The quantities $q_i$ and $\mathbf h_i\cdot\mathbf h_j/R^2$ are linear combinations of the current overlaps and fixed drive overlaps. Since these overlaps are bounded, the leading conditional mean has bounded derivatives with respect to them, uniformly in $D$. A function with bounded derivatives of a fixed number of variables with variance $O(1/D)$ also has variance $O(1/D)$; the uniform response correction does not change this order. By the law of total variance,
 
 \begin{equation}
 \operatorname{Var}Q_{ij}'
@@ -547,11 +611,11 @@ This establishes concentration at any fixed number of updates. The constants can
 
 ## Appendix D: The sampled closure
 
-Split $C=\mathrm{diag}(\mathbf b)+S$ into the last update's fresh variance and older noise. Fresh variance is diagonal; older noise has passed through $J$ and is correlated across sites. Represent it by $S\approx ZZ^\top/k$, with $k$ channels per site.
+Split $C=\mathrm{diag}(\mathbf b)+S$ into the last update's fresh variance and older noise. Fresh variance is diagonal; older noise has passed through $J$ and is correlated across sites. Represent it by $S\approx ZZ^\top/k$, with $k$ channels per site. For a product start, initialize $Z_0=0$ and $b_{0,i}=R^2-\lVert\mathbf m_{0,i}\rVert^2$.
 
-> 💡 **Sample noise when it mixes.** Fresh variance needs only one number per site. Once the couplings spread it across sites, random channels carry the resulting correlations through the same matrix multiplication as the means.
+> **Sample noise mixing.** Fresh variance needs only one number per site. Once the couplings spread it across sites, random channels carry the resulting correlations through the same matrix multiplication as the means.
 
-Given the current state, draw independent standard Gaussian entries in $\Xi\in\mathbb R^{N\times k}$ and set
+At each update, draw a new $\Xi\in\mathbb R^{N\times k}$ with independent standard Gaussian entries, independently of the current state and all previous draws, and set
 
 \begin{equation}
 Z'=AJ\big(Z+\mathrm{diag}(\sqrt{\mathbf b})\,\Xi\big),
@@ -581,7 +645,7 @@ Channel fluctuations scale roughly as $k^{-1/2}$. Gains and aggregate observable
 
 Later gains depend on sampled $v_i$, so the full trajectory is not exactly unbiased. An $O(1/k)$ bias is plausible from a second-order expansion, but has not been established. The sphere identity holds conditionally in expectation at each update. In Figure 6, the per-site variance misses $R^2-\lVert\mathbf m_i\rVert^2$ by $3$–$5\%$ of $R^2$ at $k=4$ and under $1\%$ at $k=256$, without renormalization.
 
-At stationarity, fresh channel draws can make time averaging useful, but successive states still share propagated noise. The gain depends on autocorrelation. Averaging 200 updates reduced delayed-correlation error about fourteenfold in these runs, mean-overlap error by 11–14 times, and entropy-production error by 7–23 times. These are empirical reductions, not a general effective-sample-size rule.
+At stationarity, fresh channel draws can make time averaging useful, but successive states still share propagated noise. The benefit of time averaging depends on temporal autocorrelation. Averaging 200 updates reduced delayed-correlation error about fourteenfold in these runs, mean-overlap error by 11–14 times, and entropy-production error by 7–23 times. These are empirical reductions, not a general effective-sample-size rule.
 
 
 # Footnotes
@@ -593,8 +657,8 @@ At stationarity, fresh channel draws can make time averaging useful, but success
 [^fn:residual]: Eq. \eqref{eq:linear} becomes exact once we add the residual $\mathbf e_i=\boldsymbol\mu_D(\mathbf h_i)-a_i\mathbf h_i$. It has two parts:
 
     - The finite-$D$ response, $\boldsymbol\mu_D(\mathbf h_i)-\boldsymbol\mu_\infty(\mathbf h_i)$: a relative $O(1/D)$ correction to a vector of length $O(\sqrt D)$, so its length is $O(D^{-1/2})$.
-    - The fluctuating gain, $\bigl[g(\lVert\mathbf h_i\rVert^2)-g(r_i^2)\bigr]\mathbf h_i\approx g'(r_i^2)\,\Delta_i\mathbf h_i$ with $\Delta_i=\lVert\mathbf h_i\rVert^2-r_i^2$. Since $g'=O(1/D)$, $\Delta_i=O(\sqrt D)$ and $\lVert\mathbf h_i\rVert=O(\sqrt D)$, its length is $O(1)$.
+    - The fluctuating gain, $\bigl[g(\lVert\mathbf h_i\rVert^2)-g(r_i^2)\bigr]\mathbf h_i\approx g'(r_i^2)\,\Delta_i\mathbf h_i$ with $\Delta_i=\lVert\mathbf h_i\rVert^2-r_i^2$. Since $g'=O(1/D)$, $\Delta_i$ has root-mean-square size $O(\sqrt D)$ and $\lVert\mathbf h_i\rVert=O(\sqrt D)$, this contribution has root-mean-square length $O(1)$.
 
-    The residual's mean shifts $\mathbf m_i'$ and its fluctuation adds to the noise, both by $O(1)$ against a spin length $R=O(\sqrt D)$. At a fixed number of updates, normalized moments are thus accurate to $O(D^{-1/2})$. The $1/D$ decay we observe numerically is faster than this bound.
+    The residual shifts the mean by at most $O(1)$ and adds a fluctuation of root-mean-square length $O(1)$, against a spin length $R=O(\sqrt D)$. At a fixed number of updates, this bounds the absolute errors in $\mathbf m_i/R$, $C_{ij}/R^2$ and $\mathcal D_{ij}/R^2$ by $O(D^{-1/2})$. The $1/D$ decay we observe numerically is faster than this bound.
 
 [^fn:numerics]: Reference moments use exact vMF sampling ([Wood, 1994](https://doi.org/10.1080/03610919408813161)) over independent replicates. Squared errors are formed from products across distinct replicates, which cancels Monte Carlo variance in expectation. Intervals show two jackknife standard errors, leaving out one replicate at a time.
