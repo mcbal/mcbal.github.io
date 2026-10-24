@@ -1,8 +1,8 @@
-{{- /* Exclude appendix sections, resuming at the next peer or higher heading.
+{{- /* Exclude appendix and reference sections, resuming at the next peer or higher heading.
      Work with rendered headings so code examples and inline mentions still count. */ -}}
 {{- $content := "" -}}
-{{- $appendixLevel := 0 -}}
-{{- $hasAppendix := false -}}
+{{- $skipLevel := 0 -}}
+{{- $hasSkipped := false -}}
 {{- $sections := split (replaceRE `(?i)(<h[1-6][\s>])` "\x00${1}" .Content) "\x00" -}}
 {{- range $sections -}}
   {{- $heading := "" -}}
@@ -11,20 +11,21 @@
   {{- end -}}
   {{- with $heading -}}
     {{- $level := int (substr . 2 1) -}}
-    {{- if and (gt $appendixLevel 0) (le $level $appendixLevel) -}}
-      {{- $appendixLevel = 0 -}}
+    {{- if and (gt $skipLevel 0) (le $level $skipLevel) -}}
+      {{- $skipLevel = 0 -}}
     {{- end -}}
-    {{- if and (eq $appendixLevel 0) (or (findRE `(?i)^appendi(?:x|ces)(?:\s|:|$)` (plainify . | htmlUnescape | strings.TrimSpace)) (findRE `(?i)\bid=["']appendices["']` .)) -}}
-      {{- $appendixLevel = $level -}}
-      {{- $hasAppendix = true -}}
+    {{- $title := plainify . | htmlUnescape | strings.TrimSpace -}}
+    {{- if and (eq $skipLevel 0) (or (findRE `(?i)^(appendi(?:x|ces)|references)(?:\s|:|$)` $title) (findRE `(?i)\bid=["'](appendices|references)["']` .)) -}}
+      {{- $skipLevel = $level -}}
+      {{- $hasSkipped = true -}}
     {{- end -}}
   {{- end -}}
-  {{- if eq $appendixLevel 0 -}}
+  {{- if eq $skipLevel 0 -}}
     {{- $content = printf "%s%s" $content . -}}
   {{- end -}}
 {{- end -}}
 {{- $minutes := .ReadingTime -}}
-{{- if $hasAppendix -}}
+{{- if $hasSkipped -}}
   {{- /* Match Hugo's default rate of 212 words per minute, rounded up. */ -}}
   {{- $minutes = int (math.Ceil (div (float (countwords (plainify $content | htmlUnescape))) 212.0)) -}}
 {{- end -}}
