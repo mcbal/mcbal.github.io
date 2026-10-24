@@ -9,7 +9,7 @@ authors:
 tags: ["Artificial Intelligence", "Attention", "Closure", "Deep Learning", "Dynamical Systems", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Nonequilibrium Dynamics", "Statistical Physics", "Stochastic Thermodynamics", "Transformers", "Vector-Spin Models"]
 categories: []
 date: 2026-10-20T22:28:17+01:00
-lastmod: 2026-10-24T21:21:21+01:00
+lastmod: 2026-10-24T21:40:55+02:00
 featured: false
 draft: false
 toc: true
@@ -50,6 +50,8 @@ P(\mathbf S'\mid\mathbf S)=\prod_i\frac{e^{\beta\,\mathbf s_i'\cdot\mathbf h_i}}
 \end{equation}
 
 where $\beta > 0$ denotes the inverse temperature. The local conditional distribution at each site is a [von Mises–Fisher (vMF) distribution](https://en.wikipedia.org/wiki/Von_Mises%E2%80%93Fisher_distribution), with mean direction $\hat{\mathbf h}_i$ and concentration parameter $\kappa_i=\beta R\lVert\mathbf h_i\rVert$. We will send $D\to\infty$ at fixed $N$, $J_{ij}$, and $\beta$, holding the ratio $\beta\lVert\mathbf x_i\rVert/R$ fixed. Drives of length $O(\sqrt D)$ can then compete with the interaction field, and conditional concentrations $\kappa_i$ are $O(D)$.
+
+We start from spins drawn independently from prescribed vMF distributions.
 
 > **On fluctuating spins.** Across stochastic trajectories, the spins $\mathbf s$, and therefore the fields $\mathbf h$, fluctuate. The synchronous update happens in two steps: the current spins determine the fields, which then condition the vMF distributions the next spins are sampled from.
 
@@ -140,7 +142,7 @@ The cross term averages to zero, since the noise has zero mean. Its fluctuations
 \qquad v_i=\mathbb E\lVert\boldsymbol\eta_i\rVert^2=(JCJ^\top)_{ii}.
 \end{equation}
 
-Even though both $\lVert\bar{\mathbf h}_i\rVert^2$ and $v_i$ can be $O(D)$, the fluctuations around their sum are only $O(\sqrt D)$. Can we understand this intuitively? Expanding $\mathbf h_i$, the squared field length is a fixed combination of normalized overlaps $\mathbf s_j\cdot\mathbf s_l/R^2$ and $\mathbf x_i\cdot\mathbf s_j/R^2$. For independent spins, these overlaps fluctuate by only $O(D^{-1/2})$, since every spin has $O(1)$ variance along any fixed direction. After an update, shared inputs correlate the spins, but given the current spins, the fresh draws are still independent across sites, which carries the same scaling over to the next update. At any fixed number of updates, we therefore have[^fn:app3]
+Even though both $\lVert\bar{\mathbf h}_i\rVert^2$ and $v_i$ can be $O(D)$, the fluctuations around their sum are only $O(\sqrt D)$. Can we understand this intuitively? Expanding $\mathbf h_i$, the normalized squared field length is a fixed combination of normalized overlaps $\mathbf s_j\cdot\mathbf s_l/R^2$ and $\mathbf x_i\cdot\mathbf s_j/R^2$. For independent spins, these overlaps fluctuate by only $O(D^{-1/2})$, since every spin has $O(1)$ variance along any fixed direction. After an update, shared inputs correlate the spins, but given the current spins, the fresh draws are still independent across sites, which carries the same scaling over to the next update. At any fixed number of updates, we therefore have[^fn:app3]
 
 \begin{equation}
 \operatorname{std}\!\left(\frac{\lVert\mathbf h_i\rVert^2}{R^2}\right)=O(D^{-1/2}).
@@ -243,7 +245,7 @@ In each trajectory, the conditional mean $\boldsymbol\mu_D(\mathbf h_i)\simeq a_
 
 Now that we have an idea of the effect of the noise, we can pinpoint the failure modes of naive mean field and how the closure addresses them.
 
-**Norm inflation.** Including $v_i$ lowers the gain, shortening the next mean for a given mean field $\bar{\mathbf h}_i$. At strong fields $\beta r_i/R\gg1$, we have that $a_i\simeq R/r_i$, so $\mathbf m_i'\simeq R\,\bar{\mathbf h}_i/r_i$: the closure normalizes the mean field by the full field length $r_i$, whereas mean field divides by $\lVert\bar{\mathbf h}_i\rVert$. From a product start, only individual input variances contribute, so
+**Norm inflation.** Including $v_i$ lowers the gain, shortening the next mean for a given mean field $\bar{\mathbf h}_i$. At strong fields $\beta r_i/R\gg1$, we have that $a_i\simeq R/r_i$, so $\mathbf m_i'\simeq R\,\bar{\mathbf h}_i/r_i$: the closure normalizes the mean field by the full field length $r_i$. Naive mean field instead divides by $\lVert\bar{\mathbf h}_i\rVert$ in its own strong-field limit, $\beta\lVert\bar{\mathbf h}_i\rVert/R\gg1$. From a product start, only individual input variances contribute, so
 
 \begin{equation}
 v_i=\sum_jJ_{ij}^2\left(R^2-\lVert\mathbf m_{0,j}\rVert^2\right)
@@ -339,7 +341,7 @@ The diffuse system is the previous post's ensemble. At its operating point $(u,\
 | 256 | 11% | 12% | 0.53% |
 | 1024 | 12% | 12% | 0.13% |
 
-The full closure is slightly worse than the diagonal closure at $D=16$, but improves with $D$, while the diagonal closure drifts toward mean field. In our tests with nonnegative couplings and drives, the picture is the same at lower temperature and weaker drive. At $D=1024$, the full closure reaches 0.33% at $\beta=2$ and 0.42% at $u=1/2$, against 54% and 70% for mean field. At $\beta=4$, mean field misses by 90%, while the closure's error is below sampling resolution from $D=256$ on.
+The full closure is slightly worse than the diagonal closure at $D=16$, but improves with $D$, while the diagonal closure drifts toward mean field. In our tests with nonnegative couplings and nonzero drives, the picture is the same at lower temperature and weaker drive. At $D=1024$, the full closure's stationary delayed-correlation error is 0.33% at $(u,\beta)=(1,2)$ and 0.42% at $(1/2,2)$, against 54% and 70% for mean field. At $(1,4)$, mean field misses by 90%, while the closure's error is below sampling resolution from $D=256$ on.
 
 # Practical versions
 
@@ -356,7 +358,7 @@ From a product start, the spins are independent vMF samples, each in its own ini
 \qquad C_{jj}=R^2-\lVert\mathbf m_{0,j}\rVert^2\simeq\frac{2R^2}{1+\gamma(\lVert\mathbf f_j\rVert^2)}.
 \end{equation}
 
-As in Eq. \eqref{eq:first}, only these diagonal variances enter. The update does create off-diagonal covariance, but the next means do not need it:
+As in Eq. \eqref{eq:first}, only these diagonal variances enter. The update does create off-diagonal covariance, but the first-update means do not need it:
 
 \begin{equation}
 \bar{\mathbf h}_i=\mathbf x_i+\sum_jJ_{ij}\mathbf m_{0,j},
@@ -403,7 +405,7 @@ Alongside the means and delayed correlations, we also include the aggregate meas
   caption="**Figure 6.** Errors of the sampled closure against the full closure, at $D=64$ and $\alpha=3$. Solid: $N=1024$. Dashed: $N=256$. 'One snapshot' is a single stationary state after 300 updates; 'time average' averages the last 200 of them. Dotted, for reference: the full closure's own error against exact sampling at $N=1024$, after $K=4$ updates (blue) and at stationarity (gold)."
 >}}
 
-We observe errors falling roughly as $k^{-1/2}$. Four channels already give mean-overlap errors 3–7 times smaller than the closure's own error against exact sampling, both after four updates and at stationarity. Entropy production, an aggregate over all pairs, also needs only a few channels: at $N=1024$, four already put its error about three times below the closure's own. Individual delayed correlations are harder: their relative error is about $2$–$2.5/\sqrt{k}$, requiring $k\sim10^4$ to match the closure here. At stationarity, averaging over 200 updates cuts this error about fourteenfold in these runs, bringing $k\approx64$–$256$ into reach of the closure's own stationary accuracy.
+We observe errors falling roughly as $k^{-1/2}$. Four channels already give mean-overlap errors 3–7 times smaller than the closure's own error against exact sampling, both after four updates and at stationarity. Entropy production, an aggregate over all pairs, also needs only a few channels: at $N=1024$, four already put its error about three times below the closure's own. Individual delayed correlations are harder: their relative error is about $(2\text{–}2.5)/\sqrt{k}$, requiring $k\sim10^4$ to match the closure here. At stationarity, averaging over 200 updates cuts this error about fourteenfold in these runs, bringing $k\approx64$–$256$ into reach of the closure's own stationary accuracy.
 
 # Relation to other closures
 
@@ -426,7 +428,7 @@ where $H_i$ is the external field and $z\sim\mathcal N(0,1)$. Their delayed-cova
 
 The matrix form matches ours, with a Gaussian-averaged susceptibility $\chi_i$ in place of the gain $a_i$, and $\Delta_i$ matches our diagonal closure's $v_i=\sum_jJ_{ij}^2C_{jj}$. [Huang and Kabashima (2014)](https://arxiv.org/abs/1310.5003) keep the correlations between local fields, $\Delta_i=(JCJ^\top)_{ii}$, which matches the full closure and, as in our tests, matters most at low temperature. Their derivations average over Gaussian scalar fields at large $N$ with fully asymmetric couplings. Ours needs no such average, since the gain only sees the field norm, which concentrates at large $D$ for fixed $N$ and $J$. Only the field's second moments enter.
 
-[Aguilera et al. (2021)](https://arxiv.org/abs/2002.04309) place Gaussian-field and TAP ([Roudi and Hertz, 2011](https://arxiv.org/abs/1103.1044)) approximations within a common Plefka framework. Plefka approximations expand in the coupling strength around tractable reference dynamics. Since couplings enter as $\beta J$, truncating at first order (naive mean field) or second order (TAP) amounts to a high-temperature expansion, consistent with the growing errors at low temperature in the [previous post](https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/#mean-field-approximation-and-proxy-fidelity). Our closure instead expands in $1/D$ at fixed $\beta$ and $J$, with temperature entering only through the gains. A direct comparison with second-order Plefka for vector spins remains to be done.
+[Aguilera et al. (2021)](https://arxiv.org/abs/2002.04309) place Gaussian-field and TAP ([Roudi and Hertz, 2011](https://arxiv.org/abs/1103.1044)) approximations within a common Plefka framework. Plefka approximations expand in the coupling strength around tractable reference dynamics. Since couplings enter as $\beta J$, truncating at first order (naive mean field) or second order (TAP) amounts to a high-temperature expansion, consistent with the growing errors at low temperature in the [previous post](https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/#mean-field-approximation-and-proxy-fidelity). Our closure instead uses concentration at large $D$, holding $\beta$ and $J$ fixed, without requiring weak couplings. A direct comparison with second-order Plefka for vector spins remains to be done.
 
 # Conclusion and outlook
 
