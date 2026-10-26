@@ -9,7 +9,7 @@ authors:
 tags: ["Artificial Intelligence", "Attention", "Closure", "Deep Learning", "Dynamical Systems", "Many-Body Systems", "Mean-Field Theory", "Neural Networks", "Nonequilibrium Dynamics", "Statistical Physics", "Stochastic Thermodynamics", "Transformers", "Vector-Spin Models"]
 categories: []
 date: 2026-10-20T22:28:17+01:00
-lastmod: 2026-10-24T21:40:55+02:00
+lastmod: 2026-10-25T09:36:55+01:00
 featured: false
 draft: false
 toc: true
@@ -36,7 +36,11 @@ projects: []
 
 In [previous](https://mcbal.github.io/post/spin-model-transformers/) [posts](https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/), we built transformer-like modules around naive mean-field descriptions of driven stochastic vector spins wobbling about on hyperspheres. The modules [behaved well as part of a toy language model](https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/#training-a-toy-autoregressive-language-model), but their mean-field observables showed [persistent errors compared to exact sampling of the stochastic system](https://mcbal.github.io/post/nonequilibrium-dynamics-in-spin-model-transformers/#mean-field-approximation-and-proxy-fidelity), especially in delayed correlations and at lower temperatures, even as the vector dimension $D$ grew. Rather than turning to second-order (TAP) mean-field approximations, which for vector spins lead to [implicit fixed-point equations at every update](https://mcbal.github.io/post/spin-model-transformers/#second-order-thouless-anderson-palmer-approximation), we ask whether the geometry of high-dimensional spheres can _on its own_ provide a more faithful approximation for a fixed realization of couplings and drives.
 
-Physically, each vector spin responds to a field made up of a local drive plus its neighbors weighted by the couplings. Mean field averages the neighbors before applying the response, which ignores their fluctuations on the hypersphere. Yet the strength of a spin's alignment depends on the length of its field, and thus on the missing contributions of the fluctuations. We show that the squared field length concentrates for large $D$, but around a value that includes the fluctuations rather than around its bare mean-field value. Taking this into account yields a _closure_: a set of explicit recurrence relations for means and covariance traces at equal and consecutive times. We find numerically that the closure's errors fall off roughly as $1/D$, while those of naive mean field level off. For a single update, the correction costs one extra pass with squared attention weights.
+The motivation for taking this limit comes from the structure of attention modules, which act on a finite context window of $N$ tokens with a large head or model dimension $D$. Softmax couplings are computed from the inputs and held fixed within a forward pass. So we let $D\to\infty$ at fixed $N$ and fixed couplings.
+
+Physically, each vector spin responds to a field made up of a local drive plus its neighbors weighted by the couplings. Mean field averages the neighbors before applying the response, which ignores fluctuations on the hypersphere. Yet the strength of a spin's alignment depends on the length of its field, and thus on the missing contributions of the fluctuations.
+
+We show that the squared field length concentrates for large $D$, but around a value that includes the fluctuations rather than around its bare mean-field value. Taking this into account yields a _closure_: a set of explicit recurrence relations for means and covariance traces at equal and consecutive times. We find numerically that the closure's errors fall off roughly as $1/D$, while those of naive mean field level off. For a single update, the correction costs one extra pass with squared attention weights.
 
 # Background
 
@@ -424,7 +428,7 @@ The matrix form matches ours, with a Gaussian-averaged susceptibility $\chi_i$ i
 
 # Conclusion and outlook
 
-In this post, we looked at driven vector spins on hyperspheres at fixed couplings as their dimension $D$ grows. Naive mean-field errors level off at a nonzero plateau in this limit: the field's fluctuations are nearly orthogonal to its mean, so they add a squared length $v_i$ rather than averaging away. Increasing $D$ does not remove this contribution but makes it predictable. We show that the squared field length concentrates around $\lVert\bar{\mathbf h}_i\rVert^2+v_i$, so the gain becomes effectively deterministic. Propagating the covariance that determines $v_i$ then yields a closure for the means and the equal-time and delayed covariance traces.
+In this post, we looked at driven vector spins on hyperspheres at fixed couplings as their dimension $D$ grows. Naive mean-field errors level off at a nonzero plateau in this limit: the field's fluctuations are nearly orthogonal to its mean, so they add a squared length $v_i$ rather than averaging away. We show that the squared field length concentrates at large $D$ around $\lVert\bar{\mathbf h}_i\rVert^2+v_i$, so the gain becomes deterministic. Propagating the covariance that determines $v_i$ then yields a closure for the means and the equal-time and delayed covariance traces.
 
 Numerically, closure errors fall roughly as $1/D$ over the first few updates, and keep improving with $D$ in the stationary states we tested, including at low temperature. Practically, the one-step correction costs one extra pass with squared attention weights, and a few noise channels suffice to accurately capture means over repeated updates. All tests use nonnegative softmax couplings, so signed couplings remain to be checked. At small $D$ or weak drive, the closure errors can still be large.
 
