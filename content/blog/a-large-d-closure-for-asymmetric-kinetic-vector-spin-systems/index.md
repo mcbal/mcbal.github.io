@@ -38,15 +38,13 @@ In [previous](https://mcbal.github.io/post/spin-model-transformers/) [posts](htt
 
 The motivation for taking the large-$D$ limit comes from the structure of attention modules, which act on a context window of $N$ tokens with a large head or model dimension $D$. Softmax couplings are computed from the inputs and held fixed within a forward pass. Crucially, attention can be sharp or diffuse for different tokens in the same context, regardless of the context length. So we want an approximation that holds whether a site effectively interacts with one input or with many. We let $D\to\infty$ at fixed $N$ and fixed couplings, without requiring $D \gg N$. What matters is a site's effective number of interaction partners rather than the context length, which in practice can far exceed $D$.
 
-Physically, each vector spin responds to a field made up of a local drive plus its neighbors weighted by the couplings. Mean field averages the neighbors before applying the response, which ignores fluctuations on the hypersphere. Yet the strength of a spin's alignment depends on the length of its field, and thus on the missing contributions of the fluctuations.
-
-We show that the squared field length concentrates for large $D$, but around a value that includes the fluctuations rather than around its bare mean-field value. Taking this into account yields a _closure_: a set of explicit recurrence relations for means and covariance traces at equal and consecutive times. We find numerically that the closure's errors fall off roughly as $1/D$, while those of naive mean field level off. For a single update, the correction costs one extra pass with squared attention weights.
+Physically, each vector spin responds to a field made up of a local drive plus its neighbors weighted by the couplings. Mean field averages the neighbors before applying the response, which ignores fluctuations on the hypersphere. Yet the strength of a spin's alignment depends on the length of its field, and thus on the missing contributions of the fluctuations. We show that the squared field length concentrates for large $D$, but around a value that includes the fluctuations rather than around its bare mean-field value. Taking this into account yields a _closure_: a set of explicit recurrence relations for means and covariance traces at equal and consecutive times. We find numerically that the closure's errors fall off roughly as $1/D$, while those of naive mean field level off. For a single update, the correction costs one extra pass with squared attention weights.
 
 # Background
 
 ## Stochastic model dynamics
 
-Consider $N$ spins $\mathbf s_i\in\mathbb R^D$ of length $R$, with $R^2=D/2-1$[^fn:radiusconvention] and $D>2$. Fixed scalar couplings $J_{ij}$ mix the spins, and fixed fields $\mathbf x_i$ drive them. The couplings may be asymmetric, and we do not assume anything about their statistics. The closure below does not rely on symmetry; asymmetry enters through the entropy production in [Practical versions](#carrying-noise-instead-of-a-matrix-k--1). All sites are updated synchronously and independently, given the current state:
+Consider $N$ spins $\mathbf s_i\in\mathbb R^D$ of length $R$, with $R^2=D/2-1$[^fn:radiusconvention] and $D>2$. Fixed scalar couplings $J_{ij}$ mix the spins, and fixed fields $\mathbf x_i$ drive them. The couplings may be asymmetric, and we do not assume anything about their statistics. All sites are updated synchronously and independently, given the current state:
 
 \begin{equation}
 P(\mathbf S'\mid\mathbf S)=\prod_i\frac{e^{\beta\,\mathbf s_i'\cdot\mathbf h_i}}{\mathcal Z(\mathbf h_i)},
@@ -250,7 +248,7 @@ v_i=\sum_jJ_{ij}^2\left(R^2-\lVert\mathbf m_{0,j}\rVert^2\right)
 \label{eq:first}
 \end{equation}
 
-and norm inflation is bounded by how concentrated the couplings are. For couplings with nonnegative rows summing to one (like softmax attention), the participation ratio counts effective inputs: $N_{\mathrm{eff}}$ ranges from 1 for a single input to $N$ for uniform weights, and equals the number of inputs only when they are weighted equally. Diffuse attention suppresses independent input noise, while sharp attention retains it, so norm inflation is strongest for sharp attention. Since $v_i/R^2$ does not depend on $D$, increasing $D$ alone does not make mean field accurate. Transformer-like applications need to maintain accuracy across both regimes.
+and norm inflation is bounded by how concentrated the couplings are. For couplings with nonnegative rows summing to one (like softmax attention), the participation ratio counts effective inputs: $N_{\mathrm{eff}}$ ranges from 1 for a single input to $N$ for uniform weights, and equals the number of inputs only when they are weighted equally. Diffuse attention suppresses independent input noise, while sharp attention retains it, so norm inflation is strongest for sharp attention. Since $v_i/R^2$ does not depend on $D$, increasing $D$ alone does not make mean field accurate. For transformer-like applications, we want to maintain accuracy across both regimes.
 
 **Shared inputs.** After an update, sites talking to the same inputs acquire equal-time covariance. This shared noise feeds back into $v_i$ and contributes to the delayed correlations:
 
