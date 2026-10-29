@@ -12,7 +12,7 @@
 {{/* Page Cover */}}
 {{ partial "components/cover.html" . }}
 
-<div class="mx-auto flex max-w-screen-xl">
+<div class="single-page-layout mx-auto flex max-w-screen-xl">
   {{ partial "components/sidebar.html" (dict "context" . "no_sidebar" true) }}
   {{ partial "components/toc.html" . }}
   <article class="w-full break-words flex min-h-[calc(100vh-var(--navbar-height))] min-w-0 justify-center pb-8 pr-[calc(env(safe-area-inset-right)-1.5rem)]">

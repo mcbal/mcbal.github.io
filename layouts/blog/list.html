@@ -13,7 +13,7 @@
       {{ range $graph.nodes }}
         {{ $node := . }}
         {{ if eq .kind "stop" }}
-          {{/* Place a stop just after its latest source in the chronological fallback. */}}
+          {{/* Place a stop just before its latest source in the mobile reading list. */}}
           {{ $date := time.AsTime "1970-01-01" }}
           {{ range where $graph.edges "to" $node.id }}
             {{ $source := .from }}
@@ -23,7 +23,7 @@
               {{ end }}
             {{ end }}
           {{ end }}
-          {{ $entries = $entries | append (dict "node" $node "date" ($date.Add -1000000000)) }}
+          {{ $entries = $entries | append (dict "node" $node "date" ($date.Add 1000000000)) }}
         {{ else }}
           {{ with site.GetPage (printf "/blog/%s" .post) }}
             {{ $entries = $entries | append (dict "node" $node "page" . "date" .Date) }}
@@ -84,9 +84,17 @@
   {{ $others := slice }}{{ range .RegularPages }}{{ if not (in $mapped .File.ContentBaseName) }}{{ $others = $others | append . }}{{ end }}{{ end }}
   {{ with $others }}<aside class="blog-map-more"><h2>More posts</h2><ul>{{ range . }}<li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>{{ end }}</ul></aside>{{ end }}
 </section>
-{{ $css := resources.Get "css/blog-map.css" | minify | fingerprint }}
-<link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+{{ with resources.Get "css/blog-map.css" }}
+  {{ $css := . | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+{{ else }}
+  {{ errorf "Missing blog graph stylesheet: commit assets/css/blog-map.css alongside this template." }}
+{{ end }}
 <script id="blog-map-data" type="application/json">{{ $graph.edges | jsonify | safeJS }}</script>
-{{ $js := resources.Get "js/blog-map.js" | minify | fingerprint }}
-<script src="{{ $js.RelPermalink }}" integrity="{{ $js.Data.Integrity }}" defer></script>
+{{ with resources.Get "js/blog-map.js" }}
+  {{ $js := . | minify | fingerprint }}
+  <script src="{{ $js.RelPermalink }}" integrity="{{ $js.Data.Integrity }}" defer></script>
+{{ else }}
+  {{ errorf "Missing blog graph script: commit assets/js/blog-map.js alongside this template." }}
+{{ end }}
 {{ end }}

@@ -335,3 +335,12 @@ body {
 .article-content > h4:not(:first-child) {
   margin-top: 1.5rem;
 }
+
+/* Keep the article centered, with Contents on the left and the spacer on the right. */
+.single-page-layout > .hb-toc {
+  order: -1;
+}
+
+.single-page-layout > .hb-sidebar-container {
+  order: 1;
+}
