@@ -48,7 +48,7 @@ nodes:
   - id: energy-stop
     kind: stop
     label: "Cul-de-sac: Energy-based perspective"
-    note: Energy-based methods are unable to recover the full structure of the transformer module architecture (residual, normalization, feed-forward, ...). Let's try applying stat-mech to vector spins following a simple data-probes-system-responds idea.
+    note: Energy-based methods are unable to recover the full structure of the transformer module architecture (residual, normalization, feed-forward, ...), so we need to jump to another idea basin. Focus on vector-spin stat-mech approaches following a simple data-probes-system-responds intuition.
   - id: equilibrium-stop
     kind: stop
     label: "Cul-de-sac: Equilibrium methods and symmetric couplings"
@@ -56,14 +56,14 @@ nodes:
 edges:
   - {from: energy, to: mixture, label: Derive the energy}
   - {from: mixture, to: landscapes, label: Explore the landscape}
-  - {from: landscapes, to: energy-stop, kind: stop, label: From energy to response}
+  - {from: landscapes, to: energy-stop, kind: stop, label: Fail to recover full module structure}
   - {from: energy-stop, to: implicit, label: From energy to response}
   - {from: energy-stop, to: free-energy, label: From energy to response}
   - {from: implicit, to: collectives, label: Synthesize the picture}
   - {from: free-energy, to: collectives, label: Synthesize the picture}
   - {from: collectives, to: equilibrium-stop, kind: stop, label: Symmetric equilibrium assumptions reach their limit}
   - {from: implicit, to: spin, label: Again self-consistent mean-field but asymmetric}
-  - {from: equilibrium-stop, to: spin, label: Study driven relaxation}
-  - {from: spin, to: dynamics, label: Study driven relaxation}
+  - {from: equilibrium-stop, to: spin, label: Study driven vector-spin systems}
+  - {from: spin, to: dynamics, label: Separate timescales into quench and relaxation}
   - {from: spin, to: closure, label: Sidestep the mean-field approximation}
   - {from: dynamics, to: closure, label: Improve the mean-field approximation}
