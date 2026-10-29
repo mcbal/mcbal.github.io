@@ -18,6 +18,9 @@ links:
   - icon: at-symbol
     url: mailto:matthiascbal@gmail.com
     label: E-mail Me
+  - icon: brands/bluesky
+    url: https://bsky.app/profile/mcbal.bsky.social
+    label: Bluesky
   - icon: brands/x
     url: https://twitter.com/MatthiasBal
   - icon: brands/linkedin
