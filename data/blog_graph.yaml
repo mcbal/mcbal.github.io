@@ -1,0 +1,69 @@
+nodes:
+  - id: energy
+    post: an-energy-based-perspective-on-attention-mechanisms-in-transformers
+    label: An energy-based perspective
+    note: Review connections between softmax attention, associative memories, and Hopfield networks.
+    stage: Energy & attention
+  - id: mixture
+    post: transformer-attention-as-an-implicit-mixture-of-effective-energy-based-models
+    label: Where does the energy come from?
+    note: Derive effective energy models behind the attention update.
+    stage: Energy & attention
+  - id: landscapes
+    post: attention-as-energy-minimization-visualizing-energy-landscapes
+    label: Visualizing energy landscapes
+    note: Explore the geometry of attention as energy minimization.
+    stage: Energy & attention
+  - id: implicit
+    post: deep-implicit-attention-a-mean-field-theory-perspective-on-attention-mechanisms
+    label: Deep implicit attention
+    note: Treat attention as a self-consistent mean-field response of vector spins.
+    stage: Spin models & mean field
+  - id: free-energy
+    post: transformers-from-spin-models-approximate-free-energy-minimization
+    label: Approximate free energy minimization
+    note: Recover transformer-like structure from a vector-spin free energy.
+    stage: Spin models & mean field
+  - id: collectives
+    post: transformers-are-secretly-collectives-of-spin-systems
+    label: Collectives of spin systems
+    note: Distill the emerging physical picture into a unifying perspective.
+    stage: Spin models & mean field
+  - id: spin
+    post: spin-model-transformers
+    label: Spin-model transformers
+    note: Move beyond symmetric equilibrium models to asymmetric, driven vector-spin models evolving in time.
+    stage: Driven dynamics
+  - id: dynamics
+    post: nonequilibrium-dynamics-in-spin-model-transformers
+    label: Nonequilibrium dynamics
+    note: Connect dynamical mean-field descriptions for vector spins to nonequilibrium concepts and provide a full mapping to a parallel transformer block.
+    stage: Driven dynamics
+  - id: closure
+    post: a-large-d-closure-for-asymmetric-kinetic-vector-spin-systems
+    label: A large-D closure
+    note: Account for fluctuations missing from naive mean field on the sphere in high dimensions.
+    stage: Driven dynamics
+  # Stop nodes describe a limitation, rather than linking to a post.
+  - id: energy-stop
+    kind: stop
+    label: "Cul-de-sac: Energy-based perspective"
+    note: Energy-based methods are unable to recover the full structure of the transformer module architecture (residual, normalization, feed-forward, ...). Let's try applying stat-mech to vector spins following a simple data-probes-system-responds idea.
+  - id: equilibrium-stop
+    kind: stop
+    label: "Cul-de-sac: Equilibrium methods and symmetric couplings"
+    note: Equilibrium methods assume symmetric couplings and detailed balance. Softmax attention is asymmetric, so we need to come up with a dynamical description for vector spins that supports asymmetric couplings.
+edges:
+  - {from: energy, to: mixture, label: Derive the energy}
+  - {from: mixture, to: landscapes, label: Explore the landscape}
+  - {from: landscapes, to: energy-stop, kind: stop, label: From energy to response}
+  - {from: energy-stop, to: implicit, label: From energy to response}
+  - {from: energy-stop, to: free-energy, label: From energy to response}
+  - {from: implicit, to: collectives, label: Synthesize the picture}
+  - {from: free-energy, to: collectives, label: Synthesize the picture}
+  - {from: collectives, to: equilibrium-stop, kind: stop, label: Symmetric equilibrium assumptions reach their limit}
+  - {from: implicit, to: spin, label: Again self-consistent mean-field but asymmetric}
+  - {from: equilibrium-stop, to: spin, label: Study driven relaxation}
+  - {from: spin, to: dynamics, label: Study driven relaxation}
+  - {from: spin, to: closure, label: Sidestep the mean-field approximation}
+  - {from: dynamics, to: closure, label: Improve the mean-field approximation}

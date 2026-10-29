@@ -7,5 +7,5 @@ main:
     url: /#about
     weight: 10
   - name: Blog
-    url: /#blog
+    url: /blog/
     weight: 20

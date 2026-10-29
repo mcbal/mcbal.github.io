@@ -1,0 +1,10 @@
+{{ $node := .node }}
+<li class="blog-map-node blog-map-stop" id="idea-{{ $node.id }}" data-node="{{ $node.id }}" data-kind="stop">
+  <div class="blog-map-post blog-map-stop-card" role="note" aria-labelledby="stop-title-{{ $node.id }}" tabindex="0">
+    <span class="blog-map-stop-icon" aria-hidden="true">❌</span>
+    <div class="blog-map-card-content">
+      <h2 id="stop-title-{{ $node.id }}">{{ $node.label }}</h2>
+      <p>{{ $node.note }}</p>
+    </div>
+  </div>
+</li>

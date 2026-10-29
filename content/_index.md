@@ -57,7 +57,7 @@ sections:
         folders:
           - blog
         exclude_featured: false
-      count: 6
+      count: 3
       order: desc
       archive:
         enable: true

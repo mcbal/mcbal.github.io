@@ -1,0 +1,92 @@
+{{ define "main" }}
+{{ $graph := site.Data.blog_graph }}
+<div class="max-w-prose mx-auto flex justify-center">
+  <article class="prose prose-slate lg:prose-xl dark:prose-invert">
+    <h1 id="blog-map-title" class="lg:text-6xl">{{ .Title }}</h1>
+  </article>
+</div>
+<section class="blog-map" aria-labelledby="blog-map-title">
+  <div class="blog-map-canvas">
+    <svg class="blog-map-edges" role="group" aria-label="Connections between posts" focusable="false"></svg>
+    <ol class="blog-map-nodes">
+      {{ $entries := slice }}
+      {{ range $graph.nodes }}
+        {{ $node := . }}
+        {{ if eq .kind "stop" }}
+          {{/* Place a stop just after its latest source in the chronological fallback. */}}
+          {{ $date := time.AsTime "1970-01-01" }}
+          {{ range where $graph.edges "to" $node.id }}
+            {{ $source := .from }}
+            {{ range where $graph.nodes "id" $source }}
+              {{ with site.GetPage (printf "/blog/%s" .post) }}
+                {{ if .Date.After $date }}{{ $date = .Date }}{{ end }}
+              {{ end }}
+            {{ end }}
+          {{ end }}
+          {{ $entries = $entries | append (dict "node" $node "date" ($date.Add -1000000000)) }}
+        {{ else }}
+          {{ with site.GetPage (printf "/blog/%s" .post) }}
+            {{ $entries = $entries | append (dict "node" $node "page" . "date" .Date) }}
+          {{ end }}
+        {{ end }}
+      {{ end }}
+      {{ range sort $entries "date" "desc" }}
+      {{ $node := .node }}
+      {{ if eq $node.kind "stop" }}
+        {{ partial "blog/stop-node.html" (dict "node" $node "graph" $graph) }}
+      {{ else }}
+      {{ with .page }}
+      <li class="blog-map-node" id="idea-{{ $node.id }}" data-node="{{ $node.id }}">
+        <a class="blog-map-post" href="{{ .RelPermalink }}" aria-label="{{ .Title }}">
+          {{ with partial "functions/get_featured_image.html" . }}
+          {{ $image := . }}
+          {{ if and (reflect.IsImageResourceProcessable .) (ne .MediaType.SubType "gif") }}
+            {{ $image = .Fit "800x280 webp" }}
+          {{ end }}
+          <img class="blog-map-image" src="{{ $image.RelPermalink }}" alt="" width="{{ $image.Width }}" height="{{ $image.Height }}" loading="lazy" decoding="async">
+          {{ end }}
+          <div class="blog-map-card-content">
+            <span class="blog-map-meta">{{ $node.stage }}</span>
+            <h2>{{ .Title }}</h2>
+            <p>{{ $node.note }}</p>
+            <span class="blog-map-updated">Last updated <time datetime="{{ .Lastmod.Format "2006-01-02" }}">{{ .Lastmod.Format "Jan 2, 2006" }}</time></span>
+          </div>
+        </a>
+        {{ $parents := where $graph.edges "to" $node.id }}
+        {{ $afterStop := false }}
+        {{ range $parents }}
+          {{ range where $graph.nodes "id" .from }}
+            {{ if eq .kind "stop" }}{{ $afterStop = true }}{{ end }}
+          {{ end }}
+        {{ end }}
+        {{ if not $afterStop }}
+        {{ with $parents }}
+        <div class="blog-map-parents">
+          <span>Builds on</span>
+          <ul>
+            {{ range . }}
+              {{ $edge := . }}{{ range $graph.nodes }}{{ if eq .id $edge.from }}
+              <li><a href="#idea-{{ .id }}" title="{{ $edge.label }}">{{ if eq $edge.kind "jump" }}<span class="blog-map-jump-label">Conceptual jump · </span>{{ end }}{{ $title := .label }}{{ with .post }}{{ with site.GetPage (printf "/blog/%s" .) }}{{ $title = .Title }}{{ end }}{{ end }}{{ $title }} <span aria-hidden="true">↓</span></a></li>
+              {{ end }}{{ end }}
+            {{ end }}
+          </ul>
+        </div>
+        {{ end }}
+        {{ end }}
+      </li>
+      {{ end }}
+      {{ end }}
+      {{ end }}
+    </ol>
+  </div>
+  {{/* Keep newly published posts reachable before they are placed in the curated map. */}}
+  {{ $mapped := slice }}{{ range $graph.nodes }}{{ with .post }}{{ $mapped = $mapped | append . }}{{ end }}{{ end }}
+  {{ $others := slice }}{{ range .RegularPages }}{{ if not (in $mapped .File.ContentBaseName) }}{{ $others = $others | append . }}{{ end }}{{ end }}
+  {{ with $others }}<aside class="blog-map-more"><h2>More posts</h2><ul>{{ range . }}<li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>{{ end }}</ul></aside>{{ end }}
+</section>
+{{ $css := resources.Get "css/blog-map.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+<script id="blog-map-data" type="application/json">{{ $graph.edges | jsonify | safeJS }}</script>
+{{ $js := resources.Get "js/blog-map.js" | minify | fingerprint }}
+<script src="{{ $js.RelPermalink }}" integrity="{{ $js.Data.Integrity }}" defer></script>
+{{ end }}
